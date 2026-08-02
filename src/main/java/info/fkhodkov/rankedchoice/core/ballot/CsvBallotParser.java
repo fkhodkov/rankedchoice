@@ -46,8 +46,8 @@ public final class CsvBallotParser {
 
     public static ParsedBallots parse(Stream<String> lines) {
         Iterator<NumberedLine> cursor = NumberedLine.number(lines)
-                .filter(line -> !line.text().isBlank())
-                .iterator();
+            .filter(line -> !line.text().isBlank())
+            .iterator();
         if (!cursor.hasNext()) {
             throw new BallotParseException("CSV input is empty");
         }
@@ -56,8 +56,8 @@ public final class CsvBallotParser {
         List<String> header = splitCsvLine(headerLine.text());
         if (header.isEmpty() || !header.getFirst().trim().equalsIgnoreCase("count")) {
             throw new BallotParseException(
-                    "Line " + headerLine.number() + ": CSV header must start with a 'count' column, got: '"
-                            + headerLine.text() + "'");
+                "Line " + headerLine.number() + ": CSV header must start with a 'count' column, got: '"
+                + headerLine.text() + "'");
         }
 
         Map<String, Candidate> candidatesByName = new LinkedHashMap<>();
@@ -65,37 +65,42 @@ public final class CsvBallotParser {
 
         while (cursor.hasNext()) {
             NumberedLine rowLine = cursor.next();
-            int lineNumber = rowLine.number();
-            List<String> cells = splitCsvLine(rowLine.text());
-            BigInteger count = parseCount(cells.getFirst(), lineNumber);
-
-            List<Set<Candidate>> ranking = new ArrayList<>();
-            boolean seenBlank = false;
-            for (int col = 1; col < cells.size(); col++) {
-                String cell = cells.get(col).trim();
-                if (cell.isEmpty()) {
-                    seenBlank = true;
-                    continue;
-                }
-                if (seenBlank) {
-                    throw new BallotParseException(
-                            "Row " + lineNumber + ": ranking has a gap (a blank cell followed by a preference)");
-                }
-                Set<Candidate> rank = new LinkedHashSet<>();
-                for (String name : cell.split("=")) {
-                    String trimmedName = name.trim();
-                    if (trimmedName.isEmpty()) {
-                        throw new BallotParseException(
-                                "Row " + lineNumber + ": empty candidate name in tie group '" + cell + "'");
-                    }
-                    rank.add(candidatesByName.computeIfAbsent(trimmedName, Candidate::of));
-                }
-                ranking.add(rank);
-            }
-            ballots.add(new Ballot(ranking, count));
+            Ballot ballot = parseLine(rowLine, candidatesByName);
+            ballots.add(ballot);
         }
 
         return new ParsedBallots(List.copyOf(candidatesByName.values()), ballots);
+    }
+
+    private static Ballot parseLine(NumberedLine rowLine, Map<String, Candidate> candidatesByName) {
+        int lineNumber = rowLine.number();
+        Iterator<String> cells = splitCsvLine(rowLine.text()).iterator();
+        BigInteger count = parseCount(cells.next(), lineNumber);
+
+        List<Set<Candidate>> ranking = new ArrayList<>();
+        while (cells.hasNext()) {
+            String cell = cells.next().trim();
+            if (cell.isEmpty()) {
+                cells.forEachRemaining(remaining -> {
+                    if (!remaining.isBlank()) {
+                        throw new BallotParseException(
+                            "Row " + lineNumber + ": ranking has a gap (a blank cell followed by a preference)");
+                    }
+                });
+                break;
+            }
+            Set<Candidate> rank = new LinkedHashSet<>();
+            for (String name : cell.split("=")) {
+                String trimmedName = name.trim();
+                if (trimmedName.isEmpty()) {
+                    throw new BallotParseException(
+                        "Row " + lineNumber + ": empty candidate name in tie group '" + cell + "'");
+                }
+                rank.add(candidatesByName.computeIfAbsent(trimmedName, Candidate::of));
+            }
+            ranking.add(rank);
+        }
+        return new Ballot(ranking, count);
     }
 
     private static BigInteger parseCount(String token, int lineNumber) {
@@ -110,6 +115,42 @@ public final class CsvBallotParser {
         }
     }
 
+    private static List<String> splitCsvLine(String line) {
+        State state = State.start();
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            state = switch (state.quoteState) {
+                case UNQUOTED -> switch (c) {
+                    case '"' -> new State(QuoteState.QUOTED, state.current, state.cells);
+                    case ',' -> state.addCurrent();
+                    default -> new State(QuoteState.UNQUOTED, state.current.append(c), state.cells);
+                };
+                case QUOTED -> c == '"'
+                    ? new State(QuoteState.QUOTE_PENDING, state.current, state.cells)
+                    : new State(QuoteState.QUOTED, state.current.append(c), state.cells);
+                case QUOTE_PENDING -> switch (c) {
+                  case '"' -> new State(QuoteState.QUOTED, state.current.append(c), state.cells);
+                  case ',' -> state.addCurrent();
+                  default -> new State(QuoteState.UNQUOTED, state.current.append(c), state.cells);
+                };
+            };
+        }
+        state.addCurrent();
+        return state.cells;
+    }
+
+    private record State(QuoteState quoteState, StringBuilder current, List<String> cells) {
+        static State start() {
+            return new State(QuoteState.UNQUOTED, new StringBuilder(), new ArrayList<>());
+        }
+
+        State addCurrent() {
+            cells.add(current.toString());
+            current.setLength(0);
+            return new State(QuoteState.UNQUOTED, current, cells);
+        }
+    }
+
     /**
      * Whether we're outside quotes, inside quotes, or just saw a {@code "} while inside quotes
      * and haven't yet seen the following character that decides what it meant (an escaped
@@ -117,51 +158,5 @@ public final class CsvBallotParser {
      */
     private enum QuoteState {
         UNQUOTED, QUOTED, QUOTE_PENDING
-    }
-
-    private static List<String> splitCsvLine(String line) {
-        List<String> cells = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-        QuoteState state = QuoteState.UNQUOTED;
-        for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-            state = switch (state) {
-                case UNQUOTED -> {
-                    if (c == '"') {
-                        yield QuoteState.QUOTED;
-                    } else if (c == ',') {
-                        cells.add(current.toString());
-                        current.setLength(0);
-                        yield QuoteState.UNQUOTED;
-                    } else {
-                        current.append(c);
-                        yield QuoteState.UNQUOTED;
-                    }
-                }
-                case QUOTED -> {
-                    if (c == '"') {
-                        yield QuoteState.QUOTE_PENDING;
-                    } else {
-                        current.append(c);
-                        yield QuoteState.QUOTED;
-                    }
-                }
-                case QUOTE_PENDING -> {
-                    if (c == '"') {
-                        current.append('"');
-                        yield QuoteState.QUOTED;
-                    } else if (c == ',') {
-                        cells.add(current.toString());
-                        current.setLength(0);
-                        yield QuoteState.UNQUOTED;
-                    } else {
-                        current.append(c);
-                        yield QuoteState.UNQUOTED;
-                    }
-                }
-            };
-        }
-        cells.add(current.toString());
-        return cells;
     }
 }
