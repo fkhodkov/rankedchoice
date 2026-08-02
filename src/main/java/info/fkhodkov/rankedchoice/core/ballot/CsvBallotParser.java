@@ -1,0 +1,141 @@
+package info.fkhodkov.rankedchoice.core.ballot;
+
+import info.fkhodkov.rankedchoice.core.model.Ballot;
+import info.fkhodkov.rankedchoice.core.model.Candidate;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Parses a simple CSV ballot format: a header row whose first column is {@code count}
+ * (case-insensitive) followed by one column per preference rank, e.g.:
+ *
+ * <pre>
+ * count,rank1,rank2,rank3
+ * 42,Alice,Bob,
+ * 7,Bob,Alice=Carol,
+ * </pre>
+ *
+ * A blank cell ends that ballot's ranking (later cells in the row must also be blank).
+ * Tied candidates within a single rank are written as {@code A=B}. Candidate identity is
+ * the trimmed cell text itself. Cells may be double-quoted (RFC4180-style, {@code ""} as an
+ * escaped quote) to contain a literal comma or {@code =}.
+ */
+public final class CsvBallotParser {
+
+    private CsvBallotParser() {
+    }
+
+    public static ParsedBallots parse(Path path) {
+        try {
+            return parse(Files.readString(path));
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to read CSV file: " + path, e);
+        }
+    }
+
+    public static ParsedBallots parse(String content) {
+        List<String> lines = new ArrayList<>();
+        for (String rawLine : content.split("\\R")) {
+            if (!rawLine.isBlank()) {
+                lines.add(rawLine);
+            }
+        }
+        if (lines.isEmpty()) {
+            throw new BallotParseException("CSV input is empty");
+        }
+
+        List<String> header = splitCsvLine(lines.getFirst());
+        if (header.isEmpty() || !header.getFirst().trim().equalsIgnoreCase("count")) {
+            throw new BallotParseException(
+                    "CSV header must start with a 'count' column, got: '" + lines.getFirst() + "'");
+        }
+
+        Map<String, Candidate> candidatesByName = new LinkedHashMap<>();
+        List<Ballot> ballots = new ArrayList<>();
+
+        for (int rowIndex = 1; rowIndex < lines.size(); rowIndex++) {
+            int lineNumber = rowIndex + 1;
+            List<String> cells = splitCsvLine(lines.get(rowIndex));
+            BigInteger count = parseCount(cells.getFirst(), lineNumber);
+
+            List<Set<Candidate>> ranking = new ArrayList<>();
+            boolean seenBlank = false;
+            for (int col = 1; col < cells.size(); col++) {
+                String cell = cells.get(col).trim();
+                if (cell.isEmpty()) {
+                    seenBlank = true;
+                    continue;
+                }
+                if (seenBlank) {
+                    throw new BallotParseException(
+                            "Row " + lineNumber + ": ranking has a gap (a blank cell followed by a preference)");
+                }
+                Set<Candidate> rank = new LinkedHashSet<>();
+                for (String name : cell.split("=")) {
+                    String trimmedName = name.trim();
+                    if (trimmedName.isEmpty()) {
+                        throw new BallotParseException(
+                                "Row " + lineNumber + ": empty candidate name in tie group '" + cell + "'");
+                    }
+                    rank.add(candidatesByName.computeIfAbsent(trimmedName, Candidate::of));
+                }
+                ranking.add(rank);
+            }
+            ballots.add(new Ballot(ranking, count));
+        }
+
+        return new ParsedBallots(List.copyOf(candidatesByName.values()), ballots);
+    }
+
+    private static BigInteger parseCount(String token, int lineNumber) {
+        try {
+            BigInteger value = new BigInteger(token.trim());
+            if (value.signum() <= 0) {
+                throw new NumberFormatException();
+            }
+            return value;
+        } catch (NumberFormatException e) {
+            throw new BallotParseException("Row " + lineNumber + ": invalid ballot count '" + token + "'");
+        }
+    }
+
+    private static List<String> splitCsvLine(String line) {
+        List<String> cells = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (inQuotes) {
+                if (c == '"') {
+                    if (i + 1 < line.length() && line.charAt(i + 1) == '"') {
+                        current.append('"');
+                        i++;
+                    } else {
+                        inQuotes = false;
+                    }
+                } else {
+                    current.append(c);
+                }
+            } else if (c == '"') {
+                inQuotes = true;
+            } else if (c == ',') {
+                cells.add(current.toString());
+                current.setLength(0);
+            } else {
+                current.append(c);
+            }
+        }
+        cells.add(current.toString());
+        return cells;
+    }
+}
