@@ -1,116 +1,209 @@
-# Plan: Java Ranked-Choice Voting Calculator (STV + Condorcet methods)
+# Plan: Java Ranked-Choice Voting Calculator (STV + Condorcet + Positional methods)
 
 ## 1. Scope
 
 Build a Java library + CLI that:
-- Tabulates **STV** elections under multiple rule variants (quota, transfer method, elimination/tie-break rules)
-- Tabulates other ranked-choice methods, at minimum **Schulze** (Condorcet/beatpath), with IRV as a byproduct of the STV engine (single-winner STV = IRV)
+- Tabulates **STV** elections under multiple rule variants (quota, transfer method, rounding rule, tie-break rules), including real-world legislated rulesets (Scottish, ERS76/97, Cambridge MA, Australian Hare-Clark "quota preferential" QPQ)
+- Tabulates other ranked-choice methods: **Schulze**, **Schulze-STV**, **CPO-STV**, and **Borda** (classic + modified variants), with IRV falling out of the STV engine at `seats = 1`
+- Exports full round-by-round results in **CSV, JSON, HTML, and text**, format selectable via CLI flag or config file
+- Accepts rules/config via **CLI arguments or a config file** (CLI overrides config, config overrides defaults)
 - Is validated against **published, real-world results** and known synthetic test vectors, not just unit-tested against its own logic
 
 Since the repo is currently empty, this is a from-scratch project.
 
-## 2. Domain background (what "multiple variants" actually means)
+## 2. Domain background
 
-STV isn't one algorithm — it's a family. The axes that matter and that the design must parameterize:
+### 2.1 STV building blocks (the "basic rules")
+
+STV isn't one algorithm — every real-world ruleset is a specific combination of these independent axes:
 
 **Quota**
-- Droop quota: `floor(votes / (seats+1)) + 1` (most common — used in Ireland, Scotland, Australia)
-- Hare quota: `votes / seats`
+- Droop: `floor(votes / (seats+1)) + 1` (Ireland, Scotland, Australia)
+- Hare: `votes / seats`
 - Hagenbach-Bischoff (no floor/+1)
-- Imperiali quota (rare, larger-council)
+- Imperiali (rare, larger-council)
+
+**Rounding rule** (applied to transfer-value fractions — independent of quota/transfer choice)
+- Exact (no rounding, keep as rational fraction)
+- Truncate to N decimal places (e.g. Scottish rule: truncate to 5 places)
+- Round-half-up to N decimal places
 
 **Surplus transfer method**
-- Whole-vote / random transfer (historic, e.g. old US/Irish-by-hand counts) — non-deterministic, included mainly for historical fidelity, not for real use
-- Fractional (Senatorial/Gregory) transfer — transfer surplus ballots at a fractional weight
-- **Weighted Inclusive Gregory Method (WIGM)** — current Scottish local government standard, examines *all* a candidate's ballots each transfer, not just the last parcel
-- **Meek method** — iterative "keep value" recalculation, correctly handles exhausted ballots and re-counts every ballot every round; needs convergence-loop implementation, not a single pass
-- (Stretch) CPO-STV / Schulze-STV — compares whole pairs of outcomes; expensive, optional phase-4 item
+- Whole-vote / random transfer (historic, non-deterministic — included for historical fidelity only)
+- Fractional (Senatorial/Gregory) transfer
+- **Weighted Inclusive Gregory Method (WIGM)** — current Scottish standard, re-examines all of a candidate's ballots each transfer, not just the last parcel
+- **Meek method** — iterative "keep value" recalculation; every ballot is re-counted every round until convergence, structurally different loop shape from the others
 
-**Elimination / tie-break rules**
-- Single lowest-candidate elimination vs. batch elimination
-- Tie-break by: previous round votes, original first-preference count, random draw (seeded, for reproducibility), or defined-order fallback
+**Elimination / tie-break rule**
+- Single vs. batch elimination
+- Tie-break by: previous round votes, original first-preference count, seeded random draw (reproducible), defined candidate order
 
-**Other ranked-choice methods**
-- **Schulze** (beatpath / Condorcet-Schulze): pairwise matrix → strongest-path strengths → winner ordering. Deterministic, single-winner or ranked output.
-- IRV falls out of the STV engine when `seats = 1`
-- (Stretch) Ranked Pairs, Borda — same ballot model, easy to bolt on once ballot infra exists
+**Surplus order**
+- Largest surplus first vs. order of election
 
-This means the architecture needs a **shared ballot/election model** with **pluggable counting strategies**, not one hardcoded algorithm.
+### 2.2 Real-world rulesets = named combinations of the above
+
+Rather than hardcoding "Scottish STV" or "ERS97" as separate engines, each is a
+named preset of {quota, rounding rule, transfer method, tie-break, surplus
+order}, expressed in the same config format a user's own custom rules use:
+
+| Ruleset | Quota | Transfer | Rounding | Notes |
+|---|---|---|---|---|
+| Scottish STV (2007 Regs) | Droop | WIGM | Truncate 5dp | Local government standard |
+| ERS97 | Droop | Fractional (Gregory) | Truncate | Electoral Reform Society rules |
+| ERS76 | Droop | Fractional, last-parcel only | Truncate | Predecessor to ERS97 |
+| Cambridge, MA | Droop | Fractional (with historical whole-vote precedent) | Round | US municipal STV since 1941 |
+| Hare-Clark "quota preferential" (QPQ) | Droop (Hare-Clark specific rounding) | Fractional | Per Tasmanian/ACT Electoral Act | Legislated Australian STV variant |
+| Meek-based (e.g. some NZ/local uses) | N/A (Meek recalculates directly) | Meek | Configurable precision | |
+
+This directly drives the architecture: a `StvRuleset` is *data*, and the
+bundled rulesets ship as config-file resources, not code.
+
+### 2.3 Other ranked-choice methods (structurally distinct engines)
+
+- **Schulze** (beatpath/Condorcet-Schulze): pairwise comparison matrix → strongest-path strengths → winner ordering. Single-winner or full ranking, deterministic.
+- **Schulze-STV**: multi-winner extension — compares *completions* of ballots across candidate subsets using the Schulze method to pick the winning proportional completion. Combinatorial: cost grows with candidate-subset count, so needs a documented practical seat/candidate cap.
+- **CPO-STV** (Comparison of Pairs of Outcomes): compares every pair of possible winning candidate-sets directly. Also combinatorial (all `C(candidates, seats)` outcome pairs) — same cap caveat as Schulze-STV.
+- **Borda count, with modifications**: classic Borda (`n-1, n-2, ..., 0` points), Dowdall/Nauru modified Borda (`1, 1/2, 1/3, ...` points), and a generic `ModifiedBorda(startWeight, step)` for other positional-weight variants.
+- IRV falls out of the STV engine at `seats = 1`.
+
+Schulze/Schulze-STV/CPO-STV/Borda consume the *same* ballot model as STV — a
+ranking is a ranking regardless of which tabulator reads it.
+
+### 2.4 Ties within a ballot (nice-to-have, not a priority)
+
+Some ballot formats allow equal rankings (e.g. `.blt` `3=4=5` meaning three
+candidates tied at the 3rd preference). This changes the ballot model shape
+(`List<Set<Candidate>>` instead of `List<Candidate>`) and requires a defined
+splitting rule in every counting engine (STV transfer, Schulze pairwise
+comparison, Borda scoring) for how a tied group is handled. Priority: low —
+but the ballot model is designed with tie-groups from the start (see §3) so
+this can be turned on later without a breaking model change.
 
 ## 3. Architecture
 
 ```
 rankedchoice/
 ├── core/
-│   ├── model/          Ballot, Candidate, Election, RoundResult, ElectionResult
-│   ├── ballot/         BallotParsers: BLT format, CSV/CVR, JSON
-│   └── util/           fraction/rational arithmetic (BigDecimal or exact rationals)
+│   ├── model/         Candidate, Ballot (ranks: List<Set<Candidate>>, tie support built-in),
+│   │                  sealed RoundEvent (FirstCount, Elimination, SurplusTransfer, PairwiseTally, ...),
+│   │                  ElectionResult
+│   ├── ballot/        BltParser (incl. tie syntax), CsvBallotParser, JsonBallotParser
+│   ├── config/        ElectionConfig model, YAML loader (Jackson YAML), CLI-arg merge/override logic,
+│   │                  bundled ruleset presets as resources: rulesets/scottish.yaml, ers97.yaml, ers76.yaml,
+│   │                  cambridge-ma.yaml, hare-clark-qpq.yaml
+│   ├── export/        ResultExporter interface: CsvExporter, JsonExporter, HtmlExporter, TextExporter
+│   └── util/          Fraction (BigInteger-backed rational), rounding utilities
 ├── stv/
-│   ├── quota/          DroopQuota, HareQuota, HagenbachBischoffQuota (Strategy interface: Quota)
-│   ├── transfer/       FractionalTransfer, WigmTransfer, MeekTransfer, WholeVoteTransfer (Strategy: TransferMethod)
-│   ├── elimination/     tie-break strategies
-│   └── StvCounter.java  orchestrates: config = {quota, transferMethod, tieBreak} -> runs rounds -> ElectionResult
+│   ├── quota/         sealed Quota: Droop, Hare, HagenbachBischoff, Imperiali
+│   ├── rounding/       sealed RoundingRule: Exact, TruncateDecimal, RoundHalfUp
+│   ├── transfer/       sealed TransferMethod: Fractional, Wigm, Meek, WholeVote
+│   ├── tiebreak/       TieBreakRule: PreviousRoundVotes, FirstPreferenceCount, SeededRandom, DefinedOrder
+│   ├── StvRuleset.java record{quota, transferMethod, roundingRule, tieBreak, surplusOrder, batchElimination}
+│   └── StvCounter.java runs an StvRuleset against ballots -> ElectionResult
 ├── condorcet/
 │   ├── PairwiseMatrix.java
-│   ├── SchulzeMethod.java
-│   └── (stretch) RankedPairs.java
+│   ├── SchulzeMethod.java      single-winner / ranked Schulze
+│   ├── SchulzeStvMethod.java   multi-winner proportional completion (expensive — capped)
+│   └── CpoStvMethod.java       pairwise outcome comparison (expensive — capped)
+├── borda/
+│   ├── BordaScoringRule.java   Classic, DowdallNauru, ModifiedBorda(start, step)
+│   └── BordaMethod.java
 ├── cli/
-│   └── Main.java        picocli-based CLI: read ballots, choose method+variant, print round-by-round report
-└── testdata/            known elections, expected outputs, source citations
+│   └── Main.java        picocli: --method, --ruleset, --quota/--transfer/--rounding (custom overrides),
+│                         --config, --format, --output; config/CLI precedence handled centrally
+└── testdata/            known elections + rulesets + expected outputs, source citations
 ```
 
 Key design decisions:
-- **Rational arithmetic**: STV surplus fractions must not accumulate floating-point error over many rounds — use exact fractions (`BigInteger`-backed `Fraction` class) or high-precision `BigDecimal` with a documented rounding rule matching the jurisdiction's official rule (e.g., Scottish rules truncate to 5 decimal places at a specific step — this detail matters for exact reproduction).
-- **Immutable round snapshots**: each round produces an immutable `RoundResult` (tallies, transfers, eliminated/elected candidates) so the full count is auditable/printable, matching how official STV result sheets are published.
-- **Strategy pattern** for quota/transfer/tie-break so a `StvConfig` object fully determines behavior — this is what "multiple variants" cashes out to in code.
-- **Same `Ballot`/ranking model** feeds both STV and Schulze — a ranking is a ranking regardless of which tabulator consumes it.
+- **Rational arithmetic**: exact `BigInteger`-backed `Fraction`, with the `RoundingRule` applied only at the specific step a given ruleset's official rules define — this is what lets exact reproduction of a real count, not just "same winner."
+- **Immutable round snapshots**: each round produces an immutable, sealed `RoundEvent` so the full count is auditable/printable/exportable in any format from one shared model.
+- **Strategy pattern + sealed interfaces** for quota/transfer/rounding/tie-break, combined into a `StvRuleset` record — this is what "multiple variants" and "real rulesets as combinations" cash out to in code.
+- **Rulesets and user config are the same mechanism**: bundled rulesets are just YAML resources loaded through the identical config path a user's custom YAML takes.
+- **Shared `Ballot` model** (with built-in tie-group support) feeds every method — STV, Schulze family, Borda.
+- **Java 25 usage**: `getFirst()/getLast()` on ballots and round-history lists; sealed interfaces + exhaustive pattern-matching `switch` over `Quota`/`TransferMethod`/`RoundingRule`/`RoundEvent`; record patterns when destructuring round events; unnamed variables (`_`) for intentionally-unused bindings. No feature is forced in where it doesn't fit — e.g. no virtual threads, nothing here is I/O-concurrent.
 
-## 4. Testing strategy — validate against known examples
+## 4. Config, CLI, and export design
 
-This is the part that actually proves correctness, so it gets real weight in the plan:
+**Config file**: YAML (via `jackson-dataformat-yaml`, reusing the same object
+model as JSON export). Shape: `method`, `ruleset` (name of a bundled preset OR
+inline `quota`/`transfer`/`rounding`/`tieBreak` overrides), `seats`, `input`
+(ballot file + format), `output` (format + destination). (Open question: YAML
+vs. TOML/HOCON — YAML recommended for familiarity and Jackson reuse; flag if
+you'd rather use something else.)
 
-1. **Synthetic worked examples** (hand-verifiable, small N):
-   - Wikipedia's STV and Schulze worked examples (both have step-by-step tallies you can assert against)
-   - The Meek method's own reference paper (Hill/Wichmann/Woodall, *Algorithm 123*) includes worked test cases — good for the Meek transfer implementation specifically since it's the most algorithmically distinct variant
-   - Schulze's original paper's example matrix
+**CLI** (picocli): every config field has a corresponding flag, e.g.
+`--method=stv|schulze|schulze-stv|cpo-stv|borda`, `--ruleset=scottish|ers97|
+ers76|cambridge|hare-clark-qpq|custom`, `--quota=droop|hare|...`,
+`--transfer=...`, `--rounding=...`, `--seats=N`, `--config=path.yaml`,
+`--format=csv|json|html|text`, `--output=path`. Precedence: CLI flag > config
+file > built-in default. A ruleset name is just a shortcut for loading its
+bundled config, so `--ruleset=scottish --transfer=fractional` is legal and
+overrides just the transfer method on top of the Scottish preset.
 
-2. **Reference implementation cross-check**:
-   - **OpenSTV** (open-source Python STV tool) ships a large suite of `.blt` test elections with known outcomes across multiple rule variants — use these as golden test vectors (support the `.blt` format in the parser specifically so these drop in directly). Don't copy its code — just its test election files and expected winners, cited.
+**Export**: `ResultExporter` interface consuming the same `ElectionResult`/
+`RoundEvent` model regardless of method. `TextExporter` mimics official
+count-sheet layout; `CsvExporter` emits one row per candidate per round;
+`JsonExporter` gives the full structured tree (good for test fixtures too);
+`HtmlExporter` renders a per-round table with minimal inline CSS, no JS
+dependency. Format is chosen by `--format` or inferred from `--output`'s file
+extension if `--format` is omitted.
 
-3. **Real published official counts**:
-   - Scottish council elections (WIGM) — councils publish full stage-by-stage transfer sheets; pick a handful of small wards for exact reproduction
-   - Cambridge, MA municipal elections — STV since 1941, official round-by-round results published
-   - Australian Senate / Irish Dáil counts — good Droop-quota/fractional-transfer references (large ones are heavy but useful for stress-testing performance)
-   - Debian project leader / TC elections — use Condorcet/Schulze and publish full pairwise matrices and results, ideal Schulze validation source
-   - Single-winner US RCV (San Francisco, Minneapolis) — validates the IRV degenerate case of the STV engine
+## 5. Testing strategy — validate against known examples
 
-4. **Test harness shape**:
-   - Each fixture = ballot file + config (quota/transfer/seats) + expected result (elected set, and ideally full round-by-round tallies) + citation/source URL in a comment
-   - JUnit5 parameterized tests iterate the fixture directory so adding a new known election is "drop a file in `testdata/`", not "write new test code"
-   - Separate fast unit tests (hand-built small cases, edge cases: ties, exhausted ballots, all-but-one-eliminated) from the slower golden-fixture suite
+1. **Synthetic worked examples** (hand-verifiable, small N): Wikipedia's STV/
+   Schulze worked examples; the Meek method's own reference paper (Hill/
+   Wichmann/Woodall, *Algorithm 123*); Schulze's original paper's example
+   matrix; a small hand-built CPO-STV/Schulze-STV example (published worked
+   examples for these are rarer — may need to hand-derive one or cross-check
+   against a reference implementation's output).
 
-5. **Edge cases to explicitly cover**: exhausted ballots, ties at threshold, more candidates eliminated than remaining seats, single-candidate/single-seat degenerate cases, malformed ballots (skipped/repeated rankings), unanimous first-preference winner (no transfers needed).
+2. **Reference implementation cross-check**: **OpenSTV** ships a large `.blt`
+   fixture suite with known outcomes across rule variants — support `.blt`
+   directly so these drop straight in as golden vectors (cite, don't copy
+   code).
 
-## 5. Tooling
+3. **Real published official counts**: Scottish council elections (WIGM,
+   exact stage-by-stage sheets); Cambridge, MA municipal elections; Australian
+   Senate / Irish Dáil (Droop/fractional, also good Hare-Clark QPQ cross-check
+   material); Debian project leader/TC elections (Schulze, full pairwise
+   matrices published); single-winner US RCV (San Francisco, Minneapolis) for
+   the IRV degenerate case.
 
-- **Java 21**, Maven or Gradle (Gradle if you want multi-module convenience) — your call, no strong reason to prefer one here
-- JUnit 5 + AssertJ for tests
+4. **Test harness shape**: each fixture = ballot file + ruleset/config +
+   expected result (elected set, ideally full round-by-round tallies) +
+   source citation. JUnit5 parameterized tests iterate the fixture directory
+   so adding a known election is "drop a file in `testdata/`". Fast hand-built
+   unit tests stay separate from the slower golden-fixture suite.
+
+5. **Edge cases**: exhausted ballots, ties at threshold, tied ballots (once
+   implemented), more candidates eliminated than remaining seats, single-seat/
+   single-candidate degenerate cases, malformed ballots, unanimous
+   first-preference winner, and — for CPO-STV/Schulze-STV — a candidate/seat
+   count large enough to actually exercise the combinatorial cap.
+
+## 6. Tooling
+
+- **Java 25**, Maven
+- JUnit 5 + AssertJ
 - picocli for the CLI
-- No heavy external election-specific dependency exists worth pulling in — this is small enough to build directly
+- Jackson (`jackson-databind` + `jackson-dataformat-yaml`) for config load and JSON export, reusing one object model for both
+- No heavy election-specific dependency needed — this is small enough to build directly
 
-## 6. Milestones
+## 7. Milestones
 
 | Phase | Deliverable |
 |---|---|
-| 1 | Core ballot model + BLT/CSV parsers + `Fraction` arithmetic util, unit-tested standalone |
-| 2 | STV engine with Droop quota + fractional (Gregory) transfer only — simplest variant, validate against Wikipedia + OpenSTV small fixtures |
-| 3 | Add Hare/Hagenbach-Bischoff quotas, WIGM transfer, tie-break strategies — validate against Scottish council fixtures |
-| 4 | Meek method (iterative engine, different loop shape than the others) — validate against Hill/Wichmann/Woodall paper cases |
-| 5 | Schulze method (pairwise matrix + beatpath) — validate against Debian election fixtures and Wikipedia example |
-| 6 | CLI polish: pick method+variant via flags, round-by-round report output (text/JSON), README documenting supported variants and citing test sources |
-| 7 (stretch) | IRV explicit wrapper, Ranked Pairs, CPO-STV/Schulze-STV |
+| 1 | Core model (tie-capable `Ballot` from the start) + `Fraction` util + BLT/CSV parsers, unit-tested standalone |
+| 2 | STV engine: Droop + fractional transfer, no rounding rule yet; CLI-arg-only config; text exporter. Validate vs. Wikipedia + OpenSTV small fixtures |
+| 3 | Remaining quotas, WIGM transfer, rounding rules, tie-break strategies; YAML config file + CLI-override precedence; bundled rulesets (Scottish, ERS97, ERS76, Cambridge, Hare-Clark QPQ). Validate vs. Scottish council + Cambridge fixtures |
+| 4 | Meek method; CSV/JSON/HTML exporters. Validate vs. Meek reference paper cases |
+| 5 | Schulze method; Borda (classic + Dowdall/Nauru + generic modified). Validate vs. Debian fixtures + Wikipedia example |
+| 6 | CPO-STV and Schulze-STV, with documented/enforced candidate-seat cap given combinatorial cost. Validate against hand-derived or reference-cross-checked small examples |
+| 7 (nice-to-have) | Full tied-ranking support threaded through STV/Schulze/Borda counting (defined splitting rule); final Java 25 idiom pass (sealed exhaustiveness, record patterns, unnamed vars) |
 
-## 7. Open questions worth deciding before coding
+## 8. Open questions worth deciding before coding
 
-- Exact rational arithmetic vs. fixed-precision decimal matching a specific jurisdiction's official rounding rule — affects whether you can reproduce official results *exactly* or just "materially the same winner." Recommend: exact fractions internally, with a configurable rounding/truncation step to match specific official rules when needed for exact reproduction.
-- Multi-module (separate `stv`/`condorcet` artifacts) vs. single module — only matters if you want to publish the core ballot model independently later.
+- YAML vs. TOML/HOCON for config — recommend YAML (Jackson reuse), flag if you'd rather not.
+- Multi-module (separate `stv`/`condorcet`/`borda` artifacts) vs. single module — only matters if you want to publish the core ballot model independently later.
+- Practical candidate/seat cap for CPO-STV/Schulze-STV — needs a number once you know what elections you'll realistically run through it.
