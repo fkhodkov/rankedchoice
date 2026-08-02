@@ -22,14 +22,19 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     here for now
   - Tie-break rules: fixed declared order, previous-round votes, first-preference count
     (each with a configurable fallback), seeded random
-- A CLI that runs a count from a ballot file and prints a round-by-round text report — for
-  now it always uses Droop quota + fractional transfer + exact rounding + declared-order
-  tie-break; the other engine options above aren't wired up to CLI flags yet
+- A CLI that runs a count from a ballot file and prints a round-by-round text report. Rules
+  come from a bundled ruleset preset (`--ruleset`), a YAML config file (`--config`),
+  individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
+  (Droop quota, fractional transfer, exact rounding, declared-order tie-break) — in that
+  order of precedence, flag over config over default
+- One bundled ruleset preset so far: `scottish` (Droop + WIGM + truncate to 5 decimal
+  places), shipped as a YAML resource rather than hardcoded
 
-Not yet implemented: the Meek transfer method, real-world ruleset presets (Scottish,
-ERS97/76, Cambridge MA, Hare-Clark) as bundled configs, Schulze/CPO-STV/Borda, YAML config
-and CLI flags for the engine options listed above, and CSV/JSON/HTML export. Tied ballot
-rankings are rejected by the counter for now.
+Not yet implemented: the Meek transfer method, the remaining real-world ruleset presets
+(ERS97/76, Cambridge MA, Hare-Clark) as bundled configs, Schulze/CPO-STV/Borda, and
+CSV/JSON/HTML export. Tied ballot rankings are rejected by the counter for now. Nothing has
+been validated yet against real published Scottish council or Cambridge election results —
+that's still ahead.
 
 ## Requirements
 
@@ -53,9 +58,38 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. |
-| `-s, --seats` | Seats to fill. Required for CSV input; for BLT input, overrides the file's own seat count if given. |
+| `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. Can also come from `--config`'s `format` field. |
+| `-s, --seats` | Seats to fill. Required for CSV input (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. |
 | `-o, --output` | Output file. Defaults to standard output. |
+| `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
+| `-r, --ruleset` | A bundled ruleset preset by name, e.g. `scottish`. Mutually exclusive with `--config`. |
+| `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali`. Overrides `--config`/`--ruleset`. |
+| `--transfer` | `fractional\|wigm`. Overrides `--config`/`--ruleset`. |
+| `--rounding` | `exact\|truncate:N`. Overrides `--config`/`--ruleset`. |
+| `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
+
+### Rules and config
+
+A YAML config file can set any combination of `quota`, `transfer`, `rounding`, `tiebreak`,
+`seats`, and `format` — all optional:
+
+```yaml
+quota: hare
+transfer: wigm
+rounding: truncate:5
+tiebreak: previous-round,declared
+```
+
+`--ruleset <name>` is exactly the same mechanism, pointed at a bundled config shipped as a
+classpath resource (`src/main/resources/rulesets/<name>.yaml`) instead of a file you supply.
+Precedence when combining sources is always **CLI override flag > config/ruleset file >
+built-in default**, resolved independently per field — so `--ruleset scottish --transfer
+fractional` is legal and just swaps out the transfer method on top of the Scottish preset.
+
+A tie-break value is a fallback chain, evaluated left to right: `previous-round,declared`
+tries `previous-round` first and only falls back to `declared` if the tied candidates were
+tied in every prior round too (or there's no history yet, e.g. a tie in round 1 itself).
+`declared` always resolves on its own and needs no fallback.
 
 ### Try it
 
@@ -109,6 +143,7 @@ src/main/java/info/fkhodkov/rankedchoice/
 ├── core/
 │   ├── model/     Candidate, Ballot
 │   ├── ballot/    BltParser, CsvBallotParser
+│   ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
 │   └── util/      Fraction (exact rational arithmetic)
 ├── stv/
 │   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota
@@ -116,10 +151,13 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── rounding/  RoundingRule, Exact, TruncateDecimal
 │   ├── tiebreak/  TieBreakRule, DeclaredOrderTieBreak, PreviousRoundVotesTieBreak,
 │   │              FirstPreferenceCountTieBreak, SeededRandomTieBreak
+│   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak string DSL)
 │   ├── report/    StvTextReport
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction
 └── cli/
     └── Main
+
+src/main/resources/rulesets/   bundled ruleset presets (scottish.yaml, ...)
 ```
 
 ## Roadmap

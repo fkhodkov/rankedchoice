@@ -115,4 +115,91 @@ class MainTest {
         assertThat(exitCode).isOne();
         assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("Cannot infer format");
     }
+
+    @Test
+    void bundledRulesetRunsSuccessfully() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--ruleset", "scottish");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: X");
+    }
+
+    @Test
+    void unknownRulesetFails() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--ruleset", "does-not-exist");
+
+        assertThat(exitCode).isOne();
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("does-not-exist");
+    }
+
+    @Test
+    void configAndRulesetAreMutuallyExclusive() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+        Path configFile = tempDir.resolve("config.yaml");
+        Files.writeString(configFile, "quota: hare\n");
+
+        int exitCode = new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--config", configFile.toString(), "--ruleset", "scottish");
+
+        assertThat(exitCode).isOne();
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("mutually exclusive");
+    }
+
+    @Test
+    void configFileChangesTheQuota() throws Exception {
+        // 11 votes, 1 seat: Droop = floor(11/2)+1 = 6; Hare = 11/1 = 11.
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+        Path configFile = tempDir.resolve("config.yaml");
+        Files.writeString(configFile, "quota: hare\n");
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--config", configFile.toString());
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: 11");
+    }
+
+    @Test
+    void quotaFlagOverridesConfigFile() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+        Path configFile = tempDir.resolve("config.yaml");
+        Files.writeString(configFile, "quota: hare\n");
+
+        int exitCode = new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--config", configFile.toString(), "--quota", "droop");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: 6");
+    }
+
+    @Test
+    void seatsCanComeFromConfigFileForCsvInput() throws Exception {
+        String csv = """
+                count,rank1,rank2
+                5,X,
+                3,Y,X
+                3,Z,X
+                """;
+        Path csvFile = tempDir.resolve("election.csv");
+        Files.writeString(csvFile, csv);
+        Path configFile = tempDir.resolve("config.yaml");
+        Files.writeString(configFile, "seats: 1\n");
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", csvFile.toString(), "--config", configFile.toString());
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: X");
+    }
 }

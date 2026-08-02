@@ -1,0 +1,9 @@
+# Scottish local government STV rules (The Scottish Local Government Elections Order 2007,
+# rule 48(3)): Droop quota, Weighted Inclusive Gregory Method, transfer values truncated to
+# 5 decimal places. The statutory tie-break procedure falls back to a random "lot" as a last
+# resort; we approximate that final step with a fixed declared candidate order instead, for
+# reproducibility.
+quota: droop
+transfer: wigm
+rounding: truncate:5
+tiebreak: previous-round,declared

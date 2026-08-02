@@ -18,6 +18,7 @@
     <junit.version>5.10.2</junit.version>
     <assertj.version>3.25.3</assertj.version>
     <picocli.version>4.7.6</picocli.version>
+    <jackson.version>2.17.2</jackson.version>
   </properties>
 
   <dependencies>
@@ -25,6 +26,16 @@
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
       <version>${picocli.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
