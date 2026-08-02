@@ -8,11 +8,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
@@ -32,7 +32,9 @@ import info.fkhodkov.rankedchoice.core.model.Candidate;
  * ["Election title"]
  * </pre>
  *
- * Blank lines and lines starting with {@code #} are ignored anywhere in the file.
+ * Blank lines and lines starting with {@code #} are ignored anywhere in the file. Error
+ * messages reference the 1-based line number in the original input, not the position among
+ * the significant (non-blank, non-comment) lines.
  */
 public final class BltParser {
 
@@ -40,7 +42,7 @@ public final class BltParser {
     }
 
     public static ParsedElection parse(Path path) {
-        try(Stream<String> lines = Files.lines(path)) {
+        try (Stream<String> lines = Files.lines(path)) {
             return parse(lines);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read BLT file: " + path, e);
@@ -48,38 +50,42 @@ public final class BltParser {
     }
 
     public static ParsedElection parse(Stream<String> lines) {
-        Iterator<String> cursor = significantLines(lines).iterator();
+        Iterator<NumberedLine> cursor = significantLines(lines).iterator();
 
-        String header = next(cursor, "'<candidates> <seats>' header");
-        String[] headerTokens = header.split("\\s+");
+        NumberedLine header = next(cursor, "'<candidates> <seats>' header");
+        String[] headerTokens = header.text().split("\\s+");
         if (headerTokens.length < 2) {
-            throw new BallotParseException("Expected '<candidates> <seats>' header, got: '" + header + "'");
+            throw new BallotParseException(
+                    "Line " + header.number() + ": expected '<candidates> <seats>' header, got: '"
+                            + header.text() + "'");
         }
-        int numCandidates = parseInt(headerTokens[0], "candidate count");
-        int numSeats = parseInt(headerTokens[1], "seat count");
+        int numCandidates = parseInt(headerTokens[0], "candidate count", header.number());
+        int numSeats = parseInt(headerTokens[1], "seat count", header.number());
         if (numCandidates <= 0) {
-            throw new BallotParseException("Candidate count must be positive, got: " + numCandidates);
+            throw new BallotParseException(
+                    "Line " + header.number() + ": candidate count must be positive, got: " + numCandidates);
         }
 
-        Set<Integer> withdrawnIds = new LinkedHashSet<>();
-        String line = next(cursor, "withdrawn-candidates line or first ballot line");
-        while (isWithdrawnLine(line)) {
-            for (String token : line.split("\\s+")) {
-                withdrawnIds.add(-Integer.parseInt(token));
+        // id -> the line it was declared withdrawn on, for error reporting if it's out of range.
+        Map<Integer, Integer> withdrawnIdLines = new LinkedHashMap<>();
+        NumberedLine line = next(cursor, "withdrawn-candidates line or first ballot line");
+        while (isWithdrawnLine(line.text())) {
+            for (String token : line.text().split("\\s+")) {
+                withdrawnIdLines.putIfAbsent(-Integer.parseInt(token), line.number());
             }
             line = next(cursor, "first ballot line");
         }
 
         List<RawBallot> rawBallots = new ArrayList<>();
-        while (!line.equals("0")) {
+        while (!line.text().equals("0")) {
             rawBallots.add(parseBallotLine(line));
             line = next(cursor, "next ballot line or end-of-ballots marker '0'");
         }
 
         List<Candidate> candidates = new ArrayList<>(numCandidates);
         for (int i = 1; i <= numCandidates; i++) {
-            String name = unquote(next(cursor, "quoted name for candidate " + i));
-            candidates.add(new Candidate(String.valueOf(i), name));
+            NumberedLine nameLine = next(cursor, "quoted name for candidate " + i);
+            candidates.add(new Candidate(String.valueOf(i), unquote(nameLine)));
         }
 
         String title = cursor.hasNext() ? unquote(next(cursor, "election title")) : null;
@@ -90,8 +96,8 @@ public final class BltParser {
         }
 
         Set<Candidate> withdrawn = new LinkedHashSet<>();
-        for (int id : withdrawnIds) {
-            withdrawn.add(requireCandidate(byId, id));
+        for (Map.Entry<Integer, Integer> entry : withdrawnIdLines.entrySet()) {
+            withdrawn.add(requireCandidate(byId, entry.getKey(), entry.getValue()));
         }
 
         List<Ballot> ballots = new ArrayList<>(rawBallots.size());
@@ -100,7 +106,7 @@ public final class BltParser {
             for (List<Integer> rank : raw.ranks()) {
                 Set<Candidate> rankCandidates = new LinkedHashSet<>();
                 for (int id : rank) {
-                    rankCandidates.add(requireCandidate(byId, id));
+                    rankCandidates.add(requireCandidate(byId, id, raw.lineNumber()));
                 }
                 ranking.add(rankCandidates);
             }
@@ -110,24 +116,25 @@ public final class BltParser {
         return new ParsedElection(title, candidates, withdrawn, numSeats, ballots);
     }
 
-    private record RawBallot(BigInteger count, List<List<Integer>> ranks) {
+    private record RawBallot(int lineNumber, BigInteger count, List<List<Integer>> ranks) {
     }
 
-    private static RawBallot parseBallotLine(String line) {
-        String[] tokens = line.split("\\s+");
+    private static RawBallot parseBallotLine(NumberedLine line) {
+        String[] tokens = line.text().split("\\s+");
         if (tokens.length < 2 || !tokens[tokens.length - 1].equals("0")) {
-            throw new BallotParseException("Ballot line must end with a '0' terminator: '" + line + "'");
+            throw new BallotParseException(
+                    "Line " + line.number() + ": ballot line must end with a '0' terminator: '" + line.text() + "'");
         }
-        BigInteger count = parseCount(tokens[0]);
+        BigInteger count = parseCount(tokens[0], line.number());
         List<List<Integer>> ranks = new ArrayList<>(tokens.length - 2);
         for (int i = 1; i < tokens.length - 1; i++) {
             List<Integer> rank = new ArrayList<>();
             for (String idToken : tokens[i].split("=")) {
-                rank.add(parseInt(idToken, "candidate id"));
+                rank.add(parseInt(idToken, "candidate id", line.number()));
             }
             ranks.add(rank);
         }
-        return new RawBallot(count, ranks);
+        return new RawBallot(line.number(), count, ranks);
     }
 
     private static boolean isWithdrawnLine(String line) {
@@ -144,23 +151,23 @@ public final class BltParser {
         return true;
     }
 
-    private static Candidate requireCandidate(Map<Integer, Candidate> byId, int id) {
+    private static Candidate requireCandidate(Map<Integer, Candidate> byId, int id, int lineNumber) {
         Candidate candidate = byId.get(id);
         if (candidate == null) {
-            throw new BallotParseException("Candidate id out of range: " + id);
+            throw new BallotParseException("Line " + lineNumber + ": candidate id out of range: " + id);
         }
         return candidate;
     }
 
-    private static int parseInt(String token, String what) {
+    private static int parseInt(String token, String what, int lineNumber) {
         try {
             return Integer.parseInt(token);
         } catch (NumberFormatException _) {
-            throw new BallotParseException("Invalid " + what + ": '" + token + "'");
+            throw new BallotParseException("Line " + lineNumber + ": invalid " + what + ": '" + token + "'");
         }
     }
 
-    private static BigInteger parseCount(String token) {
+    private static BigInteger parseCount(String token, int lineNumber) {
         try {
             BigInteger value = new BigInteger(token);
             if (value.signum() <= 0) {
@@ -168,23 +175,25 @@ public final class BltParser {
             }
             return value;
         } catch (NumberFormatException _) {
-            throw new BallotParseException("Invalid ballot count: '" + token + "'");
+            throw new BallotParseException("Line " + lineNumber + ": invalid ballot count: '" + token + "'");
         }
     }
 
-    private static String unquote(String s) {
+    private static String unquote(NumberedLine line) {
+        String s = line.text();
         if (s.length() >= 2 && s.startsWith("\"") && s.endsWith("\"")) {
             return s.substring(1, s.length() - 1);
         }
-        throw new BallotParseException("Expected a quoted string, got: '" + s + "'");
+        throw new BallotParseException("Line " + line.number() + ": expected a quoted string, got: '" + s + "'");
     }
 
-    private static Stream<String> significantLines(Stream<String> lines) {
-        return lines.map(String::trim)
-            .filter(Predicate.not(String::isEmpty).and(line -> !line.startsWith("#")));
+    private static Stream<NumberedLine> significantLines(Stream<String> lines) {
+        return NumberedLine.number(lines)
+                .map(numbered -> new NumberedLine(numbered.number(), numbered.text().trim()))
+                .filter(numbered -> !numbered.text().isEmpty() && !numbered.text().startsWith("#"));
     }
 
-    private static String next(Iterator<String> lines, String expected) {
+    private static NumberedLine next(Iterator<NumberedLine> lines, String expected) {
         if (!lines.hasNext()) {
             throw new BallotParseException("Unexpected end of input, expected: " + expected);
         }

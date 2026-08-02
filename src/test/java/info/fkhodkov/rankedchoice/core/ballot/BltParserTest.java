@@ -101,6 +101,25 @@ class BltParserTest {
     }
 
     @Test
+    void errorMessageReportsOriginalFileLineNumberNotSignificantLineIndex() {
+        // Blank line and a comment precede the bad line, so its real line number (4) differs
+        // from its position among significant lines (2).
+        String bad = """
+                2 1
+
+                # a comment
+                1 1 2
+                0
+                "A"
+                "B"
+                """;
+        var lines = makeLines(bad);
+        assertThatThrownBy(() -> BltParser.parse(lines))
+                .isInstanceOf(BallotParseException.class)
+                .hasMessageContaining("Line 4:");
+    }
+
+    @Test
     void outOfRangeCandidateIdThrows() {
         String bad = """
                 2 1
@@ -112,6 +131,24 @@ class BltParserTest {
         var lines = makeLines(bad);
         assertThatThrownBy(() -> BltParser.parse(lines))
                 .isInstanceOf(BallotParseException.class)
+                .hasMessageContaining("out of range");
+    }
+
+    @Test
+    void outOfRangeCandidateIdReportsOriginalFileLineNumber() {
+        String bad = """
+                2 1
+
+
+                1 5 0
+                0
+                "A"
+                "B"
+                """;
+        var lines = makeLines(bad);
+        assertThatThrownBy(() -> BltParser.parse(lines))
+                .isInstanceOf(BallotParseException.class)
+                .hasMessageContaining("Line 4:")
                 .hasMessageContaining("out of range");
     }
 

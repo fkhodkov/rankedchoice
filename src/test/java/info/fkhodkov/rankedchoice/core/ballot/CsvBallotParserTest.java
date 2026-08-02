@@ -82,6 +82,24 @@ class CsvBallotParserTest {
     }
 
     @Test
+    void errorMessageReportsOriginalFileLineNumberNotSignificantRowIndex() {
+        // Blank lines precede the bad row, so its real line number (4) differs from its
+        // position among non-blank rows (2).
+        String csv = """
+                count,rank1,rank2,rank3
+
+
+                1,Alice,,Carol
+                """;
+
+        Stream<String> lines = makeLines(csv);
+        assertThatThrownBy(() -> CsvBallotParser.parse(lines))
+                .isInstanceOf(BallotParseException.class)
+                .hasMessageContaining("Row 4:")
+                .hasMessageContaining("gap");
+    }
+
+    @Test
     void nonPositiveCountThrows() {
         String csv = """
                 count,rank1
