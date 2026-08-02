@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,23 +46,25 @@ public final class CsvBallotParser {
     }
 
     public static ParsedBallots parse(Stream<String> lines) {
-        List<String> significantLines = lines.filter(Predicate.not(String::isBlank)).toList();
-        if (significantLines.isEmpty()) {
+        Iterator<String> cursor = lines.filter(Predicate.not(String::isBlank)).iterator();
+        if (!cursor.hasNext()) {
             throw new BallotParseException("CSV input is empty");
         }
 
-        List<String> header = splitCsvLine(significantLines.getFirst());
+        String headerLine = cursor.next();
+        List<String> header = splitCsvLine(headerLine);
         if (header.isEmpty() || !header.getFirst().trim().equalsIgnoreCase("count")) {
             throw new BallotParseException(
-                    "CSV header must start with a 'count' column, got: '" + significantLines.getFirst() + "'");
+                    "CSV header must start with a 'count' column, got: '" + headerLine + "'");
         }
 
         Map<String, Candidate> candidatesByName = new LinkedHashMap<>();
         List<Ballot> ballots = new ArrayList<>();
 
-        for (int rowIndex = 1; rowIndex < significantLines.size(); rowIndex++) {
-            int lineNumber = rowIndex + 1;
-            List<String> cells = splitCsvLine(significantLines.get(rowIndex));
+        int lineNumber = 1;
+        while (cursor.hasNext()) {
+            lineNumber++;
+            List<String> cells = splitCsvLine(cursor.next());
             BigInteger count = parseCount(cells.getFirst(), lineNumber);
 
             List<Set<Candidate>> ranking = new ArrayList<>();
