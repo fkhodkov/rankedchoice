@@ -63,6 +63,29 @@ class CsvBallotParserTest {
     }
 
     @Test
+    void supportsEscapedQuotesWithinAQuotedCell() {
+        String csv = """
+                count,rank1
+                1,"Smith ""The Man"" Jr."
+                """;
+
+        Ballot ballot = CsvBallotParser.parse(makeLines(csv)).ballots().getFirst();
+        assertThat(ballot.firstPreference()).containsExactly(Candidate.of("Smith \"The Man\" Jr."));
+    }
+
+    @Test
+    void supportsMultipleQuotedCellsInOneRow() {
+        String csv = """
+                count,rank1,rank2
+                1,"Smith, Jr.","Doe, Sr."
+                """;
+
+        Ballot ballot = CsvBallotParser.parse(makeLines(csv)).ballots().getFirst();
+        assertThat(ballot.firstPreference()).containsExactly(Candidate.of("Smith, Jr."));
+        assertThat(ballot.lastPreference()).containsExactly(Candidate.of("Doe, Sr."));
+    }
+
+    @Test
     void missingHeaderThrows() {
         Stream<String> lines = makeLines("Alice,Bob\n1,Alice,Bob\n");
         assertThatThrownBy(() -> CsvBallotParser.parse(lines)).isInstanceOf(BallotParseException.class);

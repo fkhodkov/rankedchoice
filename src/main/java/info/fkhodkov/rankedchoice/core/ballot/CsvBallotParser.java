@@ -105,36 +105,61 @@ public final class CsvBallotParser {
                 throw new NumberFormatException();
             }
             return value;
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             throw new BallotParseException("Row " + lineNumber + ": invalid ballot count '" + token + "'");
         }
+    }
+
+    /**
+     * Whether we're outside quotes, inside quotes, or just saw a {@code "} while inside quotes
+     * and haven't yet seen the following character that decides what it meant (an escaped
+     * {@code ""}, or the actual closing quote).
+     */
+    private enum QuoteState {
+        UNQUOTED, QUOTED, QUOTE_PENDING
     }
 
     private static List<String> splitCsvLine(String line) {
         List<String> cells = new ArrayList<>();
         StringBuilder current = new StringBuilder();
-        boolean inQuotes = false;
+        QuoteState state = QuoteState.UNQUOTED;
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
-            if (inQuotes) {
-                if (c == '"') {
-                    if (i + 1 < line.length() && line.charAt(i + 1) == '"') {
-                        current.append('"');
-                        i++;
+            state = switch (state) {
+                case UNQUOTED -> {
+                    if (c == '"') {
+                        yield QuoteState.QUOTED;
+                    } else if (c == ',') {
+                        cells.add(current.toString());
+                        current.setLength(0);
+                        yield QuoteState.UNQUOTED;
                     } else {
-                        inQuotes = false;
+                        current.append(c);
+                        yield QuoteState.UNQUOTED;
                     }
-                } else {
-                    current.append(c);
                 }
-            } else if (c == '"') {
-                inQuotes = true;
-            } else if (c == ',') {
-                cells.add(current.toString());
-                current.setLength(0);
-            } else {
-                current.append(c);
-            }
+                case QUOTED -> {
+                    if (c == '"') {
+                        yield QuoteState.QUOTE_PENDING;
+                    } else {
+                        current.append(c);
+                        yield QuoteState.QUOTED;
+                    }
+                }
+                case QUOTE_PENDING -> {
+                    if (c == '"') {
+                        current.append('"');
+                        yield QuoteState.QUOTED;
+                    } else if (c == ',') {
+                        cells.add(current.toString());
+                        current.setLength(0);
+                        yield QuoteState.UNQUOTED;
+                    } else {
+                        current.append(c);
+                        yield QuoteState.UNQUOTED;
+                    }
+                }
+            };
         }
         cells.add(current.toString());
         return cells;
