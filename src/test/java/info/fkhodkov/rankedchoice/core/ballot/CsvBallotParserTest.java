@@ -1,14 +1,15 @@
 package info.fkhodkov.rankedchoice.core.ballot;
 
-import org.junit.jupiter.api.Test;
-import info.fkhodkov.rankedchoice.core.model.Ballot;
-import info.fkhodkov.rankedchoice.core.model.Candidate;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static info.fkhodkov.rankedchoice.core.ballot.StringUtils.makeLines;
 
 import java.math.BigInteger;
 import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
+import info.fkhodkov.rankedchoice.core.model.Ballot;
+import info.fkhodkov.rankedchoice.core.model.Candidate;
 
 class CsvBallotParserTest {
 
@@ -20,13 +21,13 @@ class CsvBallotParserTest {
                 7,Bob,Alice,Carol
                 """;
 
-        ParsedBallots parsed = CsvBallotParser.parse(csv);
+        ParsedBallots parsed = CsvBallotParser.parse(makeLines(csv));
 
         assertThat(parsed.candidates()).extracting(Candidate::name)
                 .containsExactly("Alice", "Bob", "Carol");
         assertThat(parsed.ballots()).hasSize(2);
 
-        Ballot first = parsed.ballots().get(0);
+        Ballot first = parsed.ballots().getFirst();
         assertThat(first.count()).isEqualTo(BigInteger.valueOf(42));
         assertThat(first.ranking()).containsExactly(
                 Set.of(Candidate.of("Alice")), Set.of(Candidate.of("Bob")));
@@ -44,7 +45,7 @@ class CsvBallotParserTest {
                 3,Alice=Bob,Carol
                 """;
 
-        Ballot ballot = CsvBallotParser.parse(csv).ballots().get(0);
+        Ballot ballot = CsvBallotParser.parse(makeLines(csv)).ballots().getFirst();
         assertThat(ballot.firstPreference())
                 .containsExactlyInAnyOrder(Candidate.of("Alice"), Candidate.of("Bob"));
         assertThat(ballot.lastPreference()).containsExactly(Candidate.of("Carol"));
@@ -57,14 +58,14 @@ class CsvBallotParserTest {
                 1,"Smith, Jr."
                 """;
 
-        Ballot ballot = CsvBallotParser.parse(csv).ballots().get(0);
+        Ballot ballot = CsvBallotParser.parse(makeLines(csv)).ballots().getFirst();
         assertThat(ballot.firstPreference()).containsExactly(Candidate.of("Smith, Jr."));
     }
 
     @Test
     void missingHeaderThrows() {
-        assertThatThrownBy(() -> CsvBallotParser.parse("Alice,Bob\n1,Alice,Bob\n"))
-                .isInstanceOf(BallotParseException.class);
+        Stream<String> lines = makeLines("Alice,Bob\n1,Alice,Bob\n");
+        assertThatThrownBy(() -> CsvBallotParser.parse(lines)).isInstanceOf(BallotParseException.class);
     }
 
     @Test
@@ -74,7 +75,8 @@ class CsvBallotParserTest {
                 1,Alice,,Carol
                 """;
 
-        assertThatThrownBy(() -> CsvBallotParser.parse(csv))
+        Stream<String> lines = makeLines(csv);
+        assertThatThrownBy(() -> CsvBallotParser.parse(lines))
                 .isInstanceOf(BallotParseException.class)
                 .hasMessageContaining("gap");
     }
@@ -86,12 +88,13 @@ class CsvBallotParserTest {
                 0,Alice
                 """;
 
-        assertThatThrownBy(() -> CsvBallotParser.parse(csv))
-                .isInstanceOf(BallotParseException.class);
+        Stream<String> lines = makeLines(csv);
+        assertThatThrownBy(() -> CsvBallotParser.parse(lines)).isInstanceOf(BallotParseException.class);
     }
 
     @Test
     void emptyInputThrows() {
-        assertThatThrownBy(() -> CsvBallotParser.parse("")).isInstanceOf(BallotParseException.class);
+        Stream<String> lines = makeLines("");
+        assertThatThrownBy(() -> CsvBallotParser.parse(lines)).isInstanceOf(BallotParseException.class);
     }
 }

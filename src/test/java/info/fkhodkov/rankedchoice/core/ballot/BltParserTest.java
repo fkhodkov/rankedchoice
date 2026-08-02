@@ -1,15 +1,15 @@
 package info.fkhodkov.rankedchoice.core.ballot;
 
-import org.junit.jupiter.api.Test;
-import info.fkhodkov.rankedchoice.core.model.Ballot;
-import info.fkhodkov.rankedchoice.core.model.Candidate;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static info.fkhodkov.rankedchoice.core.ballot.StringUtils.makeLines;
 
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
+import info.fkhodkov.rankedchoice.core.model.Ballot;
+import info.fkhodkov.rankedchoice.core.model.Candidate;
 
 class BltParserTest {
 
@@ -32,7 +32,7 @@ class BltParserTest {
 
     @Test
     void parsesHeaderAndCandidates() {
-        ParsedElection election = BltParser.parse(SAMPLE);
+        ParsedElection election = BltParser.parse(makeLines(SAMPLE));
 
         assertThat(election.seats()).isEqualTo(2);
         assertThat(election.title()).isEqualTo("Sample Election");
@@ -46,13 +46,13 @@ class BltParserTest {
 
     @Test
     void parsesWithdrawnCandidates() {
-        ParsedElection election = BltParser.parse(SAMPLE);
+        ParsedElection election = BltParser.parse(makeLines(SAMPLE));
         assertThat(election.withdrawnCandidates()).containsExactly(new Candidate("3", "Carol"));
     }
 
     @Test
     void parsesBallotsWithTieGroupsAndCounts() {
-        ParsedElection election = BltParser.parse(SAMPLE);
+        ParsedElection election = BltParser.parse(makeLines(SAMPLE));
         Candidate alice = new Candidate("1", "Alice");
         Candidate bob = new Candidate("2", "Bob");
         Candidate carol = new Candidate("3", "Carol");
@@ -60,7 +60,7 @@ class BltParserTest {
 
         assertThat(election.ballots()).hasSize(4);
 
-        Ballot first = election.ballots().get(0);
+        Ballot first = election.ballots().getFirst();
         assertThat(first.count()).isEqualTo(BigInteger.valueOf(5));
         assertThat(first.ranking()).containsExactly(Set.of(alice), Set.of(bob, carol), Set.of(dave));
 
@@ -76,13 +76,13 @@ class BltParserTest {
     @Test
     void ignoresBlankAndCommentLinesAnywhere() {
         String withExtraComments = "# a full election\n" + SAMPLE + "\n# trailing comment\n";
-        assertThat(BltParser.parse(withExtraComments).ballots()).hasSize(4);
+        assertThat(BltParser.parse(makeLines(withExtraComments)).ballots()).hasSize(4);
     }
 
     @Test
     void missingHeaderThrows() {
-        assertThatThrownBy(() -> BltParser.parse("\"only a title\""))
-                .isInstanceOf(BallotParseException.class);
+        var lines = makeLines("\"only a title\"");
+        assertThatThrownBy(() -> BltParser.parse(lines)).isInstanceOf(BallotParseException.class);
     }
 
     @Test
@@ -94,7 +94,8 @@ class BltParserTest {
                 "A"
                 "B"
                 """;
-        assertThatThrownBy(() -> BltParser.parse(bad))
+        var lines = makeLines(bad);
+        assertThatThrownBy(() -> BltParser.parse(lines))
                 .isInstanceOf(BallotParseException.class)
                 .hasMessageContaining("0");
     }
@@ -108,7 +109,8 @@ class BltParserTest {
                 "A"
                 "B"
                 """;
-        assertThatThrownBy(() -> BltParser.parse(bad))
+        var lines = makeLines(bad);
+        assertThatThrownBy(() -> BltParser.parse(lines))
                 .isInstanceOf(BallotParseException.class)
                 .hasMessageContaining("out of range");
     }
@@ -121,7 +123,8 @@ class BltParserTest {
                 0
                 A
                 """;
-        assertThatThrownBy(() -> BltParser.parse(bad))
+        var lines = makeLines(bad);
+        assertThatThrownBy(() -> BltParser.parse(lines))
                 .isInstanceOf(BallotParseException.class);
     }
 
@@ -133,7 +136,7 @@ class BltParserTest {
                 0
                 "Only Candidate"
                 """;
-        ParsedElection election = BltParser.parse(noTitle);
+        ParsedElection election = BltParser.parse(makeLines(noTitle));
         assertThat(election.title()).isNull();
         assertThat(election.ballots()).containsExactly(
                 new Ballot(List.of(Set.of(new Candidate("1", "Only Candidate"))), BigInteger.valueOf(3)));

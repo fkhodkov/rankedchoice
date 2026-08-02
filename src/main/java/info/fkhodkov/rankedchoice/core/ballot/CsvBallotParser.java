@@ -1,8 +1,5 @@
 package info.fkhodkov.rankedchoice.core.ballot;
 
-import info.fkhodkov.rankedchoice.core.model.Ballot;
-import info.fkhodkov.rankedchoice.core.model.Candidate;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigInteger;
@@ -14,6 +11,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import info.fkhodkov.rankedchoice.core.model.Ballot;
+import info.fkhodkov.rankedchoice.core.model.Candidate;
 
 /**
  * Parses a simple CSV ballot format: a header row whose first column is {@code count}
@@ -36,36 +37,31 @@ public final class CsvBallotParser {
     }
 
     public static ParsedBallots parse(Path path) {
-        try {
-            return parse(Files.readString(path));
+        try(Stream<String> lines = Files.lines(path)) {
+            return parse(lines);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read CSV file: " + path, e);
         }
     }
 
-    public static ParsedBallots parse(String content) {
-        List<String> lines = new ArrayList<>();
-        for (String rawLine : content.split("\\R")) {
-            if (!rawLine.isBlank()) {
-                lines.add(rawLine);
-            }
-        }
-        if (lines.isEmpty()) {
+    public static ParsedBallots parse(Stream<String> lines) {
+        List<String> significantLines = lines.filter(Predicate.not(String::isBlank)).toList();
+        if (significantLines.isEmpty()) {
             throw new BallotParseException("CSV input is empty");
         }
 
-        List<String> header = splitCsvLine(lines.getFirst());
+        List<String> header = splitCsvLine(significantLines.getFirst());
         if (header.isEmpty() || !header.getFirst().trim().equalsIgnoreCase("count")) {
             throw new BallotParseException(
-                    "CSV header must start with a 'count' column, got: '" + lines.getFirst() + "'");
+                    "CSV header must start with a 'count' column, got: '" + significantLines.getFirst() + "'");
         }
 
         Map<String, Candidate> candidatesByName = new LinkedHashMap<>();
         List<Ballot> ballots = new ArrayList<>();
 
-        for (int rowIndex = 1; rowIndex < lines.size(); rowIndex++) {
+        for (int rowIndex = 1; rowIndex < significantLines.size(); rowIndex++) {
             int lineNumber = rowIndex + 1;
-            List<String> cells = splitCsvLine(lines.get(rowIndex));
+            List<String> cells = splitCsvLine(significantLines.get(rowIndex));
             BigInteger count = parseCount(cells.getFirst(), lineNumber);
 
             List<Set<Candidate>> ranking = new ArrayList<>();
