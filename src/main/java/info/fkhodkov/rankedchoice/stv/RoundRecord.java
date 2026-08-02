@@ -1,5 +1,7 @@
 package info.fkhodkov.rankedchoice.stv;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
@@ -16,6 +18,10 @@ public record RoundRecord(
         Fraction exhaustedVotes
 ) {
     public RoundRecord {
-        tallies = Map.copyOf(tallies);
+        // Map.copyOf() doesn't preserve iteration order (its order is unspecified), which
+        // would make tied candidates' display order effectively arbitrary; this keeps the
+        // insertion order computeTallies() built (declared candidate order) while still
+        // being immutable.
+        tallies = Collections.unmodifiableMap(new LinkedHashMap<>(tallies));
     }
 }

@@ -1,0 +1,19 @@
+# Based on the "Andrea, Brad, Carter, Delilah" worked example from Wikipedia's
+# "Counting single transferable votes" article (2 seats, 4 candidates, 57 voters).
+#
+# Note: the article computes its quota as a plain 57/(2+1)=19, without the "+1" of the
+# standard Droop quota; this tool implements the standard formula, floor(v/(s+1))+1=20.
+# The article also only gives round-by-round *totals*, not individual ballots, so the
+# ballot-level breakdown here is reconstructed (not copied from a source) to reproduce
+# those totals under the standard quota. First preferences: Andrea 40, Delilah 17,
+# Brad 0, Carter 0 (adjusted from the article's 39/17/0/0, which sum to 56, not 57).
+4 2
+24 1 2 0
+16 1 3 2 0
+17 4 0
+0
+"Andrea"
+"Brad"
+"Carter"
+"Delilah"
+"Andrea, Brad, Carter, Delilah (adapted from Wikipedia)"
