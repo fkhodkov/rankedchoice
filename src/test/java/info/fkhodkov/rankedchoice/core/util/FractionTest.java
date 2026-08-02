@@ -61,7 +61,7 @@ class FractionTest {
     @Test
     void compareTo() {
         assertThat(Fraction.of(1, 3).compareTo(Fraction.of(1, 2))).isLessThan(0);
-        assertThat(Fraction.of(1, 2).compareTo(Fraction.of(2, 4))).isZero();
+        assertThat(Fraction.of(1, 2)).isEqualByComparingTo(Fraction.of(2, 4));
         assertThat(Fraction.of(2, 3).compareTo(Fraction.of(1, 2))).isGreaterThan(0);
     }
 

@@ -6,18 +6,30 @@ for the full design and roadmap; this file covers what's built and how to use it
 
 ## Status
 
-Currently implemented (Phase 1–2 of the plan):
+Currently implemented (Phase 1–3 of the plan, in progress):
 
 - Ballot model with built-in support for tied rankings (not yet consumed by the STV
   counter — see below)
 - `.blt` and CSV ballot parsers, both streamed line-by-line rather than loaded into memory
-- STV counting engine: **Droop quota + fractional (Gregory) transfer** only so far
-- A CLI that runs a count from a ballot file and prints a round-by-round text report
+- STV counting engine, pluggable per axis:
+  - Quotas: Droop, Hare, Hagenbach-Bischoff, Imperiali
+  - Transfer methods: fractional/inclusive Gregory, and the Weighted Inclusive Gregory
+    Method (WIGM) — these agree exactly until a candidate holds ballots that arrived at more
+    than one distinct value, which is where WIGM's per-value-group rounding diverges from
+    the simpler method's single rounded ratio
+  - Rounding rules: exact (no rounding), truncate to N decimal places — real STV rulesets
+    consistently round down rather than to nearest, so that's the only rounding rule kept
+    here for now
+  - Tie-break rules: fixed declared order, previous-round votes, first-preference count
+    (each with a configurable fallback), seeded random
+- A CLI that runs a count from a ballot file and prints a round-by-round text report — for
+  now it always uses Droop quota + fractional transfer + exact rounding + declared-order
+  tie-break; the other engine options above aren't wired up to CLI flags yet
 
-Not yet implemented: other quotas (Hare, Hagenbach-Bischoff, Imperiali), other transfer
-methods (WIGM, Meek), rounding rules, richer tie-break strategies, real-world ruleset
-presets (Scottish, ERS97/76, Cambridge MA, Hare-Clark), Schulze/CPO-STV/Borda, YAML config,
-and CSV/JSON/HTML export. Tied ballot rankings are rejected by the counter for now.
+Not yet implemented: the Meek transfer method, real-world ruleset presets (Scottish,
+ERS97/76, Cambridge MA, Hare-Clark) as bundled configs, Schulze/CPO-STV/Borda, YAML config
+and CLI flags for the engine options listed above, and CSV/JSON/HTML export. Tied ballot
+rankings are rejected by the counter for now.
 
 ## Requirements
 
@@ -99,9 +111,11 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── ballot/    BltParser, CsvBallotParser
 │   └── util/      Fraction (exact rational arithmetic)
 ├── stv/
-│   ├── quota/     Quota, DroopQuota
-│   ├── transfer/  TransferMethod, FractionalTransfer
-│   ├── tiebreak/  TieBreakRule, DeclaredOrderTieBreak
+│   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota
+│   ├── transfer/  TransferMethod, FractionalTransfer, WigmTransfer
+│   ├── rounding/  RoundingRule, Exact, TruncateDecimal
+│   ├── tiebreak/  TieBreakRule, DeclaredOrderTieBreak, PreviousRoundVotesTieBreak,
+│   │              FirstPreferenceCountTieBreak, SeededRandomTieBreak
 │   ├── report/    StvTextReport
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction
 └── cli/

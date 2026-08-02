@@ -10,7 +10,9 @@ import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
+import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
 
 /**
  * Runs a single transferable vote count. Each round either elects the candidate(s) meeting
@@ -56,7 +58,8 @@ public final class StvCounter {
             if (continuing.size() <= remainingSeats) {
                 Map<Candidate, Fraction> tallies = computeTallies(states, continuing);
                 Fraction exhausted = exhaustedVotes(states);
-                for (Candidate candidate : sortedByTallyDescending(continuing, tallies, ruleset.tieBreak())) {
+                List<RoundRecord> priorRounds = List.copyOf(rounds);
+                for (Candidate candidate : sortedByTallyDescending(continuing, tallies, ruleset.tieBreak(), priorRounds)) {
                     elected.add(candidate);
                     continuing.remove(candidate);
                     rounds.add(new RoundRecord(
@@ -68,19 +71,20 @@ public final class StvCounter {
 
             Map<Candidate, Fraction> tallies = computeTallies(states, continuing);
             Fraction exhausted = exhaustedVotes(states);
+            List<RoundRecord> priorRounds = List.copyOf(rounds);
             List<Candidate> meetingQuota = continuing.stream()
                     .filter(candidate -> tallies.get(candidate).compareTo(quota) >= 0)
                     .toList();
 
             if (!meetingQuota.isEmpty()) {
-                Candidate toElect = pickHighest(meetingQuota, tallies, ruleset.tieBreak());
+                Candidate toElect = pickHighest(meetingQuota, tallies, ruleset.tieBreak(), priorRounds);
                 Fraction candidateVotes = tallies.get(toElect);
                 Fraction surplus = candidateVotes.subtract(quota);
                 elected.add(toElect);
                 continuing.remove(toElect);
                 if (surplus.signum() > 0 && !continuing.isEmpty()) {
-                    Fraction transferValue = ruleset.transferMethod().surplusTransferValue(surplus, candidateVotes);
-                    transferBallots(states, toElect, transferValue, continuing);
+                    transferSurplus(states, toElect, surplus, candidateVotes,
+                            ruleset.transferMethod(), ruleset.roundingRule(), continuing);
                 }
                 rounds.add(new RoundRecord(
                         roundNumber, tallies, new RoundAction.Elected(toElect, surplus), exhausted));
@@ -91,9 +95,9 @@ public final class StvCounter {
                         .toList();
                 Candidate toEliminate = tiedLowest.size() == 1
                         ? tiedLowest.getFirst()
-                        : ruleset.tieBreak().resolveTie(tiedLowest);
+                        : ruleset.tieBreak().candidateToEliminate(tiedLowest, priorRounds);
                 continuing.remove(toEliminate);
-                transferBallots(states, toEliminate, Fraction.ONE, continuing);
+                transferEliminatedBallots(states, toEliminate, continuing);
                 rounds.add(new RoundRecord(
                         roundNumber, tallies, new RoundAction.Eliminated(toEliminate), exhausted));
             }
@@ -103,20 +107,20 @@ public final class StvCounter {
     }
 
     private static Candidate pickHighest(List<Candidate> candidates, Map<Candidate, Fraction> tallies,
-            TieBreakRule tieBreak) {
+            TieBreakRule tieBreak, List<RoundRecord> priorRounds) {
         Fraction highest = candidates.stream().map(tallies::get).max(Fraction::compareTo).orElseThrow();
         List<Candidate> tiedHighest = candidates.stream()
                 .filter(candidate -> tallies.get(candidate).compareTo(highest) == 0)
                 .toList();
-        return tiedHighest.size() == 1 ? tiedHighest.getFirst() : tieBreak.resolveTie(tiedHighest);
+        return tiedHighest.size() == 1 ? tiedHighest.getFirst() : tieBreak.candidateToElectFirst(tiedHighest, priorRounds);
     }
 
     private static List<Candidate> sortedByTallyDescending(Set<Candidate> candidates,
-            Map<Candidate, Fraction> tallies, TieBreakRule tieBreak) {
+            Map<Candidate, Fraction> tallies, TieBreakRule tieBreak, List<RoundRecord> priorRounds) {
         List<Candidate> remaining = new ArrayList<>(candidates);
         List<Candidate> result = new ArrayList<>(remaining.size());
         while (!remaining.isEmpty()) {
-            Candidate top = pickHighest(remaining, tallies, tieBreak);
+            Candidate top = pickHighest(remaining, tallies, tieBreak, priorRounds);
             result.add(top);
             remaining.remove(top);
         }
@@ -146,12 +150,30 @@ public final class StvCounter {
         return total;
     }
 
-    /** Moves every ballot currently held by {@code from} to its next continuing preference. */
-    private static void transferBallots(List<BallotState> states, Candidate from, Fraction transferValue,
+    /**
+     * Moves every ballot currently held by the newly-elected {@code from} to its next
+     * continuing preference, recomputing each ballot's value from its own current arrival
+     * value via the ruleset's transfer method — see {@link info.fkhodkov.rankedchoice.stv.transfer.TransferMethod}.
+     */
+    private static void transferSurplus(List<BallotState> states, Candidate from, Fraction surplus,
+            Fraction candidateVotes, TransferMethod transferMethod, RoundingRule roundingRule,
             Set<Candidate> continuing) {
         for (BallotState state : states) {
             if (from.equals(state.holder)) {
-                state.value = state.value.multiply(transferValue);
+                state.value = transferMethod.transferValue(surplus, candidateVotes, state.value, roundingRule);
+                assignNextHolder(state, continuing);
+            }
+        }
+    }
+
+    /**
+     * Moves every ballot currently held by the eliminated {@code from} to its next continuing
+     * preference, unchanged in value — elimination is never discounted, regardless of
+     * transfer method.
+     */
+    private static void transferEliminatedBallots(List<BallotState> states, Candidate from, Set<Candidate> continuing) {
+        for (BallotState state : states) {
+            if (from.equals(state.holder)) {
                 assignNextHolder(state, continuing);
             }
         }

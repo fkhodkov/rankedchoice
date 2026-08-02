@@ -12,6 +12,7 @@ import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
+import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 
@@ -27,7 +28,8 @@ class StvTextReportTest {
                 new Ballot(List.of(Set.of(y), Set.of(x)), BigInteger.valueOf(3)),
                 new Ballot(List.of(Set.of(z), Set.of(x)), BigInteger.valueOf(3)));
         StvRuleset ruleset = new StvRuleset(
-                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, new DeclaredOrderTieBreak(List.of(x, y, z)));
+                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(x, y, z)));
 
         StvResult result = StvCounter.count(List.of(x, y, z), ballots, 1, ruleset);
 
@@ -63,7 +65,8 @@ class StvTextReportTest {
                 new Ballot(List.of(Set.of(b)), BigInteger.valueOf(1)),
                 new Ballot(List.of(Set.of(c)), BigInteger.valueOf(2)));
         StvRuleset ruleset = new StvRuleset(
-                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, new DeclaredOrderTieBreak(List.of(a, b, c)));
+                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b, c)));
 
         StvResult result = StvCounter.count(List.of(a, b, c), ballots, 1, ruleset);
         String report = StvTextReport.render(result);

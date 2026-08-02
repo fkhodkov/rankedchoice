@@ -17,6 +17,7 @@ import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.report.StvTextReport;
+import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import picocli.CommandLine;
@@ -45,7 +46,7 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-o", "--output"}, description = "Output file. Defaults to standard output.")
     private Path output;
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         System.exit(new CommandLine(new Main()).execute(args));
     }
 
@@ -68,7 +69,7 @@ public final class Main implements Callable<Integer> {
         }
     }
 
-    private String runCount() throws IOException {
+    private String runCount() {
         String resolvedFormat = format != null ? format.toLowerCase(Locale.ROOT) : inferFormat(input);
 
         List<Candidate> candidates;
@@ -98,7 +99,8 @@ public final class Main implements Callable<Integer> {
         }
 
         StvRuleset ruleset = new StvRuleset(
-                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, new DeclaredOrderTieBreak(candidates));
+                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(candidates));
         StvResult result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
         return StvTextReport.render(result);
     }
