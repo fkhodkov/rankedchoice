@@ -8,6 +8,7 @@ import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HagenbachBischoffQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HareQuota;
 import info.fkhodkov.rankedchoice.stv.quota.ImperialiQuota;
+import info.fkhodkov.rankedchoice.stv.quota.RoundedUpQuota;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
@@ -15,6 +16,7 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.FirstPreferenceCountTieBreak;
 import info.fkhodkov.rankedchoice.stv.tiebreak.PreviousRoundVotesTieBreak;
 import info.fkhodkov.rankedchoice.stv.tiebreak.SeededRandomTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -39,9 +41,21 @@ class StvRulesetParserTest {
     }
 
     @Test
+    void parsesRoundedUpQuota() {
+        assertThat(StvRulesetParser.parseQuota("droop-rounded:2")).isEqualTo(new RoundedUpQuota(2));
+    }
+
+    @Test
+    void rejectsMalformedRoundedUpQuota() {
+        assertThatThrownBy(() -> StvRulesetParser.parseQuota("droop-rounded:abc"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void parsesEachTransferMethod() {
         assertThat(StvRulesetParser.parseTransfer("fractional")).isEqualTo(FractionalTransfer.INSTANCE);
         assertThat(StvRulesetParser.parseTransfer("WIGM")).isEqualTo(WigmTransfer.INSTANCE);
+        assertThat(StvRulesetParser.parseTransfer("last-parcel")).isEqualTo(LastParcelTransfer.INSTANCE);
         assertThat(StvRulesetParser.parseTransfer(null)).isEqualTo(FractionalTransfer.INSTANCE);
     }
 

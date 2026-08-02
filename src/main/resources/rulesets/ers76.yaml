@@ -1,0 +1,10 @@
+# ERS76: the predecessor to ERS97 (Electoral Reform Society rules), also a last-parcel-only
+# method. I could not find a dedicated technical specification for ERS76 distinct from
+# ERS97's documented rules -- only passing mentions that it's the earlier version in the
+# same family. Rather than invent specific differences (rounding precision, quota formula)
+# without a source, this preset uses ERS97's confirmed settings. Treat this as "believed
+# similar to ERS97" rather than a verified-accurate reproduction of ERS76 specifically.
+quota: droop-rounded:2
+transfer: last-parcel
+rounding: truncate:2
+tiebreak: previous-round,declared

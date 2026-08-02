@@ -12,11 +12,16 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   counter — see below)
 - `.blt` and CSV ballot parsers, both streamed line-by-line rather than loaded into memory
 - STV counting engine, pluggable per axis:
-  - Quotas: Droop, Hare, Hagenbach-Bischoff, Imperiali
-  - Transfer methods: fractional/inclusive Gregory, and the Weighted Inclusive Gregory
-    Method (WIGM) — these agree exactly until a candidate holds ballots that arrived at more
-    than one distinct value, which is where WIGM's per-value-group rounding diverges from
-    the simpler method's single rounded ratio
+  - Quotas: Droop, Hare, Hagenbach-Bischoff, Imperiali, and a Droop-rounded-to-N-decimal-
+    places variant (`droop-rounded:N`) used by ERS97
+  - Transfer methods: fractional/inclusive Gregory, the Weighted Inclusive Gregory Method
+    (WIGM), and last-parcel-only (only a candidate's single most-recently-arrived batch of
+    ballots is examined for a surplus — everything they held before that stays with them,
+    unchanged, for good; used by ERS97/76 and Hare-Clark). Fractional and WIGM agree exactly
+    until a candidate holds ballots that arrived at more than one distinct value, which is
+    where WIGM's per-parcel rounding diverges from the simpler method's single rounded ratio;
+    last-parcel methods can leave a just-elected candidate with more or less than exactly
+    quota, unlike the two inclusive methods — a known, documented trade-off of that approach
   - Rounding rules: exact (no rounding), truncate to N decimal places — real STV rulesets
     consistently round down rather than to nearest, so that's the only rounding rule kept
     here for now
@@ -27,14 +32,18 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
   (Droop quota, fractional transfer, exact rounding, declared-order tie-break) — in that
   order of precedence, flag over config over default
-- One bundled ruleset preset so far: `scottish` (Droop + WIGM + truncate to 5 decimal
-  places), shipped as a YAML resource rather than hardcoded
+- Bundled ruleset presets, shipped as YAML resources rather than hardcoded: `scottish`
+  (Droop + WIGM + truncate:5), `ers97` (Droop rounded up to 2dp + last-parcel + truncate:2),
+  `ers76` (same settings as `ers97` — I couldn't find a technical spec distinguishing ERS76
+  from ERS97, so treat this one as "believed similar," not verified-accurate), and
+  `hare-clark-qpq` (Droop + last-parcel + truncate:2)
 
-Not yet implemented: the Meek transfer method, the remaining real-world ruleset presets
-(ERS97/76, Cambridge MA, Hare-Clark) as bundled configs, Schulze/CPO-STV/Borda, and
-CSV/JSON/HTML export. Tied ballot rankings are rejected by the counter for now. Nothing has
-been validated yet against real published Scottish council or Cambridge election results —
-that's still ahead.
+Not yet implemented: the Meek transfer method, the Cambridge MA ruleset (it uses the
+"Cincinnati method" — whole-ballot systematic sampling rather than fractional values — which
+doesn't fit this engine's current value-based model and would need its own separate
+implementation), Schulze/CPO-STV/Borda, and CSV/JSON/HTML export. Tied ballot rankings are
+rejected by the counter for now. Nothing has been validated yet against real published
+Scottish council or Cambridge election results — that's still ahead.
 
 ## Requirements
 
@@ -62,9 +71,9 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | `-s, --seats` | Seats to fill. Required for CSV input (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. |
 | `-o, --output` | Output file. Defaults to standard output. |
 | `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
-| `-r, --ruleset` | A bundled ruleset preset by name, e.g. `scottish`. Mutually exclusive with `--config`. |
-| `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali`. Overrides `--config`/`--ruleset`. |
-| `--transfer` | `fractional\|wigm`. Overrides `--config`/`--ruleset`. |
+| `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`. Mutually exclusive with `--config`. |
+| `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
+| `--transfer` | `fractional\|wigm\|last-parcel`. Overrides `--config`/`--ruleset`. |
 | `--rounding` | `exact\|truncate:N`. Overrides `--config`/`--ruleset`. |
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
 
@@ -146,8 +155,10 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
 │   └── util/      Fraction (exact rational arithmetic)
 ├── stv/
-│   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota
-│   ├── transfer/  TransferMethod, FractionalTransfer, WigmTransfer
+│   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota,
+│   │              RoundedUpQuota
+│   ├── transfer/  TransferMethod, FractionalTransfer, WigmTransfer, LastParcelTransfer,
+│   │              HeldParcel (the parcel abstraction transfer methods operate on)
 │   ├── rounding/  RoundingRule, Exact, TruncateDecimal
 │   ├── tiebreak/  TieBreakRule, DeclaredOrderTieBreak, PreviousRoundVotesTieBreak,
 │   │              FirstPreferenceCountTieBreak, SeededRandomTieBreak
@@ -157,7 +168,7 @@ src/main/java/info/fkhodkov/rankedchoice/
 └── cli/
     └── Main
 
-src/main/resources/rulesets/   bundled ruleset presets (scottish.yaml, ...)
+src/main/resources/rulesets/   bundled ruleset presets (scottish.yaml, ers97.yaml, ...)
 ```
 
 ## Roadmap

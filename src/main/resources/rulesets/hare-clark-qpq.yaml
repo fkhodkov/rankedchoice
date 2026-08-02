@@ -1,0 +1,11 @@
+# The Hare-Clark "quota preferential" system used for Tasmanian and ACT elections. Standard
+# Droop quota; surplus transfer is last-parcel-only (explicitly confirmed: "under Hare-Clark,
+# [a previously elected candidate's] first preferences were not examined as part of the
+# surplus", unlike an inclusive method); transfer values calculated to 2 decimal places
+# ("to reduce the loss of votes by fraction"). Tie-break isn't documented in the sources used
+# here, so this falls back to the same previous-round/declared-order chain as our other
+# presets rather than guessing at Australian-specific procedure.
+quota: droop
+transfer: last-parcel
+rounding: truncate:2
+tiebreak: previous-round,declared

@@ -59,6 +59,33 @@ class ConfigLoaderTest {
     }
 
     @Test
+    void loadsTheBundledErs97Ruleset() {
+        ElectionConfig config = ConfigLoader.loadResource("/rulesets/ers97.yaml");
+
+        assertThat(config.quota()).isEqualTo("droop-rounded:2");
+        assertThat(config.transfer()).isEqualTo("last-parcel");
+        assertThat(config.rounding()).isEqualTo("truncate:2");
+    }
+
+    @Test
+    void loadsTheBundledErs76Ruleset() {
+        ElectionConfig config = ConfigLoader.loadResource("/rulesets/ers76.yaml");
+
+        assertThat(config.quota()).isEqualTo("droop-rounded:2");
+        assertThat(config.transfer()).isEqualTo("last-parcel");
+        assertThat(config.rounding()).isEqualTo("truncate:2");
+    }
+
+    @Test
+    void loadsTheBundledHareClarkQpqRuleset() {
+        ElectionConfig config = ConfigLoader.loadResource("/rulesets/hare-clark-qpq.yaml");
+
+        assertThat(config.quota()).isEqualTo("droop");
+        assertThat(config.transfer()).isEqualTo("last-parcel");
+        assertThat(config.rounding()).isEqualTo("truncate:2");
+    }
+
+    @Test
     void missingBundledResourceThrows() {
         assertThatThrownBy(() -> ConfigLoader.loadResource("/rulesets/does-not-exist.yaml"))
                 .isInstanceOf(IllegalArgumentException.class);

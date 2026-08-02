@@ -9,7 +9,7 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
  * uniformly as a "reach or exceed" threshold; quotas that are strictly defined as
  * unrounded fractions (Hagenbach-Bischoff) note where that simplification applies.
  */
-public sealed interface Quota permits DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota {
+public sealed interface Quota permits DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota, RoundedUpQuota {
 
     Fraction compute(BigInteger totalValidVotes, int seats);
 }

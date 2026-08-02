@@ -7,6 +7,7 @@ import info.fkhodkov.rankedchoice.stv.quota.HagenbachBischoffQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HareQuota;
 import info.fkhodkov.rankedchoice.stv.quota.ImperialiQuota;
 import info.fkhodkov.rankedchoice.stv.quota.Quota;
+import info.fkhodkov.rankedchoice.stv.quota.RoundedUpQuota;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
@@ -16,6 +17,7 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.PreviousRoundVotesTieBreak;
 import info.fkhodkov.rankedchoice.stv.tiebreak.SeededRandomTieBreak;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 import java.util.List;
@@ -23,9 +25,9 @@ import java.util.Locale;
 
 /**
  * Parses the small string DSL used to select STV building blocks from a config file or CLI
- * flag: quota is {@code droop|hare|hagenbach-bischoff|imperiali}, transfer is
- * {@code fractional|wigm}, rounding is {@code exact|truncate:N}, and tie-break is a
- * comma-separated fallback chain, e.g. {@code previous-round,first-preference,declared} —
+ * flag: quota is {@code droop|hare|hagenbach-bischoff|imperiali|droop-rounded:N}, transfer is
+ * {@code fractional|wigm|last-parcel}, rounding is {@code exact|truncate:N}, and tie-break is
+ * a comma-separated fallback chain, e.g. {@code previous-round,first-preference,declared} —
  * each rule in the chain falls back to the next when it can't resolve a tie itself.
  */
 public final class StvRulesetParser {
@@ -41,7 +43,11 @@ public final class StvRulesetParser {
     }
 
     public static Quota parseQuota(String value) {
-        return switch (normalize(value, "droop")) {
+        String normalized = normalize(value, "droop");
+        if (normalized.startsWith("droop-rounded:")) {
+            return new RoundedUpQuota(parsePlaces(normalized, "droop-rounded:"));
+        }
+        return switch (normalized) {
             case "droop" -> DroopQuota.INSTANCE;
             case "hare" -> HareQuota.INSTANCE;
             case "hagenbach-bischoff" -> HagenbachBischoffQuota.INSTANCE;
@@ -54,6 +60,7 @@ public final class StvRulesetParser {
         return switch (normalize(value, "fractional")) {
             case "fractional" -> FractionalTransfer.INSTANCE;
             case "wigm" -> WigmTransfer.INSTANCE;
+            case "last-parcel" -> LastParcelTransfer.INSTANCE;
             default -> throw new IllegalArgumentException("Unknown transfer method: '" + value + "'");
         };
     }
@@ -64,7 +71,7 @@ public final class StvRulesetParser {
             return Exact.INSTANCE;
         }
         if (normalized.startsWith("truncate:")) {
-            return new TruncateDecimal(parsePlaces(normalized));
+            return new TruncateDecimal(parsePlaces(normalized, "truncate:"));
         }
         throw new IllegalArgumentException("Unknown rounding rule: '" + value + "'");
     }
@@ -102,8 +109,8 @@ public final class StvRulesetParser {
         return fallback;
     }
 
-    private static int parsePlaces(String value) {
-        String digits = value.substring("truncate:".length());
+    private static int parsePlaces(String value, String prefix) {
+        String digits = value.substring(prefix.length());
         try {
             return Integer.parseInt(digits);
         } catch (NumberFormatException _) {

@@ -17,6 +17,7 @@ import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
 class StvCounterTest {
@@ -159,7 +160,7 @@ class StvCounterTest {
         StvResult result = StvCounter.count(List.of(A, B, C), ballots, 2, ruleset);
 
         assertThat(result.electedInOrder()).containsExactly(A, B);
-        assertThat(result.rounds().get(1).tallies().get(B)).isEqualTo(Fraction.of(297, 50));
+        assertThat(result.rounds().get(1).tallies()).containsEntry(B, Fraction.of(297, 50));
     }
 
     /**
@@ -218,6 +219,78 @@ class StvCounterTest {
         assertThat(fractional.rounds().get(3).exhaustedVotes()).isEqualTo(Fraction.of(6607, 1000));
         assertThat(wigm.rounds().get(3).exhaustedVotes()).isEqualTo(Fraction.of(6520, 1000));
         assertThat(fractional.rounds().get(3).exhaustedVotes()).isNotEqualTo(wigm.rounds().get(3).exhaustedVotes());
-        assertThat(fractional.rounds().get(3).tallies().get(y)).isEqualTo(wigm.rounds().get(3).tallies().get(y));
+        assertThat(fractional.rounds().get(3).tallies()).containsEntry(y, wigm.rounds().get(3).tallies().get(y));
+    }
+
+    /**
+     * Hand-derived 5-candidate/3-seat count (105 ballots) demonstrating LastParcelTransfer's
+     * defining behavior: when a candidate is elected, only their single most-recently-arrived
+     * parcel is examined for a surplus — everything they held before that stays with them,
+     * unchanged, for good. Ballot groups:
+     * <pre>
+     *   35: P,X      15: Q,X,Y     15: X,Y      20: Y      20: Z
+     * </pre>
+     * Total 105, quota = floor(105/4)+1 = 27.
+     *
+     * <p>Round 1 — P (35) meets quota, surplus 8, ratio 8/35 (P's ballots are all one parcel,
+     *   value 1, so this is the same either way). X gains 35*(8/35)=8 -&gt; 15+8=23 (still below
+     *   quota). This transfer creates X's "parcel 1": 35 ballots at value 8/35, ranked P,X
+     *   only (no further preference).
+     * <p>Round 2 — none meet quota (Q=15, X=23, Y=20, Z=20); Q (lowest) eliminated in full to
+     *   X: 15 ballots at value 1, ranked Q,X,Y. This is X's "parcel 2" (the most recent).
+     *   X -&gt; 23+15=38.
+     * <p>Round 3 — X (38) meets quota, surplus 11. X now holds three parcels: its own
+     *   original 15 (ranked X,Y), parcel 1 (35 at 8/35, dead-ends at X), and parcel 2 (15 at
+     *   value 1, ranked Q,X,Y — the most recent arrival). Only parcel 2 is touched: ratio =
+     *   11/15, so those 15 ballots move to Y at value 11/15, contributing exactly the surplus
+     *   (11) to Y. X's own ballots and parcel 1 are untouched. X's final tally is therefore
+     *   15 + 8 + 0 = 23 — <em>not</em> the quota (27), which is the well-known fairness
+     *   trade-off of a last-parcel-only method versus an inclusive one like WIGM (which
+     *   always leaves exactly quota behind).
+     * <p>Round 4 — continuing {Y, Z}: Y (20+11=31) meets quota and is elected for the final
+     *   seat.
+     */
+    @Test
+    void lastParcelTransferOnlyTouchesTheMostRecentlyArrivedParcel() {
+        Candidate p = Candidate.of("P");
+        Candidate q = Candidate.of("Q");
+        Candidate x = Candidate.of("X");
+        Candidate y = Candidate.of("Y");
+        Candidate z = Candidate.of("Z");
+        List<Ballot> ballots = List.of(
+                ballot(35, p, x),
+                ballot(15, q, x, y),
+                ballot(15, x, y),
+                ballot(20, y),
+                ballot(20, z));
+        List<Candidate> roster = List.of(p, q, x, y, z);
+        StvRuleset ruleset = new StvRuleset(
+                DroopQuota.INSTANCE, LastParcelTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(roster));
+
+        StvResult result = StvCounter.count(roster, ballots, 3, ruleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(27));
+        assertThat(result.electedInOrder()).containsExactly(p, x, y);
+
+        RoundRecord round1 = result.rounds().get(0);
+        assertThat(round1.tallies()).isEqualTo(
+                Map.of(p, Fraction.of(35), q, Fraction.of(15), x, Fraction.of(15), y, Fraction.of(20), z, Fraction.of(20)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(p, Fraction.of(8)));
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.tallies()).isEqualTo(
+                Map.of(q, Fraction.of(15), x, Fraction.of(23), y, Fraction.of(20), z, Fraction.of(20)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Eliminated(q));
+
+        RoundRecord round3 = result.rounds().get(2);
+        assertThat(round3.tallies()).isEqualTo(Map.of(x, Fraction.of(38), y, Fraction.of(20), z, Fraction.of(20)));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(x, Fraction.of(11)));
+
+        RoundRecord round4 = result.rounds().get(3);
+        // X's parcel-1 (8) and own ballots (15) stay with X untouched -> X settles at 23, not
+        // 27 (quota) -- the documented trade-off of last-parcel-only methods.
+        assertThat(round4.tallies()).isEqualTo(Map.of(y, Fraction.of(31), z, Fraction.of(20)));
+        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(y, Fraction.of(4)));
     }
 }

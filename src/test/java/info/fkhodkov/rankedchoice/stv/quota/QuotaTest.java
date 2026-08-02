@@ -38,4 +38,21 @@ class QuotaTest {
         assertThat(ImperialiQuota.INSTANCE.compute(BigInteger.valueOf(100), 3)).isEqualTo(Fraction.of(20));
         assertThat(ImperialiQuota.INSTANCE.compute(BigInteger.valueOf(57), 2)).isEqualTo(Fraction.of(14));
     }
+
+    @Test
+    void roundedUpQuotaStaysExactWhenDivisionIsExact() {
+        // 60/(2+1) = 20 exactly -> stays 20, per ERS97's "if the result is exact, that is the quota".
+        assertThat(new RoundedUpQuota(2).compute(BigInteger.valueOf(60), 2)).isEqualTo(Fraction.of(20));
+    }
+
+    @Test
+    void roundedUpQuotaRoundsAwayFromZeroWhenNotExact() {
+        // 100/(2+1) = 33.333... -> ERS97: "ignore the remainder, and add 0.01" -> 33.34.
+        assertThat(new RoundedUpQuota(2).compute(BigInteger.valueOf(100), 2)).isEqualTo(Fraction.of(3334, 100));
+    }
+
+    @Test
+    void roundedUpQuotaRejectsNegativePlaces() {
+        assertThatThrownBy(() -> new RoundedUpQuota(-1)).isInstanceOf(IllegalArgumentException.class);
+    }
 }

@@ -1,0 +1,10 @@
+# Electoral Reform Society 1997 STV rules (as used for many UK organisations' internal
+# elections). Quota is Droop rounded UP to 2 decimal places (not the usual floor+1 to a
+# whole number); transfer is last-parcel-only (only the most recently arrived batch of
+# ballots is examined for a surplus, not everything the candidate holds); transfer values
+# truncated to 2 decimal places. The statutory tie-break falls back to a random "lot" as a
+# last resort; we approximate that with a fixed declared candidate order instead.
+quota: droop-rounded:2
+transfer: last-parcel
+rounding: truncate:2
+tiebreak: previous-round,declared

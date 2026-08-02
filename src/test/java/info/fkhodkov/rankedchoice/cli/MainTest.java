@@ -11,6 +11,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import picocli.CommandLine;
 
 class MainTest {
@@ -116,13 +118,14 @@ class MainTest {
         assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("Cannot infer format");
     }
 
-    @Test
-    void bundledRulesetRunsSuccessfully() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"scottish", "ers97", "ers76", "hare-clark-qpq"})
+    void bundledRulesetRunsSuccessfully(String rulesetName) throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, BLT);
 
         int exitCode = new CommandLine(new Main())
-                .execute("--input", bltFile.toString(), "--ruleset", "scottish");
+                .execute("--input", bltFile.toString(), "--ruleset", rulesetName);
 
         assertThat(exitCode).isZero();
         assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: X");

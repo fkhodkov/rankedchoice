@@ -12,6 +12,7 @@ import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
+import info.fkhodkov.rankedchoice.stv.transfer.HeldParcel;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
 
 /**
@@ -20,6 +21,10 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * (transferring all their votes onward), until every seat is filled — including the standard
  * shortcut where, once exactly as many candidates remain continuing as there are seats left,
  * they are all declared elected without further transfers.
+ *
+ * <p>Every ballot tracks which single transfer event it most recently arrived through (its
+ * "parcel"), so a last-parcel-only transfer method can tell which of a candidate's held
+ * ballots arrived last, as distinct from an inclusive method that doesn't care.
  *
  * <p>Candidates must already exclude any withdrawn from standing; {@code ballots} must not
  * contain tied rankings (every rank a singleton) — tie support is a later addition.
@@ -50,6 +55,7 @@ public final class StvCounter {
         List<Candidate> elected = new ArrayList<>();
         List<RoundRecord> rounds = new ArrayList<>();
         int roundNumber = 0;
+        int nextParcelId = 1;
 
         while (elected.size() < seats) {
             roundNumber++;
@@ -83,8 +89,8 @@ public final class StvCounter {
                 elected.add(toElect);
                 continuing.remove(toElect);
                 if (surplus.signum() > 0 && !continuing.isEmpty()) {
-                    transferSurplus(states, toElect, surplus, candidateVotes,
-                            ruleset.transferMethod(), ruleset.roundingRule(), continuing);
+                    transferSurplus(states, toElect, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
+                            continuing, nextParcelId++);
                 }
                 rounds.add(new RoundRecord(
                         roundNumber, tallies, new RoundAction.Elected(toElect, surplus), exhausted));
@@ -97,7 +103,7 @@ public final class StvCounter {
                         ? tiedLowest.getFirst()
                         : ruleset.tieBreak().candidateToEliminate(tiedLowest, priorRounds);
                 continuing.remove(toEliminate);
-                transferEliminatedBallots(states, toEliminate, continuing);
+                transferEliminatedBallots(states, toEliminate, continuing, nextParcelId++);
                 rounds.add(new RoundRecord(
                         roundNumber, tallies, new RoundAction.Eliminated(toEliminate), exhausted));
             }
@@ -133,7 +139,10 @@ public final class StvCounter {
             tallies.put(candidate, Fraction.ZERO);
         }
         for (BallotState state : states) {
-            if (state.holder != null) {
+            // A ballot's holder can remain an already-elected candidate forever under a
+            // last-parcel-only transfer method (parcels it doesn't select are simply never
+            // moved again), so only count holders still in the running.
+            if (state.holder != null && continuing.contains(state.holder)) {
                 tallies.merge(state.holder, Fraction.of(state.ballot.count()).multiply(state.value), Fraction::add);
             }
         }
@@ -150,18 +159,46 @@ public final class StvCounter {
         return total;
     }
 
+    private record ParcelKey(int parcelId, Fraction value) {
+    }
+
     /**
-     * Moves every ballot currently held by the newly-elected {@code from} to its next
-     * continuing preference, recomputing each ballot's value from its own current arrival
-     * value via the ruleset's transfer method — see {@link info.fkhodkov.rankedchoice.stv.transfer.TransferMethod}.
+     * Moves the newly-elected {@code from}'s ballots to their next continuing preference,
+     * per the ruleset's transfer method — see {@link TransferMethod}. A ballot whose parcel
+     * isn't included in the method's decision (e.g. an earlier parcel under a last-parcel-only
+     * method) is left exactly as it is, credited to {@code from} for good.
      */
     private static void transferSurplus(List<BallotState> states, Candidate from, Fraction surplus,
-            Fraction candidateVotes, TransferMethod transferMethod, RoundingRule roundingRule,
-            Set<Candidate> continuing) {
+            TransferMethod transferMethod, RoundingRule roundingRule, Set<Candidate> continuing, int newParcelId) {
+        Map<ParcelKey, BigInteger> votesByKey = new LinkedHashMap<>();
         for (BallotState state : states) {
             if (from.equals(state.holder)) {
-                state.value = transferMethod.transferValue(surplus, candidateVotes, state.value, roundingRule);
-                assignNextHolder(state, continuing);
+                votesByKey.merge(new ParcelKey(state.parcelId, state.value), state.ballot.count(), BigInteger::add);
+            }
+        }
+        if (votesByKey.isEmpty()) {
+            return;
+        }
+
+        Map<ParcelKey, Integer> idByKey = new LinkedHashMap<>();
+        List<HeldParcel> parcels = new ArrayList<>(votesByKey.size());
+        for (Map.Entry<ParcelKey, BigInteger> entry : votesByKey.entrySet()) {
+            int id = idByKey.size();
+            idByKey.put(entry.getKey(), id);
+            parcels.add(new HeldParcel(id, entry.getKey().parcelId(), entry.getKey().value(), entry.getValue()));
+        }
+
+        Map<Integer, Fraction> newValues = transferMethod.computeTransferValues(surplus, parcels, roundingRule);
+
+        for (BallotState state : states) {
+            if (from.equals(state.holder)) {
+                Integer id = idByKey.get(new ParcelKey(state.parcelId, state.value));
+                Fraction newValue = newValues.get(id);
+                if (newValue != null) {
+                    state.value = newValue;
+                    state.parcelId = newParcelId;
+                    assignNextHolder(state, continuing);
+                }
             }
         }
     }
@@ -171,9 +208,11 @@ public final class StvCounter {
      * preference, unchanged in value — elimination is never discounted, regardless of
      * transfer method.
      */
-    private static void transferEliminatedBallots(List<BallotState> states, Candidate from, Set<Candidate> continuing) {
+    private static void transferEliminatedBallots(List<BallotState> states, Candidate from,
+            Set<Candidate> continuing, int newParcelId) {
         for (BallotState state : states) {
             if (from.equals(state.holder)) {
+                state.parcelId = newParcelId;
                 assignNextHolder(state, continuing);
             }
         }
@@ -197,6 +236,7 @@ public final class StvCounter {
         private final Ballot ballot;
         private int nextIndex = 0;
         private Fraction value = Fraction.ONE;
+        private int parcelId = 0;
         private Candidate holder;
 
         BallotState(Ballot ballot) {
