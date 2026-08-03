@@ -119,7 +119,7 @@ class MainTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"scottish", "ers97", "ers76", "hare-clark-qpq"})
+    @ValueSource(strings = {"scottish", "ers97", "ers76", "hare-clark-qpq", "act-hare-clark"})
     void bundledRulesetRunsSuccessfully(String rulesetName) throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, BLT);

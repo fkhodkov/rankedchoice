@@ -2,18 +2,24 @@ package info.fkhodkov.rankedchoice.stv;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
+import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.HeldParcel;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
+import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
 /**
  * Runs a single transferable vote count. Each round either elects the candidate(s) meeting
@@ -25,6 +31,22 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * <p>Every ballot tracks which single transfer event it most recently arrived through (its
  * "parcel"), so a last-parcel-only transfer method can tell which of a candidate's held
  * ballots arrived last, as distinct from an inclusive method that doesn't care.
+ *
+ * <p>Last-parcel-family rulesets ({@link LastParcelTransfer}, {@link
+ * LastParcelDeferredRoundingTransfer} — see {@link #defersSurplusTransfers}) defer every
+ * surplus transfer rather than performing it the moment a candidate qualifies: a candidate
+ * who crosses quota is immediately frozen (removed from {@code continuing}, added to {@code
+ * elected}) but their surplus isn't transferred until a later round pops it as the largest
+ * still-pending one — confirmed against the ERS97 rulebook's own model election, where a
+ * frozen candidate's own surplus transfer can be deferred for many further rounds while other
+ * business (including other candidates crossing quota later) takes priority. This also means
+ * eliminating a candidate under these rulesets processes their held ballots one value-group at
+ * a time (largest value first, per ERS97's "exclusion by value"), re-checking for newly
+ * quota-crossing candidates after each group — a candidate who qualifies partway through
+ * stops receiving that same elimination's remaining, lower-valued groups entirely, rather than
+ * being credited with votes a real ERS97 count would have withheld from them. WIGM/fractional
+ * rulesets don't do any of this — confirmed correct via real Scottish election data using the
+ * simpler "transfer everything for this event immediately" model already in place.
  *
  * <p>Candidates must already exclude any withdrawn from standing; {@code ballots} must not
  * contain tied rankings (every rank a singleton) — tie support is a later addition.
@@ -51,9 +73,13 @@ public final class StvCounter {
         }
 
         Fraction quota = ruleset.quota().compute(totalValidVotes, seats);
+        boolean defers = defersSurplusTransfers(ruleset.transferMethod());
 
         List<Candidate> elected = new ArrayList<>();
         List<RoundRecord> rounds = new ArrayList<>();
+        // Candidates who have crossed quota but whose surplus hasn't been transferred yet —
+        // only ever populated when `defers` is true. Processed one at a time, largest first.
+        Map<Candidate, Fraction> pendingSurplus = new LinkedHashMap<>();
         int roundNumber = 0;
         int nextParcelId = 1;
 
@@ -62,7 +88,7 @@ public final class StvCounter {
             int remainingSeats = seats - elected.size();
 
             if (continuing.size() <= remainingSeats) {
-                Map<Candidate, Fraction> tallies = computeTallies(states, continuing);
+                Map<Candidate, Fraction> tallies = computeTallies(states, continuing, ruleset.roundingRule());
                 Fraction exhausted = exhaustedVotes(states);
                 List<RoundRecord> priorRounds = List.copyOf(rounds);
                 for (Candidate candidate : sortedByTallyDescending(continuing, tallies, ruleset.tieBreak(), priorRounds)) {
@@ -72,10 +98,11 @@ public final class StvCounter {
                             roundNumber, tallies, new RoundAction.Elected(candidate, Fraction.ZERO), exhausted));
                     roundNumber++;
                 }
+                drainPendingSurplus(states, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
                 break;
             }
 
-            Map<Candidate, Fraction> tallies = computeTallies(states, continuing);
+            Map<Candidate, Fraction> tallies = computeTallies(states, continuing, ruleset.roundingRule());
             Fraction exhausted = exhaustedVotes(states);
             List<RoundRecord> priorRounds = List.copyOf(rounds);
             List<Candidate> meetingQuota = continuing.stream()
@@ -86,8 +113,7 @@ public final class StvCounter {
                 // Every candidate who meets quota in the same tally snapshot is declared
                 // elected as a batch, before any of their surpluses are transferred — so none
                 // of them can still receive (and thus inflate their own eventual surplus with)
-                // a fellow batch member's transfer. Surpluses are then applied one at a time,
-                // largest first, same as the single-candidate case below.
+                // a fellow batch member's transfer.
                 List<Candidate> electedThisStage = sortedByTallyDescending(
                         new LinkedHashSet<>(meetingQuota), tallies, ruleset.tieBreak(), priorRounds);
                 if (electedThisStage.size() > remainingSeats) {
@@ -99,43 +125,176 @@ public final class StvCounter {
                     elected.add(candidate);
                     continuing.remove(candidate);
                 }
-                for (int i = 0; i < electedThisStage.size(); i++) {
-                    Candidate candidate = electedThisStage.get(i);
-                    Fraction candidateVotes = frozenVotes.get(candidate);
-                    Fraction surplus = candidateVotes.subtract(quota);
-                    Map<Candidate, Fraction> roundTallies = tallies;
-                    Fraction roundExhausted = exhausted;
-                    if (i > 0) {
-                        roundTallies = computeTallies(states, continuing);
-                        roundTallies.put(candidate, candidateVotes);
-                        roundExhausted = exhaustedVotes(states);
+
+                if (!defers) {
+                    // Surpluses are applied immediately, one at a time, largest first —
+                    // confirmed correct for WIGM/fractional against real Scottish election data.
+                    for (int i = 0; i < electedThisStage.size(); i++) {
+                        Candidate candidate = electedThisStage.get(i);
+                        Fraction candidateVotes = frozenVotes.get(candidate);
+                        Fraction surplus = candidateVotes.subtract(quota);
+                        Map<Candidate, Fraction> roundTallies = tallies;
+                        Fraction roundExhausted = exhausted;
+                        if (i > 0) {
+                            roundTallies = computeTallies(states, continuing, ruleset.roundingRule());
+                            roundTallies.put(candidate, candidateVotes);
+                            roundExhausted = exhaustedVotes(states);
+                        }
+                        if (surplus.signum() > 0 && !continuing.isEmpty()) {
+                            transferSurplus(states, candidate, surplus, ruleset.transferMethod(),
+                                    ruleset.roundingRule(), continuing, nextParcelId++);
+                        }
+                        rounds.add(new RoundRecord(
+                                roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus), roundExhausted));
+                        if (i < electedThisStage.size() - 1) {
+                            roundNumber++;
+                        }
                     }
-                    if (surplus.signum() > 0 && !continuing.isEmpty()) {
-                        transferSurplus(states, candidate, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
-                                continuing, nextParcelId++);
-                    }
-                    rounds.add(new RoundRecord(
-                            roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus), roundExhausted));
-                    if (i < electedThisStage.size() - 1) {
-                        roundNumber++;
-                    }
+                    continue;
                 }
-            } else {
-                Fraction lowest = continuing.stream().map(tallies::get).min(Fraction::compareTo).orElseThrow();
-                List<Candidate> tiedLowest = continuing.stream()
-                        .filter(candidate -> tallies.get(candidate).compareTo(lowest) == 0)
-                        .toList();
-                Candidate toEliminate = tiedLowest.size() == 1
-                        ? tiedLowest.getFirst()
-                        : ruleset.tieBreak().candidateToEliminate(tiedLowest, priorRounds);
-                continuing.remove(toEliminate);
-                transferEliminatedBallots(states, toEliminate, continuing, nextParcelId++);
+
+                // Deferred instead: freeze them all now, but don't transfer any surplus yet --
+                // fall through below to pop whichever pending surplus (possibly one of these,
+                // possibly an older one) is currently largest.
+                pendingSurplus.putAll(frozenVotes);
+            }
+
+            if (defers && !pendingSurplus.isEmpty()) {
+                Candidate candidate = pickHighest(
+                        new ArrayList<>(pendingSurplus.keySet()), pendingSurplus, ruleset.tieBreak(), priorRounds);
+                Fraction frozenTally = pendingSurplus.remove(candidate);
+                Fraction surplus = frozenTally.subtract(quota);
+                // `tallies` and `exhausted` were captured before any of this round's actions
+                // (including the freeze just above, if any) -- exactly the "before this
+                // round's action" state the RoundRecord needs, so read them now, before the
+                // transfer below mutates ballot state.
+                Map<Candidate, Fraction> roundTallies = new LinkedHashMap<>(tallies);
+                roundTallies.put(candidate, frozenTally);
+                if (surplus.signum() > 0 && !continuing.isEmpty()) {
+                    transferSurplus(states, candidate, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
+                            continuing, nextParcelId++);
+                }
                 rounds.add(new RoundRecord(
-                        roundNumber, tallies, new RoundAction.Eliminated(toEliminate), exhausted));
+                        roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus), exhausted));
+                continue;
+            }
+
+            Fraction lowest = continuing.stream().map(tallies::get).min(Fraction::compareTo).orElseThrow();
+            List<Candidate> tiedLowest = continuing.stream()
+                    .filter(candidate -> tallies.get(candidate).compareTo(lowest) == 0)
+                    .toList();
+            Candidate toEliminate = tiedLowest.size() == 1
+                    ? tiedLowest.getFirst()
+                    : ruleset.tieBreak().candidateToEliminate(tiedLowest, priorRounds);
+            continuing.remove(toEliminate);
+            if (defers) {
+                nextParcelId = eliminateByValueGroup(states, toEliminate, continuing, elected, pendingSurplus,
+                        quota, seats, ruleset, priorRounds, nextParcelId);
+            } else {
+                transferEliminatedBallots(states, toEliminate, continuing, nextParcelId++);
+            }
+            rounds.add(new RoundRecord(
+                    roundNumber, tallies, new RoundAction.Eliminated(toEliminate), exhausted));
+        }
+
+        drainPendingSurplus(states, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
+
+        return new StvResult(elected, rounds, quota);
+    }
+
+    /**
+     * Whether this ruleset's transfer method wants surplus transfers deferred (and
+     * eliminations processed value-group by value-group) rather than performed immediately —
+     * see the class-level javadoc.
+     */
+    private static boolean defersSurplusTransfers(TransferMethod transferMethod) {
+        return switch (transferMethod) {
+            case LastParcelTransfer _ -> true;
+            case LastParcelDeferredRoundingTransfer _ -> true;
+            case FractionalTransfer _ -> false;
+            case WigmTransfer _ -> false;
+        };
+    }
+
+    /**
+     * Emits a final, no-further-transfer {@link RoundAction.Elected} record (surplus {@link
+     * Fraction#ZERO}, same convention as the "remaining continuing == remaining seats"
+     * shortcut) for every candidate still awaiting their deferred surplus transfer once the
+     * election has otherwise concluded — every seat is filled, so it can no longer matter.
+     * Each gets its own sequential round number after {@code roundNumber}, same as the
+     * shortcut's own bulk-election loop.
+     */
+    private static void drainPendingSurplus(List<BallotState> states, Set<Candidate> continuing,
+            Map<Candidate, Fraction> pendingSurplus, RoundingRule roundingRule, List<RoundRecord> rounds,
+            int roundNumber) {
+        if (pendingSurplus.isEmpty()) {
+            return;
+        }
+        Map<Candidate, Fraction> tallies = computeTallies(states, continuing, roundingRule);
+        Fraction exhausted = exhaustedVotes(states);
+        int number = roundNumber;
+        for (Map.Entry<Candidate, Fraction> entry : pendingSurplus.entrySet()) {
+            Map<Candidate, Fraction> roundTallies = new LinkedHashMap<>(tallies);
+            roundTallies.put(entry.getKey(), entry.getValue());
+            rounds.add(new RoundRecord(
+                    number, roundTallies, new RoundAction.Elected(entry.getKey(), Fraction.ZERO), exhausted));
+            number++;
+        }
+        // So a second, unconditional call after the shortcut branch's `break` (there to catch
+        // any surplus that never got frozen at all) doesn't re-emit these same candidates.
+        pendingSurplus.clear();
+    }
+
+    /**
+     * Eliminates {@code from} (already removed from {@code continuing} by the caller),
+     * transferring their held ballots one value-group at a time — largest value first, per
+     * ERS97's "exclusion by value" — instead of all at once. Re-checks for newly
+     * quota-crossing candidates after each group and freezes them into {@code pendingSurplus}
+     * immediately, so a candidate who qualifies partway through this elimination stops
+     * receiving any of its remaining, lower-valued groups. Returns the next available parcel
+     * id (one is consumed per value-group).
+     */
+    private static int eliminateByValueGroup(List<BallotState> states, Candidate from, Set<Candidate> continuing,
+            List<Candidate> elected, Map<Candidate, Fraction> pendingSurplus, Fraction quota, int seats,
+            StvRuleset ruleset, List<RoundRecord> priorRounds, int nextParcelId) {
+        Map<Fraction, List<BallotState>> byValueDescending = new TreeMap<>(Comparator.reverseOrder());
+        for (BallotState state : states) {
+            if (from.equals(state.holder)) {
+                byValueDescending.computeIfAbsent(state.value, _ -> new ArrayList<>()).add(state);
             }
         }
 
-        return new StvResult(elected, rounds, quota);
+        int parcelId = nextParcelId;
+        for (List<BallotState> group : byValueDescending.values()) {
+            int thisGroupParcelId = parcelId++;
+            for (BallotState state : group) {
+                state.parcelId = thisGroupParcelId;
+                assignNextHolder(state, continuing);
+            }
+
+            int remainingSeats = seats - elected.size();
+            if (remainingSeats <= 0) {
+                continue;
+            }
+            Map<Candidate, Fraction> freshTallies = computeTallies(states, continuing, ruleset.roundingRule());
+            List<Candidate> newlyQualified = continuing.stream()
+                    .filter(candidate -> freshTallies.get(candidate).compareTo(quota) >= 0)
+                    .toList();
+            if (newlyQualified.isEmpty()) {
+                continue;
+            }
+            List<Candidate> ordered = sortedByTallyDescending(
+                    new LinkedHashSet<>(newlyQualified), freshTallies, ruleset.tieBreak(), priorRounds);
+            if (ordered.size() > remainingSeats) {
+                ordered = ordered.subList(0, remainingSeats);
+            }
+            for (Candidate candidate : ordered) {
+                elected.add(candidate);
+                continuing.remove(candidate);
+                pendingSurplus.put(candidate, freshTallies.get(candidate));
+            }
+        }
+        return parcelId;
     }
 
     private static Candidate pickHighest(List<Candidate> candidates, Map<Candidate, Fraction> tallies,
@@ -159,7 +318,18 @@ public final class StvCounter {
         return result;
     }
 
-    private static Map<Candidate, Fraction> computeTallies(List<BallotState> states, Set<Candidate> continuing) {
+    /**
+     * Every continuing candidate's current tally. Each candidate's summed total is passed
+     * through {@code roundingRule} once — a no-op for rulesets that already round per-parcel
+     * transfer values ({@link info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer}, {@link
+     * info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer}, {@link
+     * info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer} — a sum of already-rounded
+     * multiples is already an exact multiple itself — but essential for {@link
+     * info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer}, whose whole
+     * point is deferring rounding to exactly this point instead.
+     */
+    private static Map<Candidate, Fraction> computeTallies(
+            List<BallotState> states, Set<Candidate> continuing, RoundingRule roundingRule) {
         Map<Candidate, Fraction> tallies = new LinkedHashMap<>();
         for (Candidate candidate : continuing) {
             tallies.put(candidate, Fraction.ZERO);
@@ -172,6 +342,7 @@ public final class StvCounter {
                 tallies.merge(state.holder, Fraction.of(state.ballot.count()).multiply(state.value), Fraction::add);
             }
         }
+        tallies.replaceAll((_, tally) -> roundingRule.apply(tally));
         return tallies;
     }
 
@@ -185,7 +356,7 @@ public final class StvCounter {
         return total;
     }
 
-    private record ParcelKey(int parcelId, Fraction value) {
+    private record ParcelKey(int parcelId, Fraction value, boolean hasNextPreference) {
     }
 
     /**
@@ -199,7 +370,9 @@ public final class StvCounter {
         Map<ParcelKey, BigInteger> votesByKey = new LinkedHashMap<>();
         for (BallotState state : states) {
             if (from.equals(state.holder)) {
-                votesByKey.merge(new ParcelKey(state.parcelId, state.value), state.ballot.count(), BigInteger::add);
+                boolean hasNextPreference = hasNextContinuingPreference(state, continuing);
+                votesByKey.merge(new ParcelKey(state.parcelId, state.value, hasNextPreference),
+                        state.ballot.count(), BigInteger::add);
             }
         }
         if (votesByKey.isEmpty()) {
@@ -211,14 +384,16 @@ public final class StvCounter {
         for (Map.Entry<ParcelKey, BigInteger> entry : votesByKey.entrySet()) {
             int id = idByKey.size();
             idByKey.put(entry.getKey(), id);
-            parcels.add(new HeldParcel(id, entry.getKey().parcelId(), entry.getKey().value(), entry.getValue()));
+            parcels.add(new HeldParcel(id, entry.getKey().parcelId(), entry.getKey().value(), entry.getValue(),
+                    entry.getKey().hasNextPreference()));
         }
 
         Map<Integer, Fraction> newValues = transferMethod.computeTransferValues(surplus, parcels, roundingRule);
 
         for (BallotState state : states) {
             if (from.equals(state.holder)) {
-                Integer id = idByKey.get(new ParcelKey(state.parcelId, state.value));
+                boolean hasNextPreference = hasNextContinuingPreference(state, continuing);
+                Integer id = idByKey.get(new ParcelKey(state.parcelId, state.value, hasNextPreference));
                 Fraction newValue = newValues.get(id);
                 if (newValue != null) {
                     state.value = newValue;
@@ -227,6 +402,23 @@ public final class StvCounter {
                 }
             }
         }
+    }
+
+    /**
+     * Whether this ballot has a next continuing preference beyond its current holder, without
+     * advancing it — last-parcel-family transfer methods (see {@link
+     * info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer}) need to know this per
+     * ballot before deciding the transfer ratio, since ballots with no further preference are
+     * excluded from its denominator.
+     */
+    private static boolean hasNextContinuingPreference(BallotState state, Set<Candidate> continuing) {
+        List<Set<Candidate>> ranking = state.ballot.ranking();
+        for (int i = state.nextIndex; i < ranking.size(); i++) {
+            if (continuing.contains(ranking.get(i).iterator().next())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

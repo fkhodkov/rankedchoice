@@ -17,6 +17,7 @@ import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
@@ -161,6 +162,50 @@ class StvCounterTest {
         assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(30), c, Fraction.of(10)));
         assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(3)));
         assertThat(round2.exhaustedVotes()).isEqualTo(Fraction.of(13));
+    }
+
+    /**
+     * Demonstrates {@link LastParcelDeferredRoundingTransfer}'s defining behavior against
+     * {@link LastParcelTransfer}: the shared transfer ratio stays exact, and rounding is
+     * applied only once each destination candidate's own gain is computed — the ACT
+     * Legislative Assembly's Hare-Clark convention, confirmed against real election data.
+     *
+     * <p>4 candidates (A, X, Y — Z absorbs the rest of the total purely to fix the quota),
+     * 2 seats, 257 ballots:
+     * <pre>
+     *   77: A,X     22: A,Y     79: X     79: Z (259... see below)
+     * </pre>
+     * Actually: {@code 79: X} and {@code 79: Y} are each candidates' own first preferences
+     * (not transfers), so nobody but A needs a next-preference target. Total 257, Droop quota
+     * = floor(257/3)+1 = 86. A's total (77+22=99) gives a surplus of 13, split into 77 papers
+     * to X and 22 to Y (all 99 specify a next preference, so CP=99).
+     *
+     * <p>Exact ratio = 13/99. Truncated to 2dp <em>first</em> (as {@link LastParcelTransfer}
+     * would): 0.13, giving X = 77*0.13 = 10.01 and Y = 22*0.13 = 2.86. Truncated only after
+     * multiplying by each destination's own count (as this class does): X = truncate(77*13/99,
+     * 2) = truncate(1001/99, 2) = 10.11, and Y = truncate(22*13/99, 2) = truncate(286/99, 2) =
+     * 2.88 — genuinely different results, not just a rounding-mode footnote.
+     */
+    @Test
+    void deferredRoundingLastParcelTransferRoundsEachDestinationsGainNotTheSharedRatio() {
+        Candidate a = Candidate.of("A");
+        Candidate x = Candidate.of("X");
+        Candidate y = Candidate.of("Y");
+        List<Ballot> ballots = List.of(ballot(77, a, x), ballot(22, a, y), ballot(79, x), ballot(79, y));
+        StvRuleset ruleset = new StvRuleset(
+                DroopQuota.INSTANCE, LastParcelDeferredRoundingTransfer.INSTANCE, new TruncateDecimal(2),
+                new DeclaredOrderTieBreak(List.of(a, x, y)));
+
+        StvResult result = StvCounter.count(List.of(a, x, y), ballots, 2, ruleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(86));
+        RoundRecord round1 = result.rounds().getFirst();
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(13)));
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.tallies())
+                .containsEntry(x, Fraction.of(8911, 100))
+                .containsEntry(y, Fraction.of(2047, 25));
     }
 
     @Test

@@ -86,6 +86,15 @@ class ConfigLoaderTest {
     }
 
     @Test
+    void loadsTheBundledActHareClarkRuleset() {
+        ElectionConfig config = ConfigLoader.loadResource("/rulesets/act-hare-clark.yaml");
+
+        assertThat(config.quota()).isEqualTo("droop");
+        assertThat(config.transfer()).isEqualTo("last-parcel-deferred-rounding");
+        assertThat(config.rounding()).isEqualTo("truncate:6");
+    }
+
+    @Test
     void missingBundledResourceThrows() {
         assertThatThrownBy(() -> ConfigLoader.loadResource("/rulesets/does-not-exist.yaml"))
                 .isInstanceOf(IllegalArgumentException.class);

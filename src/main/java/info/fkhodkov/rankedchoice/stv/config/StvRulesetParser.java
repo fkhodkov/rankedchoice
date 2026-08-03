@@ -17,6 +17,7 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.PreviousRoundVotesTieBreak;
 import info.fkhodkov.rankedchoice.stv.tiebreak.SeededRandomTieBreak;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
@@ -29,6 +30,11 @@ import java.util.Locale;
  * {@code fractional|wigm|last-parcel}, rounding is {@code exact|truncate:N}, and tie-break is
  * a comma-separated fallback chain, e.g. {@code previous-round,first-preference,declared} —
  * each rule in the chain falls back to the next when it can't resolve a tie itself.
+ *
+ * <p>{@code last-parcel} and {@code last-parcel-deferred-rounding} both examine only a
+ * candidate's most recently arrived parcel, differing only in where the ruleset's rounding
+ * rule gets applied — see {@link LastParcelTransfer} vs {@link
+ * LastParcelDeferredRoundingTransfer}.
  */
 public final class StvRulesetParser {
 
@@ -61,6 +67,7 @@ public final class StvRulesetParser {
             case "fractional" -> FractionalTransfer.INSTANCE;
             case "wigm" -> WigmTransfer.INSTANCE;
             case "last-parcel" -> LastParcelTransfer.INSTANCE;
+            case "last-parcel-deferred-rounding" -> LastParcelDeferredRoundingTransfer.INSTANCE;
             default -> throw new IllegalArgumentException("Unknown transfer method: '" + value + "'");
         };
     }
