@@ -36,6 +36,25 @@ public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG = new ElectionConfig(null, null, null, null, null, null);
 
+    /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
+    private record BundledRuleset(String name, String description) {
+    }
+
+    /** Every bundled preset, in the order shown by {@code --help} and unknown-ruleset errors. */
+    private static final List<BundledRuleset> BUNDLED_RULESETS = List.of(
+            new BundledRuleset("scottish",
+                    "Scottish local government elections -- Droop quota, WIGM, truncate to 5dp"),
+            new BundledRuleset("ers97",
+                    "Electoral Reform Society 1997 rules, many UK organisations -- Droop rounded to 2dp, "
+                            + "last-parcel, truncate to 2dp"),
+            new BundledRuleset("ers76",
+                    "Predecessor to ERS97 -- same settings as ers97; no verified-accurate spec of its own"),
+            new BundledRuleset("hare-clark-qpq",
+                    "Tasmanian Hare-Clark \"quota preferential\" -- Droop, last-parcel, truncate to 2dp"),
+            new BundledRuleset("act-hare-clark",
+                    "ACT Legislative Assembly's Hare-Clark -- Droop, last-parcel with deferred, "
+                            + "per-candidate rounding, truncate to 6dp"));
+
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
@@ -52,7 +71,8 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-c", "--config"}, description = "YAML config file with quota/transfer/rounding/tiebreak/seats/format.")
     private Path config;
 
-    @Option(names = {"-r", "--ruleset"}, description = "A bundled ruleset preset, e.g. 'scottish'. Mutually exclusive with --config.")
+    @Option(names = {"-r", "--ruleset"}, description = "A bundled ruleset preset: scottish|ers97|ers76|"
+            + "hare-clark-qpq|act-hare-clark. Mutually exclusive with --config.")
     private String rulesetName;
 
     @Option(names = {"--quota"}, description = "droop|hare|hagenbach-bischoff|imperiali. Overrides --config/--ruleset.")
@@ -143,9 +163,27 @@ public final class Main implements Callable<Integer> {
             return ConfigLoader.load(config);
         }
         if (rulesetName != null) {
+            boolean known = BUNDLED_RULESETS.stream().anyMatch(preset -> preset.name().equals(rulesetName));
+            if (!known) {
+                throw new IllegalArgumentException(unknownRulesetMessage(rulesetName));
+            }
             return ConfigLoader.loadResource("/rulesets/" + rulesetName + ".yaml");
         }
         return EMPTY_CONFIG;
+    }
+
+    private static String unknownRulesetMessage(String rulesetName) {
+        int nameColumnWidth = BUNDLED_RULESETS.stream().mapToInt(preset -> preset.name().length()).max().orElse(0);
+        StringBuilder message = new StringBuilder("Unknown ruleset '").append(rulesetName).append("'.\n")
+                .append("Available rulesets:\n");
+        for (BundledRuleset preset : BUNDLED_RULESETS) {
+            message.append("  ")
+                    .append(preset.name())
+                    .append(" ".repeat(nameColumnWidth - preset.name().length() + 2))
+                    .append(preset.description())
+                    .append('\n');
+        }
+        return message.toString();
     }
 
     private int resolveSeats(ElectionConfig fileConfig, int fallback) {

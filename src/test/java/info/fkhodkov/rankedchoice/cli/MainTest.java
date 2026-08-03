@@ -140,7 +140,13 @@ class MainTest {
                 .execute("--input", bltFile.toString(), "--ruleset", "does-not-exist");
 
         assertThat(exitCode).isOne();
-        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("does-not-exist");
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8))
+                .contains("does-not-exist")
+                .contains("scottish")
+                .contains("ers97")
+                .contains("ers76")
+                .contains("hare-clark-qpq")
+                .contains("act-hare-clark");
     }
 
     @Test

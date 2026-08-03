@@ -45,15 +45,10 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
   (Droop quota, fractional transfer, exact rounding, declared-order tie-break) — in that
   order of precedence, flag over config over default
-- Bundled ruleset presets, shipped as YAML resources rather than hardcoded: `scottish`
-  (Droop + WIGM + truncate:5), `ers97` (Droop rounded up to 2dp + last-parcel + truncate:2),
-  `ers76` (same settings as `ers97` — I couldn't find a technical spec distinguishing ERS76
-  from ERS97, so treat this one as "believed similar," not verified-accurate), `hare-clark-qpq`
-  (Droop + last-parcel + truncate:2, Tasmanian House of Assembly and local government
-  elections specifically), and `act-hare-clark` (Droop + last-parcel-deferred-rounding +
-  truncate:6 — the ACT Legislative Assembly's own Hare-Clark variant, which despite the
-  shared name rounds each destination candidate's gain to 6 decimal places rather than
-  rounding Tasmania's shared ratio to 2, per the ACT Electoral Act's Schedule 4)
+- Five bundled ruleset presets, shipped as YAML resources rather than hardcoded — `scottish`,
+  `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark` — each a named combination of the
+  building blocks above, with sourced rules and links under
+  [Bundled rulesets](#bundled-rulesets) below
 - Validated against **five real elections**, not just hand-derived or adapted fixtures: the
   2012 Shetland South, 2017 Shetland North, and 2022 Orkney Kirkwall East council elections
   (ballot-level data from [MGGG's `scot-elex` archive](https://github.com/mggg/scot-elex)),
@@ -162,6 +157,23 @@ classpath resource (`src/main/resources/rulesets/<name>.yaml`) instead of a file
 Precedence when combining sources is always **CLI override flag > config/ruleset file >
 built-in default**, resolved independently per field — so `--ruleset scottish --transfer
 fractional` is legal and just swaps out the transfer method on top of the Scottish preset.
+Passing an unrecognized name (e.g. `--ruleset scotish`) lists all the ones below.
+
+#### Bundled rulesets
+
+| Name | Rules | Used for | Source |
+|---|---|---|---|
+| `scottish` | Droop + WIGM + truncate:5 | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rule 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
+| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 | Many UK organisations' internal elections | [opavote's citation of ERS97 rule 5.3.7](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
+| `ers76` | Same settings as `ers97` | ERS97's predecessor | No dedicated technical spec found distinct from ERS97 — treat as "believed similar," not verified-accurate |
+| `hare-clark-qpq` | Droop + last-parcel + truncate:2 | Tasmanian House of Assembly and local government elections | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html) |
+| `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6 | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4, as reproduced in Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
+
+`hare-clark-qpq` and `act-hare-clark` share the "Hare-Clark" name but aren't the same rules —
+Tasmania rounds the shared transfer ratio to 2 decimal places, while the ACT rounds each
+destination candidate's own resulting gain to 6 decimal places instead (see
+`LastParcelDeferredRoundingTransfer`'s javadoc). See [Status](#status) above for which of
+these have been checked against real election data, and to what precision.
 
 A tie-break value is a fallback chain, evaluated left to right: `previous-round,declared`
 tries `previous-round` first and only falls back to `declared` if the tied candidates were
