@@ -113,6 +113,56 @@ class StvCounterTest {
                         elected -> assertThat(elected.surplusTransferred()).isEqualTo(Fraction.ZERO)));
     }
 
+    /**
+     * Hand-derived 3-candidate/2-seat count (80 ballots) covering the case where two
+     * candidates meet quota in the very same tally snapshot:
+     * <pre>
+     *   40: A,B      30: B      10: C
+     * </pre>
+     * Total 80, quota = floor(80/3)+1 = 27. Both A (40) and B (30) meet quota in round 1's
+     * first count.
+     *
+     * <p>Both must be declared elected as a single batch <em>before</em> either surplus is
+     * transferred — otherwise A's surplus, transferred while B is still (wrongly) treated as
+     * continuing, would flow to B along its ballots' A,B ranking and inflate B's tally past
+     * its true, frozen first-preference count of 30. Surpluses are then applied one at a
+     * time, largest first (A's 13, then B's 3), each becoming its own round; since B is no
+     * longer continuing by the time A's surplus moves, A's ballots (ranked A,B, no further
+     * preference) exhaust instead of reaching B.
+     *
+     * <p>Round 1 — tallies {A:40, B:30, C:10}; A elected, surplus 13, which exhausts in full
+     *   (B unavailable, no further preference on those ballots).
+     * <p>Round 2 — B elected using its untouched frozen tally of 30 (surplus 3), which also
+     *   exhausts in full (B's own ballots have no second preference). C remains continuing
+     *   throughout but never sees a transfer, since both seats are filled by A and B.
+     */
+    @Test
+    void candidatesMeetingQuotaSimultaneouslyAreElectedAsABatchBeforeAnyTransfer() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        List<Ballot> ballots = List.of(ballot(40, a, b), ballot(30, b), ballot(10, c));
+
+        StvResult result = StvCounter.count(List.of(a, b, c), ballots, 2, ruleset(a, b, c));
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(27));
+        assertThat(result.electedInOrder()).containsExactly(a, b);
+        assertThat(result.rounds()).hasSize(2);
+
+        RoundRecord round1 = result.rounds().get(0);
+        assertThat(round1.roundNumber()).isEqualTo(1);
+        assertThat(round1.tallies()).isEqualTo(Map.of(a, Fraction.of(40), b, Fraction.of(30), c, Fraction.of(10)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(13)));
+        assertThat(round1.exhaustedVotes()).isEqualTo(Fraction.ZERO);
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.roundNumber()).isEqualTo(2);
+        // B's own tally must still read 30 here — not inflated by A's just-applied surplus.
+        assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(30), c, Fraction.of(10)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(3)));
+        assertThat(round2.exhaustedVotes()).isEqualTo(Fraction.of(13));
+    }
+
     @Test
     void tieBreakResolvesEliminationOrderDeterministically() {
         // X has a clear lead; Y and Z are tied for last on 3 votes each, with the declared

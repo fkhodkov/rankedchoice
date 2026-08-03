@@ -37,13 +37,39 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   `ers76` (same settings as `ers97` — I couldn't find a technical spec distinguishing ERS76
   from ERS97, so treat this one as "believed similar," not verified-accurate), and
   `hare-clark-qpq` (Droop + last-parcel + truncate:2)
+- Validated against **four real elections**, not just hand-derived or adapted fixtures: the
+  2012 Shetland South, 2017 Shetland North, and 2022 Orkney Kirkwall East council elections
+  (ballot-level data from [MGGG's `scot-elex` archive](https://github.com/mggg/scot-elex)),
+  plus the larger 2022 Badenoch and Strathspey (Highland Council) election, converted
+  directly from that council's own official raw preference-profile record. Run through the
+  `scottish` ruleset, each reproduces its actual result exactly — quota, first-preference
+  tallies, and who was elected — independently cross-checked against each ward's published
+  or officially declared result, not derived from our own engine
+  (`src/test/resources/testdata/scottish/`). Badenoch and Strathspey goes further: its full
+  8-round count is replayed and checked stage-by-stage against Highland Council's official
+  "Candidate Votes Per Stage Report", to 5-decimal precision, with the expected figures
+  stored as a resource file rather than hardcoded into the test
+  (`BadenochAndStrathspeyFullReplayTest`, `highland-2022-badenoch-and-strathspey.expected.txt`).
+  When multiple candidates meet quota in the same tally snapshot, they're declared elected as
+  a simultaneous batch (largest surplus transferred first), matching official STV rules and
+  each real election's published stage-by-stage figures exactly
 
 Not yet implemented: the Meek transfer method, the Cambridge MA ruleset (it uses the
 "Cincinnati method" — whole-ballot systematic sampling rather than fractional values — which
 doesn't fit this engine's current value-based model and would need its own separate
 implementation), Schulze/CPO-STV/Borda, and CSV/JSON/HTML export. Tied ballot rankings are
-rejected by the counter for now. Nothing has been validated yet against real published
-Scottish council or Cambridge election results — that's still ahead.
+rejected by the counter for now. Only Scottish council elections have been validated so far
+(see above) — more Scottish wards and a Cambridge MA validation are still ahead.
+
+One known, documented gap versus official reporting: when a candidate's surplus transfer
+causes a rounding truncation loss (e.g. a transfer ratio truncated from 0.1359375 to 0.13593),
+official reports track that tiny loss as its own "non-transferable votes due to rounding"
+line so their running total always reconciles exactly to the total valid vote count. This
+engine doesn't track that loss as a separate bucket — it isn't attributed to any candidate or
+to "exhausted" — so summing a round's candidate tallies plus its exhausted-vote count will be
+a hair short of the true total by the rounding loss accumulated so far. This doesn't affect
+who gets elected or any individual candidate's tally, which always match official figures
+exactly; it only affects a full grand-total reconciliation, which this engine doesn't attempt.
 
 ## Requirements
 

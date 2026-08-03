@@ -83,17 +83,43 @@ public final class StvCounter {
                     .toList();
 
             if (!meetingQuota.isEmpty()) {
-                Candidate toElect = pickHighest(meetingQuota, tallies, ruleset.tieBreak(), priorRounds);
-                Fraction candidateVotes = tallies.get(toElect);
-                Fraction surplus = candidateVotes.subtract(quota);
-                elected.add(toElect);
-                continuing.remove(toElect);
-                if (surplus.signum() > 0 && !continuing.isEmpty()) {
-                    transferSurplus(states, toElect, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
-                            continuing, nextParcelId++);
+                // Every candidate who meets quota in the same tally snapshot is declared
+                // elected as a batch, before any of their surpluses are transferred — so none
+                // of them can still receive (and thus inflate their own eventual surplus with)
+                // a fellow batch member's transfer. Surpluses are then applied one at a time,
+                // largest first, same as the single-candidate case below.
+                List<Candidate> electedThisStage = sortedByTallyDescending(
+                        new LinkedHashSet<>(meetingQuota), tallies, ruleset.tieBreak(), priorRounds);
+                if (electedThisStage.size() > remainingSeats) {
+                    electedThisStage = electedThisStage.subList(0, remainingSeats);
                 }
-                rounds.add(new RoundRecord(
-                        roundNumber, tallies, new RoundAction.Elected(toElect, surplus), exhausted));
+                Map<Candidate, Fraction> frozenVotes = new LinkedHashMap<>();
+                for (Candidate candidate : electedThisStage) {
+                    frozenVotes.put(candidate, tallies.get(candidate));
+                    elected.add(candidate);
+                    continuing.remove(candidate);
+                }
+                for (int i = 0; i < electedThisStage.size(); i++) {
+                    Candidate candidate = electedThisStage.get(i);
+                    Fraction candidateVotes = frozenVotes.get(candidate);
+                    Fraction surplus = candidateVotes.subtract(quota);
+                    Map<Candidate, Fraction> roundTallies = tallies;
+                    Fraction roundExhausted = exhausted;
+                    if (i > 0) {
+                        roundTallies = computeTallies(states, continuing);
+                        roundTallies.put(candidate, candidateVotes);
+                        roundExhausted = exhaustedVotes(states);
+                    }
+                    if (surplus.signum() > 0 && !continuing.isEmpty()) {
+                        transferSurplus(states, candidate, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
+                                continuing, nextParcelId++);
+                    }
+                    rounds.add(new RoundRecord(
+                            roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus), roundExhausted));
+                    if (i < electedThisStage.size() - 1) {
+                        roundNumber++;
+                    }
+                }
             } else {
                 Fraction lowest = continuing.stream().map(tallies::get).min(Fraction::compareTo).orElseThrow();
                 List<Candidate> tiedLowest = continuing.stream()

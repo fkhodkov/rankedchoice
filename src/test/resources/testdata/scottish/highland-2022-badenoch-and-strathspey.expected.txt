@@ -1,0 +1,102 @@
+# Expected round-by-round results for
+# testdata/scottish/highland-2022-badenoch-and-strathspey.blt, transcribed from Highland
+# Council's official "Candidate Votes Per Stage Report" for the 2022 Badenoch and Strathspey
+# ward count (8 candidates, 4 seats, 5529 valid votes, quota 1106). Values are exact fractions
+# in the same lowest-terms form info.fkhodkov.rankedchoice.core.util.Fraction prints them in,
+# so comparison against the engine's actual output is exact equality, not decimal rounding.
+#
+# Every tally value below has been independently spot-checked against the official report's
+# published 5-decimal-place figures (e.g. round 2's "11251709/12500" == the official
+# "900.13672" for Cockburn) and matches exactly.
+#
+# Note on round 8: the official report shows Bruce's final-seat election with a "true" surplus
+# of 111.62324 (1217.62324 - 1106 quota). Our engine instead reports a surplus of Fraction.ZERO
+# for this round, because by round 8 Bruce is the only continuing candidate and exactly one
+# seat remains — the engine's documented "remaining continuing == remaining seats" shortcut
+# elects him outright rather than computing a real surplus. This is a deliberate, documented
+# engine convention (see RoundAction.Elected's javadoc), not a discrepancy in the underlying
+# tally, so round 8's action line below omits an expected surplus rather than asserting 0 or
+# 111.62324 — the test must treat a missing surplus as "not checked" for this round.
+#
+# Note on "exhausted": each round's WIGM transfer truncates its per-parcel ratio to 5 decimal
+# places (per the "scottish" ruleset), which loses a tiny fraction of the surplus to rounding
+# on every transfer (e.g. round 1: surplus 174 / 1280 ballots truncates to 0.13593, one step
+# short of the exact 0.1359375, losing 0.00960 votes). The official report tracks this as a
+# separate "non-transferable votes (due to rounding)" line so its grand total always reconciles
+# to exactly 5529.00000; our engine has no such separate bucket — the lost fraction simply
+# isn't attributed anywhere; it doesn't appear in any candidate's tally, and it doesn't appear
+# in "exhausted" either. As a result, the "exhausted" values below match the official report's
+# "Non-transferable votes" line exactly (both track only real, ballot-exhaustion-caused
+# non-transferability), but do NOT include that separate rounding-loss line, and the sum of a
+# round's tallies + exhausted will therefore be a little short of 5529 by the rounding loss
+# accumulated so far. This is expected and does not affect who gets elected.
+
+quota: 1106
+
+round 1
+Russell JONES: 1280
+Muriel COCKBURN: 886
+John BRUCE: 861
+Bill LOBBAN: 842
+Pippa HADLEY: 568
+Declan GALLACHER: 489
+Dave FALLOWS: 371
+Charlie WHELAN: 232
+action: elected Russell JONES surplus 174
+exhausted: 0
+
+round 2
+Muriel COCKBURN: 11251709/12500
+Bill LOBBAN: 89514863/100000
+John BRUCE: 21973569/25000
+Pippa HADLEY: 29664149/50000
+Declan GALLACHER: 6289209/12500
+Dave FALLOWS: 38173847/100000
+Charlie WHELAN: 24165103/100000
+action: eliminated Charlie WHELAN
+exhausted: 2895309/100000
+
+round 3
+Bill LOBBAN: 23672893/25000
+Muriel COCKBURN: 18285453/20000
+John BRUCE: 89943799/100000
+Pippa HADLEY: 62477821/100000
+Declan GALLACHER: 28779173/50000
+Dave FALLOWS: 497343/1250
+action: eliminated Dave FALLOWS
+exhausted: 6412797/100000
+
+round 4
+Muriel COCKBURN: 6050151/5000
+Bill LOBBAN: 48113751/50000
+John BRUCE: 90643799/100000
+Pippa HADLEY: 65513751/100000
+Declan GALLACHER: 59626311/100000
+action: elected Muriel COCKBURN surplus 520151/5000
+exhausted: 9284657/100000
+
+round 5
+Bill LOBBAN: 19568093/20000
+John BRUCE: 22698363/25000
+Pippa HADLEY: 70270459/100000
+Declan GALLACHER: 3026917/5000
+action: eliminated Declan GALLACHER
+exhausted: 12255851/100000
+
+round 6
+Bill LOBBAN: 113330317/100000
+John BRUCE: 13048089/12500
+Pippa HADLEY: 85046411/100000
+action: elected Bill LOBBAN surplus 2730317/100000
+exhausted: 28937127/100000
+
+round 7
+John BRUCE: 105105929/100000
+Pippa HADLEY: 10729193/12500
+action: eliminated Pippa HADLEY
+exhausted: 1206347/4000
+
+round 8
+John BRUCE: 30440581/25000
+action: elected John BRUCE
+exhausted: 6208489/6250
