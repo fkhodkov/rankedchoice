@@ -95,6 +95,32 @@ public record Fraction(BigInteger numerator, BigInteger denominator) implements 
         return new BigDecimal(numerator).divide(new BigDecimal(denominator), scale, mode);
     }
 
+    /**
+     * A human-readable decimal rendering, e.g. {@code "107.58"} rather than {@code "5379/50"}
+     * — unlike {@link #toString()}, which always shows the exact rational value. Exact for
+     * every value this project's rulesets actually produce (their rounding rules truncate to
+     * at most a handful of decimal places); a value that doesn't terminate within 10 decimal
+     * places — only possible under {@code exact} rounding, since every {@code truncate:N}
+     * rule keeps N well under that — is rounded to 10 places rather than shown in full.
+     */
+    public String toDecimalString() {
+        if (denominator.equals(BigInteger.ONE)) {
+            return numerator.toString();
+        }
+        return toBigDecimal(10, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+    }
+
+    /**
+     * A human-readable decimal rendering with exactly {@code decimalPlaces} digits after the
+     * point, padding with trailing zeros if the value doesn't need them all — e.g. {@code
+     * toDecimalString(6)} renders the whole number 8434 as {@code "8434.000000"}. For aligning
+     * a report's figures to a ruleset's own fixed rounding precision; use {@link
+     * #toDecimalString()} instead when there's no such fixed precision to match.
+     */
+    public String toDecimalString(int decimalPlaces) {
+        return toBigDecimal(decimalPlaces, RoundingMode.HALF_UP).toPlainString();
+    }
+
     @Override
     public int compareTo(Fraction other) {
         return numerator.multiply(other.denominator).compareTo(other.numerator.multiply(denominator));

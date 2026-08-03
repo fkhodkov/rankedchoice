@@ -94,4 +94,29 @@ class FractionTest {
     void toStringFractionalKeepsDenominator() {
         assertThat(Fraction.of(1, 3)).hasToString("1/3");
     }
+
+    @Test
+    void toDecimalStringOfWholeNumberOmitsDecimalPoint() {
+        assertThat(Fraction.of(6, 3).toDecimalString()).isEqualTo("2");
+    }
+
+    @Test
+    void toDecimalStringIsExactWhenItTerminates() {
+        // 5379/50 -- the "ers97" model election's quota -- terminates in 2 decimal places.
+        assertThat(Fraction.of(5379, 50).toDecimalString()).isEqualTo("107.58");
+    }
+
+    @Test
+    void toDecimalStringDropsTrailingZerosButKeepsSignificantOnes() {
+        // 1/8 = 0.125 exactly; 3/8 = 0.375 exactly -- neither should be padded or truncated.
+        assertThat(Fraction.of(1, 8).toDecimalString()).isEqualTo("0.125");
+        assertThat(Fraction.of(3, 8).toDecimalString()).isEqualTo("0.375");
+    }
+
+    @Test
+    void toDecimalStringRoundsNonTerminatingValuesToTenPlaces() {
+        // 1/3 = 0.3333... never terminates -- only reachable via "exact" rounding, since every
+        // truncate:N rule this project ships keeps N well under 10.
+        assertThat(Fraction.of(1, 3).toDecimalString()).isEqualTo("0.3333333333");
+    }
 }

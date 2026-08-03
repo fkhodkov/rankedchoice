@@ -152,7 +152,7 @@ public final class Main implements Callable<Integer> {
                 firstNonNull(tiebreak, fileConfig.tiebreak()),
                 candidates);
         StvResult result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
-        return StvTextReport.render(result);
+        return StvTextReport.render(result, ruleset.roundingRule());
     }
 
     private ElectionConfig loadFileConfig() {

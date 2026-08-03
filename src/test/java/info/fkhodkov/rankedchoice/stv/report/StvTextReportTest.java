@@ -13,6 +13,7 @@ import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
+import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 
@@ -50,7 +51,7 @@ class StvTextReportTest {
                 Elected: X
                 """;
 
-        assertThat(StvTextReport.render(result)).isEqualTo(expected);
+        assertThat(StvTextReport.render(result, Exact.INSTANCE)).isEqualTo(expected);
     }
 
     @Test
@@ -69,8 +70,89 @@ class StvTextReportTest {
                 new DeclaredOrderTieBreak(List.of(a, b, c)));
 
         StvResult result = StvCounter.count(List.of(a, b, c), ballots, 1, ruleset);
-        String report = StvTextReport.render(result);
+        String report = StvTextReport.render(result, Exact.INSTANCE);
 
         assertThat(report).contains("exhausted so far: 1");
+    }
+
+    @Test
+    void rendersFractionalTalliesAsDecimalWithTheRulesetsFixedPrecision() {
+        // Same setup as StvCounterTest's roundingRuleIsAppliedToTheTransferValue: 13 voters,
+        // 2 seats, quota 5. A's surplus of 6 transfers at a truncated ratio of 6/11 -> 0.54,
+        // giving B 11 * 0.54 = 5.94 -- reported as "5.94" (not "297/50"), and every other
+        // figure padded to the same 2 decimal places ("11" -> "11.00") so the decimal points
+        // line up; values are also right-padded to a common width ("5.94" gains a leading
+        // space to match "11.00"'s length).
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(a), Set.of(b)), BigInteger.valueOf(11)),
+                new Ballot(List.of(Set.of(c)), BigInteger.valueOf(2)));
+        StvRuleset ruleset = new StvRuleset(
+                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, new TruncateDecimal(2),
+                new DeclaredOrderTieBreak(List.of(a, b, c)));
+
+        StvResult result = StvCounter.count(List.of(a, b, c), ballots, 2, ruleset);
+        String report = StvTextReport.render(result, ruleset.roundingRule());
+
+        String expected = """
+                Quota: 5.00
+
+                Round 1
+                  A: 11.00
+                  C:  2.00
+                  B:  0.00
+                  -> A elected (surplus 6.00 transferred)
+
+                Round 2
+                  B:  5.94
+                  C:  2.00
+                  -> B elected (surplus 0.94 transferred)
+
+                Elected: A, B
+                """;
+
+        assertThat(report).isEqualTo(expected);
+    }
+
+    @Test
+    void padsCandidateNamesIntoAColumnAcrossEveryRound() {
+        // Same shape as rendersQuotaRoundsAndElectedCandidates, but with names of different
+        // lengths -- every name should be right-padded to the longest one's width ("Bo" and
+        // "Ann" gain trailing spaces to match "Charlotte"), consistently across both rounds
+        // even though Charlotte only appears in round 2.
+        Candidate ann = Candidate.of("Ann");
+        Candidate bo = Candidate.of("Bo");
+        Candidate charlotte = Candidate.of("Charlotte");
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(ann)), BigInteger.valueOf(5)),
+                new Ballot(List.of(Set.of(bo), Set.of(ann)), BigInteger.valueOf(3)),
+                new Ballot(List.of(Set.of(charlotte), Set.of(ann)), BigInteger.valueOf(3)));
+        StvRuleset ruleset = new StvRuleset(
+                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(ann, bo, charlotte)));
+
+        StvResult result = StvCounter.count(List.of(ann, bo, charlotte), ballots, 1, ruleset);
+        String report = StvTextReport.render(result, Exact.INSTANCE);
+
+        String expected = """
+                Quota: 6
+
+                Round 1
+                  Ann      : 5
+                  Bo       : 3
+                  Charlotte: 3
+                  -> Bo eliminated
+
+                Round 2
+                  Ann      : 8
+                  Charlotte: 3
+                  -> Ann elected (surplus 2 transferred)
+
+                Elected: Ann
+                """;
+
+        assertThat(report).isEqualTo(expected);
     }
 }
