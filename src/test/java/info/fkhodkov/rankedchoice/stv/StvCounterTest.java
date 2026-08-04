@@ -388,4 +388,85 @@ class StvCounterTest {
         assertThat(round4.tallies()).isEqualTo(Map.of(y, Fraction.of(31), z, Fraction.of(20)));
         assertThat(round4.action()).isEqualTo(new RoundAction.Elected(y, Fraction.of(4)));
     }
+
+    /**
+     * Degenerate single-candidate/single-seat case: the lone candidate is the only one who
+     * could possibly fill the only seat, so the "continuing == remaining seats" shortcut
+     * elects them in round 1 without ever computing a quota or transferring anything.
+     */
+    @Test
+    void singleCandidateSingleSeatIsElectedWithoutAnyTransfer() {
+        StvResult result = StvCounter.count(List.of(A), List.of(ballot(10, A)), 1, ruleset(A));
+
+        assertThat(result.rounds()).hasSize(1);
+        assertThat(result.electedInOrder()).containsExactly(A);
+        RoundRecord round1 = result.rounds().getFirst();
+        assertThat(round1.tallies()).isEqualTo(Map.of(A, Fraction.of(10)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(A, Fraction.ZERO));
+    }
+
+    /**
+     * A single-seat race where one candidate's first-preference lead is so dominant (95 of
+     * 100 votes) that they're elected outright in round 1 -- the "meets quota" main branch,
+     * not the "continuing == remaining seats" shortcut above (3 candidates remain continuing
+     * against 1 seat, so the shortcut doesn't apply here). The other two candidates' ballots
+     * are never touched, and the count ends the instant the only seat is filled.
+     */
+    @Test
+    void dominantFirstPreferenceWinnerIsElectedInRoundOneWithoutFurtherCounting() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        List<Ballot> ballots = List.of(ballot(95, a), ballot(3, b), ballot(2, c));
+
+        StvResult result = StvCounter.count(List.of(a, b, c), ballots, 1, ruleset(a, b, c));
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(51));
+        assertThat(result.rounds()).hasSize(1);
+        assertThat(result.electedInOrder()).containsExactly(a);
+        RoundRecord round1 = result.rounds().getFirst();
+        assertThat(round1.tallies()).isEqualTo(Map.of(a, Fraction.of(95), b, Fraction.of(3), c, Fraction.of(2)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(44)));
+    }
+
+    /**
+     * Confirms the "continuing == remaining seats" shortcut can trigger mid-count, after
+     * elimination has whittled the field down -- not just when it's already true from round 1
+     * (as in {@link #shortcutElectsRemainingContinuingCandidatesWithoutTransfer}). 4
+     * candidates, 2 seats, 40 ballots:
+     * <pre>
+     *   13: A     13: B     8: C     6: D
+     * </pre>
+     * Quota = floor(40/3)+1 = 14 -- nobody ever reaches it. D (6, lowest) is eliminated first,
+     * exhausting its ballots (no further preference); then C (8, now lowest) is eliminated the
+     * same way. That leaves exactly {A, B} continuing for the 2 remaining seats, so both are
+     * declared elected by the shortcut despite neither ever having met quota -- each gets its
+     * own round, tied on 13 votes each and broken by declared order (A before B).
+     */
+    @Test
+    void eliminationCanShrinkTheFieldUntilTheShortcutTakesOver() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        List<Ballot> ballots = List.of(ballot(13, a), ballot(13, b), ballot(8, c), ballot(6, d));
+
+        StvResult result = StvCounter.count(List.of(a, b, c, d), ballots, 2, ruleset(a, b, c, d));
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(14));
+        assertThat(result.rounds()).hasSize(4);
+        assertThat(result.electedInOrder()).containsExactly(a, b);
+
+        assertThat(result.rounds().get(0).action()).isEqualTo(new RoundAction.Eliminated(d));
+        assertThat(result.rounds().get(1).action()).isEqualTo(new RoundAction.Eliminated(c));
+
+        RoundRecord round3 = result.rounds().get(2);
+        assertThat(round3.tallies()).isEqualTo(Map.of(a, Fraction.of(13), b, Fraction.of(13)));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(a, Fraction.ZERO));
+        assertThat(round3.exhaustedVotes()).isEqualTo(Fraction.of(14));
+
+        RoundRecord round4 = result.rounds().get(3);
+        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
+        assertThat(round4.exhaustedVotes()).isEqualTo(Fraction.of(14));
+    }
 }

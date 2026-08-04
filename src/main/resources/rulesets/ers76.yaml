@@ -1,9 +1,15 @@
-# ERS76: the predecessor to ERS97 (Electoral Reform Society rules), also a last-parcel-only
-# method. I could not find a dedicated technical specification for ERS76 distinct from
-# ERS97's documented rules -- only passing mentions that it's the earlier version in the
-# same family. Rather than invent specific differences (rounding precision, quota formula)
-# without a source, this preset uses ERS97's confirmed settings. Treat this as "believed
-# similar to ERS97" rather than a verified-accurate reproduction of ERS76 specifically.
+# ERS76: the predecessor to ERS97 (Electoral Reform Society rules; the 1976 2nd edition of
+# "How to Conduct an Election by the Single Transferable Vote", vs. ERS97's 1997 3rd edition),
+# also a last-parcel-only method. I could not find the 1976 rulebook itself, or any real
+# election run under it with published preference data -- only a secondary source: OpenTally
+# (https://yingtongli.me/opentally/docs/options.html), which documents one concrete rule
+# delta from ERS97: "the quota is always calculated to 2 decimal places. For full ERS76
+# (ERS73) compliance, set Round quota to 0 d.p. when the quota is more than 100." That's NOT
+# implemented here -- this preset still rounds the quota to 2dp unconditionally, same as
+# ERS97 -- since it comes from a third-party reimplementation's docs, not the rulebook itself,
+# and no fixture-grade real/model election exists to verify it against either way. Treat this
+# as "believed similar to ERS97, with one documented but unverified/unimplemented difference"
+# rather than a verified-accurate reproduction of ERS76 specifically.
 quota: droop-rounded:2
 transfer: last-parcel
 rounding: truncate:2

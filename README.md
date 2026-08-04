@@ -49,9 +49,10 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark` — each a named combination of the
   building blocks above, with sourced rules and links under
   [Bundled rulesets](#bundled-rulesets) below
-- Validated against **five real elections**, not just hand-derived or adapted fixtures: the
-  2012 Shetland South, 2017 Shetland North, and 2022 Orkney Kirkwall East council elections
-  (ballot-level data from [MGGG's `scot-elex` archive](https://github.com/mggg/scot-elex)),
+- Validated against **six real elections**, not just hand-derived or adapted fixtures: the
+  2012 Shetland South, 2012 Orkney North Isles, 2017 Shetland North, and 2022 Orkney Kirkwall
+  East council elections (ballot-level data from
+  [MGGG's `scot-elex` archive](https://github.com/mggg/scot-elex)),
   the larger 2022 Badenoch and Strathspey (Highland Council) election, converted directly
   from that council's own official raw preference-profile record, and the 2020 ACT
   Legislative Assembly election's Kurrajong electorate (28 candidates, 5 seats, 50,600
@@ -66,10 +67,11 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   the test (`BadenochAndStrathspeyFullReplayTest`,
   `highland-2022-badenoch-and-strathspey.expected.txt`); Kurrajong's round 2 is checked
   against the official "Final Distribution of Preferences" report to the full 6 decimal
-  places the ACT Electoral Act specifies. When multiple candidates meet quota in the same
-  tally snapshot, they're declared elected as a simultaneous batch (largest surplus
-  transferred first), matching official STV rules and each real election's published
-  stage-by-stage figures exactly
+  places the ACT Electoral Act specifies; North Isles (Orkney, 2012) is the one case where
+  the final seat is settled by elimination rather than any surplus transfer, and reproduces
+  that too. When multiple candidates meet quota in the same tally snapshot, they're declared
+  elected as a simultaneous batch (largest surplus transferred first), matching official STV
+  rules and each real election's published stage-by-stage figures exactly
 - Also validated against the Electoral Reform Society's own worked "model election" from the
   ERS97 rulebook (11 candidates, 6 seats, 753 votes) — not a real election, but not
   self-generated either: the ballot data and expected figures come from an independent,
@@ -84,9 +86,16 @@ Not yet implemented: the Meek transfer method, the Cambridge MA ruleset (it uses
 "Cincinnati method" — whole-ballot systematic sampling rather than fractional values — which
 doesn't fit this engine's current value-based model and would need its own separate
 implementation), Schulze/CPO-STV/Borda, and CSV/JSON/HTML export. Tied ballot rankings are
-rejected by the counter for now. ERS76 still has no verified-accurate technical spec (see the
-`ers76` ruleset note above) or real-election data of its own. More Scottish wards, an ERS76
-validation source, and a Cambridge MA validation are still ahead.
+rejected by the counter for now.
+
+Two rulesets are validated only at the arithmetic/config level, not against a real or model
+election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note
+above — no surviving copy of the 1976 rulebook itself, or any election published under it
+specifically, was found) and `hare-clark-qpq` (the Tasmanian Electoral Commission publishes
+genuine, detailed official round-by-round scrutiny reports per election, but — unlike the
+AEC or Elections ACT — never ballot-level preference data itself, so there's nothing to feed
+the engine and check it reproduces those reports from). A Cambridge MA validation is still
+ahead, blocked on the Cincinnati-method implementation above.
 
 One known, documented gap versus official reporting: when a candidate's surplus transfer
 causes a rounding truncation loss (e.g. a transfer ratio truncated from 0.1359375 to 0.13593),
@@ -165,7 +174,7 @@ Passing an unrecognized name (e.g. `--ruleset scotish`) lists all the ones below
 |---|---|---|---|
 | `scottish` | Droop + WIGM + truncate:5 | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rule 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
 | `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 | Many UK organisations' internal elections | [opavote's citation of ERS97 rule 5.3.7](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
-| `ers76` | Same settings as `ers97` | ERS97's predecessor | No dedicated technical spec found distinct from ERS97 — treat as "believed similar," not verified-accurate |
+| `ers76` | Same settings as `ers97` | ERS97's predecessor | No dedicated technical spec or real-election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule delta (quota rounds to 0dp above 100, not implemented here) but that's a third-party reimplementation, not the rulebook itself; treat as "believed similar," not verified-accurate |
 | `hare-clark-qpq` | Droop + last-parcel + truncate:2 | Tasmanian House of Assembly and local government elections | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html) |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6 | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4, as reproduced in Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
