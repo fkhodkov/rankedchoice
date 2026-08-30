@@ -40,11 +40,47 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     here for now
   - Tie-break rules: fixed declared order, previous-round votes, first-preference count
     (each with a configurable fallback), seeded random
-- A CLI that runs a count from a ballot file and prints a round-by-round text report. Rules
+- A CLI that runs a count from a ballot file and prints a round-by-round report. Rules
   come from a bundled ruleset preset (`--ruleset`), a YAML config file (`--config`),
   individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
   (Droop quota, fractional transfer, exact rounding, declared-order tie-break) — in that
   order of precedence, flag over config over default
+- Four report formats — text, CSV, JSON, and a self-contained HTML page — selectable via
+  `--report-format`, a config file's `reportFormat` field, or inferred from `--output`'s file
+  extension. All four render the exact same figures (the same `RoundingRule`-formatted decimal
+  strings), just reshaped per format; JSON also exposes the underlying structured tree
+  (`StvJsonReport.toReport`) for callers that want objects rather than a serialized string
+- A second counting method, Meek's method (`--method meek`), selectable alongside classic
+  quota-based STV (`--method stv`, the default) — structurally different from every quota/
+  transfer combination above: instead of moving discrete "parcels" of ballots, every ballot's
+  value is recomputed from scratch each round by walking its full ranking against every
+  candidate's current keep factor, and the quota itself is recalculated every round rather than
+  fixed once at the start. Elected candidates' keep factors are converged iteratively (per the
+  original algorithm's own 0.001% tolerance) using `double` arithmetic rather than this
+  project's exact `Fraction` type — a deliberate exception, since Meek's own termination rule
+  is a numeric tolerance and there is no exact value to converge to. `MeekCounter` still
+  produces the same `StvResult`/`RoundRecord` shape classic STV does (each round's figures
+  converted to `Fraction` only when the round's snapshot is recorded), so all four report
+  formats above work for a Meek count unchanged. Only `roundingRule` and `tiebreak` are
+  configurable for Meek — quota and transfer method are fixed by the method itself, so
+  `--quota`/`--transfer` are rejected alongside `--method meek`. Implemented from the original
+  algorithm specification (Hill, Wichmann & Woodall, "Algorithm 123: Single Transferable Vote
+  by Meek's Method", *The Computer Journal* 30(3), 1987, rules 2.1-2.9), validated with
+  hand-derived fixtures that simulate those same rules independently (`MeekCounterTest`), and
+  validated against a real election: MapLibre's 2025 Governing Board election (6 candidates,
+  5 seats, 92 ballots, run on OpaVote) — real ballot data plus OpaVote's own published
+  per-round keep factors, both mirrored on GitHub by MapLibre itself
+  (`testdata/meek/maplibre-governing-board-2025.blt`, `MeekMapLibreGoverningBoard2025FixtureTest`).
+  This real fixture caught a genuine bug during development: the first implementation fully
+  converged the currently-elected candidates' keep factors to tight tolerance before ever
+  checking whether a hopeful had crossed quota, which happened to give the same eventual
+  winners but produced visibly wrong intermediate keep-factor figures, caught by comparing this
+  project's own iteration trace directly against OpaVote's published per-round numbers. Fixed
+  by checking for newly-qualifying hopefuls on every convergence iteration instead of gating it
+  behind full convergence (see `MeekCounter#runOneStage`'s javadoc for the detailed why); the
+  corrected engine's final keep factors now agree with OpaVote's published figures to 5-6
+  significant digits, the residual being ordinary double-precision implementation variance
+  rather than a structural disagreement
 - Five bundled ruleset presets, shipped as YAML resources rather than hardcoded — `scottish`,
   `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark` — each a named combination of the
   building blocks above, with sourced rules and links under
@@ -82,11 +118,10 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   elimination credited a candidate with 108.89 votes at the point they crossed quota
   mid-elimination, where the rulebook's own count sheet shows 108.68
 
-Not yet implemented: the Meek transfer method, the Cambridge MA ruleset (it uses the
-"Cincinnati method" — whole-ballot systematic sampling rather than fractional values — which
-doesn't fit this engine's current value-based model and would need its own separate
-implementation), Schulze/CPO-STV/Borda, and CSV/JSON/HTML export. Tied ballot rankings are
-rejected by the counter for now.
+Not yet implemented: the Cambridge MA ruleset (it uses the "Cincinnati method" — whole-ballot
+systematic sampling rather than fractional values — which doesn't fit either counting engine's
+current value-based model and would need its own separate implementation), and
+Schulze/CPO-STV/Borda. Tied ballot rankings are rejected by both counters for now.
 
 Two rulesets are validated only at the arithmetic/config level, not against a real or model
 election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note
@@ -139,9 +174,11 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
+| `-m, --method` | Counting method: `stv\|meek`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek` (its quota and transfer are fixed by the method itself). |
 | `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. Can also come from `--config`'s `format` field. |
 | `-s, --seats` | Seats to fill. Required for CSV input (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. |
 | `-o, --output` | Output file. Defaults to standard output. |
+| `--report-format` | Report output format: `text\|csv\|json\|html`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
 | `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
 | `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark`. Mutually exclusive with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
@@ -152,13 +189,14 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 ### Rules and config
 
 A YAML config file can set any combination of `quota`, `transfer`, `rounding`, `tiebreak`,
-`seats`, and `format` — all optional:
+`seats`, `format`, and `reportFormat` — all optional:
 
 ```yaml
 quota: hare
 transfer: wigm
 rounding: truncate:5
 tiebreak: previous-round,declared
+reportFormat: json
 ```
 
 `--ruleset <name>` is exactly the same mechanism, pointed at a bundled config shipped as a
@@ -253,7 +291,8 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── tiebreak/  TieBreakRule, DeclaredOrderTieBreak, PreviousRoundVotesTieBreak,
 │   │              FirstPreferenceCountTieBreak, SeededRandomTieBreak
 │   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak string DSL)
-│   ├── report/    StvTextReport
+│   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
+│   ├── meek/      MeekCounter, MeekRuleset -- Meek's method, producing the same StvResult
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction
 └── cli/
     └── Main

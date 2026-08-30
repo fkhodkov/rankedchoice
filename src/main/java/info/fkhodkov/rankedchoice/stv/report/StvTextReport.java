@@ -8,9 +8,7 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvResult;
-import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
-import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 
 /**
  * Renders an {@link StvResult} as a human-readable, round-by-round plain-text report.
@@ -27,7 +25,7 @@ public final class StvTextReport {
     }
 
     public static String render(StvResult result, RoundingRule roundingRule) {
-        OptionalInt decimalPlaces = decimalPlacesOf(roundingRule);
+        OptionalInt decimalPlaces = ReportFormatting.decimalPlacesOf(roundingRule);
 
         int nameWidth = result.rounds().stream()
                 .flatMap(round -> round.tallies().keySet().stream())
@@ -66,16 +64,8 @@ public final class StvTextReport {
         return text.toString();
     }
 
-    /** {@code truncate:N}'s fixed decimal places to render every figure with, or empty for {@link Exact}. */
-    private static OptionalInt decimalPlacesOf(RoundingRule roundingRule) {
-        return switch (roundingRule) {
-            case TruncateDecimal truncate -> OptionalInt.of(truncate.decimalPlaces());
-            case Exact ignored -> OptionalInt.empty();
-        };
-    }
-
     private static String format(Fraction value, OptionalInt decimalPlaces) {
-        return decimalPlaces.isPresent() ? value.toDecimalString(decimalPlaces.getAsInt()) : value.toDecimalString();
+        return ReportFormatting.format(value, decimalPlaces);
     }
 
     private static String padRight(String text, int width) {
@@ -87,9 +77,7 @@ public final class StvTextReport {
     }
 
     private static Iterable<Map.Entry<Candidate, Fraction>> sortedByTallyDescending(RoundRecord round) {
-        return round.tallies().entrySet().stream()
-                .sorted(Map.Entry.<Candidate, Fraction>comparingByValue().reversed())
-                .toList();
+        return ReportFormatting.sortedByTallyDescending(round);
     }
 
     private static String describe(RoundAction action, OptionalInt decimalPlaces) {

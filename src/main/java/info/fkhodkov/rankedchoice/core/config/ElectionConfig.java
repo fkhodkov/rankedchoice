@@ -11,6 +11,7 @@ public record ElectionConfig(
         String rounding,
         String tiebreak,
         Integer seats,
-        String format
+        String format,
+        String reportFormat
 ) {
 }

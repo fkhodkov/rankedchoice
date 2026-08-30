@@ -18,7 +18,13 @@ import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
+import info.fkhodkov.rankedchoice.stv.meek.MeekCounter;
+import info.fkhodkov.rankedchoice.stv.meek.MeekRuleset;
+import info.fkhodkov.rankedchoice.stv.report.StvCsvReport;
+import info.fkhodkov.rankedchoice.stv.report.StvHtmlReport;
+import info.fkhodkov.rankedchoice.stv.report.StvJsonReport;
 import info.fkhodkov.rankedchoice.stv.report.StvTextReport;
+import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -34,7 +40,7 @@ import picocli.CommandLine.Option;
         description = "Tabulate a single transferable vote election from a ballot file.")
 public final class Main implements Callable<Integer> {
 
-    private static final ElectionConfig EMPTY_CONFIG = new ElectionConfig(null, null, null, null, null, null);
+    private static final ElectionConfig EMPTY_CONFIG = new ElectionConfig(null, null, null, null, null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -58,6 +64,10 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
+    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek. Defaults to stv. "
+            + "--quota/--transfer don't apply to meek (its quota and transfer are fixed by the method itself).")
+    private String method;
+
     @Option(names = {"-f", "--format"}, description = "Input format: blt or csv. Inferred from the file extension if omitted.")
     private String format;
 
@@ -67,6 +77,11 @@ public final class Main implements Callable<Integer> {
 
     @Option(names = {"-o", "--output"}, description = "Output file. Defaults to standard output.")
     private Path output;
+
+    @Option(names = {"--report-format"},
+            description = "Report output format: text|csv|json|html. Defaults to text; inferred from "
+                    + "--output's extension if that's given and this isn't.")
+    private String reportFormat;
 
     @Option(names = {"-c", "--config"}, description = "YAML config file with quota/transfer/rounding/tiebreak/seats/format.")
     private Path config;
@@ -145,14 +160,64 @@ public final class Main implements Callable<Integer> {
                     "Unsupported format '" + inputFormat + "'; expected 'blt' or 'csv'");
         }
 
-        StvRuleset ruleset = StvRulesetParser.parse(
-                firstNonNull(quota, fileConfig.quota()),
-                firstNonNull(transfer, fileConfig.transfer()),
-                firstNonNull(rounding, fileConfig.rounding()),
-                firstNonNull(tiebreak, fileConfig.tiebreak()),
-                candidates);
-        StvResult result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
-        return StvTextReport.render(result, ruleset.roundingRule());
+        String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
+        StvResult result;
+        RoundingRule roundingRuleForReport;
+        switch (effectiveMethod) {
+            case "stv" -> {
+                StvRuleset ruleset = StvRulesetParser.parse(
+                        firstNonNull(quota, fileConfig.quota()),
+                        firstNonNull(transfer, fileConfig.transfer()),
+                        firstNonNull(rounding, fileConfig.rounding()),
+                        firstNonNull(tiebreak, fileConfig.tiebreak()),
+                        candidates);
+                result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
+                roundingRuleForReport = ruleset.roundingRule();
+            }
+            case "meek" -> {
+                if (quota != null || transfer != null) {
+                    throw new IllegalArgumentException(
+                            "--quota/--transfer don't apply to --method meek; its quota and transfer are fixed by the method itself");
+                }
+                roundingRuleForReport = StvRulesetParser.parseRounding(firstNonNull(rounding, fileConfig.rounding()));
+                MeekRuleset ruleset = new MeekRuleset(roundingRuleForReport,
+                        StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates));
+                result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
+            }
+            default -> throw new IllegalArgumentException(
+                    "Unsupported method '" + effectiveMethod + "'; expected 'stv' or 'meek'");
+        }
+
+        String resolvedReportFormat = firstNonNull(reportFormat, fileConfig.reportFormat());
+        String effectiveReportFormat = resolvedReportFormat != null
+                ? resolvedReportFormat.toLowerCase(Locale.ROOT)
+                : inferReportFormat(output);
+        return switch (effectiveReportFormat) {
+            case "text" -> StvTextReport.render(result, roundingRuleForReport);
+            case "csv" -> StvCsvReport.render(result, roundingRuleForReport);
+            case "json" -> StvJsonReport.render(result, roundingRuleForReport);
+            case "html" -> StvHtmlReport.render(result, roundingRuleForReport);
+            default -> throw new IllegalArgumentException(
+                    "Unsupported report format '" + effectiveReportFormat + "'; expected 'text', 'csv', 'json', or 'html'");
+        };
+    }
+
+    /** Falls back to {@code text} when neither {@code --report-format} nor a recognized {@code --output} extension is given. */
+    private static String inferReportFormat(Path output) {
+        if (output == null) {
+            return "text";
+        }
+        String name = output.getFileName().toString().toLowerCase(Locale.ROOT);
+        if (name.endsWith(".csv")) {
+            return "csv";
+        }
+        if (name.endsWith(".json")) {
+            return "json";
+        }
+        if (name.endsWith(".html") || name.endsWith(".htm")) {
+            return "html";
+        }
+        return "text";
     }
 
     private ElectionConfig loadFileConfig() {
