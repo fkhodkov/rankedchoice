@@ -14,6 +14,15 @@ import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.borda.BordaMethod;
+import info.fkhodkov.rankedchoice.borda.BordaResult;
+import info.fkhodkov.rankedchoice.borda.BordaScoringRule;
+import info.fkhodkov.rankedchoice.borda.BordaTextReport;
+import info.fkhodkov.rankedchoice.borda.ClassicBorda;
+import info.fkhodkov.rankedchoice.borda.DowdallScoring;
+import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
+import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
+import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
@@ -30,14 +39,15 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 /**
- * Tabulates an STV election from a ballot file. Rules can come from a bundled preset
- * ({@code --ruleset}), a YAML config file ({@code --config}), individual override flags
- * ({@code --quota}, {@code --transfer}, {@code --rounding}, {@code --tiebreak}), or the
- * defaults (Droop quota, fractional transfer, exact rounding, declared-order tie-break) —
- * in that order of precedence, flag over config over default.
+ * Tabulates a ranked-choice election from a ballot file, by STV, Meek's method, Schulze, or
+ * Borda ({@code --method}). For STV/Meek, rules can come from a bundled preset ({@code
+ * --ruleset}), a YAML config file ({@code --config}), individual override flags ({@code
+ * --quota}, {@code --transfer}, {@code --rounding}, {@code --tiebreak}), or the defaults
+ * (Droop quota, fractional transfer, exact rounding, declared-order tie-break) — in that order
+ * of precedence, flag over config over default. Schulze and Borda don't use any of those.
  */
 @Command(name = "rankedchoice", mixinStandardHelpOptions = true,
-        description = "Tabulate a single transferable vote election from a ballot file.")
+        description = "Tabulate a ranked-choice election from a ballot file.")
 public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG = new ElectionConfig(null, null, null, null, null, null, null);
@@ -64,9 +74,14 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
-    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek. Defaults to stv. "
-            + "--quota/--transfer don't apply to meek (its quota and transfer are fixed by the method itself).")
+    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|schulze|borda. Defaults to stv. "
+            + "--quota/--transfer don't apply to meek (its quota and transfer are fixed by the method itself); "
+            + "schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all.")
     private String method;
+
+    @Option(names = {"--borda-scoring"}, description = "classic|dowdall. Only applies to --method borda; "
+            + "defaults to classic. 'dowdall' is the Nauru system (1, 1/2, 1/3, ...).")
+    private String bordaScoring;
 
     @Option(names = {"-f", "--format"}, description = "Input format: blt or csv. Inferred from the file extension if omitted.")
     private String format;
@@ -129,13 +144,15 @@ public final class Main implements Callable<Integer> {
 
     private String runCount() {
         ElectionConfig fileConfig = loadFileConfig();
+        String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
+        boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek");
 
         String resolvedFormat = firstNonNull(format, fileConfig.format());
         String inputFormat = resolvedFormat != null ? resolvedFormat.toLowerCase(Locale.ROOT) : inferFormat(input);
 
         List<Candidate> candidates;
         List<Ballot> ballots;
-        int effectiveSeats;
+        Integer effectiveSeats;
 
         switch (inputFormat) {
             case "blt" -> {
@@ -150,17 +167,19 @@ public final class Main implements Callable<Integer> {
                 ParsedBallots parsed = CsvBallotParser.parse(input);
                 candidates = parsed.candidates();
                 ballots = parsed.ballots();
-                Integer configuredSeats = resolveSeatsOrNull(fileConfig);
-                if (configuredSeats == null) {
+                effectiveSeats = resolveSeatsOrNull(fileConfig);
+                if (seatsBasedMethod && effectiveSeats == null) {
                     throw new IllegalArgumentException("--seats is required for CSV input");
                 }
-                effectiveSeats = configuredSeats;
             }
             default -> throw new IllegalArgumentException(
                     "Unsupported format '" + inputFormat + "'; expected 'blt' or 'csv'");
         }
 
-        String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
+        if (effectiveMethod.equals("schulze") || effectiveMethod.equals("borda")) {
+            return runNonStvMethod(effectiveMethod, candidates, ballots);
+        }
+
         StvResult result;
         RoundingRule roundingRuleForReport;
         switch (effectiveMethod) {
@@ -185,7 +204,7 @@ public final class Main implements Callable<Integer> {
                 result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
             }
             default -> throw new IllegalArgumentException(
-                    "Unsupported method '" + effectiveMethod + "'; expected 'stv' or 'meek'");
+                    "Unsupported method '" + effectiveMethod + "'; expected 'stv', 'meek', 'schulze', or 'borda'");
         }
 
         String resolvedReportFormat = firstNonNull(reportFormat, fileConfig.reportFormat());
@@ -199,6 +218,42 @@ public final class Main implements Callable<Integer> {
             case "html" -> StvHtmlReport.render(result, roundingRuleForReport);
             default -> throw new IllegalArgumentException(
                     "Unsupported report format '" + effectiveReportFormat + "'; expected 'text', 'csv', 'json', or 'html'");
+        };
+    }
+
+    /**
+     * Schulze and Borda don't fill seats the way STV/Meek do -- they just rank every candidate
+     * -- so neither needs {@code --seats}, and only a text report exists for either so far
+     * (see {@link SchulzeTextReport}, {@link BordaTextReport}); {@code --report-format}
+     * csv/json/html isn't supported for these two methods yet.
+     */
+    private String runNonStvMethod(String effectiveMethod, List<Candidate> candidates, List<Ballot> ballots) {
+        String resolvedReportFormat = firstNonNull(reportFormat, "text").toLowerCase(Locale.ROOT);
+        if (!resolvedReportFormat.equals("text")) {
+            throw new IllegalArgumentException(
+                    "--report-format '" + resolvedReportFormat + "' isn't supported yet for --method " + effectiveMethod
+                            + "; only 'text' is");
+        }
+        return switch (effectiveMethod) {
+            case "schulze" -> {
+                SchulzeResult result = SchulzeMethod.count(candidates, ballots);
+                yield SchulzeTextReport.render(candidates, result);
+            }
+            case "borda" -> {
+                BordaScoringRule rule = parseBordaScoring(firstNonNull(bordaScoring, "classic"));
+                BordaResult result = BordaMethod.count(candidates, ballots, rule);
+                yield BordaTextReport.render(result);
+            }
+            default -> throw new IllegalStateException("unreachable: " + effectiveMethod);
+        };
+    }
+
+    private static BordaScoringRule parseBordaScoring(String value) {
+        return switch (value.toLowerCase(Locale.ROOT)) {
+            case "classic" -> ClassicBorda.INSTANCE;
+            case "dowdall" -> DowdallScoring.INSTANCE;
+            default -> throw new IllegalArgumentException(
+                    "Unknown --borda-scoring '" + value + "'; expected 'classic' or 'dowdall'");
         };
     }
 

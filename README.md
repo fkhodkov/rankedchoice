@@ -1,8 +1,9 @@
 # Ranked Choice Voting Calculator
 
-A Java library and CLI for tabulating ranked-choice elections — starting with Single
-Transferable Vote (STV), with Schulze, CPO-STV, and Borda planned. See [PLAN.md](PLAN.md)
-for the full design and roadmap; this file covers what's built and how to use it today.
+A Java library and CLI for tabulating ranked-choice elections: Single Transferable Vote (STV,
+plus Meek's method), Schulze, and Borda are implemented, with CPO-STV/Schulze-STV still
+planned. See [PLAN.md](PLAN.md) for the full design and roadmap; this file covers what's built
+and how to use it today.
 
 ## Status
 
@@ -117,11 +118,47 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   surfaced the value-group elimination behavior described above: a naive single-shot
   elimination credited a candidate with 108.89 votes at the point they crossed quota
   mid-elimination, where the rulebook's own count sheet shows 108.68
+- Two structurally different, non-STV methods: **Schulze** (`--method schulze`) and **Borda**
+  (`--method borda`). Both are Condorcet/positional methods, not quota-based, so they don't use
+  `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all, and — since a
+  pairwise comparison or a positional score has no transfer ratio that would need one — both
+  are the first methods in this project to actually consume the `Ballot` model's built-in tied-
+  ranking support (`info.fkhodkov.rankedchoice.schulze`/`.borda`, `SchulzeMethod`/
+  `BordaMethod`). Schulze computes the pairwise preference matrix and the Floyd-Warshall-style
+  strongest-path ("beatpath") closure over it (the "winning votes" variant, matching Schulze's
+  own paper and the Debian project's devotee implementation), ranking candidates by how many
+  others they beat this way; Borda supports classic scoring (`n-1, n-2, ..., 0`) and the
+  Dowdall/Nauru system (`1, 1/2, 1/3, ...`, selected via `--borda-scoring dowdall`), with tied
+  ranks on a ballot averaging the scores their span would otherwise be worth. Schulze is
+  validated against Wikipedia's worked 5-candidate example, a hand-derived genuine pairwise
+  cycle (A beats B beats C beats A in direct comparisons, resolved cleanly to A>B>C by
+  strongest path), a hand-derived perfect dead-heat (a genuine, unresolvable tie for the win),
+  a tied-ranking ballot, an unranked-candidate case, and a real Debian General Resolution's own
+  published pairwise tally (`SchulzeMethodTest`, `SchulzeDebianGr2004002FixtureTest`) — ballot-
+  level Debian data isn't public (GR ballots are secret), so that fixture checks the
+  strongest-path/ranking computation directly against the real matrix rather than a full
+  ballot replay. A real *cycle* specifically — where beatpath routing actually changes the
+  outcome versus a plain Condorcet winner — appears to be very rare in practice: an analysis of
+  Debian's own election history found all 7 of its early leader elections had a clean
+  Condorcet winner, and no other documented real election with a published genuine cycle was
+  found either, so the cycle case above is hand-derived rather than sourced from a real
+  election. Borda is validated against two independent constituencies from the real 2019
+  Nauruan parliamentary election, Anabar and Boe (`BordaNauru2019AnabarFixtureTest`,
+  `BordaNauru2019BoeFixtureTest`), plus hand-derived cases for `ModifiedBorda`, a partial
+  ballot mixed with full ones, a three-way tie, a single-candidate election, and a blank
+  ballot (`BordaMethodTest`) — real per-voter ballots aren't public for Nauru either, but
+  Dowdall scoring is linear in each candidate's own (rank, count) marginal alone, so a
+  synthetic ballot set reconstructed to match each real published marginal table is
+  mathematically guaranteed to reproduce the same official scores, which it does, exactly, for
+  both constituencies. Only a text report exists for either method so far — `--report-format
+  csv/json/html` isn't supported yet for `--method schulze`/`borda`
 
 Not yet implemented: the Cambridge MA ruleset (it uses the "Cincinnati method" — whole-ballot
 systematic sampling rather than fractional values — which doesn't fit either counting engine's
-current value-based model and would need its own separate implementation), and
-Schulze/CPO-STV/Borda. Tied ballot rankings are rejected by both counters for now.
+current value-based model and would need its own separate implementation), and CPO-STV/
+Schulze-STV (the combinatorially-expensive multi-winner extensions of Condorcet/Schulze —
+scheduled last in the plan, needing a documented candidate/seat cap). Tied ballot rankings are
+rejected by the STV and Meek counters (Schulze and Borda accept them).
 
 Two rulesets are validated only at the arithmetic/config level, not against a real or model
 election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note
@@ -174,17 +211,18 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-m, --method` | Counting method: `stv\|meek`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek` (its quota and transfer are fixed by the method itself). |
+| `-m, --method` | Counting method: `stv\|meek\|schulze\|borda`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`; `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all. |
 | `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. Can also come from `--config`'s `format` field. |
-| `-s, --seats` | Seats to fill. Required for CSV input (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. |
+| `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
 | `-o, --output` | Output file. Defaults to standard output. |
-| `--report-format` | Report output format: `text\|csv\|json\|html`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
+| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`; only `text` exists so far for `schulze`/`borda`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
 | `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
 | `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark`. Mutually exclusive with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
 | `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding`. Overrides `--config`/`--ruleset`. |
 | `--rounding` | `exact\|truncate:N`. Overrides `--config`/`--ruleset`. |
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
+| `--borda-scoring` | `classic\|dowdall`. Only applies to `--method borda`; defaults to `classic`. `dowdall` is the Nauru system (`1, 1/2, 1/3, ...`). |
 
 ### Rules and config
 
@@ -294,6 +332,9 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
 │   ├── meek/      MeekCounter, MeekRuleset -- Meek's method, producing the same StvResult
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction
+├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport
+├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
+│                  BordaResult, BordaTextReport
 └── cli/
     └── Main
 
