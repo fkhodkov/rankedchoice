@@ -20,6 +20,10 @@ import info.fkhodkov.rankedchoice.borda.BordaScoringRule;
 import info.fkhodkov.rankedchoice.borda.BordaTextReport;
 import info.fkhodkov.rankedchoice.borda.ClassicBorda;
 import info.fkhodkov.rankedchoice.borda.DowdallScoring;
+import info.fkhodkov.rankedchoice.cpostv.CpoStvCounter;
+import info.fkhodkov.rankedchoice.cpostv.CpoStvResult;
+import info.fkhodkov.rankedchoice.cpostv.CpoStvRuleset;
+import info.fkhodkov.rankedchoice.cpostv.CpoStvTextReport;
 import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
@@ -74,9 +78,10 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
-    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|schulze|borda. Defaults to stv. "
-            + "--quota/--transfer don't apply to meek (its quota and transfer are fixed by the method itself); "
-            + "schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all.")
+    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|schulze|borda|cpo-stv. Defaults to "
+            + "stv. --quota/--transfer don't apply to meek (its quota and transfer are fixed by the method itself); "
+            + "schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all; cpo-stv uses "
+            + "--seats/--quota/--transfer/--rounding but not --tiebreak.")
     private String method;
 
     @Option(names = {"--borda-scoring"}, description = "classic|dowdall. Only applies to --method borda; "
@@ -145,7 +150,8 @@ public final class Main implements Callable<Integer> {
     private String runCount() {
         ElectionConfig fileConfig = loadFileConfig();
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
-        boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek");
+        boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek")
+                || effectiveMethod.equals("cpo-stv");
 
         String resolvedFormat = firstNonNull(format, fileConfig.format());
         String inputFormat = resolvedFormat != null ? resolvedFormat.toLowerCase(Locale.ROOT) : inferFormat(input);
@@ -179,6 +185,14 @@ public final class Main implements Callable<Integer> {
         if (effectiveMethod.equals("schulze") || effectiveMethod.equals("borda")) {
             return runNonStvMethod(effectiveMethod, candidates, ballots);
         }
+        if (effectiveMethod.equals("cpo-stv")) {
+            CpoStvRuleset ruleset = new CpoStvRuleset(
+                    StvRulesetParser.parseQuota(firstNonNull(quota, fileConfig.quota())),
+                    StvRulesetParser.parseTransfer(firstNonNull(transfer, fileConfig.transfer())),
+                    StvRulesetParser.parseRounding(firstNonNull(rounding, fileConfig.rounding())));
+            CpoStvResult result = CpoStvCounter.count(candidates, ballots, effectiveSeats, ruleset);
+            return CpoStvTextReport.render(result);
+        }
 
         StvResult result;
         RoundingRule roundingRuleForReport;
@@ -204,7 +218,8 @@ public final class Main implements Callable<Integer> {
                 result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
             }
             default -> throw new IllegalArgumentException(
-                    "Unsupported method '" + effectiveMethod + "'; expected 'stv', 'meek', 'schulze', or 'borda'");
+                    "Unsupported method '" + effectiveMethod
+                            + "'; expected 'stv', 'meek', 'schulze', 'borda', or 'cpo-stv'");
         }
 
         String resolvedReportFormat = firstNonNull(reportFormat, fileConfig.reportFormat());

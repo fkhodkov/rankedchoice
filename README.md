@@ -1,9 +1,10 @@
 # Ranked Choice Voting Calculator
 
 A Java library and CLI for tabulating ranked-choice elections: Single Transferable Vote (STV,
-plus Meek's method), Schulze, and Borda are implemented, with CPO-STV/Schulze-STV still
-planned. See [PLAN.md](PLAN.md) for the full design and roadmap; this file covers what's built
-and how to use it today.
+plus Meek's method), Schulze, Borda, and CPO-STV are implemented; Schulze-STV is deferred (see
+below), and the Cambridge, MA "Cincinnati method" ruleset needs its own separate engine. See
+[PLAN.md](PLAN.md) for the full design and roadmap; this file covers what's built and how to
+use it today.
 
 ## Status
 
@@ -152,13 +153,50 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   mathematically guaranteed to reproduce the same official scores, which it does, exactly, for
   both constituencies. Only a text report exists for either method so far — `--report-format
   csv/json/html` isn't supported yet for `--method schulze`/`borda`
+- **CPO-STV** (`--method cpo-stv`, Nicolaus Tideman's Comparison of Pairs of Outcomes by STV) —
+  a fundamentally different shape again: instead of one count with a single sequence of
+  elections/eliminations, it exhaustively enumerates every possible `seats`-sized candidate
+  subset ("outcome"), scores every pair of them against each other via a small notional
+  STV-style count (excluding candidates in neither outcome, transferring the surplus only of
+  candidates *shared* by both — a candidate unique to just one outcome keeps whatever they end
+  up with), and picks whichever outcome beats every other — falling back to the same
+  beatpath-completion idea `SchulzeMethod` uses (reimplemented locally over `Fraction`-valued
+  outcome scores rather than `SchulzeMethod`'s `BigInteger` vote counts) if no outcome wins
+  outright. Reuses the existing `Quota`/`TransferMethod`/`RoundingRule` building blocks for the
+  notional count (`--quota`/`--transfer`/`--rounding` all apply; `--tiebreak` doesn't, since
+  there's no elimination to break a tie for). The number of outcomes is `C(candidates, seats)`,
+  and comparisons scale quadratically in that, so `CpoStvCounter.MAX_OUTCOMES` caps it at 500
+  outcomes (at most 124,750 comparisons) rather than letting a larger election silently hang —
+  there's no real-world precedent to size this against, since CPO-STV sees virtually no
+  practical use for exactly this reason — as of a 2021 analysis, CPO-STV has never actually been
+  used for a public election, so there's no real-world data to validate against; every fixture
+  here is hand-derived (some with the help of a small independent Python re-implementation of
+  this exact algorithm, used to search for and verify tricky cases before transcribing them into
+  Java) rather than sourced from a real count. Validated against the CPO-STV Wikipedia article's
+  own worked example (5 candidates, 3 seats); a case where WIGM and fractional transfer agree
+  (confirming `CpoStvRuleset`'s transfer method is genuinely threaded through the notional
+  count); ballots with no continuing preference becoming exhausted rather than miscounted; a
+  genuine tie between four different outcomes; a genuine three-outcome cycle in *direct*
+  pairwise comparison that the beatpath completion still resolves to a full strict ranking; and
+  the `seats = candidates - 1` boundary case, where no outcome pair ever excludes anyone from
+  standing and a shared candidate's transferred surplus can itself push a second shared
+  candidate over quota, cascading a further transfer (`CpoStvCounterTest`). Only a text report
+  exists so far (`CpoStvTextReport`), and it doesn't print the full pairwise score matrix (grows
+  quadratically, usually too large to read) — just the winning outcome and the full ranking.
 
 Not yet implemented: the Cambridge MA ruleset (it uses the "Cincinnati method" — whole-ballot
-systematic sampling rather than fractional values — which doesn't fit either counting engine's
-current value-based model and would need its own separate implementation), and CPO-STV/
-Schulze-STV (the combinatorially-expensive multi-winner extensions of Condorcet/Schulze —
-scheduled last in the plan, needing a documented candidate/seat cap). Tied ballot rankings are
-rejected by the STV and Meek counters (Schulze and Borda accept them).
+systematic sampling by literal individual-ballot sequence order, not aggregate ranking counts —
+so it doesn't fit either counting engine's current `Ballot(ranking, count)` model at all, and
+would need a ballot model extension plus its own separate engine; even then, Cambridge's own
+official round reports publish only aggregate totals, never individual ballot transfers, so an
+exact historical replay likely isn't achievable even with real ballot-level data) and
+Schulze-STV (the other multi-winner Condorcet-STV extension, alongside CPO-STV above — deferred
+specifically because its "proportional completion" step requires solving a genuine optimization
+problem per pairwise outcome comparison, i.e. an LP-style solver, which is a real dependency
+this project doesn't currently have and which the plan's own tooling section explicitly avoided
+pulling in). Tied ballot rankings are rejected by the STV, Meek, and CPO-STV counters (CPO-STV's notional
+count reuses STV's own ballot-position logic, so it inherits the same restriction); Schulze and
+Borda accept them.
 
 Two rulesets are validated only at the arithmetic/config level, not against a real or model
 election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note
@@ -211,11 +249,11 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-m, --method` | Counting method: `stv\|meek\|schulze\|borda`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`; `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all. |
+| `-m, --method` | Counting method: `stv\|meek\|schulze\|borda\|cpo-stv`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`; `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all; `cpo-stv` uses `--seats`/`--quota`/`--transfer`/`--rounding` but not `--tiebreak`. |
 | `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. Can also come from `--config`'s `format` field. |
-| `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
+| `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek`/`cpo-stv` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
 | `-o, --output` | Output file. Defaults to standard output. |
-| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`; only `text` exists so far for `schulze`/`borda`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
+| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`; only `text` exists so far for `schulze`/`borda`/`cpo-stv`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
 | `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
 | `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark`. Mutually exclusive with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
@@ -335,6 +373,7 @@ src/main/java/info/fkhodkov/rankedchoice/
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport
+├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport
 └── cli/
     └── Main
 
