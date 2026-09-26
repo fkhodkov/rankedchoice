@@ -16,6 +16,7 @@ import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
+import info.fkhodkov.rankedchoice.stv.tiebreak.PreviousRoundVotesTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
@@ -468,5 +469,99 @@ class StvCounterTest {
         RoundRecord round4 = result.rounds().get(3);
         assertThat(round4.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
         assertThat(round4.exhaustedVotes()).isEqualTo(Fraction.of(14));
+    }
+
+    /**
+     * Hand-derived 5-candidate/2-seat count (34 ballots) exercising the same building blocks
+     * as the bundled {@code hare-clark-qpq} ruleset (Droop quota, last-parcel-only transfer,
+     * truncate:2 rounding) — but this is <strong>not</strong> validated against any real
+     * election or third-party implementation: no reference implementation of this exact
+     * combination could be found (droop's and OpenSTV's own "QPQ" modules both implement a
+     * fundamentally different algorithm, Woodall's Quota Preferential by Quotient, not this
+     * one — see the {@code hare-clark-qpq} entry in the bundled-rulesets table in README.md),
+     * and the Tasmanian Electoral Commission's own published count sheets don't include the
+     * underlying ballot-level preference data needed to replay one. This is a
+     * self-consistency check only: the expected figures below are derived and verified by
+     * hand, the same way {@code StvCounterTest}'s other hand-derived cases are, not sourced
+     * externally.
+     *
+     * <pre>
+     *   8: A,B      7: B      4: C      6: D,A,E      9: E
+     * </pre>
+     * Total 34, Droop quota = floor(34/3)+1 = 12.
+     *
+     * <p>Round 1 — first preferences A=8, B=7, C=4, D=6, E=9; nobody meets quota; C (lowest)
+     * is excluded, its 4 ballots have no further preference and exhaust.
+     * <p>Round 2 — B=7, D=6, A=8, E=9; D (lowest) is excluded; D's 6 ballots (ranked D,A,E)
+     * move to A as one newly-arrived parcel, taking A to 8+6=14, past quota -- A is elected
+     * and frozen (last-parcel transfer methods defer every surplus transfer).
+     * <p>Round 3 — A's surplus (14-12=2) is transferred. This is the case the whole ruleset
+     * exists to exercise: A now holds <em>two</em> parcels — the original 8 (ranked A,B) and
+     * the newly-arrived 6 (ranked D,A,E) — and last-parcel-only examines <em>only</em> the
+     * more recently arrived one. Ratio = 2 / 6 = 0.333..., truncated to 2dp = 0.33; each of
+     * the 6 papers becomes worth 0.33 and moves to E (6 * 0.33 = 1.98), landing E at
+     * 9 + 1.98 = 10.98. A's original 8 (ranked A,B) are <em>not</em> touched at all, even
+     * though B is still continuing and would ordinarily be eligible to receive some of them
+     * under an inclusive method (WIGM/fractional) -- confirming the transfer really did
+     * examine only the last-arrived parcel. A's own reported total for this round stays at
+     * the full 14 (not reduced to quota), matching the same last-parcel quirk already
+     * observed against real ERS97 model election data elsewhere in this project.
+     * <p>Round 4 — B=7, E=10.98; B (lowest) is excluded, its 7 ballots have no further
+     * preference and exhaust.
+     * <p>Round 5 — only E remains continuing for the 1 remaining seat: elected without
+     * further transfer (the "remaining continuing == remaining seats" shortcut).
+     * <p>Final result: A and E elected; C's 4 and B's 7 (11 total) exhausted.
+     */
+    @Test
+    void handDerivedHareClarkStyleLastParcelSurplusIsolatesOnlyTheMostRecentParcel() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        Candidate e = Candidate.of("E");
+        List<Ballot> ballots = List.of(
+                ballot(8, a, b),
+                ballot(7, b),
+                ballot(4, c),
+                ballot(6, d, a, e),
+                ballot(9, e));
+        StvRuleset hareClarkStyleRuleset = new StvRuleset(
+                DroopQuota.INSTANCE,
+                LastParcelTransfer.INSTANCE,
+                new TruncateDecimal(2),
+                new PreviousRoundVotesTieBreak(new DeclaredOrderTieBreak(List.of(a, b, c, d, e))));
+
+        StvResult result = StvCounter.count(List.of(a, b, c, d, e), ballots, 2, hareClarkStyleRuleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(12));
+        assertThat(result.electedInOrder()).containsExactly(a, e);
+        assertThat(result.rounds()).hasSize(5);
+
+        RoundRecord round1 = result.rounds().get(0);
+        assertThat(round1.tallies()).isEqualTo(
+                Map.of(a, Fraction.of(8), b, Fraction.of(7), c, Fraction.of(4), d, Fraction.of(6), e, Fraction.of(9)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Eliminated(c));
+        assertThat(round1.exhaustedVotes()).isEqualTo(Fraction.ZERO);
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.tallies())
+                .isEqualTo(Map.of(a, Fraction.of(8), b, Fraction.of(7), d, Fraction.of(6), e, Fraction.of(9)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Eliminated(d));
+        assertThat(round2.exhaustedVotes()).isEqualTo(Fraction.of(4));
+
+        RoundRecord round3 = result.rounds().get(2);
+        assertThat(round3.tallies()).isEqualTo(Map.of(b, Fraction.of(7), e, Fraction.of(9), a, Fraction.of(14)));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(2)));
+        assertThat(round3.exhaustedVotes()).isEqualTo(Fraction.of(4));
+
+        RoundRecord round4 = result.rounds().get(3);
+        assertThat(round4.tallies()).isEqualTo(Map.of(b, Fraction.of(7), e, Fraction.of(549, 50))); // 10.98
+        assertThat(round4.action()).isEqualTo(new RoundAction.Eliminated(b));
+        assertThat(round4.exhaustedVotes()).isEqualTo(Fraction.of(4));
+
+        RoundRecord round5 = result.rounds().get(4);
+        assertThat(round5.tallies()).isEqualTo(Map.of(e, Fraction.of(549, 50))); // 10.98
+        assertThat(round5.action()).isEqualTo(new RoundAction.Elected(e, Fraction.ZERO));
+        assertThat(round5.exhaustedVotes()).isEqualTo(Fraction.of(11));
     }
 }
