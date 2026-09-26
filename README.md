@@ -87,7 +87,7 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark` — each a named combination of the
   building blocks above, with sourced rules and links under
   [Bundled rulesets](#bundled-rulesets) below
-- Validated against **six real elections**, not just hand-derived or adapted fixtures: the
+- Validated against **nine real elections**, not just hand-derived or adapted fixtures: the
   2012 Shetland South, 2012 Orkney North Isles, 2017 Shetland North, and 2022 Orkney Kirkwall
   East council elections (ballot-level data from
   [MGGG's `scot-elex` archive](https://github.com/mggg/scot-elex)),
@@ -110,6 +110,22 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   that too. When multiple candidates meet quota in the same tally snapshot, they're declared
   elected as a simultaneous batch (largest surplus transferred first), matching official STV
   rules and each real election's published stage-by-stage figures exactly
+- The remaining three of those nine are a different kind of real-election validation: three
+  constituencies from **Ireland's 2002 general election** (Dublin North, Dublin West, Meath —
+  137,861 real ballots total), from
+  [PrefLib's "Irish Election Data"](https://www.preflib.org/dataset/00001) (originally donated
+  by OpenSTV's Jeffrey O'Neill). Unlike the six elections above, this isn't a replay of each
+  constituency's own official count — real Irish Dáil counts historically transfer surplus
+  votes by physically resampling a random subset of the surplus parcel at full value, not by
+  any deterministic ratio, so no reproducible official round-by-round record exists at ballot
+  level. What's independently verifiable, and checked here: every first-preference tally
+  matches each constituency's published Wikipedia result exactly; the final elected set
+  matches the TDs actually returned exactly (9 seats across the three); and running the
+  bundled `scottish` ruleset (the closest widely-used deterministic equivalent) against the
+  real ballot data reproduces, stage by stage, the exact same figures as an independent
+  implementation of that same method (`jklundell/droop`), matched to droop's own
+  5-decimal-place precision at every stage (`Irish2002GeneralElectionFixtureTest`,
+  `src/test/resources/testdata/irish/`)
 - Also validated against the Electoral Reform Society's own worked "model election" from the
   ERS97 rulebook (11 candidates, 6 seats, 753 votes) — not a real election, but not
   self-generated either: the ballot data and expected figures come from an independent,
