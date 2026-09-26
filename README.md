@@ -1,7 +1,7 @@
 # Ranked Choice Voting Calculator
 
 A Java library and CLI for tabulating ranked-choice elections: Single Transferable Vote (STV,
-plus Meek's method), Schulze, Borda, and CPO-STV are implemented; Schulze-STV is deferred (see
+plus Meek's method), Schulze, Borda, CPO-STV, and QPQ are implemented; Schulze-STV is deferred (see
 below), and the Cambridge, MA "Cincinnati method" ruleset needs its own separate engine. See
 [PLAN.md](PLAN.md) for the full design and roadmap; this file covers what's built and how to
 use it today.
@@ -202,6 +202,38 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   candidate over quota, cascading a further transfer (`CpoStvCounterTest`). Only a text report
   exists so far (`CpoStvTextReport`), and it doesn't print the full pairwise score matrix (grows
   quadratically, usually too large to read) — just the winning outcome and the full ranking.
+- **QPQ** (`--method qpq`, Douglas Woodall's Quota Preferential by Quotient — see his paper
+  "QPQ, a quota-preferential STV-like election rule", *Voting matters* Issue 17, 2003) — not to
+  be confused with the bundled `hare-clark-qpq` *ruleset* above, an unrelated classic-STV preset
+  that happens to share the same three letters in its name. Structurally unlike every
+  parcel-based method here: a ballot's vote is never split or devalued, it always counts as one
+  full vote for whichever hopeful candidate currently tops its ranking. What changes instead is
+  a per-ballot bookkeeping number, its *elected-credit* — how many candidates, fractionally, it
+  has "helped elect" so far — used only to compute each hopeful candidate's quotient
+  (`votes / (1 + elected-credit)`) and the quota (`active votes / (1 + seats - exhausted
+  ballots' banked credit)`), both recalculated every stage rather than fixed once. If the
+  highest quotient beats quota, that candidate is elected and every ballot currently topping
+  them has its credit *overwritten* with `1/quotient`; otherwise the lowest-quotient candidate
+  is permanently excluded and — this is the rule's distinctive, easy-to-miss feature — **the
+  whole count restarts**: every previously-elected candidate returns to hopeful, every ballot's
+  credit resets to zero, and counting resumes from scratch with one fewer candidate in the
+  running. This makes QPQ structurally closer to `MeekCounter`'s whole-count iteration than to
+  classic STV's incremental transfers, but simpler than Meek's method in one respect: since it's
+  exact quotient arithmetic rather than a converging keep-factor, there's no numeric-tolerance
+  loop needed anywhere, just a bounded, finite sequence of exact `Fraction` stages. Only
+  `--tiebreak` applies (`--quota`/`--transfer`/`--rounding` don't — both are derived formulas,
+  not pluggable). Validated with hand-derived cases (`QpqCounterTest`) — including one
+  specifically constructed to exercise the restart-and-re-election mechanic, which caught a
+  real bug during development (a naive "elect every remaining hopeful once the loop ends"
+  cleanup step didn't check whether every seat was already filled by explicit elections,
+  wrongly adding an extra winner) — and cross-checked against **two independent, genuine
+  open-source implementations of this exact algorithm**: `jklundell/droop`'s `qpq.py` and
+  OpenSTV's `QPQ.py`, both confirmed to implement Woodall's rule directly (unlike the false
+  leads chased for `hare-clark-qpq` below, where neither tool turned out to implement Tasmania's
+  actual rules). Six synthetic ballot sets plus one purpose-built restart-and-re-election case
+  matched both reference implementations' quota and every candidate's quotient, stage by stage,
+  to 9 decimal places — OpenSTV's own transcript even independently labels the exact stage this
+  project's `restarted` flag marks as "Restart count."
 
 Not yet implemented: the Cambridge MA ruleset (it uses the "Cincinnati method" — whole-ballot
 systematic sampling by literal individual-ballot sequence order, not aggregate ranking counts —
@@ -213,9 +245,9 @@ Schulze-STV (the other multi-winner Condorcet-STV extension, alongside CPO-STV a
 specifically because its "proportional completion" step requires solving a genuine optimization
 problem per pairwise outcome comparison, i.e. an LP-style solver, which is a real dependency
 this project doesn't currently have and which the plan's own tooling section explicitly avoided
-pulling in). Tied ballot rankings are rejected by the STV, Meek, and CPO-STV counters (CPO-STV's notional
-count reuses STV's own ballot-position logic, so it inherits the same restriction); Schulze and
-Borda accept them.
+pulling in). Tied ballot rankings are rejected by the STV, Meek, CPO-STV, and QPQ counters
+(CPO-STV's notional count reuses STV's own ballot-position logic, so it inherits the same
+restriction); Schulze and Borda accept them.
 
 Two rulesets are validated only at the arithmetic/config level, not against a real or model
 election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note
@@ -268,11 +300,11 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-m, --method` | Counting method: `stv\|meek\|schulze\|borda\|cpo-stv`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`; `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all; `cpo-stv` uses `--seats`/`--quota`/`--transfer`/`--rounding` but not `--tiebreak`. |
+| `-m, --method` | Counting method: `stv\|meek\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`; `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all; `cpo-stv` uses `--seats`/`--quota`/`--transfer`/`--rounding` but not `--tiebreak`; `qpq` uses `--seats`/`--tiebreak` but not `--quota`/`--transfer`/`--rounding` (both are derived formulas, not configurable). |
 | `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. Can also come from `--config`'s `format` field. |
-| `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek`/`cpo-stv` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
+| `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek`/`cpo-stv`/`qpq` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
 | `-o, --output` | Output file. Defaults to standard output. |
-| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`; only `text` exists so far for `schulze`/`borda`/`cpo-stv`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
+| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`; only `text` exists so far for `schulze`/`borda`/`cpo-stv`/`qpq`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
 | `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
 | `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark`. Mutually exclusive with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
@@ -398,6 +430,7 @@ src/main/java/info/fkhodkov/rankedchoice/
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport
 ├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport
+├── qpq/           QpqCounter, QpqRuleset, QpqResult, QpqRoundRecord, QpqAction, QpqTextReport
 └── cli/
     └── Main
 

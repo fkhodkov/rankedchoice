@@ -24,6 +24,10 @@ import info.fkhodkov.rankedchoice.cpostv.CpoStvCounter;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvResult;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvRuleset;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvTextReport;
+import info.fkhodkov.rankedchoice.qpq.QpqCounter;
+import info.fkhodkov.rankedchoice.qpq.QpqResult;
+import info.fkhodkov.rankedchoice.qpq.QpqRuleset;
+import info.fkhodkov.rankedchoice.qpq.QpqTextReport;
 import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
@@ -43,12 +47,15 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 /**
- * Tabulates a ranked-choice election from a ballot file, by STV, Meek's method, Schulze, or
- * Borda ({@code --method}). For STV/Meek, rules can come from a bundled preset ({@code
- * --ruleset}), a YAML config file ({@code --config}), individual override flags ({@code
- * --quota}, {@code --transfer}, {@code --rounding}, {@code --tiebreak}), or the defaults
- * (Droop quota, fractional transfer, exact rounding, declared-order tie-break) — in that order
- * of precedence, flag over config over default. Schulze and Borda don't use any of those.
+ * Tabulates a ranked-choice election from a ballot file, by STV, Meek's method, CPO-STV, QPQ,
+ * Schulze, or Borda ({@code --method}). For STV/Meek, rules can come from a bundled preset
+ * ({@code --ruleset}), a YAML config file ({@code --config}), individual override flags
+ * ({@code --quota}, {@code --transfer}, {@code --rounding}, {@code --tiebreak}), or the
+ * defaults (Droop quota, fractional transfer, exact rounding, declared-order tie-break) — in
+ * that order of precedence, flag over config over default. CPO-STV reuses the same quota/
+ * transfer/rounding flags without a bundled preset or tie-break; QPQ (Woodall's Quota
+ * Preferential by Quotient) only takes a tie-break, since its quota and transfer are both
+ * derived formulas rather than configurable. Schulze and Borda don't use any of those.
  */
 @Command(name = "rankedchoice", mixinStandardHelpOptions = true,
         description = "Tabulate a ranked-choice election from a ballot file.")
@@ -79,10 +86,13 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
-    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|schulze|borda|cpo-stv. Defaults to "
-            + "stv. --quota/--transfer don't apply to meek (its quota and transfer are fixed by the method itself); "
-            + "schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all; cpo-stv uses "
-            + "--seats/--quota/--transfer/--rounding but not --tiebreak.")
+    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|schulze|borda|cpo-stv|qpq. Defaults "
+            + "to stv. --quota/--transfer don't apply to meek (its quota and transfer are fixed by the method "
+            + "itself); schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all; "
+            + "cpo-stv uses --seats/--quota/--transfer/--rounding but not --tiebreak; qpq (Woodall's Quota "
+            + "Preferential by Quotient -- unrelated to the hare-clark-qpq *ruleset*, a different, classic-STV "
+            + "preset despite the similar name) uses --seats/--tiebreak but not --quota/--transfer/--rounding, "
+            + "since its quota and transfer are both derived formulas, not configurable.")
     private String method;
 
     @Option(names = {"--borda-scoring"}, description = "classic|dowdall. Only applies to --method borda; "
@@ -152,7 +162,7 @@ public final class Main implements Callable<Integer> {
         ElectionConfig fileConfig = loadFileConfig();
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
         boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek")
-                || effectiveMethod.equals("cpo-stv");
+                || effectiveMethod.equals("cpo-stv") || effectiveMethod.equals("qpq");
 
         String resolvedFormat = firstNonNull(format, fileConfig.format());
         String inputFormat = resolvedFormat != null ? resolvedFormat.toLowerCase(Locale.ROOT) : inferFormat(input);
@@ -194,6 +204,18 @@ public final class Main implements Callable<Integer> {
             CpoStvResult result = CpoStvCounter.count(candidates, ballots, effectiveSeats, ruleset);
             return CpoStvTextReport.render(result);
         }
+        if (effectiveMethod.equals("qpq")) {
+            if (quota != null || transfer != null || rounding != null) {
+                throw new IllegalArgumentException(
+                        "--quota/--transfer/--rounding don't apply to --method qpq; its quota is a derived "
+                                + "formula recalculated every stage, its transfer is fixed by the method itself, "
+                                + "and every figure is this project's exact Fraction with no rounding needed");
+            }
+            QpqRuleset ruleset = new QpqRuleset(
+                    StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates));
+            QpqResult result = QpqCounter.count(candidates, ballots, effectiveSeats, ruleset);
+            return QpqTextReport.render(result);
+        }
 
         StvResult result;
         RoundingRule roundingRuleForReport;
@@ -221,7 +243,7 @@ public final class Main implements Callable<Integer> {
             }
             default -> throw new IllegalArgumentException(
                     "Unsupported method '" + effectiveMethod
-                            + "'; expected 'stv', 'meek', 'schulze', 'borda', or 'cpo-stv'");
+                            + "'; expected 'stv', 'meek', 'schulze', 'borda', 'cpo-stv', or 'qpq'");
         }
 
         String resolvedReportFormat = firstNonNull(reportFormat, fileConfig.reportFormat());
