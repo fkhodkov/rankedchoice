@@ -3,8 +3,13 @@
 # whole number); transfer is last-parcel-only (only the most recently arrived batch of
 # ballots is examined for a surplus, not everything the candidate holds); transfer values
 # truncated to 2 decimal places. The statutory tie-break falls back to a random "lot" as a
-# last resort; we approximate that with a fixed declared candidate order instead.
+# last resort; we approximate that with a fixed declared candidate order instead. Rule 5.2.5
+# also allows excluding several of the lowest candidates together in one stage, rather than
+# one at a time, whenever that's still safe -- confirmed against the rulebook's own model
+# election (via an independent implementation, OpenSTV) that omitting this changes the
+# winner.
 quota: droop-rounded:2
 transfer: last-parcel
 rounding: truncate:2
 tiebreak: previous-round,declared
+batchExclusion: true

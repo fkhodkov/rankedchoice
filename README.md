@@ -118,7 +118,26 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   (`src/test/resources/testdata/ers97/`, `Ers97ModelElectionFixtureTest`). This is what
   surfaced the value-group elimination behavior described above: a naive single-shot
   elimination credited a candidate with 108.89 votes at the point they crossed quota
-  mid-elimination, where the rulebook's own count sheet shows 108.68
+  mid-elimination, where the rulebook's own count sheet shows 108.68. It also caught a second,
+  independent bug, this time in which candidate(s) get excluded: ERS97 rule 5.2.5 allows
+  excluding several of the lowest continuing candidates together in the same stage ("bulk
+  exclusion") whenever their combined votes, plus any deferred surplus, still couldn't reach
+  the candidate above them, rather than always eliminating just one at a time. The original
+  implementation only ever excluded one candidate per stage; cross-checking against a real,
+  independent implementation ([OpenSTV](http://www.openstv.org/)) reproducing this exact model
+  election showed it batches two candidates (Wright and Glazier) together at the
+  corresponding stage — and that eliminating them one at a time instead, as this project
+  originally did, changes the final winner from the rulebook's own Vicar to a wrong Baron.
+  Fixed by adding a `batchExclusion` ruleset flag (`StvRuleset`) that grows the excluded batch
+  upward from the lowest continuing candidate while enough candidates remain to fill the
+  remaining seats and the batch's combined tally, plus deferred surplus, doesn't exceed the
+  tally of the next candidate above it, and by generalizing the existing value-group
+  elimination machinery to pool every excluded candidate's held ballots together rather than
+  just one's (`StvCounter#selectCandidatesToExclude`, `#eliminateByValueGroup`). Enabled only
+  for the bundled `ers97`/`ers76` presets — confirmed unneeded for Scottish/WIGM (the statute,
+  [SSI 2007/42 rule 50](https://www.legislation.gov.uk/ssi/2007/42), only ever excludes one
+  candidate) and left unresolved for Hare-Clark/QPQ (no accessible primary source document one
+  way or the other)
 - Two structurally different, non-STV methods: **Schulze** (`--method schulze`) and **Borda**
   (`--method borda`). Both are Condorcet/positional methods, not quota-based, so they don't use
   `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all, and — since a
@@ -265,7 +284,7 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 ### Rules and config
 
 A YAML config file can set any combination of `quota`, `transfer`, `rounding`, `tiebreak`,
-`seats`, `format`, and `reportFormat` — all optional:
+`seats`, `format`, `reportFormat`, and `batchExclusion` — all optional:
 
 ```yaml
 quota: hare
@@ -274,6 +293,11 @@ rounding: truncate:5
 tiebreak: previous-round,declared
 reportFormat: json
 ```
+
+`batchExclusion` (`true`/`false`, default `false`) enables ERS97 rule 5.2.5's "exclude as many
+candidates together as possible" provision — see [Bundled rulesets](#bundled-rulesets) below.
+There's no `--batch-exclusion` CLI flag: unlike quota/transfer/rounding/tiebreak, it's treated
+as an intrinsic ruleset characteristic rather than something to override per run.
 
 `--ruleset <name>` is exactly the same mechanism, pointed at a bundled config shipped as a
 classpath resource (`src/main/resources/rulesets/<name>.yaml`) instead of a file you supply.
@@ -287,7 +311,7 @@ Passing an unrecognized name (e.g. `--ruleset scotish`) lists all the ones below
 | Name | Rules | Used for | Source |
 |---|---|---|---|
 | `scottish` | Droop + WIGM + truncate:5 | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rule 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
-| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 | Many UK organisations' internal elections | [opavote's citation of ERS97 rule 5.3.7](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
+| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5 and 5.3.7](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No dedicated technical spec or real-election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule delta (quota rounds to 0dp above 100, not implemented here) but that's a third-party reimplementation, not the rulebook itself; treat as "believed similar," not verified-accurate |
 | `hare-clark-qpq` | Droop + last-parcel + truncate:2 | Tasmanian House of Assembly and local government elections | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html) |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6 | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4, as reproduced in Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |

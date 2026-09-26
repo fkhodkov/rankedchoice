@@ -9,8 +9,11 @@
 # ERS97 -- since it comes from a third-party reimplementation's docs, not the rulebook itself,
 # and no fixture-grade real/model election exists to verify it against either way. Treat this
 # as "believed similar to ERS97, with one documented but unverified/unimplemented difference"
-# rather than a verified-accurate reproduction of ERS76 specifically.
+# rather than a verified-accurate reproduction of ERS76 specifically. ERS76 shares ERS97's
+# rule 5.2.5 batch-exclusion provision (excluding several of the lowest candidates together
+# in one stage when safe), so that's enabled here too.
 quota: droop-rounded:2
 transfer: last-parcel
 rounding: truncate:2
 tiebreak: previous-round,declared
+batchExclusion: true

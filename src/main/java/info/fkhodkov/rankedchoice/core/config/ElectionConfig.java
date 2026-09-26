@@ -12,6 +12,7 @@ public record ElectionConfig(
         String tiebreak,
         Integer seats,
         String format,
-        String reportFormat
+        String reportFormat,
+        Boolean batchExclusion
 ) {
 }

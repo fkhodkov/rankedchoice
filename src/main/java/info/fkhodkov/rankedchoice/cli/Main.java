@@ -54,7 +54,8 @@ import picocli.CommandLine.Option;
         description = "Tabulate a ranked-choice election from a ballot file.")
 public final class Main implements Callable<Integer> {
 
-    private static final ElectionConfig EMPTY_CONFIG = new ElectionConfig(null, null, null, null, null, null, null);
+    private static final ElectionConfig EMPTY_CONFIG =
+            new ElectionConfig(null, null, null, null, null, null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -203,6 +204,7 @@ public final class Main implements Callable<Integer> {
                         firstNonNull(transfer, fileConfig.transfer()),
                         firstNonNull(rounding, fileConfig.rounding()),
                         firstNonNull(tiebreak, fileConfig.tiebreak()),
+                        fileConfig.batchExclusion(),
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
                 roundingRuleForReport = ruleset.roundingRule();

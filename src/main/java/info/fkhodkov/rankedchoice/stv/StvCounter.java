@@ -179,22 +179,24 @@ public final class StvCounter {
                 continue;
             }
 
-            Fraction lowest = continuing.stream().map(tallies::get).min(Fraction::compareTo).orElseThrow();
-            List<Candidate> tiedLowest = continuing.stream()
-                    .filter(candidate -> tallies.get(candidate).compareTo(lowest) == 0)
-                    .toList();
-            Candidate toEliminate = tiedLowest.size() == 1
-                    ? tiedLowest.getFirst()
-                    : ruleset.tieBreak().candidateToEliminate(tiedLowest, priorRounds);
-            continuing.remove(toEliminate);
+            List<Candidate> toExclude = selectCandidatesToExclude(continuing, tallies, pendingSurplus, quota,
+                    seats - elected.size(), defers && ruleset.batchExclusion(), ruleset.tieBreak(), priorRounds);
+            for (Candidate candidate : toExclude) {
+                continuing.remove(candidate);
+            }
             if (defers) {
-                nextParcelId = eliminateByValueGroup(states, toEliminate, continuing, elected, pendingSurplus,
+                nextParcelId = eliminateByValueGroup(states, toExclude, continuing, elected, pendingSurplus,
                         quota, seats, ruleset, priorRounds, nextParcelId);
             } else {
-                transferEliminatedBallots(states, toEliminate, continuing, nextParcelId++);
+                transferEliminatedBallots(states, toExclude.getFirst(), continuing, nextParcelId++);
             }
-            rounds.add(new RoundRecord(
-                    roundNumber, tallies, new RoundAction.Eliminated(toEliminate), exhausted));
+            for (int i = 0; i < toExclude.size(); i++) {
+                rounds.add(new RoundRecord(
+                        roundNumber, tallies, new RoundAction.Eliminated(toExclude.get(i)), exhausted));
+                if (i < toExclude.size() - 1) {
+                    roundNumber++;
+                }
+            }
         }
 
         drainPendingSurplus(states, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
@@ -246,20 +248,24 @@ public final class StvCounter {
     }
 
     /**
-     * Eliminates {@code from} (already removed from {@code continuing} by the caller),
-     * transferring their held ballots one value-group at a time — largest value first, per
-     * ERS97's "exclusion by value" — instead of all at once. Re-checks for newly
-     * quota-crossing candidates after each group and freezes them into {@code pendingSurplus}
-     * immediately, so a candidate who qualifies partway through this elimination stops
-     * receiving any of its remaining, lower-valued groups. Returns the next available parcel
-     * id (one is consumed per value-group).
+     * Eliminates every candidate in {@code from} (already removed from {@code continuing} by
+     * the caller) as a single combined stage — pooling all of their held ballots together and
+     * transferring them one value-group at a time, largest value first, per ERS97's "exclusion
+     * by value" — instead of all at once. A single candidate is just the degenerate case; ERS97
+     * rule 5.2.5's batch-exclusion pools several simultaneously-excluded candidates' ballots
+     * this same way, exactly as a real, independent implementation (OpenSTV) demonstrated.
+     * Re-checks for newly quota-crossing candidates after each pooled group and freezes them
+     * into {@code pendingSurplus} immediately, so a candidate who qualifies partway through
+     * stops receiving any of the remaining, lower-valued groups. Returns the next available
+     * parcel id (one is consumed per value-group).
      */
-    private static int eliminateByValueGroup(List<BallotState> states, Candidate from, Set<Candidate> continuing,
+    private static int eliminateByValueGroup(List<BallotState> states, List<Candidate> from, Set<Candidate> continuing,
             List<Candidate> elected, Map<Candidate, Fraction> pendingSurplus, Fraction quota, int seats,
             StvRuleset ruleset, List<RoundRecord> priorRounds, int nextParcelId) {
+        Set<Candidate> excluded = new LinkedHashSet<>(from);
         Map<Fraction, List<BallotState>> byValueDescending = new TreeMap<>(Comparator.reverseOrder());
         for (BallotState state : states) {
-            if (from.equals(state.holder)) {
+            if (excluded.contains(state.holder)) {
                 byValueDescending.computeIfAbsent(state.value, _ -> new ArrayList<>()).add(state);
             }
         }
@@ -295,6 +301,60 @@ public final class StvCounter {
             }
         }
         return parcelId;
+    }
+
+    /**
+     * Picks which continuing candidate(s) to exclude this stage. Ordinarily that's just the
+     * (tie-broken) single lowest candidate. When {@code batchExclusion} is enabled, ERS97 rule
+     * 5.2.5 instead allows excluding several of the lowest candidates together in one stage:
+     * grow the batch upward from the bottom while enough candidates remain to fill the
+     * remaining seats and the batch's combined tally, plus the total of any deferred surplus,
+     * still doesn't exceed the tally of the next candidate above it — confirmed against a real,
+     * independent implementation (OpenSTV) reproducing the exact batch ERS97's own rulebook
+     * model election selects. Falls back to the single lowest candidate whenever that growth
+     * can't get started (the lowest candidate alone already exceeds the one above them).
+     */
+    private static List<Candidate> selectCandidatesToExclude(Set<Candidate> continuing,
+            Map<Candidate, Fraction> tallies, Map<Candidate, Fraction> pendingSurplus, Fraction quota,
+            int remainingSeats, boolean batchExclusion, TieBreakRule tieBreak, List<RoundRecord> priorRounds) {
+        List<Candidate> ascending = new ArrayList<>(continuing);
+        ascending.sort(Comparator.comparing(tallies::get));
+
+        if (batchExclusion) {
+            Fraction deferredSurplusTotal = Fraction.ZERO;
+            for (Fraction frozenTally : pendingSurplus.values()) {
+                deferredSurplusTotal = deferredSurplusTotal.add(frozenTally.subtract(quota));
+            }
+            List<Candidate> batch = new ArrayList<>();
+            Fraction batchTotal = Fraction.ZERO;
+            for (int i = 0; i < ascending.size(); i++) {
+                if (continuing.size() - (i + 1) < remainingSeats) {
+                    break;
+                }
+                Candidate candidate = ascending.get(i);
+                Fraction tentativeTotal = batchTotal.add(tallies.get(candidate));
+                if (i + 1 < ascending.size()) {
+                    Fraction nextAboveTally = tallies.get(ascending.get(i + 1));
+                    if (tentativeTotal.add(deferredSurplusTotal).compareTo(nextAboveTally) > 0) {
+                        break;
+                    }
+                }
+                batch.add(candidate);
+                batchTotal = tentativeTotal;
+            }
+            if (!batch.isEmpty()) {
+                return batch;
+            }
+        }
+
+        Fraction lowest = tallies.get(ascending.getFirst());
+        List<Candidate> tiedLowest = continuing.stream()
+                .filter(candidate -> tallies.get(candidate).compareTo(lowest) == 0)
+                .toList();
+        Candidate toEliminate = tiedLowest.size() == 1
+                ? tiedLowest.getFirst()
+                : tieBreak.candidateToEliminate(tiedLowest, priorRounds);
+        return List.of(toEliminate);
     }
 
     private static Candidate pickHighest(List<Candidate> candidates, Map<Candidate, Fraction> tallies,

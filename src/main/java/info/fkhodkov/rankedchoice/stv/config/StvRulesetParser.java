@@ -43,9 +43,15 @@ public final class StvRulesetParser {
 
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             List<Candidate> declaredOrder) {
+        return parse(quota, transfer, rounding, tiebreak, null, declaredOrder);
+    }
+
+    /** As {@link #parse(String, String, String, String, List)}, with ERS97 rule 5.2.5's batch-exclusion enabled or not. */
+    public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
+            Boolean batchExclusion, List<Candidate> declaredOrder) {
         return new StvRuleset(
                 parseQuota(quota), parseTransfer(transfer), parseRounding(rounding),
-                parseTieBreak(tiebreak, declaredOrder));
+                parseTieBreak(tiebreak, declaredOrder), batchExclusion != null && batchExclusion);
     }
 
     public static Quota parseQuota(String value) {

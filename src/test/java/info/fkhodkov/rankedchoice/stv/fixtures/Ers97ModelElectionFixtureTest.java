@@ -37,10 +37,15 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  * this test is what caught the original bug (Duke landing on 108.89 instead of the rulebook's
  * 108.68).
  *
- * <p>This isn't a full round-by-round replay: real ERS97 counting only defers a surplus
- * transfer when a vote-gap safety check proves it can't affect any exclusion decision, and
- * additionally supports "bulk exclusion" of multiple safely-doomed candidates at once —
- * neither implemented here — so beyond round 3, this engine's deferred-surplus timing
+ * <p>Rounds 4-6 specifically exercise rule 5.2.5's batch-exclusion, where Wright and Glazier
+ * are excluded together as one stage rather than one at a time — the original, un-batched
+ * behavior instead let Baron overtake Vicar for the final seat, a real bug caught by
+ * cross-checking against an independent implementation (OpenSTV) reproducing this same model
+ * election.
+ *
+ * <p>This still isn't a full round-by-round replay, though: real ERS97 counting also defers a
+ * surplus transfer whenever a vote-gap safety check proves it can't affect any exclusion
+ * decision — not implemented here — so beyond round 3, this engine's deferred-surplus timing
  * diverges from the rulebook's own stage sequence, even though every individual tally, once
  * transferred, and the final elected set, still match exactly (see the fixture file's
  * citation comment for detail).
@@ -54,7 +59,8 @@ class Ers97ModelElectionFixtureTest {
 
         ElectionConfig ers97 = ConfigLoader.loadResource("/rulesets/ers97.yaml");
         StvRuleset ruleset = StvRulesetParser.parse(
-                ers97.quota(), ers97.transfer(), ers97.rounding(), ers97.tiebreak(), candidates);
+                ers97.quota(), ers97.transfer(), ers97.rounding(), ers97.tiebreak(), ers97.batchExclusion(),
+                candidates);
 
         StvResult result = StvCounter.count(candidates, election.ballots(), election.seats(), ruleset);
 
@@ -86,7 +92,7 @@ class Ers97ModelElectionFixtureTest {
         assertThat(result.rounds().getFirst().action())
                 .isEqualTo(new RoundAction.Elected(smith, Fraction.of(1321, 50))); // surplus 26.42
         assertThat(result.electedInOrder())
-                .containsExactlyInAnyOrder(smith, duke, carpenter, prince, freeman, baron);
+                .containsExactlyInAnyOrder(smith, duke, carpenter, prince, freeman, vicar);
 
         // Round 2 (Smith's surplus transferred): matches the rulebook's stage 2 exactly.
         RoundRecord round2 = result.rounds().get(1);
@@ -114,6 +120,41 @@ class Ers97ModelElectionFixtureTest {
                 .containsEntry(wright, Fraction.of(129, 4)) // 32.25
                 .containsEntry(glazier, Fraction.of(3051, 100)); // 30.51
         assertThat(round3.action()).isEqualTo(new RoundAction.Elected(duke, Fraction.of(11, 10))); // surplus 1.10
+
+        // Rounds 4-5 (Wright and Glazier excluded together as one batch, per rule 5.2.5:
+        // their combined votes plus Duke's deferred 1.10 surplus still don't reach Baron, the
+        // next candidate above them) -- matches the rulebook's own model election exactly
+        // (confirmed against an independent implementation, OpenSTV): batching these two is
+        // what turns the final winner from a wrong Baron into the rulebook's own Vicar.
+        RoundRecord round4 = result.rounds().get(3);
+        assertThat(round4.action()).isEqualTo(new RoundAction.Eliminated(glazier));
+        RoundRecord round5 = result.rounds().get(4);
+        assertThat(round5.action()).isEqualTo(new RoundAction.Eliminated(wright));
+        // Both share the same pre-exclusion tally snapshot -- they're decided together, as one
+        // stage, not as two independent one-at-a-time eliminations.
+        assertThat(round4.tallies()).isEqualTo(round5.tallies());
+        assertThat(round4.tallies())
+                .containsEntry(carpenter, Fraction.of(1767, 20)) // 88.35
+                .containsEntry(prince, Fraction.of(91))
+                .containsEntry(baron, Fraction.of(6421, 100)) // 64.21
+                .containsEntry(abbot, Fraction.of(1621, 25)) // 64.84
+                .containsEntry(vicar, Fraction.of(6921, 100)) // 69.21
+                .containsEntry(freeman, Fraction.of(4789, 50)); // 95.78
+
+        // Round 6 (Wright and Glazier's pooled ballots fully transferred, both value-groups
+        // applied; Carpenter crosses quota): matches the rulebook's own merged substage-1 +
+        // substage-2 figures exactly -- Carpenter's 122.35 is the figure this fix exists for
+        // (the un-batched, one-at-a-time original behavior instead let Baron overtake Vicar
+        // here, changing the eventual winner).
+        RoundRecord round6 = result.rounds().get(5);
+        assertThat(round6.tallies())
+                .containsEntry(carpenter, Fraction.of(2447, 20)) // 122.35
+                .containsEntry(prince, Fraction.of(10431, 100)) // 104.31
+                .containsEntry(baron, Fraction.of(3413, 50)) // 68.26
+                .containsEntry(abbot, Fraction.of(671, 10)) // 67.10
+                .containsEntry(vicar, Fraction.of(7131, 100)) // 71.31
+                .containsEntry(freeman, Fraction.of(4831, 50)); // 96.62
+        assertThat(round6.action()).isEqualTo(new RoundAction.Elected(carpenter, Fraction.of(1477, 100))); // surplus 14.77
     }
 
     private static Candidate candidateNamed(List<Candidate> candidates, String name) {
