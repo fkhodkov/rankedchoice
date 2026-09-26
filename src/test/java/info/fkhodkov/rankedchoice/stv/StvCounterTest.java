@@ -13,6 +13,8 @@ import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
+import info.fkhodkov.rankedchoice.stv.quota.HareQuota;
+import info.fkhodkov.rankedchoice.stv.quota.ImperialiQuota;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
@@ -563,5 +565,119 @@ class StvCounterTest {
         assertThat(round5.tallies()).isEqualTo(Map.of(e, Fraction.of(549, 50))); // 10.98
         assertThat(round5.action()).isEqualTo(new RoundAction.Elected(e, Fraction.ZERO));
         assertThat(round5.exhaustedVotes()).isEqualTo(Fraction.of(11));
+    }
+
+    /**
+     * Hand-derived 4-candidate/2-seat count (100 ballots) exercising {@link HareQuota} end to
+     * end through {@link StvCounter} for the first time — previously it was only unit-tested
+     * in isolation ({@code QuotaTest}). Self-consistency only, like the hare-clark-qpq fixture
+     * above: no independent implementation of the (textbook, unrounded) Hare quota could be
+     * found to cross-check against — droop's WIGM rule only ever computes Droop, and while
+     * OpenSTV's abstract {@code STV.py} base class has Hare-quota code, no shipped method
+     * plugin actually selects it and its own CLI has no option to; tracing that dead code also
+     * showed it silently adds a "+1" that isn't part of the textbook Hare quota
+     * (Wikipedia: plain {@code votes / seats}) this project implements.
+     * <pre>
+     *   50: A      24: B      6: C,B      20: D
+     * </pre>
+     * Total 100, Hare quota = 100/2 = 50 exactly -- contrast Droop, which would have been
+     * floor(100/3)+1 = 34 for this same data, giving A a 16-vote surplus to transfer
+     * immediately. Under the larger Hare quota, A's 50 votes land exactly on quota, so A is
+     * elected with <em>zero</em> surplus instead.
+     * <p>Round 1 -- A=50, B=24, C=6, D=20; A meets the 50-vote quota exactly, surplus 0.
+     * <p>Round 2 -- continuing {B, C, D} (3 &gt; 1 remaining seat, no shortcut yet); nobody
+     * meets quota; C (lowest, 6) is excluded, its ballots (ranked C, B) move to B in full:
+     * B rises to 24 + 6 = 30.
+     * <p>Round 3 -- continuing {B, D} (2 &gt; 1, still no shortcut); nobody meets quota
+     * (B=30, D=20); D (lowest) is excluded, its ballots have no further preference and
+     * exhaust.
+     * <p>Round 4 -- only B remains continuing for the 1 remaining seat: elected via the
+     * "remaining continuing == remaining seats" shortcut, without ever needing to reach the
+     * 50-vote quota through computation.
+     */
+    @Test
+    void handDerivedHareQuotaFourCandidateTwoSeatCount() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        List<Ballot> ballots = List.of(ballot(50, a), ballot(24, b), ballot(6, c, b), ballot(20, d));
+        StvRuleset hareRuleset = new StvRuleset(
+                HareQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b, c, d)));
+
+        StvResult result = StvCounter.count(List.of(a, b, c, d), ballots, 2, hareRuleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(50));
+        assertThat(result.electedInOrder()).containsExactly(a, b);
+        assertThat(result.rounds()).hasSize(4);
+
+        RoundRecord round1 = result.rounds().get(0);
+        assertThat(round1.tallies())
+                .isEqualTo(Map.of(a, Fraction.of(50), b, Fraction.of(24), c, Fraction.of(6), d, Fraction.of(20)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.ZERO));
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(24), c, Fraction.of(6), d, Fraction.of(20)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Eliminated(c));
+
+        RoundRecord round3 = result.rounds().get(2);
+        assertThat(round3.tallies()).isEqualTo(Map.of(b, Fraction.of(30), d, Fraction.of(20)));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Eliminated(d));
+
+        RoundRecord round4 = result.rounds().get(3);
+        assertThat(round4.tallies()).isEqualTo(Map.of(b, Fraction.of(30)));
+        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
+    }
+
+    /**
+     * Hand-derived 4-candidate/2-seat count (90 ballots) exercising {@link ImperialiQuota} end
+     * to end through {@link StvCounter} for the first time — previously only unit-tested in
+     * isolation. Self-consistency only, for the same reason as the Hare fixture above: neither
+     * droop nor OpenSTV implement the Imperiali quota under any name.
+     * <pre>
+     *   25: A      25: B      25: C      15: D
+     * </pre>
+     * Total 90, Imperiali quota = floor(90 / (2+2)) = 22 -- contrast Droop, which would have
+     * been floor(90/3)+1 = 31 for this same data. Imperiali's smaller quota is exactly what
+     * makes it a poor real-world choice: unlike Droop, it doesn't mathematically guarantee no
+     * more candidates can reach quota than there are seats, and this election demonstrates
+     * that flaw directly -- three candidates (A, B, and C, all on 25) meet the 22-vote quota
+     * in the very same round, but there are only 2 seats.
+     * <p>Round 1 -- A=25, B=25, C=25, D=15; A, B, and C all meet quota, but only the top 2
+     * (by tally, ties broken by declared order: A before B before C) are declared elected this
+     * stage -- C is <em>not</em> elected despite also meeting quota, simply because the 2
+     * seats are already accounted for by A and B. A's surplus (3) has no further preference to
+     * transfer to (a single-preference ballot), so it's simply lost to non-transferability.
+     * <p>Round 2 (same stage, B's turn) -- B's surplus (3) is likewise lost; both seats are
+     * now filled, so the count ends here -- C never gets a further look, even though C's own
+     * 25 votes exceed the 22-vote quota just as much as A's and B's did.
+     */
+    @Test
+    void handDerivedImperialiQuotaMoreCandidatesThanSeatsMeetQuotaAtOnce() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        List<Ballot> ballots = List.of(ballot(25, a), ballot(25, b), ballot(25, c), ballot(15, d));
+        StvRuleset imperialiRuleset = new StvRuleset(
+                ImperialiQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b, c, d)));
+
+        StvResult result = StvCounter.count(List.of(a, b, c, d), ballots, 2, imperialiRuleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(22));
+        assertThat(result.electedInOrder()).containsExactly(a, b);
+        assertThat(result.rounds()).hasSize(2);
+
+        RoundRecord round1 = result.rounds().get(0);
+        assertThat(round1.tallies())
+                .isEqualTo(Map.of(a, Fraction.of(25), b, Fraction.of(25), c, Fraction.of(25), d, Fraction.of(15)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(3)));
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.tallies())
+                .isEqualTo(Map.of(c, Fraction.of(25), d, Fraction.of(15), b, Fraction.of(25)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(3)));
     }
 }
