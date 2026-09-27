@@ -293,7 +293,13 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   notional count (`--quota`/`--transfer`/`--rounding` all apply; `--tiebreak` doesn't, since
   there's no elimination to break a tie for). The number of outcomes is `C(candidates, seats)`,
   and comparisons scale quadratically in that, so `CpoStvCounter.MAX_OUTCOMES` caps it at 500
-  outcomes (at most 124,750 comparisons) rather than letting a larger election silently hang —
+  outcomes (at most 124,750 comparisons) rather than letting a larger election silently hang.
+  Each comparison only depends on how ballots order that pair's own candidates, so it counts
+  ballots reduced to that order and merged, in index arrays, with comparisons run in parallel
+  — identical results to counting every ballot one by one (checked against the previous
+  implementation on 400 random elections across every quota, transfer, and rounding rule, every
+  pairwise score equal), but 10 candidates / 3 seats / 100,000 voters now takes about 9 s
+  rather than 262 s, and 12 / 4 / 10,000 about 34 s rather than over 10 minutes —
   there's no real-world precedent to size this against, since CPO-STV sees virtually no
   practical use for exactly this reason — as of a 2021 analysis, CPO-STV has never actually been
   used for a public election, so there's no real-world data to validate against; every fixture

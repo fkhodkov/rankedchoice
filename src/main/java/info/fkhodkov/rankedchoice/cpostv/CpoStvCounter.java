@@ -2,6 +2,7 @@ package info.fkhodkov.rankedchoice.cpostv;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,7 +47,9 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  *
  * <p>The number of outcomes is {@code C(candidates, seats)}, and the number of pairwise
  * comparisons is quadratic in that — {@code C(outcomes, 2)} — with each comparison itself
- * scanning every ballot, so this is only practical for a small candidate/seat count. {@link
+ * scanning every distinct ranking (though then counting only the few hundred orderings of its
+ * own candidates those reduce to, and comparisons run in parallel), so this is only practical
+ * for a small candidate/seat count. {@link
  * #MAX_OUTCOMES} enforces a cap (500 outcomes, i.e. at most 124,750 comparisons) rather than
  * letting a larger election silently hang; there's no real-world precedent to size this
  * against, since CPO-STV sees virtually no practical use for exactly this reason.
@@ -92,23 +95,42 @@ public final class CpoStvCounter {
             return new CpoStvResult(Map.of(), List.of(Set.of(only)), formal.informal());
         }
 
-        Map<Set<Candidate>, Map<Set<Candidate>, Fraction>> scores = new LinkedHashMap<>();
-        for (Set<Candidate> outcome : outcomes) {
-            scores.put(outcome, new LinkedHashMap<>());
-        }
+        IndexedBallots indexed = IndexedBallots.of(candidates, ballots);
+        List<int[]> pairs = new ArrayList<>();
         for (int i = 0; i < outcomes.size(); i++) {
             for (int j = i + 1; j < outcomes.size(); j++) {
-                Set<Candidate> a = outcomes.get(i);
-                Set<Candidate> b = outcomes.get(j);
-                Map<Candidate, Fraction> tallies = notionalCount(ballots, a, b, quota, ruleset);
-                Fraction scoreA = sumOf(tallies, a);
-                Fraction scoreB = sumOf(tallies, b);
-                scores.get(a).put(b, scoreA);
-                scores.get(b).put(a, scoreB);
+                pairs.add(new int[] {i, j});
             }
         }
+        // Pairs are independent and every figure is exact, so counting them in parallel gives
+        // the same scores in any order; they're collected back in pair order below.
+        List<Fraction[]> pairScores = pairs.parallelStream().map(pair -> {
+            Set<Candidate> a = outcomes.get(pair[0]);
+            Set<Candidate> b = outcomes.get(pair[1]);
+            Map<Candidate, Fraction> tallies = notionalCount(indexed, a, b, quota, ruleset);
+            return new Fraction[] {sumOf(tallies, a), sumOf(tallies, b)};
+        }).toList();
 
-        List<Set<Set<Candidate>>> ranking = rank(outcomes, scores);
+        // d[i][j]: outcome i's score against outcome j.
+        Fraction[][] d = new Fraction[outcomes.size()][outcomes.size()];
+        for (int p = 0; p < pairs.size(); p++) {
+            int i = pairs.get(p)[0];
+            int j = pairs.get(p)[1];
+            d[i][j] = pairScores.get(p)[0];
+            d[j][i] = pairScores.get(p)[1];
+        }
+        Map<Set<Candidate>, Map<Set<Candidate>, Fraction>> scores = new LinkedHashMap<>();
+        for (int i = 0; i < outcomes.size(); i++) {
+            Map<Set<Candidate>, Fraction> row = new LinkedHashMap<>();
+            for (int j = 0; j < outcomes.size(); j++) {
+                if (i != j) {
+                    row.put(outcomes.get(j), d[i][j]);
+                }
+            }
+            scores.put(outcomes.get(i), row);
+        }
+
+        List<Set<Set<Candidate>>> ranking = rank(outcomes, d);
         return new CpoStvResult(scores, ranking, formal.informal());
     }
 
@@ -162,26 +184,107 @@ public final class CpoStvCounter {
     }
 
     /**
+     * Every distinct ranking, once, as candidate indices, with how many ballots cast it — the
+     * form {@link #notionalCount} projects from, many times over, so it's built only once.
+     */
+    private record IndexedBallots(List<Candidate> candidates, Map<Candidate, Integer> indexOf,
+            List<int[]> rankings, List<BigInteger> counts) {
+
+        static IndexedBallots of(List<Candidate> candidates, List<Ballot> ballots) {
+            Map<Candidate, Integer> indexOf = new LinkedHashMap<>();
+            for (int i = 0; i < candidates.size(); i++) {
+                indexOf.put(candidates.get(i), i);
+            }
+            Map<RankingKey, Integer> seen = new LinkedHashMap<>();
+            List<int[]> rankings = new ArrayList<>();
+            List<BigInteger> counts = new ArrayList<>();
+            for (Ballot ballot : ballots) {
+                if (ballot.isBlank()) {
+                    continue;
+                }
+                // Ballots here never hold a tie (split is refused, other policies remove ties).
+                int[] ranking = ballot.ranking().stream().mapToInt(rank -> indexOf.get(rank.iterator().next())).toArray();
+                Integer at = seen.putIfAbsent(new RankingKey(ranking), rankings.size());
+                if (at == null) {
+                    rankings.add(ranking);
+                    counts.add(ballot.count());
+                } else {
+                    counts.set(at, counts.get(at).add(ballot.count()));
+                }
+            }
+            return new IndexedBallots(candidates, indexOf, rankings, counts);
+        }
+    }
+
+    /** An {@code int[]} ranking with value equality, for merging identical rankings. */
+    private record RankingKey(int[] ranking) {
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof RankingKey(int[] otherRanking) && Arrays.equals(ranking, otherRanking);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(ranking);
+        }
+    }
+
+    /**
      * Scores outcomes {@code a} and {@code b} against each other in one pass: excludes every
      * candidate in neither, then repeatedly transfers the largest still-pending surplus among
      * {@code a} &cap; {@code b} until none remain (see the class javadoc).
+     *
+     * <p>Only the order in which a ballot ranks the candidates of {@code a} &cup; {@code b} can
+     * affect this count — every other candidate is excluded before it starts — so ballots are
+     * first reduced to that order and identical ones merged. Two such ballots sit with the same
+     * candidate, in the same parcel, at the same value throughout, and every tally is an exact
+     * sum, so the merged count is identical to counting them one by one — just over a few
+     * hundred distinct ballots rather than every ballot cast.
      */
     private static Map<Candidate, Fraction> notionalCount(
-            List<Ballot> ballots, Set<Candidate> a, Set<Candidate> b, Fraction quota, CpoStvRuleset ruleset) {
+            IndexedBallots ballots, Set<Candidate> a, Set<Candidate> b, Fraction quota, CpoStvRuleset ruleset) {
         Set<Candidate> standing = new LinkedHashSet<>(a);
         standing.addAll(b);
         Set<Candidate> shared = new LinkedHashSet<>(a);
         shared.retainAll(b);
 
-        List<BallotState> states = new ArrayList<>(ballots.size());
-        for (Ballot ballot : ballots) {
-            if (ballot.isBlank()) {
-                continue;
-            }
-            BallotState state = new BallotState(ballot);
-            assignNextHolder(state, standing);
-            states.add(state);
+        boolean[] isStanding = new boolean[ballots.candidates().size()];
+        for (Candidate candidate : standing) {
+            isStanding[ballots.indexOf().get(candidate)] = true;
         }
+        Map<RankingKey, Integer> seen = new LinkedHashMap<>();
+        List<int[]> projections = new ArrayList<>();
+        List<BigInteger> counts = new ArrayList<>();
+        int[] buffer = new int[standing.size()];
+        for (int i = 0; i < ballots.rankings().size(); i++) {
+            int length = 0;
+            for (int candidate : ballots.rankings().get(i)) {
+                if (isStanding[candidate]) {
+                    buffer[length++] = candidate;
+                }
+            }
+            if (length == 0) {
+                continue; // ranks nobody standing: exhausted before this count starts, and stays so
+            }
+            int[] projection = Arrays.copyOf(buffer, length);
+            Integer at = seen.putIfAbsent(new RankingKey(projection), projections.size());
+            if (at == null) {
+                projections.add(projection);
+                counts.add(ballots.counts().get(i));
+            } else {
+                counts.set(at, counts.get(at).add(ballots.counts().get(i)));
+            }
+        }
+
+        // Each merged ballot's state: the position of its current holder within its projection
+        // (every projected candidate is standing, so the next holder is simply the next entry,
+        // and a position past the end means exhausted), its current value, and the parcel it
+        // arrived in.
+        int count = projections.size();
+        int[] position = new int[count];
+        Fraction[] value = new Fraction[count];
+        Arrays.fill(value, Fraction.ONE);
+        int[] parcel = new int[count];
 
         // Once a shared candidate's surplus is transferred, every ballot they held moves on
         // (at a reduced value) to the next standing preference -- transferring "only the
@@ -194,7 +297,8 @@ public final class CpoStvCounter {
         Map<Candidate, Fraction> frozenAtQuota = new LinkedHashMap<>();
         int nextParcelId = 1;
         while (true) {
-            Map<Candidate, Fraction> tallies = computeTallies(states, standing, ruleset.roundingRule());
+            Map<Candidate, Fraction> tallies =
+                    computeTallies(ballots, standing, projections, counts, position, value, ruleset.roundingRule());
             Candidate largestSurplusCandidate = null;
             Fraction largestSurplus = Fraction.ZERO;
             for (Candidate candidate : shared) {
@@ -212,62 +316,59 @@ public final class CpoStvCounter {
                 return tallies;
             }
             frozenAtQuota.put(largestSurplusCandidate, quota);
-            transferSurplus(states, largestSurplusCandidate, largestSurplus, ruleset.transferMethod(),
-                    ruleset.roundingRule(), standing, nextParcelId++);
+            transferSurplus(ballots.indexOf().get(largestSurplusCandidate), largestSurplus, projections, counts,
+                    position, value, parcel, ruleset.transferMethod(), ruleset.roundingRule(), nextParcelId++);
         }
     }
 
-    private static final class BallotState {
-        private final Ballot ballot;
-        private int nextIndex = 0;
-        private Fraction value = Fraction.ONE;
-        private int parcelId = 0;
-        private Candidate holder;
-
-        BallotState(Ballot ballot) {
-            this.ballot = ballot;
+    /**
+     * Each standing candidate's tally, rounded by {@code roundingRule}: the ballots they hold,
+     * summed exactly. Ballots held at the same value are added up as whole numbers first and
+     * multiplied by that value once, which gives the same exact total as adding each ballot's
+     * value separately.
+     */
+    private static Map<Candidate, Fraction> computeTallies(IndexedBallots ballots, Set<Candidate> standing,
+            List<int[]> projections, List<BigInteger> counts, int[] position, Fraction[] value,
+            RoundingRule roundingRule) {
+        List<Map<Fraction, BigInteger>> heldByValue = new ArrayList<>(ballots.candidates().size());
+        for (int c = 0; c < ballots.candidates().size(); c++) {
+            heldByValue.add(null);
         }
-    }
-
-    private static void assignNextHolder(BallotState state, Set<Candidate> standing) {
-        List<Set<Candidate>> ranking = state.ballot.ranking();
-        while (state.nextIndex < ranking.size()) {
-            Candidate candidate = ranking.get(state.nextIndex).iterator().next();
-            state.nextIndex++;
-            if (standing.contains(candidate)) {
-                state.holder = candidate;
-                return;
+        for (int i = 0; i < projections.size(); i++) {
+            int[] projection = projections.get(i);
+            if (position[i] < projection.length) {
+                int holder = projection[position[i]];
+                if (heldByValue.get(holder) == null) {
+                    heldByValue.set(holder, new LinkedHashMap<>());
+                }
+                heldByValue.get(holder).merge(value[i], counts.get(i), BigInteger::add);
             }
         }
-        state.holder = null;
-    }
-
-    private static Map<Candidate, Fraction> computeTallies(
-            List<BallotState> states, Set<Candidate> standing, RoundingRule roundingRule) {
         Map<Candidate, Fraction> tallies = new LinkedHashMap<>();
         for (Candidate candidate : standing) {
-            tallies.put(candidate, Fraction.ZERO);
-        }
-        for (BallotState state : states) {
-            if (state.holder != null) {
-                tallies.merge(state.holder, Fraction.of(state.ballot.count()).multiply(state.value), Fraction::add);
+            Fraction tally = Fraction.ZERO;
+            Map<Fraction, BigInteger> held = heldByValue.get(ballots.indexOf().get(candidate));
+            if (held != null) {
+                for (Map.Entry<Fraction, BigInteger> entry : held.entrySet()) {
+                    tally = tally.add(Fraction.of(entry.getValue()).multiply(entry.getKey()));
+                }
             }
+            tallies.put(candidate, roundingRule.apply(tally));
         }
-        tallies.replaceAll((_, tally) -> roundingRule.apply(tally));
         return tallies;
     }
 
     private record ParcelKey(int parcelId, Fraction value, boolean hasNextPreference) {
     }
 
-    private static void transferSurplus(List<BallotState> states, Candidate from, Fraction surplus,
-            TransferMethod transferMethod, RoundingRule roundingRule, Set<Candidate> standing, int newParcelId) {
+    private static void transferSurplus(int from, Fraction surplus, List<int[]> projections, List<BigInteger> counts,
+            int[] position, Fraction[] value, int[] parcel, TransferMethod transferMethod, RoundingRule roundingRule,
+            int newParcelId) {
         Map<ParcelKey, BigInteger> votesByKey = new LinkedHashMap<>();
-        for (BallotState state : states) {
-            if (from.equals(state.holder)) {
-                boolean hasNextPreference = hasNextStandingPreference(state, standing);
-                votesByKey.merge(new ParcelKey(state.parcelId, state.value, hasNextPreference),
-                        state.ballot.count(), BigInteger::add);
+        for (int i = 0; i < projections.size(); i++) {
+            if (isHeldBy(projections.get(i), position[i], from)) {
+                votesByKey.merge(parcelKey(projections.get(i), position[i], parcel[i], value[i]),
+                        counts.get(i), BigInteger::add);
             }
         }
         if (votesByKey.isEmpty()) {
@@ -285,28 +386,25 @@ public final class CpoStvCounter {
 
         Map<Integer, Fraction> newValues = transferMethod.computeTransferValues(surplus, parcels, roundingRule);
 
-        for (BallotState state : states) {
-            if (from.equals(state.holder)) {
-                boolean hasNextPreference = hasNextStandingPreference(state, standing);
-                Integer id = idByKey.get(new ParcelKey(state.parcelId, state.value, hasNextPreference));
-                Fraction newValue = newValues.get(id);
+        for (int i = 0; i < projections.size(); i++) {
+            if (isHeldBy(projections.get(i), position[i], from)) {
+                Fraction newValue = newValues.get(idByKey.get(parcelKey(projections.get(i), position[i], parcel[i],
+                        value[i])));
                 if (newValue != null) {
-                    state.value = newValue;
-                    state.parcelId = newParcelId;
-                    assignNextHolder(state, standing);
+                    value[i] = newValue;
+                    parcel[i] = newParcelId;
+                    position[i]++;
                 }
             }
         }
     }
 
-    private static boolean hasNextStandingPreference(BallotState state, Set<Candidate> standing) {
-        List<Set<Candidate>> ranking = state.ballot.ranking();
-        for (int i = state.nextIndex; i < ranking.size(); i++) {
-            if (standing.contains(ranking.get(i).iterator().next())) {
-                return true;
-            }
-        }
-        return false;
+    private static boolean isHeldBy(int[] projection, int position, int candidate) {
+        return position < projection.length && projection[position] == candidate;
+    }
+
+    private static ParcelKey parcelKey(int[] projection, int position, int parcelId, Fraction value) {
+        return new ParcelKey(parcelId, value, position + 1 < projection.length);
     }
 
     /**
@@ -314,55 +412,45 @@ public final class CpoStvCounter {
      * info.fkhodkov.rankedchoice.schulze.SchulzeMethod}, applied to outcomes instead of
      * candidates and {@link Fraction}-valued scores instead of {@link BigInteger} vote counts.
      */
-    private static List<Set<Set<Candidate>>> rank(
-            List<Set<Candidate>> outcomes, Map<Set<Candidate>, Map<Set<Candidate>, Fraction>> d) {
-        Map<Set<Candidate>, Map<Set<Candidate>, Fraction>> p = new LinkedHashMap<>();
-        for (Set<Candidate> i : outcomes) {
-            Map<Set<Candidate>, Fraction> row = new LinkedHashMap<>();
-            for (Set<Candidate> j : outcomes) {
-                if (i.equals(j)) {
-                    continue;
+    private static List<Set<Set<Candidate>>> rank(List<Set<Candidate>> outcomes, Fraction[][] d) {
+        int n = outcomes.size();
+        Fraction[][] p = new Fraction[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    p[i][j] = d[i][j].compareTo(d[j][i]) > 0 ? d[i][j] : Fraction.ZERO;
                 }
-                Fraction dij = d.get(i).get(j);
-                Fraction dji = d.get(j).get(i);
-                row.put(j, dij.compareTo(dji) > 0 ? dij : Fraction.ZERO);
             }
-            p.put(i, row);
         }
 
-        for (Set<Candidate> k : outcomes) {
-            for (Set<Candidate> i : outcomes) {
-                if (i.equals(k)) {
+        for (int k = 0; k < n; k++) {
+            for (int i = 0; i < n; i++) {
+                if (i == k) {
                     continue;
                 }
-                for (Set<Candidate> j : outcomes) {
-                    if (j.equals(i) || j.equals(k)) {
+                Fraction throughK = p[i][k];
+                for (int j = 0; j < n; j++) {
+                    if (j == i || j == k) {
                         continue;
                     }
-                    Fraction throughK = p.get(i).get(k);
-                    Fraction fromK = p.get(k).get(j);
+                    Fraction fromK = p[k][j];
                     Fraction viaK = throughK.compareTo(fromK) <= 0 ? throughK : fromK;
-                    if (viaK.compareTo(p.get(i).get(j)) > 0) {
-                        p.get(i).put(j, viaK);
+                    if (viaK.compareTo(p[i][j]) > 0) {
+                        p[i][j] = viaK;
                     }
                 }
             }
-        }
-
-        Map<Set<Candidate>, Integer> wins = new LinkedHashMap<>();
-        for (Set<Candidate> i : outcomes) {
-            int count = 0;
-            for (Set<Candidate> j : outcomes) {
-                if (!i.equals(j) && p.get(i).get(j).compareTo(p.get(j).get(i)) > 0) {
-                    count++;
-                }
-            }
-            wins.put(i, count);
         }
 
         Map<Integer, Set<Set<Candidate>>> groups = new TreeMap<>(java.util.Comparator.reverseOrder());
-        for (Set<Candidate> outcome : outcomes) {
-            groups.computeIfAbsent(wins.get(outcome), _ -> new LinkedHashSet<>()).add(outcome);
+        for (int i = 0; i < n; i++) {
+            int wins = 0;
+            for (int j = 0; j < n; j++) {
+                if (i != j && p[i][j].compareTo(p[j][i]) > 0) {
+                    wins++;
+                }
+            }
+            groups.computeIfAbsent(wins, _ -> new LinkedHashSet<>()).add(outcomes.get(i));
         }
         return new ArrayList<>(groups.values());
     }
