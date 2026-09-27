@@ -232,7 +232,8 @@ public final class CpoStvCounter {
     /**
      * Scores outcomes {@code a} and {@code b} against each other in one pass: excludes every
      * candidate in neither, then repeatedly transfers the largest still-pending surplus among
-     * {@code a} &cap; {@code b} until none remain (see the class javadoc).
+     * {@code a} &cap; {@code b} until none remain (see the class javadoc). When two are equal,
+     * the one belonging to the candidate declared first goes first.
      *
      * <p>Only the order in which a ballot ranks the candidates of {@code a} &cup; {@code b} can
      * affect this count — every other candidate is excluded before it starts — so ballots are
@@ -243,10 +244,18 @@ public final class CpoStvCounter {
      */
     private static Map<Candidate, Fraction> notionalCount(
             IndexedBallots ballots, Set<Candidate> a, Set<Candidate> b, Fraction quota, CpoStvRuleset ruleset) {
-        Set<Candidate> standing = new LinkedHashSet<>(a);
-        standing.addAll(b);
-        Set<Candidate> shared = new LinkedHashSet<>(a);
-        shared.retainAll(b);
+        // In declared candidate order, not the outcome sets' own iteration order, which varies
+        // from run to run: `shared` decides which of two equal surpluses transfers first.
+        Set<Candidate> standing = new LinkedHashSet<>();
+        Set<Candidate> shared = new LinkedHashSet<>();
+        for (Candidate candidate : ballots.candidates()) {
+            if (a.contains(candidate) || b.contains(candidate)) {
+                standing.add(candidate);
+            }
+            if (a.contains(candidate) && b.contains(candidate)) {
+                shared.add(candidate);
+            }
+        }
 
         boolean[] isStanding = new boolean[ballots.candidates().size()];
         for (Candidate candidate : standing) {
@@ -306,7 +315,8 @@ public final class CpoStvCounter {
                     continue;
                 }
                 Fraction surplus = tallies.get(candidate).subtract(quota);
-                if (surplus.signum() > 0 && surplus.compareTo(largestSurplus) >= 0) {
+                // Strictly larger: of equal surpluses, the earliest-declared candidate's goes first.
+                if (surplus.signum() > 0 && surplus.compareTo(largestSurplus) > 0) {
                     largestSurplus = surplus;
                     largestSurplusCandidate = candidate;
                 }

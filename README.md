@@ -285,8 +285,8 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   elections/eliminations, it exhaustively enumerates every possible `seats`-sized candidate
   subset ("outcome"), scores every pair of them against each other via a small notional
   STV-style count (excluding candidates in neither outcome, transferring the surplus only of
-  candidates *shared* by both — a candidate unique to just one outcome keeps whatever they end
-  up with), and picks whichever outcome beats every other — falling back to the same
+  candidates *shared* by both, largest first, two equal surpluses in declared candidate order
+  — a candidate unique to just one outcome keeps whatever they end up with), and picks whichever outcome beats every other — falling back to the same
   beatpath-completion idea `SchulzeMethod` uses (reimplemented locally over `Fraction`-valued
   outcome scores rather than `SchulzeMethod`'s `BigInteger` vote counts) if no outcome wins
   outright. Reuses the existing `Quota`/`TransferMethod`/`RoundingRule` building blocks for the

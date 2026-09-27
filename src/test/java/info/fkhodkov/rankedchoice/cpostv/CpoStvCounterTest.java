@@ -268,4 +268,36 @@ class CpoStvCounterTest {
     private static Ballot ballot(int count, Candidate... ranking) {
         return new Ballot(List.of(ranking).stream().map(Set::of).toList(), BigInteger.valueOf(count));
     }
+
+    /**
+     * Two shared candidates with exactly equal surpluses: which transfers first changes the
+     * score, so it must not depend on anything but the declared candidate order (it used to
+     * depend on the outcome sets' iteration order, which varies between runs).
+     * <pre>
+     *   20: X, Y     20: Y, P     10: P     10: Q        (3 seats, Droop quota 16)
+     * </pre>
+     * <p>Comparing {X, Y, P} with {X, Y, Q}, X and Y both hold 20 -- surplus 4 each. X, declared
+     * first, goes first: its 20 ballots reach Y at 1/5, so Y holds 24, surplus 8, and passes its
+     * own ballots on at 8/24 = 1/3 -- 20/3 to P, who ends on 50/3. {X, Y, P} scores 16 + 16 +
+     * 50/3 = 146/3 against {X, Y, Q}'s 16 + 16 + 10 = 42. (Had Y gone first, P would only have
+     * received 4, for a score of 46.)
+     */
+    @Test
+    void equalSurplusesTransferInDeclaredOrder() {
+        Candidate x = Candidate.of("X");
+        Candidate y = Candidate.of("Y");
+        Candidate p = Candidate.of("P");
+        Candidate q = Candidate.of("Q");
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(x), Set.of(y)), BigInteger.valueOf(20)),
+                new Ballot(List.of(Set.of(y), Set.of(p)), BigInteger.valueOf(20)),
+                new Ballot(List.of(Set.of(p)), BigInteger.valueOf(10)),
+                new Ballot(List.of(Set.of(q)), BigInteger.valueOf(10)));
+        CpoStvRuleset ruleset = new CpoStvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE);
+
+        CpoStvResult result = CpoStvCounter.count(List.of(x, y, p, q), ballots, 3, ruleset);
+
+        assertThat(result.outcomeScores().get(Set.of(x, y, p)).get(Set.of(x, y, q))).isEqualTo(Fraction.of(146, 3));
+        assertThat(result.outcomeScores().get(Set.of(x, y, q)).get(Set.of(x, y, p))).isEqualTo(Fraction.of(42));
+    }
 }
