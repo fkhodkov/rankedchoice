@@ -203,6 +203,47 @@ class MainTest {
         assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: X");
     }
 
+    /** 11 votes, 1 seat: Meek's quota is 11/2 rounded down at the count's precision, plus one step. */
+    @ParameterizedTest
+    @CsvSource({"meek, 3, 5.501", "warren, 6, 5.500001"})
+    void precisionFlagSetsTheDecimalPlacesAMeekOrWarrenCountWorksTo(String method, String places, String quota)
+            throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--method", method, "--precision", places);
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: " + quota + "\n");
+    }
+
+    @Test
+    void precisionCanComeFromAConfigFile() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+        Path configFile = tempDir.resolve("config.yaml");
+        Files.writeString(configFile, "precision: 4\n");
+
+        int exitCode = new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--method", "meek", "--config", configFile.toString());
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: 5.5001\n");
+    }
+
+    @Test
+    void precisionFlagIsRefusedOutsideMeekAndWarren() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main()).execute("--input", bltFile.toString(), "--precision", "6");
+
+        assertThat(exitCode).isEqualTo(1);
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8))
+                .contains("--precision only applies to --method meek or warren");
+    }
+
     @Test
     void minimumPreferencesFlagIsRefusedForAMethodWithoutIt() throws Exception {
         Path bltFile = tempDir.resolve("election.blt");

@@ -13,7 +13,9 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
  *
  * <p>Products are computed in {@code long} when they fit and in {@link BigInteger} when they
  * don't, so a large election can't overflow a keep-factor update ({@code keepFactor * quota}
- * can exceed {@code Long.MAX_VALUE} well before any vote total does).
+ * can exceed {@code Long.MAX_VALUE} well before any vote total does). Every other value a count
+ * holds — a candidate's votes, the quota, the surplus, a lowest vote plus that surplus — is at
+ * most twice the total vote, so {@link #requireRoomFor} checks that once, up front.
  */
 final class FixedPoint {
 
@@ -36,6 +38,23 @@ final class FixedPoint {
     /** The smallest representable positive value, 10^-places. */
     long epsilon() {
         return 1;
+    }
+
+    /**
+     * Refuses a count whose total vote, at this many decimal places, would leave no headroom in
+     * a {@code long} — about 4.6 * 10^18 / 10^places votes (4.6 billion at 9 places).
+     */
+    void requireRoomFor(BigInteger totalVotes) {
+        BigInteger limit = BigInteger.valueOf(Long.MAX_VALUE / 2 / scale);
+        if (totalVotes.compareTo(limit) > 0) {
+            int maxPlaces = places;
+            while (maxPlaces > 1 && totalVotes.compareTo(
+                    BigInteger.valueOf(Long.MAX_VALUE / 2).divide(BigInteger.TEN.pow(maxPlaces))) > 0) {
+                maxPlaces--;
+            }
+            throw new IllegalArgumentException(totalVotes + " votes is too many to count at " + places
+                    + " decimal places (at most " + limit + "); use a precision of " + maxPlaces + " or fewer");
+        }
     }
 
     long of(BigInteger wholeNumber) {

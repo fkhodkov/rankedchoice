@@ -50,4 +50,14 @@ class FixedPointTest {
         assertThatThrownBy(() -> new FixedPoint(0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new FixedPoint(16)).isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void refusesATotalVoteThatWouldLeaveNoHeadroomAndSaysWhatPrecisionWouldFit() {
+        new FixedPoint(15).requireRoomFor(BigInteger.valueOf(4_000));
+
+        assertThatThrownBy(() -> new FixedPoint(15).requireRoomFor(BigInteger.valueOf(1_000_000)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("1000000 votes is too many to count at 15 decimal places (at most 4611)")
+                .hasMessageContaining("use a precision of 12 or fewer");
+    }
 }

@@ -64,7 +64,7 @@ import picocli.CommandLine.Option;
 public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG =
-            new ElectionConfig(null, null, null, null, null, null, null, null, null, null);
+            new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -154,6 +154,12 @@ public final class Main implements Callable<Integer> {
                     + "--config/--ruleset.")
     private Integer minimumPreferences;
 
+    @Option(names = {"--precision"},
+            description = "Decimal places a meek or warren count works to (default 9, as droop's fixed-point "
+                    + "Meek). Only shapes the count itself; --rounding still controls how figures are reported. "
+                    + "Overrides --config.")
+    private Integer precision;
+
     static void main(String[] args) {
         System.exit(new CommandLine(new Main()).execute(args));
     }
@@ -191,6 +197,10 @@ public final class Main implements Callable<Integer> {
             throw new IllegalArgumentException("--minimum-preferences doesn't apply to --method " + effectiveMethod);
         }
         String effectiveTiedRankings = firstNonNull(tiedRankings, fileConfig.tiedRankings());
+        boolean keepFactorMethod = effectiveMethod.equals("meek") || effectiveMethod.equals("warren");
+        if (precision != null && !keepFactorMethod) {
+            throw new IllegalArgumentException("--precision only applies to --method meek or warren");
+        }
         Integer configuredMinimumPreferences = minimumPreferences != null ? minimumPreferences : fileConfig.minimumPreferences();
         int effectiveMinimumPreferences = configuredMinimumPreferences == null ? 0 : configuredMinimumPreferences;
 
@@ -276,7 +286,9 @@ public final class Main implements Callable<Integer> {
                 MeekRuleset ruleset = new MeekRuleset(roundingRuleForReport,
                         StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
                         StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.SPLIT),
-                        effectiveMinimumPreferences, MeekRuleset.DEFAULT_PRECISION,
+                        effectiveMinimumPreferences,
+                        precision != null ? precision
+                                : fileConfig.precision() != null ? fileConfig.precision() : MeekRuleset.DEFAULT_PRECISION,
                         effectiveMethod.equals("warren") ? KeepRule.WARREN : KeepRule.MEEK);
                 result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
             }

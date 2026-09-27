@@ -1,5 +1,6 @@
 package info.fkhodkov.rankedchoice.stv.meek;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -117,11 +118,12 @@ public final class MeekCounter {
             this.seats = seats;
             this.fixed = fixed;
             this.keepRule = keepRule;
-            long total = 0;
+            BigInteger ballotCount = BigInteger.ZERO;
             for (Ballot ballot : ballots) {
-                total = Math.addExact(total, fixed.of(ballot.count()));
+                ballotCount = ballotCount.add(ballot.count());
             }
-            this.totalVotes = total;
+            fixed.requireRoomFor(ballotCount);
+            this.totalVotes = fixed.of(ballotCount);
             this.omega = fixed.tenToTheMinus(fixed.places() * 2 / 3);
             for (Candidate candidate : candidates) {
                 states.put(candidate, State.HOPEFUL);

@@ -131,10 +131,15 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   no exact rational answer to compute; instead the count follows droop's Meek rule
   ([jklundell/droop](https://github.com/jklundell/droop), `meek arithmetic=fixed
   defeat_batch=none`) step for step, in the same fixed-point decimal arithmetic — 9 decimal
-  places by default (`MeekRuleset.precision`), rounding down when a candidate keeps part of a
-  ballot and up when a keep factor is updated, a quota one smallest step above
-  `votes / (seats + 1)`, and iteration until the total surplus is at most 10^-6 or stops
-  shrinking — so every figure is reproducible exactly rather than to within a tolerance.
+  places by default — rounding down when a candidate keeps part of a ballot and up when a keep
+  factor is updated, a quota one smallest step above `votes / (seats + 1)`, and iteration
+  until the total surplus is at most 10^-6 (10^-(2/3 of the precision), as droop sets it) or
+  stops shrinking — so every figure is reproducible exactly rather than to within a tolerance.
+  `--precision` (or a config file's `precision`) changes the decimal places; checked against
+  droop's own `precision=` option at 6, 12, and 13 places as well, with every election that
+  fits matching exactly. An election whose total vote wouldn't fit at the chosen precision —
+  about 4.6 billion votes at 9 places, 4.6 million at 12 — is refused with an error naming
+  the highest precision that would.
   Checked against droop's own reports on MapLibre's real election below and on 143 synthetic
   ones (including exclusions decided by tie-break, iteration stopped by a stalled surplus, and
   counts ending by electing the remaining hopefuls outright; tied-ballot ones against the
@@ -388,15 +393,15 @@ a hair short of the true total by the rounding loss accumulated so far. This doe
 who gets elected or any individual candidate's tally, which always match official figures
 exactly; it only affects a full grand-total reconciliation, which this engine doesn't attempt.
 
-Another known gap, specific to the last-parcel-family rulesets' deferred surplus transfers:
-real ERS97 counting only defers a surplus when a vote-gap safety check proves doing so can't
-possibly affect which candidate is lowest (and additionally supports "bulk exclusion" of
-multiple safely-doomed candidates at once) — this engine instead always defers, transferring
-the single largest pending surplus once nothing else is pending. Confirmed against both the
-ERS97 model election and the real 2020 Kurrajong election: every individual tally, once
-transferred, and the final elected set, still match exactly — only *when* a deferred surplus
-gets transferred (and so the exact round/stage numbering beyond that point) can differ from
-an official count.
+Another known gap, specific to the last-parcel-family rulesets' surplus transfers: real ERS97
+counting may put off a surplus and exclude first, when a vote-gap check shows that
+transferring it couldn't change who is excluded. This engine never does — it transfers every
+pending surplus, one per round and largest first, before it considers any exclusion. (Bulk
+exclusion, ERS97 rule 5.2.5's other exclusion shortcut, *is* implemented: see
+`batchExclusion` above.) Confirmed against both the ERS97 model election and the real 2020
+Kurrajong election: every individual tally, once transferred, and the final elected set,
+still match exactly — only *when* a surplus gets transferred (and so the exact round/stage
+numbering beyond that point) can differ from an official count.
 
 ## Requirements
 
@@ -433,13 +438,14 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
 | `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek`/`warren` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek`/`warren` and fractional-transfer `stv`. Applies to `stv`, `meek`, `warren`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
 | `--minimum-preferences` | Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as informal, capped at one fewer than the number of candidates. Defaults to none; the `hare-clark-qpq` preset sets 7. Applies to `stv`, `meek`, `warren`, `cpo-stv`, and `qpq`. Overrides `--config`/`--ruleset`. |
+| `--precision` | Decimal places a `meek`/`warren` count works to. Defaults to 9 (droop's default for fixed-point Meek). Only shapes the count itself — `--rounding` still controls how figures are reported. `meek`/`warren` only. Overrides `--config`. |
 | `--borda-scoring` | `classic\|dowdall`. Only applies to `--method borda`; defaults to `classic`. `dowdall` is the Nauru system (`1, 1/2, 1/3, ...`). |
 
 ### Rules and config
 
 A YAML config file can set any combination of `quota`, `transfer`, `rounding`, `tiebreak`,
-`seats`, `format`, `reportFormat`, `batchExclusion`, `tiedRankings`, and `minimumPreferences`
-— all optional:
+`seats`, `format`, `reportFormat`, `batchExclusion`, `tiedRankings`, `minimumPreferences`,
+and `precision` — all optional:
 
 ```yaml
 quota: hare
@@ -463,6 +469,10 @@ per-count choice rather than a fixed property of a jurisdiction's rules.
 than this informal — see the STV engine section above. It has a CLI override,
 `--minimum-preferences`, mainly so a preset can be adjusted without copying it: Tasmanian
 council elections are `--ruleset hare-clark-qpq --minimum-preferences 3`.
+
+`precision` (a whole number, 1–15, default 9) sets the decimal places a `meek` or `warren`
+count works to; `--precision` overrides it. Like `--rounding` it's per-count, but unlike
+`--rounding` it changes the count itself, not just how its figures are shown.
 
 `--ruleset <name>` is exactly the same mechanism, pointed at a bundled config shipped as a
 classpath resource (`src/main/resources/rulesets/<name>.yaml`) instead of a file you supply.
