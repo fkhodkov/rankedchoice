@@ -10,8 +10,8 @@ use it today.
 
 Currently implemented (Phase 1–3 of the plan, in progress):
 
-- Ballot model with built-in support for tied rankings (not yet consumed by the STV
-  counter — see below)
+- Ballot model with built-in support for tied rankings — consumed by Schulze, Borda, and now
+  the classic STV counter too, under fractional transfer (see below)
 - `.blt` and CSV ballot parsers, both streamed line-by-line rather than loaded into memory
 - STV counting engine, pluggable per axis:
   - Quotas: Droop, Hare, Hagenbach-Bischoff, Imperiali, and a Droop-rounded-to-N-decimal-
@@ -42,6 +42,20 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     here for now
   - Tie-break rules: fixed declared order, previous-round votes, first-preference count
     (each with a configurable fallback), seeded random
+  - Tied ballot rankings (a rank shared by more than one candidate) under fractional
+    transfer: a ballot's holder is really a *group* — every still-continuing candidate
+    sharing its front-most remaining rank — and its pooled value splits evenly across the
+    group every round, recomputed fresh rather than fragmented into independent sub-ballots
+    at the moment of the tie. Verified against a real, actively maintained implementation of
+    genuine equal-preference STV, CRAN's [`vote` package](https://cran.r-project.org/package=vote)
+    (Sevcikova, Silverman, Raftery) — read directly rather than just its documentation, since
+    the mechanics turned out more subtle than expected: when one of several tied candidates
+    is elected, only their own share is scaled by the surplus ratio and the others fold back
+    in unscaled; when one is eliminated instead, the ballot's value is untouched and whoever
+    remains at that rank inherits the *entire* pool next round, not just their own prior
+    share — the hand-derived fixture this project added specifically exercises that
+    non-obvious inheritance case (`StvCounterTest`). Not yet supported under WIGM or either
+    last-parcel variant, which don't yet define an equivalent splitting rule
 - A CLI that runs a count from a ballot file and prints a round-by-round report. Rules
   come from a bundled ruleset preset (`--ruleset`), a YAML config file (`--config`),
   individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
@@ -279,9 +293,10 @@ Schulze-STV (the other multi-winner Condorcet-STV extension, alongside CPO-STV a
 specifically because its "proportional completion" step requires solving a genuine optimization
 problem per pairwise outcome comparison, i.e. an LP-style solver, which is a real dependency
 this project doesn't currently have and which the plan's own tooling section explicitly avoided
-pulling in). Tied ballot rankings are rejected by the STV, Meek, CPO-STV, and QPQ counters
-(CPO-STV's notional count reuses STV's own ballot-position logic, so it inherits the same
-restriction); Schulze and Borda accept them.
+pulling in). Tied ballot rankings are accepted by Schulze, Borda, and classic STV under
+fractional transfer (see below); they're still rejected by STV's other three transfer
+methods (WIGM and the last-parcel family), and by Meek, CPO-STV, and QPQ (CPO-STV's notional
+count reuses STV's own ballot-position logic, so it inherits the same restriction).
 
 Two rulesets are validated only at the arithmetic/config level, not against a real or model
 election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note

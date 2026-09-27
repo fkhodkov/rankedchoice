@@ -232,9 +232,11 @@ class StvCounterTest {
     }
 
     @Test
-    void rejectsTiedRankings() {
+    void rejectsTiedRankingsUnderNonFractionalTransferMethods() {
         Ballot tiedBallot = new Ballot(List.of(Set.of(A, B)), BigInteger.ONE);
-        assertThatThrownBy(() -> StvCounter.count(List.of(A, B), List.of(tiedBallot), 1, ruleset(A, B)))
+        StvRuleset wigmRuleset = new StvRuleset(
+                DroopQuota.INSTANCE, WigmTransfer.INSTANCE, Exact.INSTANCE, new DeclaredOrderTieBreak(List.of(A, B)));
+        assertThatThrownBy(() -> StvCounter.count(List.of(A, B), List.of(tiedBallot), 1, wigmRuleset))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
@@ -723,5 +725,115 @@ class StvCounterTest {
         assertThat(round2.tallies())
                 .isEqualTo(Map.of(c, Fraction.of(25), d, Fraction.of(15), b, Fraction.of(25)));
         assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(3)));
+    }
+
+    /**
+     * Hand-derived 4-candidate/2-seat count exercising tied rankings under {@link
+     * FractionalTransfer} for the first time -- specifically, the most distinctive and
+     * easy-to-miss part of the equal-preference algorithm verified against CRAN's {@code vote}
+     * package (see {@link StvCounter}'s class javadoc): when one of two candidates tied for a
+     * ballot's front-most rank is <em>eliminated</em>, the survivor inherits the ballot's
+     * <em>entire</em> pooled value next round, not just the half-share it had been crediting
+     * while the tie lasted.
+     * <pre>
+     *   10: A=B (tied)      3: C      40: D
+     * </pre>
+     * Total 53, Droop quota = floor(53/3)+1 = 18.
+     * <p>Round 1 -- first preferences: the 10 tied ballots split evenly, crediting A=5 and B=5;
+     * C=3; D=40. D alone meets quota; D's own ballots rank nobody else, so the 22-vote surplus
+     * has nowhere to go and is simply lost to non-transferability.
+     * <p>Round 2 -- continuing {A, B, C} (3 &gt; 1 remaining seat); nobody meets quota; C
+     * (lowest, 3) is excluded, its ballot has no further preference and exhausts.
+     * <p>Round 3 -- continuing {A, B} (2 &gt; 1, still no shortcut); A and B are tied at 5
+     * each -- a genuine candidate-tally tie, broken by declared order (A eliminated first).
+     * Critically, A was one of the two candidates <em>tied on the ballot itself</em>: A's
+     * departure doesn't move those 10 ballots' value anywhere (elimination is never
+     * discounted) -- it just leaves B as the sole remaining candidate at that same rank.
+     * <p>Round 4 -- only B remains continuing for the 1 remaining seat: elected via the
+     * "remaining continuing == remaining seats" shortcut, with a tally of the <em>full</em>
+     * 10 (not 5) -- the pooled value the ballot always carried, now entirely B's since nobody
+     * else remains to share it with.
+     */
+    @Test
+    void handDerivedTiedRankingSurvivorInheritsTheFullPoolAfterACoHolderIsEliminated() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        Ballot tiedBallot = new Ballot(List.of(Set.of(a, b)), BigInteger.TEN);
+        List<Ballot> ballots = List.of(tiedBallot, ballot(3, c), ballot(40, d));
+        StvRuleset fractionalRuleset = new StvRuleset(
+                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b, c, d)));
+
+        StvResult result = StvCounter.count(List.of(a, b, c, d), ballots, 2, fractionalRuleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(18));
+        assertThat(result.electedInOrder()).containsExactly(d, b);
+        assertThat(result.rounds()).hasSize(4);
+
+        RoundRecord round1 = result.rounds().get(0);
+        assertThat(round1.tallies())
+                .isEqualTo(Map.of(a, Fraction.of(5), b, Fraction.of(5), c, Fraction.of(3), d, Fraction.of(40)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(d, Fraction.of(22)));
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.tallies()).isEqualTo(Map.of(a, Fraction.of(5), b, Fraction.of(5), c, Fraction.of(3)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Eliminated(c));
+
+        RoundRecord round3 = result.rounds().get(2);
+        assertThat(round3.tallies()).isEqualTo(Map.of(a, Fraction.of(5), b, Fraction.of(5)));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Eliminated(a));
+
+        RoundRecord round4 = result.rounds().get(3);
+        assertThat(round4.tallies()).isEqualTo(Map.of(b, Fraction.of(10)));
+        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
+    }
+
+    /**
+     * A second tied-ranking case, exercising the other half of the equal-preference algorithm:
+     * when one of two tied-for-front candidates is instead <em>elected with a surplus</em>,
+     * only their own share of the ballot gets scaled down by the surplus ratio -- the other
+     * tied candidate's share is added back unscaled, and the ballot's updated pooled value
+     * stays with that survivor going forward.
+     * <pre>
+     *   20: A=B (tied)      15: A      5: C
+     * </pre>
+     * Total 40, Droop quota = floor(40/3)+1 = 14. First preferences: the tied 20 split evenly
+     * (A=10, B=10), plus A's own 15 unshared ballots, giving A = 15+10 = 25; B=10; C=5.
+     * <p>Round 1 -- only A meets quota (25). Surplus = 25-14 = 11, ratio = 11/25. A holds two
+     * distinct parcels: the 15 unshared ballots (full share 1, no further preference -- their
+     * reduced residual is simply lost) and the 20 tied ballots (A's own share 1/2, which
+     * <em>does</em> have somewhere to go, since B still holds the other half). The tied
+     * ballots' new pooled value is B's own untouched half (1/2) plus A's ratio-scaled half
+     * ((1/2)*(11/25) = 11/50): 1/2 + 11/50 = 18/25 each, all now credited solely to B.
+     * <p>Round 2 -- continuing {B, C}; B's tally is 20*(18/25) = 72/5 = 14.4, C's is 5. B alone
+     * meets the 14-vote quota, with a surplus of 72/5 - 14 = 2/5. Both seats are now filled.
+     */
+    @Test
+    void handDerivedTiedRankingOtherCoHoldersShareSurvivesAnElectedCoHoldersSurplus() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Ballot tiedBallot = new Ballot(List.of(Set.of(a, b)), BigInteger.valueOf(20));
+        List<Ballot> ballots = List.of(tiedBallot, ballot(15, a), ballot(5, c));
+        StvRuleset fractionalRuleset = new StvRuleset(
+                DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b, c)));
+
+        StvResult result = StvCounter.count(List.of(a, b, c), ballots, 2, fractionalRuleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(14));
+        assertThat(result.electedInOrder()).containsExactly(a, b);
+        assertThat(result.rounds()).hasSize(2);
+
+        RoundRecord round1 = result.rounds().get(0);
+        assertThat(round1.tallies())
+                .isEqualTo(Map.of(a, Fraction.of(25), b, Fraction.of(10), c, Fraction.of(5)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(11)));
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(72, 5), c, Fraction.of(5)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(2, 5)));
     }
 }

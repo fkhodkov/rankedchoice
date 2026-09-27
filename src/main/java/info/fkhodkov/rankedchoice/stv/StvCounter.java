@@ -2,6 +2,7 @@ package info.fkhodkov.rankedchoice.stv;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -48,8 +49,24 @@ import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
  * rulesets don't do any of this — confirmed correct via real Scottish election data using the
  * simpler "transfer everything for this event immediately" model already in place.
  *
- * <p>Candidates must already exclude any withdrawn from standing; {@code ballots} must not
- * contain tied rankings (every rank a singleton) — tie support is a later addition.
+ * <p>Candidates must already exclude any withdrawn from standing. Tied rankings (a rank with
+ * more than one candidate) are supported only under {@link
+ * info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer} so far — {@link
+ * StvCounterValidation} rejects them for every other transfer method, since WIGM and the
+ * last-parcel family don't yet define how to split a tied ballot's value. Under fractional
+ * transfer, a ballot's current holder is really a <em>group</em> — every still-continuing
+ * candidate sharing its front-most remaining rank (see {@link #assignNextHolder}) — and the
+ * ballot's pooled value splits evenly across the group every round. This isn't a one-time
+ * split into independent sub-ballots: verified by reading the source of CRAN's {@code vote}
+ * package (Sevcikova, Silverman, Raftery — <a
+ * href="https://cran.r-project.org/package=vote">cran.r-project.org/package=vote</a>, an
+ * actively maintained, real equal-preference STV implementation) directly, the pool
+ * re-splits among whichever tied candidates remain each round; when one of several tied
+ * candidates is elected, only their own share is scaled by the surplus ratio, and the
+ * others' shares fold back into the pool unscaled; when one is eliminated instead, the
+ * ballot's value is untouched and whoever else remains at that rank simply inherits the
+ * <em>entire</em> pool next round — not just the share they'd been individually credited
+ * with while the tie lasted.
  */
 public final class StvCounter {
 
@@ -57,7 +74,7 @@ public final class StvCounter {
     }
 
     public static StvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, StvRuleset ruleset) {
-        StvCounterValidation.validate(candidates, ballots, seats);
+        StvCounterValidation.validate(candidates, ballots, seats, ruleset);
 
         Set<Candidate> continuing = new LinkedHashSet<>(candidates);
         List<BallotState> states = new ArrayList<>(ballots.size());
@@ -265,7 +282,7 @@ public final class StvCounter {
         Set<Candidate> excluded = new LinkedHashSet<>(from);
         Map<Fraction, List<BallotState>> byValueDescending = new TreeMap<>(Comparator.reverseOrder());
         for (BallotState state : states) {
-            if (excluded.contains(state.holder)) {
+            if (!Collections.disjoint(state.holders, excluded)) {
                 byValueDescending.computeIfAbsent(state.value, _ -> new ArrayList<>()).add(state);
             }
         }
@@ -395,11 +412,21 @@ public final class StvCounter {
             tallies.put(candidate, Fraction.ZERO);
         }
         for (BallotState state : states) {
-            // A ballot's holder can remain an already-elected candidate forever under a
+            // A ballot's holder(s) can remain an already-elected candidate forever under a
             // last-parcel-only transfer method (parcels it doesn't select are simply never
-            // moved again), so only count holders still in the running.
-            if (state.holder != null && continuing.contains(state.holder)) {
-                tallies.merge(state.holder, Fraction.of(state.ballot.count()).multiply(state.value), Fraction::add);
+            // moved again), so only count holders still in the running. A tied ballot's value
+            // splits evenly across everyone still sharing its front-most rank (see {@link
+            // #assignNextHolder}) -- a singleton holder set is just the degenerate case, worth
+            // exactly its own full value.
+            if (state.holders.isEmpty()) {
+                continue;
+            }
+            Fraction share = Fraction.of(state.ballot.count()).multiply(state.value)
+                    .divide(Fraction.of(state.holders.size()));
+            for (Candidate holder : state.holders) {
+                if (continuing.contains(holder)) {
+                    tallies.merge(holder, share, Fraction::add);
+                }
             }
         }
         tallies.replaceAll((_, tally) -> roundingRule.apply(tally));
@@ -409,7 +436,7 @@ public final class StvCounter {
     private static Fraction exhaustedVotes(List<BallotState> states) {
         Fraction total = Fraction.ZERO;
         for (BallotState state : states) {
-            if (state.holder == null) {
+            if (state.holders.isEmpty()) {
                 total = total.add(Fraction.of(state.ballot.count()).multiply(state.value));
             }
         }
@@ -420,18 +447,30 @@ public final class StvCounter {
     }
 
     /**
-     * Moves the newly-elected {@code from}'s ballots to their next continuing preference,
-     * per the ruleset's transfer method — see {@link TransferMethod}. A ballot whose parcel
-     * isn't included in the method's decision (e.g. an earlier parcel under a last-parcel-only
-     * method) is left exactly as it is, credited to {@code from} for good.
+     * Moves {@code from}'s share of every ballot it (possibly jointly) holds onward, per the
+     * ruleset's transfer method — see {@link TransferMethod}. For an untied ballot, {@code
+     * from}'s "share" is just the ballot's whole value, same as ever. For a ballot currently
+     * <em>tied</em> between {@code from} and one or more other still-continuing candidates
+     * (see {@link #assignNextHolder}), only {@code from}'s {@code value / holders.size()}
+     * portion is fed through the transfer method; whatever comes back replaces just that
+     * portion, and the other tied candidates' shares are folded back into the ballot's pooled
+     * value unchanged, exactly like {@code from} never touched them. The ballot's holder group
+     * is then recomputed — if another tied candidate remains, the ballot's updated pool simply
+     * re-splits between whoever's left at that same rank next round; only once every candidate
+     * at that rank has gone does the ballot actually move on to its next preference.
+     *
+     * <p>A ballot whose parcel isn't included in the method's decision (e.g. an earlier parcel
+     * under a last-parcel-only method) is left exactly as it is, credited to {@code from} for
+     * good.
      */
     private static void transferSurplus(List<BallotState> states, Candidate from, Fraction surplus,
             TransferMethod transferMethod, RoundingRule roundingRule, Set<Candidate> continuing, int newParcelId) {
         Map<ParcelKey, BigInteger> votesByKey = new LinkedHashMap<>();
         for (BallotState state : states) {
-            if (from.equals(state.holder)) {
+            if (state.holders.contains(from)) {
+                Fraction share = shareOf(state, from);
                 boolean hasNextPreference = hasNextContinuingPreference(state, continuing);
-                votesByKey.merge(new ParcelKey(state.parcelId, state.value, hasNextPreference),
+                votesByKey.merge(new ParcelKey(state.parcelId, share, hasNextPreference),
                         state.ballot.count(), BigInteger::add);
             }
         }
@@ -451,12 +490,13 @@ public final class StvCounter {
         Map<Integer, Fraction> newValues = transferMethod.computeTransferValues(surplus, parcels, roundingRule);
 
         for (BallotState state : states) {
-            if (from.equals(state.holder)) {
+            if (state.holders.contains(from)) {
+                Fraction share = shareOf(state, from);
                 boolean hasNextPreference = hasNextContinuingPreference(state, continuing);
-                Integer id = idByKey.get(new ParcelKey(state.parcelId, state.value, hasNextPreference));
-                Fraction newValue = newValues.get(id);
-                if (newValue != null) {
-                    state.value = newValue;
+                Integer id = idByKey.get(new ParcelKey(state.parcelId, share, hasNextPreference));
+                Fraction newShare = newValues.get(id);
+                if (newShare != null) {
+                    state.value = state.value.subtract(share).add(newShare);
                     state.parcelId = newParcelId;
                     assignNextHolder(state, continuing);
                 }
@@ -464,17 +504,27 @@ public final class StvCounter {
         }
     }
 
+    /** {@code from}'s portion of a (possibly tied) ballot's current pooled value. */
+    private static Fraction shareOf(BallotState state, Candidate from) {
+        return state.value.divide(Fraction.of(state.holders.size()));
+    }
+
     /**
-     * Whether this ballot has a next continuing preference beyond its current holder, without
-     * advancing it — last-parcel-family transfer methods (see {@link
+     * Whether this ballot has a next continuing preference beyond its current holder(s),
+     * without advancing it — last-parcel-family transfer methods (see {@link
      * info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer}) need to know this per
      * ballot before deciding the transfer ratio, since ballots with no further preference are
-     * excluded from its denominator.
+     * excluded from its denominator. A ballot tied between more than one still-continuing
+     * candidate always "has somewhere to go" regardless of anyone's downstream ranking — its
+     * pool simply stays with whichever of the tied candidates remain.
      */
     private static boolean hasNextContinuingPreference(BallotState state, Set<Candidate> continuing) {
+        if (state.holders.size() > 1) {
+            return true;
+        }
         List<Set<Candidate>> ranking = state.ballot.ranking();
-        for (int i = state.nextIndex; i < ranking.size(); i++) {
-            if (continuing.contains(ranking.get(i).iterator().next())) {
+        for (int i = state.nextIndex + 1; i < ranking.size(); i++) {
+            if (!stillContinuing(ranking.get(i), continuing).isEmpty()) {
                 return true;
             }
         }
@@ -482,32 +532,60 @@ public final class StvCounter {
     }
 
     /**
-     * Moves every ballot currently held by the eliminated {@code from} to its next continuing
-     * preference, unchanged in value — elimination is never discounted, regardless of
-     * transfer method.
+     * Moves every ballot currently (possibly jointly) held by the eliminated {@code from} on
+     * to its next continuing preference, unchanged in value — elimination is never discounted,
+     * regardless of transfer method. A ballot tied between {@code from} and another
+     * still-continuing candidate is untouched in every other respect: its pool simply
+     * re-splits among whoever's left sharing that rank (see {@link #assignNextHolder}).
      */
     private static void transferEliminatedBallots(List<BallotState> states, Candidate from,
             Set<Candidate> continuing, int newParcelId) {
         for (BallotState state : states) {
-            if (from.equals(state.holder)) {
+            if (state.holders.contains(from)) {
                 state.parcelId = newParcelId;
                 assignNextHolder(state, continuing);
             }
         }
     }
 
-    /** Advances a ballot to the next continuing candidate in its ranking, or exhausts it. */
+    /**
+     * (Re-)computes a ballot's current holder group: the still-continuing candidates sharing
+     * its front-most remaining rank. Unlike the old single-holder version, this deliberately
+     * does <em>not</em> advance {@code nextIndex} past a rank as soon as a holder is found —
+     * only once every candidate at that rank has left {@code continuing} does the next call
+     * move on to the following rank. That's what lets a tied rank narrow one candidate at a
+     * time (each departure re-examines the same rank) rather than jumping straight to the
+     * ballot's next preference the instant any one member of the tie leaves — matching the
+     * equal-preference algorithm in CRAN's {@code vote} package (Sevcikova, Silverman,
+     * Raftery — see {@link StvCounter}'s class javadoc), verified by reading its source
+     * directly: a ballot's pooled value re-splits among whichever tied candidates remain,
+     * rather than each tied candidate's share being tracked as an independent sub-ballot from
+     * the moment of the tie.
+     */
     private static void assignNextHolder(BallotState state, Set<Candidate> continuing) {
         List<Set<Candidate>> ranking = state.ballot.ranking();
         while (state.nextIndex < ranking.size()) {
-            Candidate candidate = ranking.get(state.nextIndex).iterator().next();
-            state.nextIndex++;
-            if (continuing.contains(candidate)) {
-                state.holder = candidate;
+            Set<Candidate> group = stillContinuing(ranking.get(state.nextIndex), continuing);
+            if (!group.isEmpty()) {
+                state.holders = group;
                 return;
             }
+            state.nextIndex++;
         }
-        state.holder = null;
+        state.holders = Set.of();
+    }
+
+    private static Set<Candidate> stillContinuing(Set<Candidate> rank, Set<Candidate> continuing) {
+        if (rank.size() == 1) {
+            return continuing.containsAll(rank) ? rank : Set.of();
+        }
+        Set<Candidate> group = new LinkedHashSet<>();
+        for (Candidate candidate : rank) {
+            if (continuing.contains(candidate)) {
+                group.add(candidate);
+            }
+        }
+        return group;
     }
 
     private static final class BallotState {
@@ -515,7 +593,7 @@ public final class StvCounter {
         private int nextIndex = 0;
         private Fraction value = Fraction.ONE;
         private int parcelId = 0;
-        private Candidate holder;
+        private Set<Candidate> holders = Set.of();
 
         BallotState(Ballot ballot) {
             this.ballot = ballot;
