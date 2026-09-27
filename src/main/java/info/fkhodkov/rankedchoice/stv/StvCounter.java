@@ -414,21 +414,31 @@ public final class StvCounter {
         for (Candidate candidate : continuing) {
             tallies.put(candidate, Fraction.ZERO);
         }
+        // Ballots are added up as whole numbers per (holder(s), value) first, and each group's
+        // total multiplied by its value once: the same exact sum as adding every ballot's own
+        // share, without an exact-fraction addition per ballot per round.
+        Map<Set<Candidate>, Map<Fraction, BigInteger>> ballotsByHoldersAndValue = new LinkedHashMap<>();
         for (BallotState state : states) {
-            // A ballot's holder(s) can remain an already-elected candidate forever under a
-            // last-parcel-only transfer method (parcels it doesn't select are simply never
-            // moved again), so only count holders still in the running. A tied ballot's value
-            // splits evenly across everyone still sharing its front-most rank (see {@link
-            // #assignNextHolder}) -- a singleton holder set is just the degenerate case, worth
-            // exactly its own full value.
-            if (state.holders.isEmpty()) {
-                continue;
+            if (!state.holders.isEmpty()) {
+                ballotsByHoldersAndValue.computeIfAbsent(state.holders, _ -> new LinkedHashMap<>())
+                        .merge(state.value, state.ballot.count(), BigInteger::add);
             }
-            Fraction share = Fraction.of(state.ballot.count()).multiply(state.value)
-                    .divide(Fraction.of(state.holders.size()));
-            for (Candidate holder : state.holders) {
-                if (continuing.contains(holder)) {
-                    tallies.merge(holder, share, Fraction::add);
+        }
+        for (Map.Entry<Set<Candidate>, Map<Fraction, BigInteger>> group : ballotsByHoldersAndValue.entrySet()) {
+            Set<Candidate> holders = group.getKey();
+            for (Map.Entry<Fraction, BigInteger> byValue : group.getValue().entrySet()) {
+                // A ballot's holder(s) can remain an already-elected candidate forever under a
+                // last-parcel-only transfer method (parcels it doesn't select are simply never
+                // moved again), so only count holders still in the running. A tied ballot's
+                // value splits evenly across everyone still sharing its front-most rank (see
+                // {@link #assignNextHolder}) -- a singleton holder set is just the degenerate
+                // case, worth exactly its own full value.
+                Fraction share = Fraction.of(byValue.getValue()).multiply(byValue.getKey())
+                        .divide(Fraction.of(holders.size()));
+                for (Candidate holder : holders) {
+                    if (continuing.contains(holder)) {
+                        tallies.merge(holder, share, Fraction::add);
+                    }
                 }
             }
         }
@@ -437,11 +447,15 @@ public final class StvCounter {
     }
 
     private static Fraction exhaustedVotes(List<BallotState> states) {
-        Fraction total = Fraction.ZERO;
+        Map<Fraction, BigInteger> ballotsByValue = new LinkedHashMap<>();
         for (BallotState state : states) {
             if (state.holders.isEmpty()) {
-                total = total.add(Fraction.of(state.ballot.count()).multiply(state.value));
+                ballotsByValue.merge(state.value, state.ballot.count(), BigInteger::add);
             }
+        }
+        Fraction total = Fraction.ZERO;
+        for (Map.Entry<Fraction, BigInteger> byValue : ballotsByValue.entrySet()) {
+            total = total.add(Fraction.of(byValue.getValue()).multiply(byValue.getKey()));
         }
         return total;
     }

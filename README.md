@@ -563,9 +563,9 @@ engines that work per distinct ballot), ranking about 5 candidates on average:
 |---|---|---|---|
 | Borda | 0.9 s | 5.8 s | — |
 | Schulze | 1.8 s | 16 s | 13 s |
-| STV (fractional, exact) | 1.9 s | 15 s | 28 s |
-| STV (`scottish`, WIGM) | 1.9 s | 18 s | 5.2 s |
-| STV (`ers97`, last parcel) | 3.3 s | 30 s | 15 s |
+| STV (fractional, exact) | 1.4 s | 6.4 s | 3.0 s |
+| STV (`scottish`, WIGM) | 1.7 s | 7.6 s | 3.1 s |
+| STV (`ers97`, last parcel) | 2.2 s | 13 s | 5.3 s |
 | QPQ | 2.9 s | 27 s | 43 s |
 | Meek / Warren | 2.1 s | 7.6 s | 6.4 / 7.2 s |
 
