@@ -63,7 +63,7 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     next available preference), the ACT Electoral Act 1992's Schedule 4 clause 2(2) ("those
     numbers and any greater number shall be disregarded") with s.180(2)(c), and ERS76 by
     inheritance from ERS97 (unverified, like the rest of that preset)
-  - Minimum-preferences formality rule (`minimumPreferences`, config only): after tied
+  - Minimum-preferences formality rule (`minimumPreferences` / `--minimum-preferences`): after tied
     rankings are dealt with, a ballot ranking fewer candidates than this is informal — not
     counted, and not part of the valid vote the quota is based on — capped at one fewer
     than the number of candidates. Needed for Tasmania, whose Electoral Act 2004 makes an
@@ -409,6 +409,7 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | `--rounding` | `exact\|truncate:N`. Overrides `--config`/`--ruleset`. |
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
 | `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek` and fractional-transfer `stv`. Applies to `stv`, `meek`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
+| `--minimum-preferences` | Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as informal, capped at one fewer than the number of candidates. Defaults to none; the `hare-clark-qpq` preset sets 7. Applies to `stv`, `meek`, `cpo-stv`, and `qpq`. Overrides `--config`/`--ruleset`. |
 | `--borda-scoring` | `classic\|dowdall`. Only applies to `--method borda`; defaults to `classic`. `dowdall` is the Nauru system (`1, 1/2, 1/3, ...`). |
 
 ### Rules and config
@@ -436,8 +437,9 @@ does have a CLI override, `--tied-rankings`, since for a generic election it's a
 per-count choice rather than a fixed property of a jurisdiction's rules.
 
 `minimumPreferences` (a whole number, default none) makes a ballot ranking fewer candidates
-than this informal — see the STV engine section above. Like `batchExclusion` it's config-only,
-a jurisdiction's formality rule rather than a per-run choice.
+than this informal — see the STV engine section above. It has a CLI override,
+`--minimum-preferences`, mainly so a preset can be adjusted without copying it: Tasmanian
+council elections are `--ruleset hare-clark-qpq --minimum-preferences 3`.
 
 `--ruleset <name>` is exactly the same mechanism, pointed at a bundled config shipped as a
 classpath resource (`src/main/resources/rulesets/<name>.yaml`) instead of a file you supply.
@@ -453,7 +455,7 @@ Passing an unrecognized name (e.g. `--ruleset scotish`) lists all the ones below
 | `scottish` | Droop + WIGM + truncate:5, tied rankings truncated | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rules 43(1)(c) and 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
 | `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No dedicated technical spec or real-election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule delta (quota rounds to 0dp above 100, not implemented here) but that's a third-party reimplementation, not the rulebook itself; treat as "believed similar," not verified-accurate |
-| `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections need `minimumPreferences: 3` via a `--config` copy) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
+| `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections: add `--minimum-preferences 3`) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
 `hare-clark-qpq` and `act-hare-clark` share the "Hare-Clark" name but aren't the same rules —

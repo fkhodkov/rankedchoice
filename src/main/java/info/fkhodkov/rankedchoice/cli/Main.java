@@ -146,6 +146,12 @@ public final class Main implements Callable<Integer> {
                     + "borda count ties natively). Overrides --config/--ruleset.")
     private String tiedRankings;
 
+    @Option(names = {"--minimum-preferences"},
+            description = "Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as "
+                    + "informal, capped at one fewer than the number of candidates. Defaults to none; the "
+                    + "hare-clark-qpq preset sets 7. Applies to stv, meek, cpo-stv, and qpq. Overrides --config/--ruleset.")
+    private Integer minimumPreferences;
+
     static void main(String[] args) {
         System.exit(new CommandLine(new Main()).execute(args));
     }
@@ -178,8 +184,12 @@ public final class Main implements Callable<Integer> {
             throw new IllegalArgumentException("--tied-rankings doesn't apply to --method " + effectiveMethod
                     + ", which counts tied rankings natively");
         }
+        if (minimumPreferences != null && !seatsBasedMethod) {
+            throw new IllegalArgumentException("--minimum-preferences doesn't apply to --method " + effectiveMethod);
+        }
         String effectiveTiedRankings = firstNonNull(tiedRankings, fileConfig.tiedRankings());
-        int effectiveMinimumPreferences = fileConfig.minimumPreferences() == null ? 0 : fileConfig.minimumPreferences();
+        Integer configuredMinimumPreferences = minimumPreferences != null ? minimumPreferences : fileConfig.minimumPreferences();
+        int effectiveMinimumPreferences = configuredMinimumPreferences == null ? 0 : configuredMinimumPreferences;
 
         String resolvedFormat = firstNonNull(format, fileConfig.format());
         String inputFormat = resolvedFormat != null ? resolvedFormat.toLowerCase(Locale.ROOT) : inferFormat(input);
@@ -249,7 +259,7 @@ public final class Main implements Callable<Integer> {
                         firstNonNull(tiebreak, fileConfig.tiebreak()),
                         fileConfig.batchExclusion(),
                         effectiveTiedRankings,
-                        fileConfig.minimumPreferences(),
+                        configuredMinimumPreferences,
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
                 roundingRuleForReport = ruleset.roundingRule();

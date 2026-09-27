@@ -149,6 +149,45 @@ class MainTest {
                 .contains("--tied-rankings doesn't apply to --method schulze");
     }
 
+    /** Lifting hare-clark-qpq's minimum makes X's 5 single-preference ballots formal again, so X wins. */
+    @Test
+    void minimumPreferencesFlagOverridesThePreset() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--ruleset", "hare-clark-qpq", "--minimum-preferences", "0");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: X");
+    }
+
+    /** X's 5 single-preference ballots become informal, leaving 6 valid votes: quota 6/2 = 3, not 11/2. */
+    @Test
+    void minimumPreferencesFlagMakesShortBallotsInformalForMeek() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--method", "meek", "--minimum-preferences", "2");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: 3\n").contains("X: 0");
+    }
+
+    @Test
+    void minimumPreferencesFlagIsRefusedForAMethodWithoutIt() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--method", "borda", "--minimum-preferences", "2");
+
+        assertThat(exitCode).isEqualTo(1);
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8))
+                .contains("--minimum-preferences doesn't apply to --method borda");
+    }
+
     @Test
     void unknownRulesetFails() throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
