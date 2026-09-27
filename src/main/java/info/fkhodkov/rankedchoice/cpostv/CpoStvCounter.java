@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.BallotFormality;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.transfer.HeldParcel;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
@@ -58,8 +59,12 @@ public final class CpoStvCounter {
     private CpoStvCounter() {
     }
 
-    public static CpoStvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, CpoStvRuleset ruleset) {
-        validate(candidates, ballots, seats);
+    public static CpoStvResult count(
+            List<Candidate> candidates, List<Ballot> rawBallots, int seats, CpoStvRuleset ruleset) {
+        validate(candidates, seats);
+        ruleset.tiedRankings().requireNotSplit("CPO-STV");
+        List<Ballot> ballots = BallotFormality.apply(
+                rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
 
         // Checked via the closed-form binomial coefficient, not by enumerating first: for a
         // large candidates/seats combination, actually building the outcome list would itself
@@ -106,20 +111,13 @@ public final class CpoStvCounter {
         return new CpoStvResult(scores, ranking);
     }
 
-    private static void validate(List<Candidate> candidates, List<Ballot> ballots, int seats) {
+    private static void validate(List<Candidate> candidates, int seats) {
         if (seats <= 0) {
             throw new IllegalArgumentException("seats must be positive, got: " + seats);
         }
         if (seats > candidates.size()) {
             throw new IllegalArgumentException(
                     "cannot fill " + seats + " seat(s) with only " + candidates.size() + " candidate(s)");
-        }
-        for (Ballot ballot : ballots) {
-            for (Set<Candidate> rank : ballot.ranking()) {
-                if (rank.size() > 1) {
-                    throw new UnsupportedOperationException("CpoStvCounter does not yet support tied rankings");
-                }
-            }
         }
     }
 

@@ -12,6 +12,7 @@ import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.BallotFormality;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvResult;
@@ -64,8 +65,10 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
  * got the right eventual winners but visibly wrong intermediate keep factors compared to that
  * real count's own published per-round figures.
  *
- * <p>Candidates must already exclude any withdrawn from standing; {@code ballots} must not
- * contain tied rankings, same restriction as {@link info.fkhodkov.rankedchoice.stv.StvCounter}.
+ * <p>Candidates must already exclude any withdrawn from standing. Tied rankings and short
+ * ballots are handled per the ruleset's policy (see {@link MeekRuleset}); under {@code split},
+ * a tied rank shares whatever reaches it evenly between its standing candidates, following
+ * droop's Meek rule (see {@link #distribute}).
  */
 public final class MeekCounter {
 
@@ -81,8 +84,10 @@ public final class MeekCounter {
     private MeekCounter() {
     }
 
-    public static StvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, MeekRuleset ruleset) {
-        validate(candidates, ballots, seats);
+    public static StvResult count(List<Candidate> candidates, List<Ballot> rawBallots, int seats, MeekRuleset ruleset) {
+        validate(candidates, seats);
+        List<Ballot> ballots = BallotFormality.apply(
+                rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
 
         Map<Candidate, State> states = new LinkedHashMap<>();
         Map<Candidate, Double> weights = new LinkedHashMap<>();
@@ -174,20 +179,13 @@ public final class MeekCounter {
         return new StvResult(elected, rounds, lastQuota);
     }
 
-    private static void validate(List<Candidate> candidates, List<Ballot> ballots, int seats) {
+    private static void validate(List<Candidate> candidates, int seats) {
         if (seats <= 0) {
             throw new IllegalArgumentException("seats must be positive, got: " + seats);
         }
         if (seats > candidates.size()) {
             throw new IllegalArgumentException(
                     "cannot fill " + seats + " seat(s) with only " + candidates.size() + " candidate(s)");
-        }
-        for (Ballot ballot : ballots) {
-            for (Set<Candidate> rank : ballot.ranking()) {
-                if (rank.size() > 1) {
-                    throw new UnsupportedOperationException("MeekCounter does not yet support tied rankings");
-                }
-            }
         }
     }
 
@@ -283,30 +281,58 @@ public final class MeekCounter {
             }
         }
         for (Ballot ballot : ballots) {
-            if (ballot.isBlank()) {
-                continue;
-            }
-            double remaining = ballot.count().doubleValue();
-            for (Set<Candidate> rank : ballot.ranking()) {
-                if (remaining <= 0) {
-                    break;
-                }
-                Candidate candidate = rank.iterator().next();
-                State state = states.get(candidate);
-                if (state == State.EXCLUDED) {
-                    continue;
-                }
-                if (state == State.HOPEFUL) {
-                    totals.merge(candidate, remaining, Double::sum);
-                    remaining = 0;
-                    break;
-                }
-                double kept = remaining * weights.get(candidate);
-                totals.merge(candidate, kept, Double::sum);
-                remaining -= kept;
-            }
+            distribute(ballot.ranking(), 0, ballot.count().doubleValue(), candidates, states, weights, totals);
         }
         return totals;
+    }
+
+    /**
+     * Cascades {@code value} down {@code ranking} from {@code index} (see {@link
+     * #computeTotals}). A tied rank splits whatever reaches it evenly between its
+     * still-standing candidates; each keeps its own share by its keep factor, and what each one
+     * doesn't keep flows on to the next rank separately — the equal-preference distribution in
+     * droop's Meek rule ({@code jklundell/droop}, {@code rules/meek.py}, {@code
+     * distributeVotes}). One deliberate difference: droop routes any ballot containing a tie
+     * through a separate path that stops outright at the first rank with no standing
+     * candidate — tied or not — losing the rest of the ballot's value, whereas its path for
+     * untied ballots skips excluded candidates and carries on. This carries on in both cases.
+     * Verified on synthetic elections with hundreds of tied rankings: every round differs from
+     * stock droop only after that situation arises, and matches a copy of droop with just that
+     * one path patched to carry on, to within this class's own convergence tolerance.
+     */
+    private static void distribute(List<Set<Candidate>> ranking, int index, double value, List<Candidate> candidates,
+            Map<Candidate, State> states, Map<Candidate, Double> weights, Map<Candidate, Double> totals) {
+        for (int i = index; i < ranking.size() && value > 0; i++) {
+            Set<Candidate> rank = ranking.get(i);
+            // Tied members are taken in declared candidate order, so floating-point summation
+            // order doesn't depend on Set iteration order (which varies between JVM runs).
+            List<Candidate> standing = rank.size() == 1
+                    ? rank.stream().filter(candidate -> isStanding(states.get(candidate))).toList()
+                    : candidates.stream().filter(rank::contains)
+                            .filter(candidate -> isStanding(states.get(candidate))).toList();
+            if (standing.isEmpty()) {
+                continue;
+            }
+            if (standing.size() == 1) {
+                Candidate candidate = standing.getFirst();
+                double kept = states.get(candidate) == State.HOPEFUL ? value : value * weights.get(candidate);
+                totals.merge(candidate, kept, Double::sum);
+                value -= kept;
+                continue;
+            }
+            double share = value / standing.size();
+            for (Candidate candidate : standing) {
+                double kept = states.get(candidate) == State.HOPEFUL ? share : share * weights.get(candidate);
+                totals.merge(candidate, kept, Double::sum);
+                distribute(ranking, i + 1, share - kept, candidates, states, weights, totals);
+            }
+            return;
+        }
+    }
+
+    /** Hopeful or elected; a candidate this count doesn't know about (e.g. withdrawn) never is. */
+    private static boolean isStanding(State state) {
+        return state == State.HOPEFUL || state == State.ELECTED;
     }
 
     private static Set<Candidate> hopefuls(Map<Candidate, State> states) {

@@ -76,9 +76,9 @@ public final class StvCounter {
 
     public static StvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, StvRuleset ruleset) {
         StvCounterValidation.validate(candidates, seats);
-        List<Ballot> countedBallots = withoutInformal(
-                ruleset.tiedRankings().prepare(ballots, ruleset.transferMethod()),
-                Math.min(ruleset.minimumPreferences(), candidates.size() - 1));
+        ruleset.tiedRankings().requireSplitDefinedFor(ruleset.transferMethod());
+        List<Ballot> countedBallots = BallotFormality.apply(
+                ballots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
 
         Set<Candidate> continuing = new LinkedHashSet<>(candidates);
         List<BallotState> states = new ArrayList<>(countedBallots.size());
@@ -93,11 +93,6 @@ public final class StvCounter {
             states.add(state);
         }
 
-        if (totalValidVotes.signum() == 0) {
-            // Otherwise every candidate sits on zero and seats would be "won" purely on tie-break order.
-            throw new IllegalArgumentException("No valid votes to count: every ballot is blank or informal "
-                    + "under this ruleset's tied-ranking and minimum-preferences rules");
-        }
         Fraction quota = ruleset.quota().compute(totalValidVotes, seats);
         boolean defers = defersSurplusTransfers(ruleset.transferMethod());
 
@@ -228,20 +223,6 @@ public final class StvCounter {
         drainPendingSurplus(states, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
 
         return new StvResult(elected, rounds, quota);
-    }
-
-    /**
-     * Drops every ballot ranking fewer than {@code minimumPreferences} candidates — informal
-     * under the ruleset's formality rule (see {@link StvRuleset}), so not part of the valid vote
-     * at all. Runs after the tied-ranking policy, so a ballot truncated at a tie is judged on
-     * what's left of it: Tasmania's rule that a duplicate within the first 7 preferences makes
-     * the paper informal, but one above 7 just ends it there (Electoral Act 2004, s.103(2)).
-     */
-    private static List<Ballot> withoutInformal(List<Ballot> ballots, int minimumPreferences) {
-        if (minimumPreferences <= 0) {
-            return ballots;
-        }
-        return ballots.stream().filter(ballot -> ballot.ranking().size() >= minimumPreferences).toList();
     }
 
     /**

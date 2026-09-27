@@ -137,6 +137,19 @@ class MainTest {
     }
 
     @Test
+    void tiedRankingsFlagIsRefusedForAMethodThatCountsTiesNatively() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--method", "schulze", "--tied-rankings", "skip");
+
+        assertThat(exitCode).isEqualTo(1);
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8))
+                .contains("--tied-rankings doesn't apply to --method schulze");
+    }
+
+    @Test
     void unknownRulesetFails() throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, BLT);

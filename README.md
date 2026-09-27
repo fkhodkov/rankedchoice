@@ -88,6 +88,24 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     non-obvious inheritance case (`StvCounterTest`). Not defined under WIGM or either
     last-parcel variant: no real ruleset using them splits tied ballots, and WIGM's
     per-parcel rounding would need an invented convention for shares like 1/3
+  - The same tied-ranking policy and minimum-preferences rule also apply to Meek's method,
+    CPO-STV, and QPQ (`BallotFormality`, shared by all four engines). `truncate` and `skip`
+    work everywhere. `split` is Meek's default: a tied rank shares whatever reaches it evenly
+    between its standing candidates, each keeping its share by its keep factor and passing
+    the rest on separately — the equal-preference distribution in droop's Meek rule. CPO-STV
+    and QPQ have no defined rule for splitting a tied rank, so they default to `reject` and refuse `split`. Cross-checked on the same four synthetic
+    tied-ballot elections: Meek `truncate`/`skip` against droop's Meek (with batch defeats
+    off) on independently cleaned ballots, matching every round to within Meek's own
+    convergence tolerance (≤ 0.001 votes), with winners also matching OpenSTV's `MeekSTV`
+    (whose round-by-round figures aren't comparable: it batch-eliminates and reports single
+    keep-factor iterations as rounds); QPQ `truncate`/`skip` against both droop's QPQ and
+    OpenSTV's `QPQ` with its native overvote cleaning, matching every stage to 9 decimal
+    places. Meek `split` deliberately differs from droop in one place: droop sends any ballot
+    containing a tie through a separate path that stops dead at the first rank with no
+    standing candidate — tied or not — losing the rest of the ballot, where its untied path
+    carries on. That accounts for every difference: against a copy of droop with just that
+    path patched to carry on, `split` matches every round of all four elections to within
+    the same tolerance (`MeekCounterTest` pins the case)
 - A CLI that runs a count from a ballot file and prints a round-by-round report. Rules
   come from a bundled ruleset preset (`--ruleset`), a YAML config file (`--config`),
   individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
@@ -325,9 +343,8 @@ Schulze-STV (the other multi-winner Condorcet-STV extension, alongside CPO-STV a
 specifically because its "proportional completion" step requires solving a genuine optimization
 problem per pairwise outcome comparison, i.e. an LP-style solver, which is a real dependency
 this project doesn't currently have and which the plan's own tooling section explicitly avoided
-pulling in). Tied ballot rankings are accepted by Schulze, Borda, and classic STV (under its
-tied-ranking policy, see above); they're still rejected by Meek, CPO-STV, and QPQ (CPO-STV's
-notional count reuses STV's own ballot-position logic, so it inherits the same restriction).
+pulling in). Tied ballot rankings are counted natively by Schulze and Borda, and by every
+other method under its tied-ranking policy (see above).
 
 Two rulesets are validated only at the arithmetic/config level, not against a real or model
 election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note
@@ -391,7 +408,7 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding`. Overrides `--config`/`--ruleset`. |
 | `--rounding` | `exact\|truncate:N`. Overrides `--config`/`--ruleset`. |
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
-| `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` under fractional transfer, `reject` otherwise; the `scottish` preset sets `truncate`. `--method stv` only. Overrides `--config`/`--ruleset`. |
+| `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek` and fractional-transfer `stv`. Applies to `stv`, `meek`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
 | `--borda-scoring` | `classic\|dowdall`. Only applies to `--method borda`; defaults to `classic`. `dowdall` is the Nauru system (`1, 1/2, 1/3, ...`). |
 
 ### Rules and config
@@ -516,7 +533,8 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak string DSL)
 │   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
 │   ├── meek/      MeekCounter, MeekRuleset -- Meek's method, producing the same StvResult
-│   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy
+│   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy,
+│       BallotFormality (tie policy + minimum preferences, shared by every ranked engine)
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport

@@ -117,4 +117,42 @@ class MeekCounterTest {
                 .containsEntry(c, Fraction.of(96692307, 1_000_000));
         assertThat(round3.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(3307692, 1_000_000)));
     }
+
+    /**
+     * Tied rankings under the default {@code split} policy, including the one place this
+     * deliberately differs from droop's Meek rule (see {@link MeekCounter}): a ballot whose
+     * untied first choice is excluded must carry on to its tied later rank, not stop dead.
+     * <pre>
+     *   7: A      4: B      3: C      2: D, B=C      (1 seat)
+     * </pre>
+     * <p>Round 1 -- A=7, B=4, C=3, D=2; quota (16-0)/2 = 8, nobody reaches it; D is excluded.
+     * <p>Round 2 -- D's 2 ballots move on to their tied rank and split evenly: B=4+1=5,
+     * C=3+1=4 (droop would lose those 2 votes here instead). Nobody reaches 8; C is excluded,
+     * its own 3 single-preference ballots exhaust.
+     * <p>Round 3 -- the tied rank now has only B standing, so B inherits the whole of those 2
+     * ballots, not just the half it held while the tie lasted: B=4+2=6. Quota (16-3)/2 = 6.5,
+     * and A's 7 clears it.
+     */
+    @Test
+    void splitTiedRankingsCarryOnPastAnExcludedFirstChoiceAndReSplitAmongSurvivors() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(a)), BigInteger.valueOf(7)),
+                new Ballot(List.of(Set.of(b)), BigInteger.valueOf(4)),
+                new Ballot(List.of(Set.of(c)), BigInteger.valueOf(3)),
+                new Ballot(List.of(Set.of(d), Set.of(b, c)), BigInteger.valueOf(2)));
+        MeekRuleset ruleset = new MeekRuleset(new TruncateDecimal(6), new DeclaredOrderTieBreak(List.of(a, b, c, d)));
+
+        StvResult result = MeekCounter.count(List.of(a, b, c, d), ballots, 1, ruleset);
+
+        assertThat(result.rounds()).extracting(RoundRecord::action).containsExactly(
+                new RoundAction.Eliminated(d), new RoundAction.Eliminated(c), new RoundAction.Elected(a, Fraction.of(1, 2)));
+        assertThat(result.rounds().get(1).tallies())
+                .isEqualTo(Map.of(a, Fraction.of(7), b, Fraction.of(5), c, Fraction.of(4)));
+        assertThat(result.rounds().get(2).tallies()).isEqualTo(Map.of(a, Fraction.of(7), b, Fraction.of(6)));
+        assertThat(result.quota()).isEqualTo(Fraction.of(13, 2));
+    }
 }

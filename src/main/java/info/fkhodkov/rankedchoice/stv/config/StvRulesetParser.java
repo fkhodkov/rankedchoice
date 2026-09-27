@@ -78,8 +78,13 @@ public final class StvRulesetParser {
      * reject otherwise).
      */
     public static TiedRankingPolicy parseTiedRankings(String value, TransferMethod transferMethod) {
+        return parseTiedRankings(value, TiedRankingPolicy.defaultFor(transferMethod));
+    }
+
+    /** As above, falling back to {@code defaultPolicy} — for counting methods other than classic STV. */
+    public static TiedRankingPolicy parseTiedRankings(String value, TiedRankingPolicy defaultPolicy) {
         if (value == null) {
-            return TiedRankingPolicy.defaultFor(transferMethod);
+            return defaultPolicy;
         }
         return switch (normalize(value, "")) {
             case "reject" -> TiedRankingPolicy.REJECT;

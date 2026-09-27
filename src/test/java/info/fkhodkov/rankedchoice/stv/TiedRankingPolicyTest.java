@@ -35,23 +35,23 @@ class TiedRankingPolicyTest {
 
     @Test
     void rejectThrowsOnlyWhenATieIsPresent() {
-        assertThat(TiedRankingPolicy.REJECT.prepare(List.of(UNTIED), WigmTransfer.INSTANCE)).containsExactly(UNTIED);
-        assertThatThrownBy(() -> TiedRankingPolicy.REJECT.prepare(List.of(UNTIED, LATER_TIE), WigmTransfer.INSTANCE))
+        assertThat(TiedRankingPolicy.REJECT.apply(List.of(UNTIED))).containsExactly(UNTIED);
+        assertThatThrownBy(() -> TiedRankingPolicy.REJECT.apply(List.of(UNTIED, LATER_TIE)))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test
     void splitIsOnlyDefinedForFractionalTransfer() {
-        assertThat(TiedRankingPolicy.SPLIT.prepare(List.of(FIRST_TIE), FractionalTransfer.INSTANCE))
-                .containsExactly(FIRST_TIE);
-        assertThatThrownBy(() -> TiedRankingPolicy.SPLIT.prepare(List.of(FIRST_TIE), WigmTransfer.INSTANCE))
+        assertThat(TiedRankingPolicy.SPLIT.apply(List.of(FIRST_TIE))).containsExactly(FIRST_TIE);
+        TiedRankingPolicy.SPLIT.requireSplitDefinedFor(FractionalTransfer.INSTANCE);
+        assertThatThrownBy(() -> TiedRankingPolicy.SPLIT.requireSplitDefinedFor(WigmTransfer.INSTANCE))
                 .isInstanceOf(UnsupportedOperationException.class);
+        TiedRankingPolicy.TRUNCATE.requireSplitDefinedFor(WigmTransfer.INSTANCE);
     }
 
     @Test
     void truncateStopsTheBallotAtItsFirstTiedRank() {
-        List<Ballot> prepared = TiedRankingPolicy.TRUNCATE.prepare(
-                List.of(LATER_TIE, FIRST_TIE, UNTIED), WigmTransfer.INSTANCE);
+        List<Ballot> prepared = TiedRankingPolicy.TRUNCATE.apply(List.of(LATER_TIE, FIRST_TIE, UNTIED));
 
         assertThat(prepared).containsExactly(
                 new Ballot(List.of(Set.of(A)), BigInteger.TWO),
@@ -64,8 +64,7 @@ class TiedRankingPolicyTest {
 
     @Test
     void skipDropsEveryTiedRankAndKeepsTheRest() {
-        List<Ballot> prepared = TiedRankingPolicy.SKIP.prepare(
-                List.of(LATER_TIE, FIRST_TIE, UNTIED), WigmTransfer.INSTANCE);
+        List<Ballot> prepared = TiedRankingPolicy.SKIP.apply(List.of(LATER_TIE, FIRST_TIE, UNTIED));
 
         assertThat(prepared).containsExactly(
                 new Ballot(List.of(Set.of(A), Set.of(D)), BigInteger.TWO),

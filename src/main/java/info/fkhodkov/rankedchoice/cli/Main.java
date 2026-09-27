@@ -34,6 +34,7 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
+import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
 import info.fkhodkov.rankedchoice.stv.meek.MeekCounter;
 import info.fkhodkov.rankedchoice.stv.meek.MeekRuleset;
@@ -138,10 +139,11 @@ public final class Main implements Callable<Integer> {
 
     @Option(names = {"--tied-rankings"},
             description = "What to do with a ballot ranking several candidates equally: reject|split|truncate|skip. "
-                    + "split divides the ballot between them (fractional transfer only); truncate stops the ballot "
-                    + "at the tie (a tie at first preference voids it, as Scottish law requires); skip drops the "
-                    + "tied rank and continues. Defaults to split under fractional transfer, reject otherwise. "
-                    + "Only applies to --method stv. Overrides --config/--ruleset.")
+                    + "split divides the ballot between them (stv with fractional transfer, and meek); truncate "
+                    + "stops the ballot at the tie (a tie at first preference voids it, as Scottish law requires); "
+                    + "skip drops the tied rank and continues. Defaults to split for meek and for stv under "
+                    + "fractional transfer, reject otherwise. Applies to stv, meek, cpo-stv, and qpq (schulze and "
+                    + "borda count ties natively). Overrides --config/--ruleset.")
     private String tiedRankings;
 
     static void main(String[] args) {
@@ -172,9 +174,12 @@ public final class Main implements Callable<Integer> {
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
         boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek")
                 || effectiveMethod.equals("cpo-stv") || effectiveMethod.equals("qpq");
-        if (tiedRankings != null && !effectiveMethod.equals("stv")) {
-            throw new IllegalArgumentException("--tied-rankings only applies to --method stv");
+        if (tiedRankings != null && !seatsBasedMethod) {
+            throw new IllegalArgumentException("--tied-rankings doesn't apply to --method " + effectiveMethod
+                    + ", which counts tied rankings natively");
         }
+        String effectiveTiedRankings = firstNonNull(tiedRankings, fileConfig.tiedRankings());
+        int effectiveMinimumPreferences = fileConfig.minimumPreferences() == null ? 0 : fileConfig.minimumPreferences();
 
         String resolvedFormat = firstNonNull(format, fileConfig.format());
         String inputFormat = resolvedFormat != null ? resolvedFormat.toLowerCase(Locale.ROOT) : inferFormat(input);
@@ -212,7 +217,9 @@ public final class Main implements Callable<Integer> {
             CpoStvRuleset ruleset = new CpoStvRuleset(
                     StvRulesetParser.parseQuota(firstNonNull(quota, fileConfig.quota())),
                     StvRulesetParser.parseTransfer(firstNonNull(transfer, fileConfig.transfer())),
-                    StvRulesetParser.parseRounding(firstNonNull(rounding, fileConfig.rounding())));
+                    StvRulesetParser.parseRounding(firstNonNull(rounding, fileConfig.rounding())),
+                    StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.REJECT),
+                    effectiveMinimumPreferences);
             CpoStvResult result = CpoStvCounter.count(candidates, ballots, effectiveSeats, ruleset);
             return CpoStvTextReport.render(result);
         }
@@ -224,7 +231,9 @@ public final class Main implements Callable<Integer> {
                                 + "and every figure is this project's exact Fraction with no rounding needed");
             }
             QpqRuleset ruleset = new QpqRuleset(
-                    StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates));
+                    StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
+                    StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.REJECT),
+                    effectiveMinimumPreferences);
             QpqResult result = QpqCounter.count(candidates, ballots, effectiveSeats, ruleset);
             return QpqTextReport.render(result);
         }
@@ -239,7 +248,7 @@ public final class Main implements Callable<Integer> {
                         firstNonNull(rounding, fileConfig.rounding()),
                         firstNonNull(tiebreak, fileConfig.tiebreak()),
                         fileConfig.batchExclusion(),
-                        firstNonNull(tiedRankings, fileConfig.tiedRankings()),
+                        effectiveTiedRankings,
                         fileConfig.minimumPreferences(),
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
@@ -252,7 +261,9 @@ public final class Main implements Callable<Integer> {
                 }
                 roundingRuleForReport = StvRulesetParser.parseRounding(firstNonNull(rounding, fileConfig.rounding()));
                 MeekRuleset ruleset = new MeekRuleset(roundingRuleForReport,
-                        StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates));
+                        StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
+                        StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.SPLIT),
+                        effectiveMinimumPreferences);
                 result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
             }
             default -> throw new IllegalArgumentException(

@@ -10,6 +10,7 @@ import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.BallotFormality;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
 
 /**
@@ -57,8 +58,11 @@ public final class QpqCounter {
     private QpqCounter() {
     }
 
-    public static QpqResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, QpqRuleset ruleset) {
-        validate(candidates, ballots, seats);
+    public static QpqResult count(List<Candidate> candidates, List<Ballot> rawBallots, int seats, QpqRuleset ruleset) {
+        validate(candidates, seats);
+        ruleset.tiedRankings().requireNotSplit("QPQ");
+        List<Ballot> ballots = BallotFormality.apply(
+                rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
 
         List<BallotState> states = new ArrayList<>(ballots.size());
         for (Ballot ballot : ballots) {
@@ -155,20 +159,13 @@ public final class QpqCounter {
         return new QpqResult(List.copyOf(elected), rounds);
     }
 
-    private static void validate(List<Candidate> candidates, List<Ballot> ballots, int seats) {
+    private static void validate(List<Candidate> candidates, int seats) {
         if (seats <= 0) {
             throw new IllegalArgumentException("seats must be positive, got: " + seats);
         }
         if (seats > candidates.size()) {
             throw new IllegalArgumentException(
                     "cannot fill " + seats + " seat(s) with only " + candidates.size() + " candidate(s)");
-        }
-        for (Ballot ballot : ballots) {
-            for (Set<Candidate> rank : ballot.ranking()) {
-                if (rank.size() > 1) {
-                    throw new UnsupportedOperationException("QpqCounter does not yet support tied rankings");
-                }
-            }
         }
     }
 

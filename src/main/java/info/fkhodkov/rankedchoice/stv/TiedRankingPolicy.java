@@ -60,10 +60,11 @@ public enum TiedRankingPolicy {
     }
 
     /**
-     * Checks this policy can be used with {@code transferMethod} and {@code ballots}, then
-     * returns the ballots the count should actually run on.
+     * The ballots a count should actually run on under this policy. {@link #SPLIT} passes
+     * tied ballots through untouched for the engine itself to split, so a caller must only
+     * allow it when its engine knows how — see {@link #requireSplitDefinedFor} for classic STV.
      */
-    List<Ballot> prepare(List<Ballot> ballots, TransferMethod transferMethod) {
+    public List<Ballot> apply(List<Ballot> ballots) {
         return switch (this) {
             case REJECT -> {
                 if (ballots.stream().anyMatch(TiedRankingPolicy::hasTie)) {
@@ -72,17 +73,27 @@ public enum TiedRankingPolicy {
                 }
                 yield ballots;
             }
-            case SPLIT -> {
-                if (!splitDefinedFor(transferMethod)) {
-                    throw new UnsupportedOperationException("Splitting tied rankings is only defined for fractional "
-                            + "transfer; WIGM and last-parcel-family transfer methods have no equal-preference "
-                            + "splitting rule -- use truncate or skip instead");
-                }
-                yield ballots;
-            }
+            case SPLIT -> ballots;
             case TRUNCATE -> rewrite(ballots, true);
             case SKIP -> rewrite(ballots, false);
         };
+    }
+
+    /** Throws if this is {@link #SPLIT}, for a counting method with no rule for splitting a tied ballot. */
+    public void requireNotSplit(String methodName) {
+        if (this == SPLIT) {
+            throw new UnsupportedOperationException(methodName + " has no defined rule for splitting tied rankings; "
+                    + "use truncate or skip instead");
+        }
+    }
+
+    /** Throws if this is {@link #SPLIT} and classic STV has no splitting rule for {@code transferMethod}. */
+    void requireSplitDefinedFor(TransferMethod transferMethod) {
+        if (this == SPLIT && !splitDefinedFor(transferMethod)) {
+            throw new UnsupportedOperationException("Splitting tied rankings is only defined for fractional "
+                    + "transfer; WIGM and last-parcel-family transfer methods have no equal-preference "
+                    + "splitting rule -- use truncate or skip instead");
+        }
     }
 
     private static boolean hasTie(Ballot ballot) {

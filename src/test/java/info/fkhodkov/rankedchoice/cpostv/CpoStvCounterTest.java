@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HagenbachBischoffQuota;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
@@ -235,6 +236,28 @@ class CpoStvCounterTest {
         assertThat(result.outcomeScores().get(Set.of(a, b, c)).get(Set.of(a, b, d))).isEqualTo(Fraction.of(24));
         assertThat(result.outcomeScores().get(Set.of(a, b, d)).get(Set.of(a, b, c))).isEqualTo(Fraction.of(20));
         assertThat(result.ranking()).hasSize(4);
+    }
+
+    /**
+     * No source defines how CPO-STV should split a tied ballot, so only preprocessing policies
+     * apply: under {@code truncate}, a ballot tied at first preference is void, so adding some
+     * to the Wikipedia example changes nothing at all -- same scores, same winner.
+     */
+    @Test
+    void truncatedFirstRankTiesAreVoidAndSplitIsRejected() {
+        List<Ballot> withTies = new java.util.ArrayList<>(BALLOTS);
+        withTies.add(new Ballot(List.of(Set.of(BRAD, ERIC), Set.of(DELILAH)), BigInteger.valueOf(30)));
+        CpoStvRuleset truncating = new CpoStvRuleset(HagenbachBischoffQuota.INSTANCE, FractionalTransfer.INSTANCE,
+                Exact.INSTANCE, TiedRankingPolicy.TRUNCATE, 0);
+
+        assertThat(CpoStvCounter.count(CANDIDATES, withTies, 3, truncating))
+                .isEqualTo(CpoStvCounter.count(CANDIDATES, BALLOTS, 3, RULESET));
+
+        CpoStvRuleset splitting = new CpoStvRuleset(HagenbachBischoffQuota.INSTANCE, FractionalTransfer.INSTANCE,
+                Exact.INSTANCE, TiedRankingPolicy.SPLIT, 0);
+        assertThatThrownBy(() -> CpoStvCounter.count(CANDIDATES, withTies, 3, splitting))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("CPO-STV has no defined rule for splitting");
     }
 
     private static Ballot ballot(int count, Candidate... ranking) {

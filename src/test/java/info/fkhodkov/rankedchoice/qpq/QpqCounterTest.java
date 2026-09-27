@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
 
 class QpqCounterTest {
@@ -68,6 +69,29 @@ class QpqCounterTest {
         assertThat(stage2.quota()).isEqualTo(Fraction.of(11, 2));
         assertThat(stage2.quotients()).isEqualTo(Map.of(A, Fraction.of(6), C, Fraction.of(5)));
         assertThat(stage2.action()).isEqualTo(new QpqAction.Elected(A));
+    }
+
+    @Test
+    void truncatedFirstRankTiesAreVoidSkippedTiesMoveOnAndSplitIsRejected() {
+        List<Ballot> base = List.of(ballot(10, A), ballot(3, B, A), ballot(2, C), ballot(1, D));
+        Ballot tiedFirst = new Ballot(List.of(Set.of(C, D), Set.of(B)), BigInteger.valueOf(4));
+        List<Ballot> withTie = List.of(ballot(10, A), ballot(3, B, A), ballot(2, C), ballot(1, D), tiedFirst);
+
+        // Truncate: the tied-first ballot is void, so the count is exactly the base count's.
+        QpqRuleset truncating = new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.TRUNCATE, 0);
+        assertThat(QpqCounter.count(List.of(A, B, C, D), withTie, 2, truncating))
+                .isEqualTo(QpqCounter.count(List.of(A, B, C, D), base, 2, ruleset(A, B, C, D)));
+
+        // Skip: the tied rank is dropped and the ballot counts for B, exactly like 4 more "B" ballots.
+        QpqRuleset skipping = new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.SKIP, 0);
+        List<Ballot> withBInstead = List.of(ballot(10, A), ballot(3, B, A), ballot(2, C), ballot(1, D), ballot(4, B));
+        assertThat(QpqCounter.count(List.of(A, B, C, D), withTie, 2, skipping))
+                .isEqualTo(QpqCounter.count(List.of(A, B, C, D), withBInstead, 2, ruleset(A, B, C, D)));
+
+        QpqRuleset splitting = new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.SPLIT, 0);
+        assertThatThrownBy(() -> QpqCounter.count(List.of(A, B, C, D), withTie, 2, splitting))
+                .isInstanceOf(UnsupportedOperationException.class)
+                .hasMessageContaining("QPQ has no defined rule for splitting");
     }
 
     /**
