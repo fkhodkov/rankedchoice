@@ -570,13 +570,17 @@ class StvCounterTest {
     /**
      * Hand-derived 4-candidate/2-seat count (100 ballots) exercising {@link HareQuota} end to
      * end through {@link StvCounter} for the first time — previously it was only unit-tested
-     * in isolation ({@code QuotaTest}). Self-consistency only, like the hare-clark-qpq fixture
-     * above: no independent implementation of the (textbook, unrounded) Hare quota could be
-     * found to cross-check against — droop's WIGM rule only ever computes Droop, and while
-     * OpenSTV's abstract {@code STV.py} base class has Hare-quota code, no shipped method
-     * plugin actually selects it and its own CLI has no option to; tracing that dead code also
-     * showed it silently adds a "+1" that isn't part of the textbook Hare quota
-     * (Wikipedia: plain {@code votes / seats}) this project implements.
+     * in isolation ({@code QuotaTest}). Unlike the hare-clark-qpq fixture above, this one
+     * <em>is</em> independently cross-checked: droop's WIGM rule only ever computes Droop, and
+     * OpenSTV's own Hare-quota code turned out to be unreachable dead code that also silently
+     * adds a "+1" no textbook Hare quota has — but the CRAN package
+     * <a href="https://cran.r-project.org/package=STV">{@code STV}</a> (Emerson et al., Yale,
+     * actively maintained) genuinely implements it: {@code stv(..., quotaMethod = "Hare",
+     * quotaFloor = FALSE)} computes the exact same unrounded {@code votes / seats} quota this
+     * project does, with a {@code surplusMethod = "Fractional"} option matching {@link
+     * FractionalTransfer} exactly. This fixture's own ballot data, run through that package,
+     * reproduces every one of the round-by-round figures below exactly — same winners, same
+     * quota, same eliminations, same 50-vote exact-quota election with zero surplus.
      * <pre>
      *   50: A      24: B      6: C,B      20: D
      * </pre>
@@ -628,6 +632,46 @@ class StvCounterTest {
         RoundRecord round4 = result.rounds().get(3);
         assertThat(round4.tallies()).isEqualTo(Map.of(b, Fraction.of(30)));
         assertThat(round4.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
+    }
+
+    /**
+     * A second {@link HareQuota} case, also cross-checked against the CRAN {@code STV}
+     * package (see the fixture above) -- this one exercises a genuine fractional surplus
+     * transfer, which the other's exact-quota-match (zero surplus) doesn't.
+     * <pre>
+     *   60: A,B      25: B      15: C
+     * </pre>
+     * Total 100, Hare quota = 50. A's 60 votes exceed quota by 10; all 60 of A's ballots rank
+     * B next, so B gains the full surplus: 60 * (10/60) = 10, landing at 25 + 10 = 35.
+     */
+    @Test
+    void handDerivedHareQuotaSurplusTransferMatchesTheRPackage() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        List<Ballot> ballots = List.of(ballot(60, a, b), ballot(25, b), ballot(15, c));
+        StvRuleset hareRuleset = new StvRuleset(
+                HareQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b, c)));
+
+        StvResult result = StvCounter.count(List.of(a, b, c), ballots, 2, hareRuleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(50));
+        assertThat(result.electedInOrder()).containsExactly(a, b);
+        assertThat(result.rounds()).hasSize(3);
+
+        RoundRecord round1 = result.rounds().get(0);
+        assertThat(round1.tallies())
+                .isEqualTo(Map.of(a, Fraction.of(60), b, Fraction.of(25), c, Fraction.of(15)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(10)));
+
+        RoundRecord round2 = result.rounds().get(1);
+        assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(35), c, Fraction.of(15)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Eliminated(c));
+
+        RoundRecord round3 = result.rounds().get(2);
+        assertThat(round3.tallies()).isEqualTo(Map.of(b, Fraction.of(35)));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
     }
 
     /**

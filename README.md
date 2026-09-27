@@ -251,17 +251,23 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   to 9 decimal places — OpenSTV's own transcript even independently labels the exact stage this
   project's `restarted` flag marks as "Restart count."
 - The two least-common quotas, `HareQuota` and `ImperialiQuota`, were previously only
-  unit-tested in isolation (`QuotaTest`), never run end-to-end through `StvCounter`. Closed
-  with hand-derived, self-consistency-only fixtures (`StvCounterTest`) — no independent
-  implementation of either could be found: droop's WIGM rule only ever computes Droop, and
+  unit-tested in isolation (`QuotaTest`), never run end-to-end through `StvCounter`. Neither
+  droop nor OpenSTV could validate either: droop's WIGM rule only ever computes Droop, and
   while OpenSTV's abstract `STV.py` base class has Hare-quota code, no shipped method plugin
-  actually selects it, its own CLI has no option to switch quotas at all, and that dead code
-  turned out to silently add a "+1" that isn't part of the textbook Hare quota (plain
-  `votes / seats`) this project implements anyway. The Imperiali fixture also exercises a
-  real edge case Imperiali is uniquely prone to among the bundled quotas: its smaller quota
-  doesn't mathematically guarantee no more candidates can reach it than there are seats, so
-  the fixture has three candidates meet quota in the same round for only two seats, with the
-  existing batch-election machinery correctly dropping the third.
+  actually selects it and its own CLI has no option to switch quotas at all — tracing that
+  dead code also showed it silently adds a "+1" that isn't part of the textbook Hare quota
+  (plain `votes / seats`) this project implements. `ImperialiQuota` is closed with a
+  hand-derived, self-consistency-only fixture — it also exercises a real edge case Imperiali
+  is uniquely prone to among the bundled quotas: its smaller quota doesn't mathematically
+  guarantee no more candidates can reach it than there are seats, so the fixture has three
+  candidates meet quota in the same round for only two seats, with the existing
+  batch-election machinery correctly dropping the third. `HareQuota`, though, turned out to
+  have a genuine, actively-maintained independent implementation after all: the CRAN package
+  [`STV`](https://cran.r-project.org/package=STV) (Emerson et al., Yale) implements the exact
+  same unrounded `votes / seats` formula (`quotaMethod = "Hare", quotaFloor = FALSE`) with a
+  matching `Fractional` surplus option — two fixtures (an exact-quota match with zero surplus,
+  and a genuine fractional surplus transfer) both reproduce that package's round-by-round
+  output exactly (`StvCounterTest`).
 
 Not yet implemented: the Cambridge MA ruleset (it uses the "Cincinnati method" — whole-ballot
 systematic sampling by literal individual-ballot sequence order, not aggregate ranking counts —
