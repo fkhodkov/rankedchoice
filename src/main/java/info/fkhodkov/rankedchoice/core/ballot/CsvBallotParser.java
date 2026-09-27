@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -61,18 +62,21 @@ public final class CsvBallotParser {
         }
 
         Map<String, Candidate> candidatesByName = new LinkedHashMap<>();
+        // One immutable set per candidate, shared by every rank naming that candidate alone.
+        Map<Candidate, Set<Candidate>> alone = new HashMap<>();
         List<Ballot> ballots = new ArrayList<>();
 
         while (cursor.hasNext()) {
             NumberedLine rowLine = cursor.next();
-            Ballot ballot = parseLine(rowLine, candidatesByName);
+            Ballot ballot = parseLine(rowLine, candidatesByName, alone);
             ballots.add(ballot);
         }
 
         return new ParsedBallots(List.copyOf(candidatesByName.values()), ballots);
     }
 
-    private static Ballot parseLine(NumberedLine rowLine, Map<String, Candidate> candidatesByName) {
+    private static Ballot parseLine(NumberedLine rowLine, Map<String, Candidate> candidatesByName,
+            Map<Candidate, Set<Candidate>> alone) {
         int lineNumber = rowLine.number();
         Iterator<String> cells = splitCsvLine(rowLine.text()).iterator();
         BigInteger count = parseCount(cells.next(), lineNumber);
@@ -98,14 +102,17 @@ public final class CsvBallotParser {
                 }
                 rank.add(candidatesByName.computeIfAbsent(trimmedName, Candidate::of));
             }
-            ranking.add(rank);
+            ranking.add(rank.size() == 1 ? alone.computeIfAbsent(rank.iterator().next(), Set::of) : rank);
         }
         return new Ballot(ranking, count);
     }
 
     private static BigInteger parseCount(String token, int lineNumber) {
         try {
-            BigInteger value = new BigInteger(token.trim());
+            String trimmed = token.trim();
+            // valueOf shares the cached instances of small counts (1 above all) across ballots.
+            BigInteger value = trimmed.length() < 18
+                    ? BigInteger.valueOf(Long.parseLong(trimmed)) : new BigInteger(trimmed);
             if (value.signum() <= 0) {
                 throw new NumberFormatException();
             }

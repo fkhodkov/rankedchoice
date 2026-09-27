@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -78,7 +79,7 @@ public final class BltParser {
 
         List<RawBallot> rawBallots = new ArrayList<>();
         while (!line.text().equals("0")) {
-            rawBallots.add(parseBallotLine(line));
+            rawBallots.add(parseBallotLine(line, numCandidates));
             line = next(cursor, "next ballot line or end-of-ballots marker '0'");
         }
 
@@ -100,15 +101,26 @@ public final class BltParser {
             withdrawn.add(requireCandidate(byId, entry.getKey(), entry.getValue()));
         }
 
+        // One immutable set per candidate, shared by every rank naming that candidate alone --
+        // most ranks do, and Ballot keeps an already-immutable set as it is.
+        List<Set<Candidate>> alone = candidates.stream().map(Set::of).toList();
         List<Ballot> ballots = new ArrayList<>(rawBallots.size());
-        for (RawBallot raw : rawBallots) {
-            List<Set<Candidate>> ranking = new ArrayList<>(raw.ranks().size());
-            for (List<Integer> rank : raw.ranks()) {
-                Set<Candidate> rankCandidates = new LinkedHashSet<>();
-                for (int id : rank) {
-                    rankCandidates.add(requireCandidate(byId, id, raw.lineNumber()));
+        for (int b = 0; b < rawBallots.size(); b++) {
+            RawBallot raw = rawBallots.get(b);
+            rawBallots.set(b, null); // let each raw line go as soon as its ballot exists
+            List<Set<Candidate>> ranking = new ArrayList<>();
+            int[] ids = raw.ids();
+            for (int i = 0; i < ids.length; i++) {
+                if (i + 1 < ids.length && ids[i + 1] < 0) {
+                    Set<Candidate> tied = new LinkedHashSet<>();
+                    tied.add(candidates.get(ids[i] - 1));
+                    while (i + 1 < ids.length && ids[i + 1] < 0) {
+                        tied.add(candidates.get(-ids[++i] - 1));
+                    }
+                    ranking.add(tied);
+                } else {
+                    ranking.add(alone.get(ids[i] - 1));
                 }
-                ranking.add(rankCandidates);
             }
             ballots.add(new Ballot(ranking, raw.count()));
         }
@@ -116,25 +128,37 @@ public final class BltParser {
         return new ParsedElection(title, candidates, withdrawn, numSeats, ballots);
     }
 
-    private record RawBallot(int lineNumber, BigInteger count, List<List<Integer>> ranks) {
+    /**
+     * A ballot line, compactly, until the candidate names (which follow the ballots) are known:
+     * its candidate ids in order, each already checked to be in range, with an id negated when
+     * it's tied with the one before it ("2=3" is {@code 2, -3}).
+     */
+    private record RawBallot(BigInteger count, int[] ids) {
     }
 
-    private static RawBallot parseBallotLine(NumberedLine line) {
+    private static RawBallot parseBallotLine(NumberedLine line, int numCandidates) {
         String[] tokens = line.text().split("\\s+");
         if (tokens.length < 2 || !tokens[tokens.length - 1].equals("0")) {
             throw new BallotParseException(
                     "Line " + line.number() + ": ballot line must end with a '0' terminator: '" + line.text() + "'");
         }
         BigInteger count = parseCount(tokens[0], line.number());
-        List<List<Integer>> ranks = new ArrayList<>(tokens.length - 2);
+        int[] ids = new int[tokens.length - 2];
+        int length = 0;
         for (int i = 1; i < tokens.length - 1; i++) {
-            List<Integer> rank = new ArrayList<>();
-            for (String idToken : tokens[i].split("=")) {
-                rank.add(parseInt(idToken, "candidate id", line.number()));
+            String[] tied = tokens[i].split("=");
+            for (int t = 0; t < tied.length; t++) {
+                if (length == ids.length) {
+                    ids = Arrays.copyOf(ids, ids.length * 2);
+                }
+                int id = parseInt(tied[t], "candidate id", line.number());
+                if (id < 1 || id > numCandidates) {
+                    throw new BallotParseException("Line " + line.number() + ": candidate id out of range: " + id);
+                }
+                ids[length++] = t == 0 ? id : -id;
             }
-            ranks.add(rank);
         }
-        return new RawBallot(line.number(), count, ranks);
+        return new RawBallot(count, length == ids.length ? ids : Arrays.copyOf(ids, length));
     }
 
     private static boolean isWithdrawnLine(String line) {
@@ -169,7 +193,8 @@ public final class BltParser {
 
     private static BigInteger parseCount(String token, int lineNumber) {
         try {
-            BigInteger value = new BigInteger(token);
+            // valueOf shares the cached instances of small counts (1 above all) across ballots.
+            BigInteger value = token.length() < 18 ? BigInteger.valueOf(Long.parseLong(token)) : new BigInteger(token);
             if (value.signum() <= 0) {
                 throw new NumberFormatException();
             }
