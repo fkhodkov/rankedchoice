@@ -20,7 +20,14 @@
 # Tie-break isn't spelled out in the source used here, so this falls back to the same
 # previous-round/declared-order chain as our other presets rather than guessing at
 # ACT-specific procedure.
+#
+# Tied rankings are truncated: "If the same number is marked in 2 or more candidate squares on
+# a ballot paper, those numbers and any greater number shall be disregarded in determining the
+# elector's preferences" (Schedule 4, clause 2(2)), and a ballot paper is informal if "a first
+# preference is marked in 2 or more candidate squares" (section 180(2)(c)) -- exactly what
+# truncating a first-rank tie down to an empty, uncounted ballot produces.
 quota: droop
 transfer: last-parcel-deferred-rounding
 rounding: truncate:6
 tiebreak: previous-round,declared
+tiedRankings: truncate

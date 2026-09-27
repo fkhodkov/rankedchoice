@@ -3,7 +3,11 @@ package info.fkhodkov.rankedchoice.stv.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
+import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.stv.StvRuleset;
+import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HagenbachBischoffQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HareQuota;
@@ -20,6 +24,8 @@ import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 class StvRulesetParserTest {
 
@@ -113,5 +119,36 @@ class StvRulesetParserTest {
         assertThat(ruleset.transferMethod()).isEqualTo(WigmTransfer.INSTANCE);
         assertThat(ruleset.roundingRule()).isEqualTo(new TruncateDecimal(5));
         assertThat(ruleset.tieBreak()).isEqualTo(new DeclaredOrderTieBreak(ORDER));
+    }
+
+    @Test
+    void parsesEachTiedRankingPolicyAndDefaultsByTransferMethod() {
+        assertThat(StvRulesetParser.parseTiedRankings("Truncate", WigmTransfer.INSTANCE))
+                .isEqualTo(TiedRankingPolicy.TRUNCATE);
+        assertThat(StvRulesetParser.parseTiedRankings("skip", WigmTransfer.INSTANCE)).isEqualTo(TiedRankingPolicy.SKIP);
+        assertThat(StvRulesetParser.parseTiedRankings(null, FractionalTransfer.INSTANCE))
+                .isEqualTo(TiedRankingPolicy.SPLIT);
+        assertThat(StvRulesetParser.parseTiedRankings(null, WigmTransfer.INSTANCE)).isEqualTo(TiedRankingPolicy.REJECT);
+        assertThatThrownBy(() -> StvRulesetParser.parseTiedRankings("halve", WigmTransfer.INSTANCE))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    /**
+     * Each bundled preset's tied-ranking policy and minimum-preferences formality rule, as set
+     * by its own rulebook -- see each YAML file's comment for the cited rule. Only Tasmania
+     * (hare-clark-qpq) has a minimum: preferences 1-7 must be free of duplicates, or the paper
+     * is informal.
+     */
+    @ParameterizedTest
+    @CsvSource({"scottish, TRUNCATE, 0", "ers97, TRUNCATE, 0", "ers76, TRUNCATE, 0", "act-hare-clark, TRUNCATE, 0",
+            "hare-clark-qpq, TRUNCATE, 7"})
+    void bundledPresetsCarryTheirRulebooksFormalityRules(
+            String preset, TiedRankingPolicy expectedPolicy, int expectedMinimum) {
+        ElectionConfig config = ConfigLoader.loadResource("/rulesets/" + preset + ".yaml");
+        StvRuleset ruleset = StvRulesetParser.parse(config.quota(), config.transfer(), config.rounding(),
+                config.tiebreak(), config.batchExclusion(), config.tiedRankings(), config.minimumPreferences(), ORDER);
+
+        assertThat(ruleset.tiedRankings()).isEqualTo(expectedPolicy);
+        assertThat(ruleset.minimumPreferences()).isEqualTo(expectedMinimum);
     }
 }

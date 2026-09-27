@@ -8,7 +8,19 @@
 # decimal places to reduce the loss of votes by fraction"). Tie-break isn't documented in the
 # sources used here, so this falls back to the same previous-round/declared-order chain as our
 # other presets rather than guessing at Tasmania-specific procedure.
+#
+# Formality, per the Electoral Act 2004 (Tas): an Assembly elector "must mark the ballot paper
+# by placing, without omission or duplication, the numbers 1, 2, 3, 4, 5, 6 and 7" (s.102(1)),
+# or the paper is informal (s.103(1)(c)); above 7, "the numbers including and above such, or
+# the first such, omission or duplication are to be disregarded and the ballot paper is to be
+# treated as being formal" (s.103(2)). That's truncating at the first tied rank, then treating
+# anything left with fewer than 7 preferences as informal. Council elections need only 3
+# (fewer with 2 or 3 candidates, s.102(2) -- reproduced by minimumPreferences' built-in cap at
+# candidates - 1); for those, use a --config file with this file's settings but
+# minimumPreferences: 3.
 quota: droop
 transfer: last-parcel
 rounding: truncate:2
 tiebreak: previous-round,declared
+tiedRankings: truncate
+minimumPreferences: 7

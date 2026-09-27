@@ -62,7 +62,7 @@ import picocli.CommandLine.Option;
 public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG =
-            new ElectionConfig(null, null, null, null, null, null, null, null, null);
+            new ElectionConfig(null, null, null, null, null, null, null, null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -78,7 +78,8 @@ public final class Main implements Callable<Integer> {
             new BundledRuleset("ers76",
                     "Predecessor to ERS97 -- same settings as ers97; no verified-accurate spec of its own"),
             new BundledRuleset("hare-clark-qpq",
-                    "Tasmanian Hare-Clark \"quota preferential\" -- Droop, last-parcel, truncate to 2dp"),
+                    "Tasmanian Hare-Clark \"quota preferential\" -- Droop, last-parcel, truncate to 2dp, "
+                            + "ballots need 7 preferences"),
             new BundledRuleset("act-hare-clark",
                     "ACT Legislative Assembly's Hare-Clark -- Droop, last-parcel with deferred, "
                             + "per-candidate rounding, truncate to 6dp"));
@@ -239,6 +240,7 @@ public final class Main implements Callable<Integer> {
                         firstNonNull(tiebreak, fileConfig.tiebreak()),
                         fileConfig.batchExclusion(),
                         firstNonNull(tiedRankings, fileConfig.tiedRankings()),
+                        fileConfig.minimumPreferences(),
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
                 roundingRuleForReport = ruleset.roundingRule();

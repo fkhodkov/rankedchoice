@@ -7,9 +7,14 @@
 # also allows excluding several of the lowest candidates together in one stage, rather than
 # one at a time, whenever that's still safe -- confirmed against the rulebook's own model
 # election (via an independent implementation, OpenSTV) that omitting this changes the
-# winner.
+# winner. Tied rankings are truncated: a first preference is "the figure '1' standing alone
+# against only one candidate" (glossary 6.8), so a "1" against two candidates is no first
+# preference and the paper is invalid (6.9); and "there is no next available preference where
+# the next sequential preference for a continuing candidate is uncertain" (6.10), so a later
+# tie makes the paper non-transferable from that point (6.12).
 quota: droop-rounded:2
 transfer: last-parcel
 rounding: truncate:2
 tiebreak: previous-round,declared
 batchExclusion: true
+tiedRankings: truncate

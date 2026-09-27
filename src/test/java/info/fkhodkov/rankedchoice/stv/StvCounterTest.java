@@ -891,4 +891,75 @@ class StvCounterTest {
                 .isEqualTo(Map.of(a, Fraction.of(5), b, Fraction.of(4), c, Fraction.of(7)));
         assertThat(skipped.electedInOrder()).containsExactly(c);
     }
+
+    /**
+     * Tasmania's formality rule (Electoral Act 2004, s.102-103) -- truncate at the first tied
+     * rank, then anything left with fewer than the minimum number of preferences is informal
+     * -- with a minimum of 3, as for a Tasmanian council election.
+     * <pre>
+     *   6: A,B,C        formal (exactly 3)
+     *   4: A,B          informal: too short, no tie involved at all
+     *   5: B,C=D,E      informal: truncated at the tie to just "B", inside the minimum
+     *   3: C,D,E,A=B    formal: the tie is above the minimum, so it's just truncated to C,D,E
+     *   2: D,E,A        formal
+     * </pre>
+     * Valid votes 6+3+2 = 11, Droop quota floor(11/2)+1 = 6; first preferences A=6, C=3, D=2
+     * (B and E have none left), so A meets quota at once. Counting every ballot instead would
+     * have given 20 valid votes and a quota of 11 that nobody reaches on first preferences.
+     */
+    @Test
+    void minimumPreferencesMakesShortOrEarlyTiedBallotsInformal() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        Candidate e = Candidate.of("E");
+        List<Candidate> candidates = List.of(a, b, c, d, e);
+        List<Ballot> ballots = List.of(
+                ballot(6, a, b, c),
+                ballot(4, a, b),
+                new Ballot(List.of(Set.of(b), Set.of(c, d), Set.of(e)), BigInteger.valueOf(5)),
+                new Ballot(List.of(Set.of(c), Set.of(d), Set.of(e), Set.of(a, b)), BigInteger.valueOf(3)),
+                ballot(2, d, e, a));
+        StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, WigmTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(candidates), false, TiedRankingPolicy.TRUNCATE, 3);
+
+        StvResult result = StvCounter.count(candidates, ballots, 1, ruleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(6));
+        assertThat(result.rounds().getFirst().tallies()).isEqualTo(Map.of(
+                a, Fraction.of(6), b, Fraction.ZERO, c, Fraction.of(3), d, Fraction.of(2), e, Fraction.ZERO));
+        assertThat(result.electedInOrder()).containsExactly(a);
+    }
+
+    /**
+     * The minimum is capped at one fewer than the number of candidates, reproducing
+     * Tasmania's council rule that with only 2 candidates a single "1" is enough (s.102(2)):
+     * a minimum of 7 with 2 candidates still accepts one-preference ballots.
+     */
+    @Test
+    void minimumPreferencesIsCappedAtOneFewerThanTheCandidates() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, WigmTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b)), false, TiedRankingPolicy.TRUNCATE, 7);
+
+        StvResult result = StvCounter.count(List.of(a, b), List.of(ballot(3, a), ballot(2, b)), 1, ruleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(3));
+        assertThat(result.electedInOrder()).containsExactly(a);
+    }
+
+    @Test
+    void refusesToCountWhenNoBallotIsFormal() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, WigmTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b, c)), false, TiedRankingPolicy.TRUNCATE, 2);
+
+        assertThatThrownBy(() -> StvCounter.count(List.of(a, b, c), List.of(ballot(5, a), ballot(3, b)), 1, ruleset))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("No valid votes");
+    }
 }

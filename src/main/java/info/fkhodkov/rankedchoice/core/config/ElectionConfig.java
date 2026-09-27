@@ -14,6 +14,7 @@ public record ElectionConfig(
         String format,
         String reportFormat,
         Boolean batchExclusion,
-        String tiedRankings
+        String tiedRankings,
+        Integer minimumPreferences
 ) {
 }

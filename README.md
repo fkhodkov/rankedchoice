@@ -57,9 +57,22 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     rankings between them, matching quota, winners, and every round's tallies exactly
     (`TiedRankingPolicyTest`, plus a hand-derived `StvCounterTest` case where the two
     policies elect different winners). Without an explicit policy, fractional transfer
-    defaults to `split` and every other transfer method to `reject`; other bundled presets
-    (ERS97/76, Hare-Clark) still reject ties, since their own rules on equal preferences
-    haven't been researched yet
+    defaults to `split` and every other transfer method to `reject`. Every bundled preset
+    sets `truncate`, each from its own rulebook's text: ERS97 glossary 6.8–6.12 (a "1"
+    against two candidates is no first preference; a later "uncertain" preference leaves no
+    next available preference), the ACT Electoral Act 1992's Schedule 4 clause 2(2) ("those
+    numbers and any greater number shall be disregarded") with s.180(2)(c), and ERS76 by
+    inheritance from ERS97 (unverified, like the rest of that preset)
+  - Minimum-preferences formality rule (`minimumPreferences`, config only): after tied
+    rankings are dealt with, a ballot ranking fewer candidates than this is informal — not
+    counted, and not part of the valid vote the quota is based on — capped at one fewer
+    than the number of candidates. Needed for Tasmania, whose Electoral Act 2004 makes an
+    Assembly ballot informal unless it numbers 1–7 "without omission or duplication"
+    (s.102(1), s.103(1)(c)), while a duplicate *above* 7 just ends the ballot there
+    (s.103(2)): `truncate` plus a minimum of 7 reproduces both, and the cap reproduces the
+    council rule's smaller minimums for 2 or 3 candidates (s.102(2)). The
+    `hare-clark-qpq` preset sets both, which also means it now rejects *untied* ballots with
+    fewer than 7 preferences, as the real count does
   - `split` (fractional transfer only): a ballot's holder is really a *group* — every
     still-continuing candidate sharing its front-most remaining rank — and its pooled value
     splits evenly across the
@@ -384,7 +397,8 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 ### Rules and config
 
 A YAML config file can set any combination of `quota`, `transfer`, `rounding`, `tiebreak`,
-`seats`, `format`, `reportFormat`, `batchExclusion`, and `tiedRankings` — all optional:
+`seats`, `format`, `reportFormat`, `batchExclusion`, `tiedRankings`, and `minimumPreferences`
+— all optional:
 
 ```yaml
 quota: hare
@@ -404,6 +418,10 @@ several candidates equally — see the STV engine section above. Unlike `batchEx
 does have a CLI override, `--tied-rankings`, since for a generic election it's a genuine
 per-count choice rather than a fixed property of a jurisdiction's rules.
 
+`minimumPreferences` (a whole number, default none) makes a ballot ranking fewer candidates
+than this informal — see the STV engine section above. Like `batchExclusion` it's config-only,
+a jurisdiction's formality rule rather than a per-run choice.
+
 `--ruleset <name>` is exactly the same mechanism, pointed at a bundled config shipped as a
 classpath resource (`src/main/resources/rulesets/<name>.yaml`) instead of a file you supply.
 Precedence when combining sources is always **CLI override flag > config/ruleset file >
@@ -416,10 +434,10 @@ Passing an unrecognized name (e.g. `--ruleset scotish`) lists all the ones below
 | Name | Rules | Used for | Source |
 |---|---|---|---|
 | `scottish` | Droop + WIGM + truncate:5, tied rankings truncated | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rules 43(1)(c) and 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
-| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5 and 5.3.7](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
+| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No dedicated technical spec or real-election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule delta (quota rounds to 0dp above 100, not implemented here) but that's a third-party reimplementation, not the rulebook itself; treat as "believed similar," not verified-accurate |
-| `hare-clark-qpq` | Droop + last-parcel + truncate:2 | Tasmanian House of Assembly and local government elections | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html) |
-| `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6 | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4, as reproduced in Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
+| `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections need `minimumPreferences: 3` via a `--config` copy) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
+| `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
 `hare-clark-qpq` and `act-hare-clark` share the "Hare-Clark" name but aren't the same rules —
 Tasmania rounds the shared transfer ratio to 2 decimal places, while the ACT rounds each

@@ -56,11 +56,20 @@ public final class StvRulesetParser {
     /** As above, plus a tied-ranking policy — see {@link #parseTiedRankings}. */
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, List<Candidate> declaredOrder) {
+        return parse(quota, transfer, rounding, tiebreak, batchExclusion, tiedRankings, null, declaredOrder);
+    }
+
+    /**
+     * As above, plus a minimum number of preferences for a ballot to be formal — see {@link
+     * StvRuleset}. {@code null} means no minimum.
+     */
+    public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
+            Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, List<Candidate> declaredOrder) {
         TransferMethod transferMethod = parseTransfer(transfer);
         return new StvRuleset(
                 parseQuota(quota), transferMethod, parseRounding(rounding),
                 parseTieBreak(tiebreak, declaredOrder), batchExclusion != null && batchExclusion,
-                parseTiedRankings(tiedRankings, transferMethod));
+                parseTiedRankings(tiedRankings, transferMethod), minimumPreferences == null ? 0 : minimumPreferences);
     }
 
     /**

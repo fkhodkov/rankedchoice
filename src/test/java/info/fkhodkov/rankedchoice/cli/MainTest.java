@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import picocli.CommandLine;
 
 class MainTest {
@@ -118,9 +118,14 @@ class MainTest {
         assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("Cannot infer format");
     }
 
+    /**
+     * hare-clark-qpq elects Z, not X: X's 5 ballots rank only X, and Tasmanian law requires at
+     * least 2 preferences with 3 candidates (Electoral Act 2004 s.102(2), via the preset's
+     * minimumPreferences), so those papers are informal.
+     */
     @ParameterizedTest
-    @ValueSource(strings = {"scottish", "ers97", "ers76", "hare-clark-qpq", "act-hare-clark"})
-    void bundledRulesetRunsSuccessfully(String rulesetName) throws Exception {
+    @CsvSource({"scottish, X", "ers97, X", "ers76, X", "hare-clark-qpq, Z", "act-hare-clark, X"})
+    void bundledRulesetRunsSuccessfully(String rulesetName, String expectedWinner) throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, BLT);
 
@@ -128,7 +133,7 @@ class MainTest {
                 .execute("--input", bltFile.toString(), "--ruleset", rulesetName);
 
         assertThat(exitCode).isZero();
-        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: X");
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: " + expectedWinner);
     }
 
     @Test

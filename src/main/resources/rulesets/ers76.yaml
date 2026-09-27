@@ -11,9 +11,12 @@
 # as "believed similar to ERS97, with one documented but unverified/unimplemented difference"
 # rather than a verified-accurate reproduction of ERS76 specifically. ERS76 shares ERS97's
 # rule 5.2.5 batch-exclusion provision (excluding several of the lowest candidates together
-# in one stage when safe), so that's enabled here too.
+# in one stage when safe), so that's enabled here too. Tied rankings are truncated as under
+# ERS97 (see ers97.yaml) -- inherited from ERS97 along with every other setting here, not
+# verified against the 1976 rulebook itself.
 quota: droop-rounded:2
 transfer: last-parcel
 rounding: truncate:2
 tiebreak: previous-round,declared
 batchExclusion: true
+tiedRankings: truncate

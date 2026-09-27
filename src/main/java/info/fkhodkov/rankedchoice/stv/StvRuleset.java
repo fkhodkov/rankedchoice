@@ -25,10 +25,30 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * <p>{@code tiedRankings} says what to do with a ballot that ranks several candidates equally
  * — see {@link TiedRankingPolicy}. When not given, it defaults to {@link
  * TiedRankingPolicy#defaultFor}: split under fractional transfer, reject otherwise.
+ *
+ * <p>{@code minimumPreferences} is a formality rule: after tied rankings are dealt with, a
+ * ballot ranking fewer candidates than this is informal — not counted, and not part of the
+ * valid vote the quota is based on. It's capped at one fewer than the number of candidates,
+ * since ranking every candidate but one already implies the last. {@code 0} (the default)
+ * means no minimum. Tasmania's Electoral Act 2004 is the motivating case: an Assembly ballot
+ * must number 1–7 "without omission or duplication" (s.102(1)) or it's informal
+ * (s.103(1)(c)), and a council ballot needs 1–3, or 1–2 with 3 candidates, or just 1 with 2
+ * (s.102(2)) — which the cap reproduces exactly.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
-        boolean batchExclusion, TiedRankingPolicy tiedRankings) {
+        boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
+
+    public StvRuleset {
+        if (minimumPreferences < 0) {
+            throw new IllegalArgumentException("minimumPreferences must not be negative, got: " + minimumPreferences);
+        }
+    }
+
+    public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
+            boolean batchExclusion, TiedRankingPolicy tiedRankings) {
+        this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, 0);
+    }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion) {
