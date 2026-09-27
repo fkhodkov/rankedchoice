@@ -553,6 +553,27 @@ literal comma.
 mvn test
 ```
 
+## Performance
+
+Measured end to end through the CLI (JVM startup and file parsing included) on a 14-core
+machine, on synthetic elections where every voter casts a distinct ballot (the worst case for
+engines that work per distinct ballot), ranking about 5 candidates on average:
+
+| Method | 20 candidates, 5 seats, 100k voters | 20 / 5, 1M voters | 100 / 20, 100k voters |
+|---|---|---|---|
+| Borda | 0.9 s | 5.8 s | — |
+| Schulze | 1.8 s | 16 s | 13 s |
+| STV (fractional, exact) | 1.9 s | 15 s | 28 s |
+| STV (`scottish`, WIGM) | 1.9 s | 18 s | 5.2 s |
+| STV (`ers97`, last parcel) | 3.3 s | 30 s | 15 s |
+| QPQ | 2.9 s | 27 s | 43 s |
+| Meek / Warren | 2.1 s | 7.6 s | 6.4 / 7.2 s |
+
+About 5 s of every 1M-voter run is reading the ballot file. Memory is the tighter limit: about
+1 GB of heap per million ballots, whatever the method (`java -Xmx…` if the default is smaller).
+CPO-STV scales with the number of outcome pairs rather than voters: 10 candidates / 3 seats
+(120 outcomes) takes about 9 s at 100k voters, 12 / 4 (495 outcomes) about 34 s at 10k.
+
 ## Project layout
 
 ```

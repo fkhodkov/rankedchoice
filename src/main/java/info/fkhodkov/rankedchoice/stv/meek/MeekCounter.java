@@ -2,11 +2,13 @@ package info.fkhodkov.rankedchoice.stv.meek;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
@@ -75,6 +77,9 @@ public final class MeekCounter {
 
     private enum State { HOPEFUL, ELECTED, EXCLUDED }
 
+    /** Distinct ballots below which one distribution pass isn't worth splitting across cores. */
+    private static final int PARALLEL_THRESHOLD = 20_000;
+
     private MeekCounter() {
     }
 
@@ -103,32 +108,90 @@ public final class MeekCounter {
 
     private static final class Count {
         private final List<Candidate> candidates;
-        private final List<Ballot> ballots;
+        private final Map<Candidate, Integer> indexOf = new LinkedHashMap<>();
         private final int seats;
         private final FixedPoint fixed;
         private final KeepRule keepRule;
         private final long totalVotes;
         private final long omega;
-        private final Map<Candidate, State> states = new LinkedHashMap<>();
-        private final Map<Candidate, Long> keepFactors = new LinkedHashMap<>();
+        // Every distinct ranking once, as candidate indices (rank -> tied members), and how many
+        // ballots cast it: the form the per-iteration distribution walks, built once.
+        private final int[][][] rankings;
+        private final long[] multipliers;
+        // Indexed like `candidates`; the count's only record of each candidate's state.
+        private final State[] states;
+        private final long[] keepFactors;
 
         Count(List<Candidate> candidates, List<Ballot> ballots, int seats, FixedPoint fixed, KeepRule keepRule) {
             this.candidates = candidates;
-            this.ballots = ballots;
             this.seats = seats;
             this.fixed = fixed;
             this.keepRule = keepRule;
+            for (int i = 0; i < candidates.size(); i++) {
+                indexOf.put(candidates.get(i), i);
+            }
             BigInteger ballotCount = BigInteger.ZERO;
+            Map<RankingKey, Integer> seen = new LinkedHashMap<>();
+            List<int[][]> distinct = new ArrayList<>();
+            List<Long> counts = new ArrayList<>();
             for (Ballot ballot : ballots) {
                 ballotCount = ballotCount.add(ballot.count());
+                int[][] ranking = indexed(ballot.ranking());
+                long multiplier = ballot.count().longValueExact();
+                Integer at = seen.putIfAbsent(new RankingKey(ranking), distinct.size());
+                if (at == null) {
+                    distinct.add(ranking);
+                    counts.add(multiplier);
+                } else {
+                    counts.set(at, Math.addExact(counts.get(at), multiplier));
+                }
             }
             fixed.requireRoomFor(ballotCount);
             this.totalVotes = fixed.of(ballotCount);
             this.omega = fixed.tenToTheMinus(fixed.places() * 2 / 3);
-            for (Candidate candidate : candidates) {
-                states.put(candidate, State.HOPEFUL);
-                keepFactors.put(candidate, fixed.one());
+            this.rankings = distinct.toArray(int[][][]::new);
+            this.multipliers = counts.stream().mapToLong(Long::longValue).toArray();
+            this.states = new State[candidates.size()];
+            this.keepFactors = new long[candidates.size()];
+            Arrays.fill(states, State.HOPEFUL);
+            Arrays.fill(keepFactors, fixed.one());
+        }
+
+        /**
+         * A ranking as candidate indices. A candidate this count doesn't know about (e.g.
+         * withdrawn) can never be standing, so it's dropped here — along with a rank left with
+         * nobody in it, which the distribution would only have skipped over anyway.
+         */
+        private int[][] indexed(List<Set<Candidate>> ranking) {
+            List<int[]> ranks = new ArrayList<>(ranking.size());
+            for (Set<Candidate> rank : ranking) {
+                int[] members = rank.stream().filter(indexOf::containsKey).mapToInt(indexOf::get).sorted().toArray();
+                if (members.length > 0) {
+                    ranks.add(members);
+                }
             }
+            return ranks.toArray(int[][]::new);
+        }
+
+        /** An indexed ranking with value equality, for merging identical ballots. */
+        private record RankingKey(int[][] ranking) {
+            @Override
+            public boolean equals(Object other) {
+                return other instanceof RankingKey(int[][] otherRanking) && Arrays.deepEquals(ranking, otherRanking);
+            }
+
+            @Override
+            public int hashCode() {
+                return Arrays.deepHashCode(ranking);
+            }
+        }
+
+        private State state(Candidate candidate) {
+            return states[indexOf.get(candidate)];
+        }
+
+        private void setState(Candidate candidate, State state) {
+            states[indexOf.get(candidate)] = state;
         }
 
         StvResult run(MeekRuleset ruleset, BallotFormality.FormalBallots formal) {
@@ -165,8 +228,8 @@ public final class MeekCounter {
                 }
 
                 Candidate excluded = lowestHopeful(latest, iteration.surplus(), ruleset.tieBreak(), priorRounds);
-                states.put(excluded, State.EXCLUDED);
-                keepFactors.put(excluded, 0L);
+                setState(excluded, State.EXCLUDED);
+                keepFactors[indexOf.get(excluded)] = 0L;
                 rounds.add(new RoundRecord(roundNumber, tallies, new RoundAction.Eliminated(excluded), residual));
                 // droop redistributes after an exclusion for reporting, keeping the iteration's quota.
                 Distribution redistributed = distribute();
@@ -181,7 +244,7 @@ public final class MeekCounter {
                 List<RoundRecord> priorRounds = List.copyOf(rounds);
                 for (Candidate candidate : byVotesDescending(remaining, latest, ruleset.tieBreak(), priorRounds)) {
                     roundNumber++;
-                    states.put(candidate, State.ELECTED);
+                    setState(candidate, State.ELECTED);
                     elected.add(candidate);
                     rounds.add(new RoundRecord(roundNumber, tallies,
                             new RoundAction.Elected(candidate, Fraction.ZERO), residual));
@@ -212,11 +275,11 @@ public final class MeekCounter {
                 if (newlyElected.size() > seats - electedCount()) {
                     throw new IllegalStateException("More candidates reached quota than there are seats left");
                 }
-                newlyElected.forEach(candidate -> states.put(candidate, State.ELECTED));
+                newlyElected.forEach(candidate -> setState(candidate, State.ELECTED));
 
                 long surplus = 0;
                 for (Candidate candidate : candidates) {
-                    if (states.get(candidate) == State.ELECTED) {
+                    if (state(candidate) == State.ELECTED) {
                         surplus += distribution.votes().get(candidate) - distribution.quota();
                     }
                 }
@@ -225,31 +288,55 @@ public final class MeekCounter {
                 }
                 lastSurplus = surplus;
 
-                for (Candidate candidate : candidates) {
-                    if (states.get(candidate) == State.ELECTED) {
-                        long scaled = fixed.multiply(keepFactors.get(candidate), distribution.quota(), true);
-                        keepFactors.put(candidate, fixed.divide(scaled, distribution.votes().get(candidate), true));
+                for (int c = 0; c < candidates.size(); c++) {
+                    if (states[c] == State.ELECTED) {
+                        long scaled = fixed.multiply(keepFactors[c], distribution.quota(), true);
+                        keepFactors[c] = fixed.divide(scaled, distribution.votes().get(candidates.get(c)), true);
                     }
                 }
             }
         }
 
         private Distribution distribute() {
-            Map<Candidate, Long> votes = new LinkedHashMap<>();
-            for (Candidate candidate : candidates) {
-                if (states.get(candidate) != State.EXCLUDED) {
-                    votes.put(candidate, 0L);
+            long[] votes = new long[candidates.size()];
+            long[] passFactors = new long[candidates.size()];
+            for (int c = 0; c < candidates.size(); c++) {
+                passFactors[c] = fixed.one() - keepFactors[c];
+            }
+            if (rankings.length < PARALLEL_THRESHOLD) {
+                for (int b = 0; b < rankings.length; b++) {
+                    distribute(rankings[b], 0, fixed.one(), multipliers[b], votes, passFactors);
+                }
+            } else {
+                // Each ballot's contribution is independent and every sum is an exact integer, so
+                // summing chunks on separate cores and adding them up gives the same totals.
+                int chunks = Math.min(rankings.length / (PARALLEL_THRESHOLD / 4), 4 * Runtime.getRuntime().availableProcessors());
+                long[][] partial = new long[chunks][];
+                IntStream.range(0, chunks).parallel().forEach(chunk -> {
+                    long[] chunkVotes = new long[candidates.size()];
+                    int from = (int) ((long) rankings.length * chunk / chunks);
+                    int to = (int) ((long) rankings.length * (chunk + 1) / chunks);
+                    for (int b = from; b < to; b++) {
+                        distribute(rankings[b], 0, fixed.one(), multipliers[b], chunkVotes, passFactors);
+                    }
+                    partial[chunk] = chunkVotes;
+                });
+                for (long[] chunkVotes : partial) {
+                    for (int c = 0; c < votes.length; c++) {
+                        votes[c] = Math.addExact(votes[c], chunkVotes[c]);
+                    }
                 }
             }
-            for (Ballot ballot : ballots) {
-                distribute(ballot.ranking(), 0, fixed.one(), ballot.count().longValueExact(), votes);
-            }
+            Map<Candidate, Long> byCandidate = new LinkedHashMap<>();
             long held = 0;
-            for (long value : votes.values()) {
-                held += value;
+            for (int c = 0; c < candidates.size(); c++) {
+                if (states[c] != State.EXCLUDED) {
+                    byCandidate.put(candidates.get(c), votes[c]);
+                    held += votes[c];
+                }
             }
             long quota = fixed.divideDown(held, seats + 1) + fixed.epsilon();
-            return new Distribution(votes, totalVotes - held, quota);
+            return new Distribution(byCandidate, totalVotes - held, quota);
         }
 
         /**
@@ -265,33 +352,54 @@ public final class MeekCounter {
          * the rest of the ballot's value, whereas its path for untied ballots skips excluded
          * candidates and carries on. This carries on in both cases, and matches a copy of droop
          * with just that one path patched to carry on.
+         *
+         * <p>This runs for every distinct ballot on every iteration, so it works on candidate
+         * indices and arrays only. A hopeful candidate (keep factor 1) keeps the whole share and
+         * passes nothing on — exactly what either keep rule computes for a keep factor of 1 — so
+         * that case skips the multiplication.
          */
-        private void distribute(List<Set<Candidate>> ranking, int index, long weight, long multiplier,
-                Map<Candidate, Long> votes) {
-            for (int i = index; i < ranking.size() && weight > 0; i++) {
-                List<Candidate> standing = ranking.get(i).stream().filter(this::isStanding).toList();
-                if (standing.isEmpty()) {
+        private void distribute(int[][] ranking, int index, long weight, long multiplier, long[] votes,
+                long[] passFactors) {
+            for (int i = index; i < ranking.length && weight > 0; i++) {
+                int[] rank = ranking[i];
+                int standing = 0;
+                for (int candidate : rank) {
+                    if (states[candidate] != State.EXCLUDED) {
+                        standing++;
+                    }
+                }
+                if (standing == 0) {
                     continue;
                 }
-                long share = fixed.divideDown(weight, standing.size());
-                for (Candidate candidate : standing) {
-                    long keepFactor = keepFactors.get(candidate);
-                    long kept = switch (keepRule) {
-                        case MEEK -> fixed.multiply(share, keepFactor, false);
-                        case WARREN -> Math.min(keepFactor, share);
-                    };
-                    long passedOn = switch (keepRule) {
-                        case MEEK -> fixed.multiply(share, fixed.one() - keepFactor, false);
-                        case WARREN -> share - kept;
-                    };
-                    votes.merge(candidate, Math.multiplyExact(kept, multiplier), Long::sum);
-                    if (standing.size() > 1) {
-                        distribute(ranking, i + 1, passedOn, multiplier, votes);
+                long share = fixed.divideDown(weight, standing);
+                for (int candidate : rank) {
+                    if (states[candidate] == State.EXCLUDED) {
+                        continue;
+                    }
+                    long kept;
+                    long passedOn;
+                    if (states[candidate] == State.HOPEFUL) {
+                        kept = share;
+                        passedOn = 0;
+                    } else {
+                        long keepFactor = keepFactors[candidate];
+                        kept = switch (keepRule) {
+                            case MEEK -> fixed.multiply(share, keepFactor, false);
+                            case WARREN -> Math.min(keepFactor, share);
+                        };
+                        passedOn = switch (keepRule) {
+                            case MEEK -> fixed.multiply(share, passFactors[candidate], false);
+                            case WARREN -> share - kept;
+                        };
+                    }
+                    votes[candidate] = Math.addExact(votes[candidate], Math.multiplyExact(kept, multiplier));
+                    if (standing > 1) {
+                        distribute(ranking, i + 1, passedOn, multiplier, votes, passFactors);
                     } else {
                         weight = passedOn;
                     }
                 }
-                if (standing.size() > 1) {
+                if (standing > 1) {
                     return;
                 }
             }
@@ -330,7 +438,7 @@ public final class MeekCounter {
                 Distribution distribution, Set<Candidate> justElected, MeekRuleset ruleset) {
             Map<Candidate, Fraction> tallies = new LinkedHashMap<>();
             for (Candidate candidate : candidates) {
-                if (states.get(candidate) == State.HOPEFUL || justElected.contains(candidate)) {
+                if (state(candidate) == State.HOPEFUL || justElected.contains(candidate)) {
                     tallies.put(candidate, display(distribution.votes().get(candidate), ruleset));
                 }
             }
@@ -341,23 +449,18 @@ public final class MeekCounter {
             return ruleset.roundingRule().apply(fixed.toFraction(value));
         }
 
-        private boolean isStanding(Candidate candidate) {
-            State state = states.get(candidate);
-            return state == State.HOPEFUL || state == State.ELECTED;
-        }
-
         private Set<Candidate> hopefuls() {
             Set<Candidate> result = new LinkedHashSet<>();
-            for (Map.Entry<Candidate, State> entry : states.entrySet()) {
-                if (entry.getValue() == State.HOPEFUL) {
-                    result.add(entry.getKey());
+            for (int c = 0; c < candidates.size(); c++) {
+                if (states[c] == State.HOPEFUL) {
+                    result.add(candidates.get(c));
                 }
             }
             return result;
         }
 
         private int electedCount() {
-            return (int) states.values().stream().filter(state -> state == State.ELECTED).count();
+            return (int) Arrays.stream(states).filter(state -> state == State.ELECTED).count();
         }
     }
 }
