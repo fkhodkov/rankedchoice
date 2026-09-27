@@ -86,8 +86,9 @@ public final class MeekCounter {
 
     public static StvResult count(List<Candidate> candidates, List<Ballot> rawBallots, int seats, MeekRuleset ruleset) {
         validate(candidates, seats);
-        List<Ballot> ballots = BallotFormality.apply(
+        BallotFormality.FormalBallots formal = BallotFormality.apply(
                 rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
+        List<Ballot> ballots = formal.ballots();
 
         Map<Candidate, State> states = new LinkedHashMap<>();
         Map<Candidate, Double> weights = new LinkedHashMap<>();
@@ -176,7 +177,7 @@ public final class MeekCounter {
             rounds.add(new RoundRecord(roundNumber, roundTallies, new RoundAction.Eliminated(toExclude), roundExhausted));
         }
 
-        return new StvResult(elected, rounds, lastQuota);
+        return new StvResult(elected, rounds, lastQuota, formal.informal());
     }
 
     private static void validate(List<Candidate> candidates, int seats) {

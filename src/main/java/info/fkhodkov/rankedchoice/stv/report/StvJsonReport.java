@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.InformalBallots;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvResult;
@@ -36,7 +38,10 @@ public final class StvJsonReport {
     public record Round(int roundNumber, Map<String, String> tallies, Action action, String exhaustedVotes) {
     }
 
-    public record Report(String quota, List<Round> rounds, List<String> electedInOrder) {
+    public record Informal(BigInteger total, BigInteger blank, BigInteger tiedRankings, BigInteger tooFewPreferences) {
+    }
+
+    public record Report(String quota, Informal informalBallots, List<Round> rounds, List<String> electedInOrder) {
     }
 
     public static String render(StvResult result, RoundingRule roundingRule) {
@@ -52,7 +57,10 @@ public final class StvJsonReport {
         OptionalInt decimalPlaces = ReportFormatting.decimalPlacesOf(roundingRule);
         List<Round> rounds = result.rounds().stream().map(round -> toRound(round, decimalPlaces)).toList();
         List<String> electedInOrder = result.electedInOrder().stream().map(Candidate::name).toList();
-        return new Report(ReportFormatting.format(result.quota(), decimalPlaces), rounds, electedInOrder);
+        InformalBallots informal = result.informal();
+        Informal informalBallots = new Informal(
+                informal.total(), informal.blank(), informal.tiedRankings(), informal.tooFewPreferences());
+        return new Report(ReportFormatting.format(result.quota(), decimalPlaces), informalBallots, rounds, electedInOrder);
     }
 
     private static Round toRound(RoundRecord round, OptionalInt decimalPlaces) {

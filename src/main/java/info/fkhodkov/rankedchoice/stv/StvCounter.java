@@ -77,8 +77,9 @@ public final class StvCounter {
     public static StvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, StvRuleset ruleset) {
         StvCounterValidation.validate(candidates, seats);
         ruleset.tiedRankings().requireSplitDefinedFor(ruleset.transferMethod());
-        List<Ballot> countedBallots = BallotFormality.apply(
+        BallotFormality.FormalBallots formal = BallotFormality.apply(
                 ballots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
+        List<Ballot> countedBallots = formal.ballots();
 
         Set<Candidate> continuing = new LinkedHashSet<>(candidates);
         List<BallotState> states = new ArrayList<>(countedBallots.size());
@@ -222,7 +223,7 @@ public final class StvCounter {
 
         drainPendingSurplus(states, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
 
-        return new StvResult(elected, rounds, quota);
+        return new StvResult(elected, rounds, quota, formal.informal());
     }
 
     /**

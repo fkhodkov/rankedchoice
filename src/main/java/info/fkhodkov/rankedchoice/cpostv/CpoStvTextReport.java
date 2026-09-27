@@ -16,6 +16,9 @@ public final class CpoStvTextReport {
 
     public static String render(CpoStvResult result) {
         StringBuilder text = new StringBuilder();
+        if (result.informal().total().signum() > 0) {
+            text.append("Informal ballots: ").append(result.informal().describe()).append("\n\n");
+        }
         text.append("Winning outcome: ").append(outcomeName(result.winners().iterator().next()));
         if (result.winners().size() > 1) {
             text.append(" (tied with ")

@@ -29,6 +29,9 @@ public final class StvHtmlReport {
                 .append("th:first-child, td:first-child { text-align: left; }\n")
                 .append("tr.acted { font-weight: bold; }\n")
                 .append("</style>\n</head>\n<body>\n");
+        if (result.informal().total().signum() > 0) {
+            html.append("<p>Informal ballots: ").append(result.informal().describe()).append("</p>\n");
+        }
         html.append("<p>Quota: ").append(ReportFormatting.format(result.quota(), decimalPlaces)).append("</p>\n");
 
         for (RoundRecord round : result.rounds()) {

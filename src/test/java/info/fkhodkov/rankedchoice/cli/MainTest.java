@@ -175,6 +175,20 @@ class MainTest {
         assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: 3\n").contains("X: 0");
     }
 
+    @ParameterizedTest
+    @CsvSource({"qpq", "cpo-stv"})
+    void qpqAndCpoStvReportsShowInformalBallots(String method) throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--method", method, "--minimum-preferences", "2");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8))
+                .startsWith("Informal ballots: 5 (too few preferences: 5)\n\n");
+    }
+
     @Test
     void minimumPreferencesFlagIsRefusedForAMethodWithoutIt() throws Exception {
         Path bltFile = tempDir.resolve("election.blt");

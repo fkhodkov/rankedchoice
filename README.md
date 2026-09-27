@@ -115,7 +115,13 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   `--report-format`, a config file's `reportFormat` field, or inferred from `--output`'s file
   extension. All four render the exact same figures (the same `RoundingRule`-formatted decimal
   strings), just reshaped per format; JSON also exposes the underlying structured tree
-  (`StvJsonReport.toReport`) for callers that want objects rather than a serialized string
+  (`StvJsonReport.toReport`) for callers that want objects rather than a serialized string. Ballots
+  set aside before the count — blank as cast, emptied by the tied-ranking policy, or short of
+  `minimumPreferences` — are reported too: a leading "Informal ballots: 7 (tied rankings: 2,
+  too few preferences: 5)" line in text and HTML (omitted when there are none, as are the
+  equivalent lines in the QPQ and CPO-STV text reports), an `informalBallots` object with the
+  same breakdown in JSON, and an `informal_ballots` column in CSV repeating the total on every
+  row the way `exhausted_votes` does
 - A second counting method, Meek's method (`--method meek`), selectable alongside classic
   quota-based STV (`--method stv`, the default) — structurally different from every quota/
   transfer combination above: instead of moving discrete "parcels" of ballots, every ballot's
@@ -536,7 +542,8 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
 │   ├── meek/      MeekCounter, MeekRuleset -- Meek's method, producing the same StvResult
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy,
-│       BallotFormality (tie policy + minimum preferences, shared by every ranked engine)
+│       BallotFormality, InformalBallots (tie policy + minimum preferences, shared by every
+│       ranked engine, and the count of ballots they set aside)
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport

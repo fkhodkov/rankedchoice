@@ -18,6 +18,9 @@ public final class QpqTextReport {
 
     public static String render(QpqResult result) {
         StringBuilder text = new StringBuilder();
+        if (result.informal().total().signum() > 0) {
+            text.append("Informal ballots: ").append(result.informal().describe()).append("\n\n");
+        }
 
         for (QpqRoundRecord round : result.rounds()) {
             text.append("Stage ").append(round.stageNumber());

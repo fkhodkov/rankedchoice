@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.InformalBallots;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
 
@@ -79,8 +80,12 @@ class QpqCounterTest {
 
         // Truncate: the tied-first ballot is void, so the count is exactly the base count's.
         QpqRuleset truncating = new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.TRUNCATE, 0);
-        assertThat(QpqCounter.count(List.of(A, B, C, D), withTie, 2, truncating))
-                .isEqualTo(QpqCounter.count(List.of(A, B, C, D), base, 2, ruleset(A, B, C, D)));
+        QpqResult truncated = QpqCounter.count(List.of(A, B, C, D), withTie, 2, truncating);
+        QpqResult baseResult = QpqCounter.count(List.of(A, B, C, D), base, 2, ruleset(A, B, C, D));
+        assertThat(truncated.rounds()).isEqualTo(baseResult.rounds());
+        assertThat(truncated.electedInOrder()).isEqualTo(baseResult.electedInOrder());
+        assertThat(truncated.informal())
+                .isEqualTo(new InformalBallots(BigInteger.ZERO, BigInteger.valueOf(4), BigInteger.ZERO));
 
         // Skip: the tied rank is dropped and the ballot counts for B, exactly like 4 more "B" ballots.
         QpqRuleset skipping = new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.SKIP, 0);

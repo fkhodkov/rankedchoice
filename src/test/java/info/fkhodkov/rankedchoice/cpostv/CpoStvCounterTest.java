@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.InformalBallots;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HagenbachBischoffQuota;
@@ -241,7 +242,7 @@ class CpoStvCounterTest {
     /**
      * No source defines how CPO-STV should split a tied ballot, so only preprocessing policies
      * apply: under {@code truncate}, a ballot tied at first preference is void, so adding some
-     * to the Wikipedia example changes nothing at all -- same scores, same winner.
+     * to the Wikipedia example changes nothing but the informal count -- same scores, same winner.
      */
     @Test
     void truncatedFirstRankTiesAreVoidAndSplitIsRejected() {
@@ -250,8 +251,12 @@ class CpoStvCounterTest {
         CpoStvRuleset truncating = new CpoStvRuleset(HagenbachBischoffQuota.INSTANCE, FractionalTransfer.INSTANCE,
                 Exact.INSTANCE, TiedRankingPolicy.TRUNCATE, 0);
 
-        assertThat(CpoStvCounter.count(CANDIDATES, withTies, 3, truncating))
-                .isEqualTo(CpoStvCounter.count(CANDIDATES, BALLOTS, 3, RULESET));
+        CpoStvResult truncated = CpoStvCounter.count(CANDIDATES, withTies, 3, truncating);
+        CpoStvResult base = CpoStvCounter.count(CANDIDATES, BALLOTS, 3, RULESET);
+        assertThat(truncated.outcomeScores()).isEqualTo(base.outcomeScores());
+        assertThat(truncated.ranking()).isEqualTo(base.ranking());
+        assertThat(truncated.informal())
+                .isEqualTo(new InformalBallots(BigInteger.ZERO, BigInteger.valueOf(30), BigInteger.ZERO));
 
         CpoStvRuleset splitting = new CpoStvRuleset(HagenbachBischoffQuota.INSTANCE, FractionalTransfer.INSTANCE,
                 Exact.INSTANCE, TiedRankingPolicy.SPLIT, 0);

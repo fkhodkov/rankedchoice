@@ -61,8 +61,9 @@ public final class QpqCounter {
     public static QpqResult count(List<Candidate> candidates, List<Ballot> rawBallots, int seats, QpqRuleset ruleset) {
         validate(candidates, seats);
         ruleset.tiedRankings().requireNotSplit("QPQ");
-        List<Ballot> ballots = BallotFormality.apply(
+        BallotFormality.FormalBallots formal = BallotFormality.apply(
                 rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
+        List<Ballot> ballots = formal.ballots();
 
         List<BallotState> states = new ArrayList<>(ballots.size());
         for (Ballot ballot : ballots) {
@@ -156,7 +157,7 @@ public final class QpqCounter {
             elected.addAll(hopeful);
         }
 
-        return new QpqResult(List.copyOf(elected), rounds);
+        return new QpqResult(List.copyOf(elected), rounds, formal.informal());
     }
 
     private static void validate(List<Candidate> candidates, int seats) {

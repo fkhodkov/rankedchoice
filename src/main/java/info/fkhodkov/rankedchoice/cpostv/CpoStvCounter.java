@@ -63,8 +63,9 @@ public final class CpoStvCounter {
             List<Candidate> candidates, List<Ballot> rawBallots, int seats, CpoStvRuleset ruleset) {
         validate(candidates, seats);
         ruleset.tiedRankings().requireNotSplit("CPO-STV");
-        List<Ballot> ballots = BallotFormality.apply(
+        BallotFormality.FormalBallots formal = BallotFormality.apply(
                 rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
+        List<Ballot> ballots = formal.ballots();
 
         // Checked via the closed-form binomial coefficient, not by enumerating first: for a
         // large candidates/seats combination, actually building the outcome list would itself
@@ -88,7 +89,7 @@ public final class CpoStvCounter {
 
         if (outcomes.size() == 1) {
             Set<Candidate> only = outcomes.getFirst();
-            return new CpoStvResult(Map.of(), List.of(Set.of(only)));
+            return new CpoStvResult(Map.of(), List.of(Set.of(only)), formal.informal());
         }
 
         Map<Set<Candidate>, Map<Set<Candidate>, Fraction>> scores = new LinkedHashMap<>();
@@ -108,7 +109,7 @@ public final class CpoStvCounter {
         }
 
         List<Set<Set<Candidate>>> ranking = rank(outcomes, scores);
-        return new CpoStvResult(scores, ranking);
+        return new CpoStvResult(scores, ranking, formal.informal());
     }
 
     private static void validate(List<Candidate> candidates, int seats) {

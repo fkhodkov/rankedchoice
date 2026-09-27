@@ -37,6 +37,9 @@ public final class StvTextReport {
                 .max().orElse(0);
 
         StringBuilder text = new StringBuilder();
+        if (result.informal().total().signum() > 0) {
+            text.append("Informal ballots: ").append(result.informal().describe()).append('\n');
+        }
         text.append("Quota: ").append(format(result.quota(), decimalPlaces)).append("\n\n");
 
         for (RoundRecord round : result.rounds()) {
