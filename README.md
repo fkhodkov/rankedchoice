@@ -566,7 +566,7 @@ engines that work per distinct ballot), ranking about 5 candidates on average:
 | STV (fractional, exact) | 1.4 s | 6.4 s | 3.0 s |
 | STV (`scottish`, WIGM) | 1.7 s | 7.6 s | 3.1 s |
 | STV (`ers97`, last parcel) | 2.2 s | 13 s | 5.3 s |
-| QPQ | 2.9 s | 27 s | 43 s |
+| QPQ | 1.6 s | 11 s | 9.2 s |
 | Meek / Warren | 2.1 s | 7.6 s | 6.4 / 7.2 s |
 
 About 5 s of every 1M-voter run is reading the ballot file. Memory is the tighter limit: about

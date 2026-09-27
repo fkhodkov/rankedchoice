@@ -104,18 +104,26 @@ public final class QpqCounter {
                 vc.put(candidate, BigInteger.ZERO);
                 tc.put(candidate, Fraction.ZERO);
             }
+            // Ballots are added up as whole numbers per (holder, credit) -- and per credit for
+            // exhausted ones -- and each group multiplied by its credit once: the same exact sums
+            // as weighting every ballot separately, without a fraction operation per ballot.
             BigInteger va = BigInteger.ZERO;
-            Fraction tx = Fraction.ZERO;
+            Map<Candidate, Map<Fraction, BigInteger>> heldByCredit = new LinkedHashMap<>();
+            Map<Fraction, BigInteger> exhaustedByCredit = new LinkedHashMap<>();
             for (BallotState state : states) {
-                Fraction weightedCredit = Fraction.of(state.ballot.count()).multiply(state.electedCredit);
                 if (state.holder == null) {
-                    tx = tx.add(weightedCredit);
+                    exhaustedByCredit.merge(state.electedCredit, state.ballot.count(), BigInteger::add);
                 } else {
                     va = va.add(state.ballot.count());
                     vc.merge(state.holder, state.ballot.count(), BigInteger::add);
-                    tc.merge(state.holder, weightedCredit, Fraction::add);
+                    heldByCredit.computeIfAbsent(state.holder, _ -> new LinkedHashMap<>())
+                            .merge(state.electedCredit, state.ballot.count(), BigInteger::add);
                 }
             }
+            for (Map.Entry<Candidate, Map<Fraction, BigInteger>> held : heldByCredit.entrySet()) {
+                tc.put(held.getKey(), weightedTotal(held.getValue()));
+            }
+            Fraction tx = weightedTotal(exhaustedByCredit);
 
             Map<Candidate, Fraction> quotients = new LinkedHashMap<>();
             for (Candidate candidate : hopeful) {
@@ -187,6 +195,17 @@ public final class QpqCounter {
         return highest
                 ? tieBreak.candidateToElectFirst(tied, List.of())
                 : tieBreak.candidateToEliminate(tied, List.of());
+    }
+
+    /** The sum of each credit times how many ballots carry it. */
+    private static Fraction weightedTotal(Map<Fraction, BigInteger> ballotsByCredit) {
+        Fraction total = Fraction.ZERO;
+        for (Map.Entry<Fraction, BigInteger> byCredit : ballotsByCredit.entrySet()) {
+            if (byCredit.getKey().signum() != 0) {
+                total = total.add(Fraction.of(byCredit.getValue()).multiply(byCredit.getKey()));
+            }
+        }
+        return total;
     }
 
     private static final class BallotState {
