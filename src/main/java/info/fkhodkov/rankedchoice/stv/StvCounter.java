@@ -50,11 +50,12 @@ import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
  * simpler "transfer everything for this event immediately" model already in place.
  *
  * <p>Candidates must already exclude any withdrawn from standing. Tied rankings (a rank with
- * more than one candidate) are supported only under {@link
- * info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer} so far — {@link
- * StvCounterValidation} rejects them for every other transfer method, since WIGM and the
- * last-parcel family don't yet define how to split a tied ballot's value. Under fractional
- * transfer, a ballot's current holder is really a <em>group</em> — every still-continuing
+ * more than one candidate) are handled per the ruleset's {@link TiedRankingPolicy}: rejected,
+ * truncated or skipped as a preprocessing step before the count starts, or genuinely split.
+ * Splitting is only defined under {@link
+ * info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer}, since WIGM and the last-parcel
+ * family have no equal-preference splitting rule. When splitting, a ballot's current holder
+ * is really a <em>group</em> — every still-continuing
  * candidate sharing its front-most remaining rank (see {@link #assignNextHolder}) — and the
  * ballot's pooled value splits evenly across the group every round. This isn't a one-time
  * split into independent sub-ballots: verified by reading the source of CRAN's {@code vote}
@@ -74,12 +75,13 @@ public final class StvCounter {
     }
 
     public static StvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, StvRuleset ruleset) {
-        StvCounterValidation.validate(candidates, ballots, seats, ruleset);
+        StvCounterValidation.validate(candidates, seats);
+        List<Ballot> countedBallots = ruleset.tiedRankings().prepare(ballots, ruleset.transferMethod());
 
         Set<Candidate> continuing = new LinkedHashSet<>(candidates);
-        List<BallotState> states = new ArrayList<>(ballots.size());
+        List<BallotState> states = new ArrayList<>(countedBallots.size());
         BigInteger totalValidVotes = BigInteger.ZERO;
-        for (Ballot ballot : ballots) {
+        for (Ballot ballot : countedBallots) {
             if (ballot.isBlank()) {
                 continue;
             }

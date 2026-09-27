@@ -2,6 +2,7 @@ package info.fkhodkov.rankedchoice.stv.config;
 
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
+import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HagenbachBischoffQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HareQuota;
@@ -49,9 +50,36 @@ public final class StvRulesetParser {
     /** As {@link #parse(String, String, String, String, List)}, with ERS97 rule 5.2.5's batch-exclusion enabled or not. */
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, List<Candidate> declaredOrder) {
+        return parse(quota, transfer, rounding, tiebreak, batchExclusion, null, declaredOrder);
+    }
+
+    /** As above, plus a tied-ranking policy — see {@link #parseTiedRankings}. */
+    public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
+            Boolean batchExclusion, String tiedRankings, List<Candidate> declaredOrder) {
+        TransferMethod transferMethod = parseTransfer(transfer);
         return new StvRuleset(
-                parseQuota(quota), parseTransfer(transfer), parseRounding(rounding),
-                parseTieBreak(tiebreak, declaredOrder), batchExclusion != null && batchExclusion);
+                parseQuota(quota), transferMethod, parseRounding(rounding),
+                parseTieBreak(tiebreak, declaredOrder), batchExclusion != null && batchExclusion,
+                parseTiedRankings(tiedRankings, transferMethod));
+    }
+
+    /**
+     * {@code reject|split|truncate|skip}; when absent, {@link
+     * TiedRankingPolicy#defaultFor(TransferMethod)} applies (split under fractional transfer,
+     * reject otherwise).
+     */
+    public static TiedRankingPolicy parseTiedRankings(String value, TransferMethod transferMethod) {
+        if (value == null) {
+            return TiedRankingPolicy.defaultFor(transferMethod);
+        }
+        return switch (normalize(value, "")) {
+            case "reject" -> TiedRankingPolicy.REJECT;
+            case "split" -> TiedRankingPolicy.SPLIT;
+            case "truncate" -> TiedRankingPolicy.TRUNCATE;
+            case "skip" -> TiedRankingPolicy.SKIP;
+            default -> throw new IllegalArgumentException(
+                    "Unknown tied-ranking policy: '" + value + "'; expected reject, split, truncate, or skip");
+        };
     }
 
     public static Quota parseQuota(String value) {

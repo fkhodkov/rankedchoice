@@ -21,10 +21,19 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * SSI 2007/42 rule 50, which only ever excludes one candidate) and Hare-Clark/QPQ's own
  * source material doesn't document one either, so this defaults to {@code false} everywhere
  * except the bundled {@code ers97}/{@code ers76} rulesets.
+ *
+ * <p>{@code tiedRankings} says what to do with a ballot that ranks several candidates equally
+ * — see {@link TiedRankingPolicy}. When not given, it defaults to {@link
+ * TiedRankingPolicy#defaultFor}: split under fractional transfer, reject otherwise.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
-        boolean batchExclusion) {
+        boolean batchExclusion, TiedRankingPolicy tiedRankings) {
+
+    public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
+            boolean batchExclusion) {
+        this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, TiedRankingPolicy.defaultFor(transferMethod));
+    }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak) {
         this(quota, transferMethod, roundingRule, tieBreak, false);

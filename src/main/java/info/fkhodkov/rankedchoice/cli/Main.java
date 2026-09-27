@@ -62,7 +62,7 @@ import picocli.CommandLine.Option;
 public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG =
-            new ElectionConfig(null, null, null, null, null, null, null, null);
+            new ElectionConfig(null, null, null, null, null, null, null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -135,6 +135,14 @@ public final class Main implements Callable<Integer> {
                     + "seeded-random:SEED, e.g. 'previous-round,declared'. Overrides --config/--ruleset.")
     private String tiebreak;
 
+    @Option(names = {"--tied-rankings"},
+            description = "What to do with a ballot ranking several candidates equally: reject|split|truncate|skip. "
+                    + "split divides the ballot between them (fractional transfer only); truncate stops the ballot "
+                    + "at the tie (a tie at first preference voids it, as Scottish law requires); skip drops the "
+                    + "tied rank and continues. Defaults to split under fractional transfer, reject otherwise. "
+                    + "Only applies to --method stv. Overrides --config/--ruleset.")
+    private String tiedRankings;
+
     static void main(String[] args) {
         System.exit(new CommandLine(new Main()).execute(args));
     }
@@ -163,6 +171,9 @@ public final class Main implements Callable<Integer> {
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
         boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek")
                 || effectiveMethod.equals("cpo-stv") || effectiveMethod.equals("qpq");
+        if (tiedRankings != null && !effectiveMethod.equals("stv")) {
+            throw new IllegalArgumentException("--tied-rankings only applies to --method stv");
+        }
 
         String resolvedFormat = firstNonNull(format, fileConfig.format());
         String inputFormat = resolvedFormat != null ? resolvedFormat.toLowerCase(Locale.ROOT) : inferFormat(input);
@@ -227,6 +238,7 @@ public final class Main implements Callable<Integer> {
                         firstNonNull(rounding, fileConfig.rounding()),
                         firstNonNull(tiebreak, fileConfig.tiebreak()),
                         fileConfig.batchExclusion(),
+                        firstNonNull(tiedRankings, fileConfig.tiedRankings()),
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
                 roundingRuleForReport = ruleset.roundingRule();

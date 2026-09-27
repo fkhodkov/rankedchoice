@@ -13,6 +13,7 @@ public record ElectionConfig(
         Integer seats,
         String format,
         String reportFormat,
-        Boolean batchExclusion
+        Boolean batchExclusion,
+        String tiedRankings
 ) {
 }

@@ -2,8 +2,12 @@
 # rule 48(3)): Droop quota, Weighted Inclusive Gregory Method, transfer values truncated to
 # 5 decimal places. The statutory tie-break procedure falls back to a random "lot" as a last
 # resort; we approximate that final step with a fixed declared candidate order instead, for
-# reproducibility.
+# reproducibility. A paper with the figure "1" against more than one candidate is void (rule
+# 43(1)(c)), and the rules only ever transfer a paper to its single "next available
+# preference" (rule 48), never splitting it -- so a tied rank ends the ballot there, and a
+# tie at the very first rank voids it outright ("truncate").
 quota: droop
 transfer: wigm
 rounding: truncate:5
 tiebreak: previous-round,declared
+tiedRankings: truncate

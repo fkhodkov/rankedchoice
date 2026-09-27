@@ -9,9 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
+import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HareQuota;
 import info.fkhodkov.rankedchoice.stv.quota.ImperialiQuota;
@@ -835,5 +838,57 @@ class StvCounterTest {
         RoundRecord round2 = result.rounds().get(1);
         assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(72, 5), c, Fraction.of(5)));
         assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(2, 5)));
+    }
+
+    /**
+     * The bundled {@code scottish} preset's tied-ranking policy ({@code truncate}, per SSI
+     * 2007/42 rule 43(1)(c)) against {@code skip} on the same ballots -- chosen so the two
+     * policies elect <em>different</em> winners, showing the choice isn't cosmetic. Both
+     * policies were also cross-checked against OpenSTV's own {@code ScottishSTV} on synthetic
+     * ballot sets containing hundreds of tied rankings: {@code truncate} against its "San
+     * Francisco" overvote cleaning, {@code skip} against its "Cambridge" cleaning, matching
+     * quota, winners, and every round's tallies exactly.
+     * <pre>
+     *   4: A=B, C      3: C, A=B      5: A      4: B      (1 seat)
+     * </pre>
+     * <p>Truncate: the 4 "A=B, C" ballots tie at first preference and are void, so they don't
+     * count toward the quota at all; "C, A=B" becomes just "C". Valid votes 12, quota
+     * floor(12/2)+1 = 7. First preferences A=5, B=4, C=3 -- nobody reaches quota, C and then B
+     * are excluded (their ballots have nowhere to go), and A takes the seat.
+     * <p>Skip: both tied ranks are dropped instead, so "A=B, C" and "C, A=B" both become just
+     * "C". Valid votes 16, quota floor(16/2)+1 = 9. First preferences A=5, B=4, C=7 -- B is
+     * excluded first, then A, and <em>C</em> takes the seat.
+     */
+    @Test
+    void scottishPresetVoidsFirstRankTiesAndSkipPolicyElectsSomeoneElse() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        List<Candidate> candidates = List.of(a, b, c);
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(a, b), Set.of(c)), BigInteger.valueOf(4)),
+                new Ballot(List.of(Set.of(c), Set.of(a, b)), BigInteger.valueOf(3)),
+                ballot(5, a),
+                ballot(4, b));
+        ElectionConfig scottish = ConfigLoader.loadResource("/rulesets/scottish.yaml");
+
+        StvRuleset truncating = StvRulesetParser.parse(scottish.quota(), scottish.transfer(), scottish.rounding(),
+                scottish.tiebreak(), scottish.batchExclusion(), scottish.tiedRankings(), candidates);
+        assertThat(truncating.tiedRankings()).isEqualTo(TiedRankingPolicy.TRUNCATE);
+        StvResult truncated = StvCounter.count(candidates, ballots, 1, truncating);
+
+        assertThat(truncated.quota()).isEqualTo(Fraction.of(7));
+        assertThat(truncated.rounds().getFirst().tallies())
+                .isEqualTo(Map.of(a, Fraction.of(5), b, Fraction.of(4), c, Fraction.of(3)));
+        assertThat(truncated.electedInOrder()).containsExactly(a);
+
+        StvRuleset skipping = StvRulesetParser.parse(scottish.quota(), scottish.transfer(), scottish.rounding(),
+                scottish.tiebreak(), scottish.batchExclusion(), "skip", candidates);
+        StvResult skipped = StvCounter.count(candidates, ballots, 1, skipping);
+
+        assertThat(skipped.quota()).isEqualTo(Fraction.of(9));
+        assertThat(skipped.rounds().getFirst().tallies())
+                .isEqualTo(Map.of(a, Fraction.of(5), b, Fraction.of(4), c, Fraction.of(7)));
+        assertThat(skipped.electedInOrder()).containsExactly(c);
     }
 }

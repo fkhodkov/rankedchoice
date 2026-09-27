@@ -10,8 +10,8 @@ use it today.
 
 Currently implemented (Phase 1–3 of the plan, in progress):
 
-- Ballot model with built-in support for tied rankings — consumed by Schulze, Borda, and now
-  the classic STV counter too, under fractional transfer (see below)
+- Ballot model with built-in support for tied rankings — consumed by Schulze, Borda, and the
+  classic STV counter under a configurable tied-ranking policy (see below)
 - `.blt` and CSV ballot parsers, both streamed line-by-line rather than loaded into memory
 - STV counting engine, pluggable per axis:
   - Quotas: Droop, Hare, Hagenbach-Bischoff, Imperiali, and a Droop-rounded-to-N-decimal-
@@ -42,9 +42,27 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     here for now
   - Tie-break rules: fixed declared order, previous-round votes, first-preference count
     (each with a configurable fallback), seeded random
-  - Tied ballot rankings (a rank shared by more than one candidate) under fractional
-    transfer: a ballot's holder is really a *group* — every still-continuing candidate
-    sharing its front-most remaining rank — and its pooled value splits evenly across the
+  - Tied-ranking policy (`tiedRankings` / `--tied-rankings`) for ballots ranking several
+    candidates equally: `reject`, `split`, `truncate`, or `skip`. `truncate` stops the ballot
+    at its first tied rank, so a tie at the very first preference leaves nothing and the
+    ballot is void (it doesn't even count toward the quota) — exactly the Scottish statute's
+    rule 43(1)(c) that a paper with "1" against more than one candidate is void, and rule
+    48's transfer only ever to a single "next available preference". That's why the bundled
+    `scottish` preset uses it, rather than any splitting: the one real ruleset built on WIGM
+    explicitly forbids splitting a tied ballot. `skip` drops each tied rank and continues with
+    the rest. Both are ballot preprocessing (applied once, before the count), so they work
+    with every transfer method, and both were cross-checked against OpenSTV's own overvote
+    cleaning run through its `ScottishSTV` method — `truncate` against "San Francisco",
+    `skip` against "Cambridge" — on four synthetic ballot sets with hundreds of tied
+    rankings between them, matching quota, winners, and every round's tallies exactly
+    (`TiedRankingPolicyTest`, plus a hand-derived `StvCounterTest` case where the two
+    policies elect different winners). Without an explicit policy, fractional transfer
+    defaults to `split` and every other transfer method to `reject`; other bundled presets
+    (ERS97/76, Hare-Clark) still reject ties, since their own rules on equal preferences
+    haven't been researched yet
+  - `split` (fractional transfer only): a ballot's holder is really a *group* — every
+    still-continuing candidate sharing its front-most remaining rank — and its pooled value
+    splits evenly across the
     group every round, recomputed fresh rather than fragmented into independent sub-ballots
     at the moment of the tie. Verified against a real, actively maintained implementation of
     genuine equal-preference STV, CRAN's [`vote` package](https://cran.r-project.org/package=vote)
@@ -54,8 +72,9 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     in unscaled; when one is eliminated instead, the ballot's value is untouched and whoever
     remains at that rank inherits the *entire* pool next round, not just their own prior
     share — the hand-derived fixture this project added specifically exercises that
-    non-obvious inheritance case (`StvCounterTest`). Not yet supported under WIGM or either
-    last-parcel variant, which don't yet define an equivalent splitting rule
+    non-obvious inheritance case (`StvCounterTest`). Not defined under WIGM or either
+    last-parcel variant: no real ruleset using them splits tied ballots, and WIGM's
+    per-parcel rounding would need an invented convention for shares like 1/3
 - A CLI that runs a count from a ballot file and prints a round-by-round report. Rules
   come from a bundled ruleset preset (`--ruleset`), a YAML config file (`--config`),
   individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
@@ -293,10 +312,9 @@ Schulze-STV (the other multi-winner Condorcet-STV extension, alongside CPO-STV a
 specifically because its "proportional completion" step requires solving a genuine optimization
 problem per pairwise outcome comparison, i.e. an LP-style solver, which is a real dependency
 this project doesn't currently have and which the plan's own tooling section explicitly avoided
-pulling in). Tied ballot rankings are accepted by Schulze, Borda, and classic STV under
-fractional transfer (see below); they're still rejected by STV's other three transfer
-methods (WIGM and the last-parcel family), and by Meek, CPO-STV, and QPQ (CPO-STV's notional
-count reuses STV's own ballot-position logic, so it inherits the same restriction).
+pulling in). Tied ballot rankings are accepted by Schulze, Borda, and classic STV (under its
+tied-ranking policy, see above); they're still rejected by Meek, CPO-STV, and QPQ (CPO-STV's
+notional count reuses STV's own ballot-position logic, so it inherits the same restriction).
 
 Two rulesets are validated only at the arithmetic/config level, not against a real or model
 election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note
@@ -360,12 +378,13 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding`. Overrides `--config`/`--ruleset`. |
 | `--rounding` | `exact\|truncate:N`. Overrides `--config`/`--ruleset`. |
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
+| `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` under fractional transfer, `reject` otherwise; the `scottish` preset sets `truncate`. `--method stv` only. Overrides `--config`/`--ruleset`. |
 | `--borda-scoring` | `classic\|dowdall`. Only applies to `--method borda`; defaults to `classic`. `dowdall` is the Nauru system (`1, 1/2, 1/3, ...`). |
 
 ### Rules and config
 
 A YAML config file can set any combination of `quota`, `transfer`, `rounding`, `tiebreak`,
-`seats`, `format`, `reportFormat`, and `batchExclusion` — all optional:
+`seats`, `format`, `reportFormat`, `batchExclusion`, and `tiedRankings` — all optional:
 
 ```yaml
 quota: hare
@@ -380,6 +399,11 @@ candidates together as possible" provision — see [Bundled rulesets](#bundled-r
 There's no `--batch-exclusion` CLI flag: unlike quota/transfer/rounding/tiebreak, it's treated
 as an intrinsic ruleset characteristic rather than something to override per run.
 
+`tiedRankings` (`reject`/`split`/`truncate`/`skip`) says what to do with a ballot ranking
+several candidates equally — see the STV engine section above. Unlike `batchExclusion` it
+does have a CLI override, `--tied-rankings`, since for a generic election it's a genuine
+per-count choice rather than a fixed property of a jurisdiction's rules.
+
 `--ruleset <name>` is exactly the same mechanism, pointed at a bundled config shipped as a
 classpath resource (`src/main/resources/rulesets/<name>.yaml`) instead of a file you supply.
 Precedence when combining sources is always **CLI override flag > config/ruleset file >
@@ -391,7 +415,7 @@ Passing an unrecognized name (e.g. `--ruleset scotish`) lists all the ones below
 
 | Name | Rules | Used for | Source |
 |---|---|---|---|
-| `scottish` | Droop + WIGM + truncate:5 | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rule 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
+| `scottish` | Droop + WIGM + truncate:5, tied rankings truncated | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rules 43(1)(c) and 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
 | `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5 and 5.3.7](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No dedicated technical spec or real-election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule delta (quota rounds to 0dp above 100, not implemented here) but that's a third-party reimplementation, not the rulebook itself; treat as "believed similar," not verified-accurate |
 | `hare-clark-qpq` | Droop + last-parcel + truncate:2 | Tasmanian House of Assembly and local government elections | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html) |
@@ -474,7 +498,7 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak string DSL)
 │   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
 │   ├── meek/      MeekCounter, MeekRuleset -- Meek's method, producing the same StvResult
-│   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction
+│   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport
