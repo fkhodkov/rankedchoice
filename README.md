@@ -93,10 +93,10 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     work everywhere. `split` is Meek's default: a tied rank shares whatever reaches it evenly
     between its standing candidates, each keeping its share by its keep factor and passing
     the rest on separately — the equal-preference distribution in droop's Meek rule. CPO-STV
-    and QPQ have no defined rule for splitting a tied rank, so they default to `reject` and refuse `split`. Cross-checked on the same four synthetic
-    tied-ballot elections: Meek `truncate`/`skip` against droop's Meek (with batch defeats
-    off) on independently cleaned ballots, matching every round to within Meek's own
-    convergence tolerance (≤ 0.001 votes), with winners also matching OpenSTV's `MeekSTV`
+    and QPQ have no defined rule for splitting a tied rank, so they default to `reject` and
+    refuse `split`. Cross-checked on the same four synthetic tied-ballot elections: Meek
+    `truncate`/`skip` against droop's Meek on independently cleaned ballots, matching every
+    round exactly (see the Meek bullet below), with winners also matching OpenSTV's `MeekSTV`
     (whose round-by-round figures aren't comparable: it batch-eliminates and reports single
     keep-factor iterations as rounds); QPQ `truncate`/`skip` against both droop's QPQ and
     OpenSTV's `QPQ` with its native overvote cleaning, matching every stage to 9 decimal
@@ -104,8 +104,8 @@ Currently implemented (Phase 1–3 of the plan, in progress):
     containing a tie through a separate path that stops dead at the first rank with no
     standing candidate — tied or not — losing the rest of the ballot, where its untied path
     carries on. That accounts for every difference: against a copy of droop with just that
-    path patched to carry on, `split` matches every round of all four elections to within
-    the same tolerance (`MeekCounterTest` pins the case)
+    path patched to carry on, `split` matches every round of all four elections, and of 60
+    random tied-ballot elections, exactly (`MeekCounterTest` pins the case)
 - A CLI that runs a count from a ballot file and prints a round-by-round report. Rules
   come from a bundled ruleset preset (`--ruleset`), a YAML config file (`--config`),
   individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
@@ -126,19 +126,27 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   quota-based STV (`--method stv`, the default) — structurally different from every quota/
   transfer combination above: instead of moving discrete "parcels" of ballots, every ballot's
   value is recomputed from scratch each round by walking its full ranking against every
-  candidate's current keep factor, and the quota itself is recalculated every round rather than
-  fixed once at the start. Elected candidates' keep factors are converged iteratively (per the
-  original algorithm's own 0.001% tolerance) using `double` arithmetic rather than this
-  project's exact `Fraction` type — a deliberate exception, since Meek's own termination rule
-  is a numeric tolerance and there is no exact value to converge to. `MeekCounter` still
-  produces the same `StvResult`/`RoundRecord` shape classic STV does (each round's figures
-  converted to `Fraction` only when the round's snapshot is recorded), so all four report
-  formats above work for a Meek count unchanged. Only `roundingRule` and `tiebreak` are
-  configurable for Meek — quota and transfer method are fixed by the method itself, so
-  `--quota`/`--transfer` are rejected alongside `--method meek`. Implemented from the original
-  algorithm specification (Hill, Wichmann & Woodall, "Algorithm 123: Single Transferable Vote
-  by Meek's Method", *The Computer Journal* 30(3), 1987, rules 2.1-2.9), validated with
-  hand-derived fixtures that simulate those same rules independently (`MeekCounterTest`), and
+  candidate's current keep factor, and the quota itself is recalculated every iteration rather
+  than fixed once at the start. Meek's method converges keep factors iteratively, so there is
+  no exact rational answer to compute; instead the count follows droop's Meek rule
+  ([jklundell/droop](https://github.com/jklundell/droop), `meek arithmetic=fixed
+  defeat_batch=none`) step for step, in the same fixed-point decimal arithmetic — 9 decimal
+  places by default (`MeekRuleset.precision`), rounding down when a candidate keeps part of a
+  ballot and up when a keep factor is updated, a quota one smallest step above
+  `votes / (seats + 1)`, and iteration until the total surplus is at most 10^-6 or stops
+  shrinking — so every figure is reproducible exactly rather than to within a tolerance.
+  Checked against droop's own reports on MapLibre's real election below and on 143 synthetic
+  ones (including exclusions decided by tie-break, iteration stopped by a stalled surplus, and
+  counts ending by electing the remaining hopefuls outright; tied-ballot ones against the
+  patched droop described above): every round's tallies, residual, and surplus match to the
+  last decimal place; three of those reports are checked in, and `MeekDroopReferenceTest` replays them.
+  `MeekCounter` produces the same `StvResult`/`RoundRecord` shape classic STV does, so all four
+  report formats above work for a Meek count unchanged. Only `roundingRule` (for reporting)
+  and `tiebreak` are configurable for Meek — quota and transfer method are fixed by the method
+  itself, so `--quota`/`--transfer` are rejected alongside `--method meek`. Based on the
+  original algorithm (Hill, Wichmann & Woodall, "Algorithm 123: Single Transferable Vote by
+  Meek's Method", *The Computer Journal* 30(3), 1987), with hand-derived fixtures
+  (`MeekCounterTest`, whose figures droop also reproduces), and
   validated against a real election: MapLibre's 2025 Governing Board election (6 candidates,
   5 seats, 92 ballots, run on OpaVote) — real ballot data plus OpaVote's own published
   per-round keep factors, both mirrored on GitHub by MapLibre itself
@@ -149,10 +157,9 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   winners but produced visibly wrong intermediate keep-factor figures, caught by comparing this
   project's own iteration trace directly against OpaVote's published per-round numbers. Fixed
   by checking for newly-qualifying hopefuls on every convergence iteration instead of gating it
-  behind full convergence (see `MeekCounter#runOneStage`'s javadoc for the detailed why); the
-  corrected engine's final keep factors now agree with OpaVote's published figures to 5-6
-  significant digits, the residual being ordinary double-precision implementation variance
-  rather than a structural disagreement
+  behind full convergence — which droop's rule does too. The final keep factors (under the
+  earlier floating-point engine) agreed with OpaVote's published figures to 5-6 significant
+  digits; OpaVote's own arithmetic isn't published, so that comparison stays approximate
 - Five bundled ruleset presets, shipped as YAML resources rather than hardcoded — `scottish`,
   `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark` — each a named combination of the
   building blocks above, with sourced rules and links under
@@ -540,7 +547,8 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   │              FirstPreferenceCountTieBreak, SeededRandomTieBreak
 │   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak string DSL)
 │   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
-│   ├── meek/      MeekCounter, MeekRuleset -- Meek's method, producing the same StvResult
+│   ├── meek/      MeekCounter, MeekRuleset, FixedPoint -- Meek's method in droop's
+│   │              fixed-point arithmetic, producing the same StvResult
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy,
 │       BallotFormality, InformalBallots (tie policy + minimum preferences, shared by every
 │       ranked engine, and the count of ballots they set aside)

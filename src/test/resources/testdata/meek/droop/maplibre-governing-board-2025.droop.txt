@@ -1,0 +1,135 @@
+
+Election: MapLibre Governing Board Election 2025
+
+	Droop package: droop v0.14
+	Rule: Meek Parametric (omega = 1/10^6)
+	Arithmetic: fixed-point decimal arithmetic (9 places)
+	Seats: 5
+	Ballots: 89
+	Quota: 14.833333334
+	Omega: 0.000001000
+
+	Add eligible: Yuri Astrakhan
+	Add eligible: Frank Elsinga
+	Add eligible: Stefan Karschti
+	Add eligible: Stephanie May
+	Add eligible: Birk Skyum
+	Add eligible: Haowen You
+Action: Begin Count
+	Hopeful:  Yuri Astrakhan (34.000000000)
+	Hopeful:  Frank Elsinga (3.000000000)
+	Hopeful:  Stefan Karschti (5.000000000)
+	Hopeful:  Stephanie May (11.000000000)
+	Hopeful:  Birk Skyum (25.000000000)
+	Hopeful:  Haowen You (11.000000000)
+	Quota: 14.833333334
+	Votes: 89.000000000
+	Residual: 0.000000000
+	Total: 89.000000000
+	Surplus: 0.000000000
+Round 1:
+Action: Elect: Yuri Astrakhan
+	Elected:  Yuri Astrakhan (34.000000000)
+	Hopeful:  Frank Elsinga (3.000000000)
+	Hopeful:  Stefan Karschti (5.000000000)
+	Hopeful:  Stephanie May (11.000000000)
+	Hopeful:  Birk Skyum (25.000000000)
+	Hopeful:  Haowen You (11.000000000)
+	Quota: 14.833333334
+	Votes: 89.000000000
+	Residual: 0.000000000
+	Total: 89.000000000
+	Surplus: 0.000000000
+Action: Elect: Birk Skyum
+	Elected:  Yuri Astrakhan (34.000000000)
+	Elected:  Birk Skyum (25.000000000)
+	Hopeful:  Frank Elsinga (3.000000000)
+	Hopeful:  Stefan Karschti (5.000000000)
+	Hopeful:  Stephanie May (11.000000000)
+	Hopeful:  Haowen You (11.000000000)
+	Quota: 14.833333334
+	Votes: 89.000000000
+	Residual: 0.000000000
+	Total: 89.000000000
+	Surplus: 0.000000000
+Action: Iterate (elected)
+	Quota: 14.833333334
+	Votes: 89.000000000
+	Residual: 0.000000000
+	Total: 89.000000000
+	Surplus: 29.333333332
+Round 2:
+Action: Elect: Stephanie May
+	Elected:  Yuri Astrakhan (17.849444440)
+	Elected:  Stephanie May (16.133039209)
+	Elected:  Birk Skyum (21.522875830)
+	Hopeful:  Frank Elsinga (7.776633975)
+	Hopeful:  Stefan Karschti (7.345882346)
+	Hopeful:  Haowen You (17.349901943)
+	Quota: 14.662962958
+	Votes: 87.977777743
+	Residual: 1.022222257
+	Total: 89.000000000
+	Surplus: 29.333333332
+Action: Elect: Haowen You
+	Elected:  Yuri Astrakhan (17.849444440)
+	Elected:  Stephanie May (16.133039209)
+	Elected:  Birk Skyum (21.522875830)
+	Elected:  Haowen You (17.349901943)
+	Hopeful:  Frank Elsinga (7.776633975)
+	Hopeful:  Stefan Karschti (7.345882346)
+	Quota: 14.662962958
+	Votes: 87.977777743
+	Residual: 1.022222257
+	Total: 89.000000000
+	Surplus: 29.333333332
+Action: Iterate (elected)
+	Quota: 14.662962958
+	Votes: 87.977777743
+	Residual: 1.022222257
+	Total: 89.000000000
+	Surplus: 14.203409590
+Round 3:
+Action: Elect: Frank Elsinga
+	Elected:  Yuri Astrakhan (14.442809684)
+	Elected:  Frank Elsinga (14.445221862)
+	Elected:  Stephanie May (14.452896954)
+	Elected:  Birk Skyum (14.445841231)
+	Elected:  Haowen You (14.448302990)
+	Hopeful:  Stefan Karschti (14.325181777)
+	Quota: 14.426709084
+	Votes: 86.560254498
+	Residual: 2.439745502
+	Total: 89.000000000
+	Surplus: 0.187676663
+Action: Iterate (elected)
+	Quota: 14.426709084
+	Votes: 86.560254498
+	Residual: 2.439745502
+	Total: 89.000000000
+	Surplus: 0.101527301
+Action: Defeat remaining: Stefan Karschti
+	Elected:  Yuri Astrakhan (14.442809684)
+	Elected:  Frank Elsinga (14.445221862)
+	Elected:  Stephanie May (14.452896954)
+	Elected:  Birk Skyum (14.445841231)
+	Elected:  Haowen You (14.448302990)
+	Defeated: Stefan Karschti (14.325181777)
+	Quota: 14.426709084
+	Votes: 86.560254498
+	Residual: 2.439745502
+	Total: 89.000000000
+	Surplus: 0.101527301
+Action: Count Complete
+	Elected:  Yuri Astrakhan (14.838333204)
+	Elected:  Frank Elsinga (20.890993911)
+	Elected:  Stephanie May (16.988477115)
+	Elected:  Birk Skyum (15.234230632)
+	Elected:  Haowen You (17.418157121)
+	Defeated: Stefan Karschti (0.000000000)
+	Quota: 14.426709084
+	Votes: 85.370191983
+	Residual: 3.629808017
+	Total: 89.000000000
+	Surplus: 0.101527301
+

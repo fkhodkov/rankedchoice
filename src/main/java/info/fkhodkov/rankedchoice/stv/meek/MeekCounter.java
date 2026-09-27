@@ -1,8 +1,5 @@
 package info.fkhodkov.rankedchoice.stv.meek;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -16,7 +13,6 @@ import info.fkhodkov.rankedchoice.stv.BallotFormality;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvResult;
-import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
 
 /**
@@ -25,45 +21,45 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
  * different from every {@link info.fkhodkov.rankedchoice.stv.transfer.TransferMethod} in this
  * project, so it isn't one: instead of tracking which single "parcel" a ballot most recently
  * arrived through and moving only the ballots touched by one election/elimination event, every
- * ballot's value is recomputed from scratch, every round, by walking its full ranking against
- * every candidate's current state.
+ * ballot's value is recomputed from scratch, every iteration, by walking its full ranking
+ * against every candidate's current keep factor.
  *
- * <p>Each candidate is hopeful (keeps 100% of anything it receives), elected (keeps a
- * fractional "keep factor" of anything it receives, passing the rest to the ballot's next
- * preference — recalculated every round so its own total tracks the quota as closely as the
- * convergence tolerance allows), or excluded (keeps 0%, passing everything on). A ballot's
- * value cascades down its ranking: each candidate in turn keeps {@code weight} of whatever
- * value reaches them and passes {@code 1 - weight} on, so a ballot ranking A, B, C with
- * elected-candidate weights a and b (C hopeful) gives A {@code a}, B {@code (1-a)*b}, and C the
- * remainder {@code (1-a)*(1-b)}.
+ * <p>Each candidate is hopeful (keep factor 1: keeps everything reaching them), elected (keeps
+ * a fraction, its keep factor, passing the rest to the ballot's next preference), or excluded
+ * (keep factor 0). A ballot ranking A, B, C with keep factors a and b (C hopeful) gives A
+ * {@code a}, B {@code (1-a)*b}, and C the remainder {@code (1-a)*(1-b)}.
  *
- * <p>Unlike quota-based STV, the quota itself changes every round — {@code (total votes -
- * total excess) / (seats + 1)}, where "excess" is the portion of ballot value that reaches the
- * end of a ranking with nobody left to receive it (this project's "exhausted votes", under a
- * different name in the source literature) — so an elected candidate's keep factor is only
- * ever an approximation, converged by repeatedly recomputing vote totals and nudging each
- * elected candidate's weight by {@code quota / theirTotal} until every elected candidate's
- * total is within 0.001% of the (recomputed) quota. This tolerance-based convergence, not a
- * single exact rational computation, is why this class works in {@code double} internally
- * rather than this project's exact {@link Fraction} type: Meek's own termination rule is a
- * numeric tolerance, so there is no exact value to converge to in the first place, and an
- * exact-fraction fixed-point iteration would blow up its own denominators without ever
- * actually finishing. Every figure is converted to a {@link Fraction} — via a fixed, generous
- * 12-decimal-place intermediate precision, then the ruleset's own {@code roundingRule} — only
- * when a round's snapshot is recorded, so the resulting {@link StvResult}, and every one of
- * this project's report exporters, is unaffected by the double-vs-Fraction distinction.
+ * <p>The count follows droop's Meek rule ({@code jklundell/droop}, {@code rules/meek.py}, with
+ * {@code arithmetic=fixed defeat_batch=none}) step for step, in the same fixed-point decimal
+ * arithmetic ({@link FixedPoint}, {@link MeekRuleset#precision()} places), so every figure is
+ * reproducible exactly rather than to within a tolerance:
+ * <ul>
+ * <li>Each candidate keeps {@code weight * keepFactor} of what reaches them and passes on
+ * {@code weight * (1 - keepFactor)}, both rounded down — so a little value is lost to rounding
+ * at every elected candidate, and counts as part of the residual ("exhausted") votes.
+ * <li>After each distribution the quota is recomputed from the votes candidates actually hold:
+ * {@code votes / (seats + 1)}, rounded down, plus the smallest representable amount, and a
+ * hopeful is elected on reaching it. Everyone who reaches it in the same iteration is elected
+ * together, which ends the round.
+ * <li>Otherwise, each elected candidate's keep factor becomes {@code keepFactor * quota /
+ * votes}, rounding up after both the multiplication and the division, and the ballots are
+ * distributed again — until the total surplus over quota is at most {@code omega}
+ * (10^-(2/3 of precision), e.g. 10^-6 at 9 places) or stops shrinking. Then the lowest hopeful
+ * is excluded; every hopeful within that remaining surplus of the lowest counts as tied with it.
+ * <li>Once the hopefuls left can only just fill the seats left, they're all elected on the
+ * votes from the last distribution, without iterating again.
+ * </ul>
  *
- * <p>{@link StvResult#quota()} reports the quota as of the count's final round only — a known
- * simplification, since Meek's quota (unlike every other method here) genuinely changes every
- * round; each round's own quota is folded into that round's frozen tallies rather than
- * surfaced as a separate per-round figure.
+ * <p>Each round's tallies are those of the distribution the round's decision was made on, and
+ * an {@code Elected} action's surplus is that candidate's votes minus that distribution's quota.
+ * {@link StvResult#quota()} reports the quota as of the last iteration only — a known
+ * simplification, since Meek's quota (unlike every other method here) genuinely changes as the
+ * count goes on.
  *
- * <p>A hopeful crossing quota is checked on <em>every</em> convergence iteration, not gated
- * behind the currently-elected candidates fully converging first — see {@link #runOneStage}
- * for why, and {@code MeekMapLibreGoverningBoard2025FixtureTest} for the real election that
- * exposed this as a real bug rather than a stylistic choice: an earlier version of this class
- * got the right eventual winners but visibly wrong intermediate keep factors compared to that
- * real count's own published per-round figures.
+ * <p>Checked against droop itself: on MapLibre's real 2025 Governing Board election (see
+ * {@code MeekMapLibreGoverningBoard2025FixtureTest}) and on synthetic elections with and without
+ * tied rankings, every round's tallies, quota and residual match droop's report to the last
+ * decimal place.
  *
  * <p>Candidates must already exclude any withdrawn from standing. Tied rankings and short
  * ballots are handled per the ruleset's policy (see {@link MeekRuleset}); under {@code split},
@@ -71,13 +67,6 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
  * droop's Meek rule (see {@link #distribute}).
  */
 public final class MeekCounter {
-
-    /** Rule 2.9's own convergence band: q/v_j must land in [0.99999, 1.00001] for every elected candidate. */
-    private static final double CONVERGENCE_TOLERANCE = 0.00001;
-    private static final int MAX_CONVERGENCE_ITERATIONS = 1000;
-    private static final int INTERMEDIATE_DECIMAL_PLACES = 12;
-    /** Guards tie detection on {@code double} totals against floating-point noise, not genuine near-ties. */
-    private static final double TIE_EPSILON = 1e-6;
 
     private enum State { HOPEFUL, ELECTED, EXCLUDED }
 
@@ -88,96 +77,8 @@ public final class MeekCounter {
         validate(candidates, seats);
         BallotFormality.FormalBallots formal = BallotFormality.apply(
                 rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
-        List<Ballot> ballots = formal.ballots();
-
-        Map<Candidate, State> states = new LinkedHashMap<>();
-        Map<Candidate, Double> weights = new LinkedHashMap<>();
-        for (Candidate candidate : candidates) {
-            states.put(candidate, State.HOPEFUL);
-        }
-
-        double totalVotes = 0;
-        for (Ballot ballot : ballots) {
-            if (!ballot.isBlank()) {
-                totalVotes += ballot.count().doubleValue();
-            }
-        }
-
-        List<Candidate> elected = new ArrayList<>();
-        List<RoundRecord> rounds = new ArrayList<>();
-        Fraction lastQuota = Fraction.ZERO;
-        int roundNumber = 0;
-
-        while (elected.size() < seats) {
-            roundNumber++;
-            int remainingSeats = seats - elected.size();
-            Set<Candidate> hopefuls = hopefuls(states);
-
-            if (hopefuls.size() <= remainingSeats) {
-                Convergence converged = runOneStage(candidates, ballots, states, weights, totalVotes, seats);
-                List<RoundRecord> priorRounds = List.copyOf(rounds);
-                Map<Candidate, Fraction> shortcutTallies =
-                        toFractionTallies(states, converged.totals(), candidates, ruleset.roundingRule());
-                Fraction shortcutExhausted = toFraction(converged.excess(), ruleset.roundingRule());
-                for (Candidate candidate :
-                        sortedByTallyDescending(hopefuls, converged.totals(), ruleset.tieBreak(), priorRounds)) {
-                    elected.add(candidate);
-                    states.put(candidate, State.ELECTED);
-                    weights.put(candidate, 1.0);
-                    rounds.add(new RoundRecord(roundNumber, shortcutTallies,
-                            new RoundAction.Elected(candidate, Fraction.ZERO), shortcutExhausted));
-                    roundNumber++;
-                }
-                lastQuota = toFraction(converged.quota(), ruleset.roundingRule());
-                break;
-            }
-
-            Convergence converged = runOneStage(candidates, ballots, states, weights, totalVotes, seats);
-            lastQuota = toFraction(converged.quota(), ruleset.roundingRule());
-            List<RoundRecord> priorRounds = List.copyOf(rounds);
-            Map<Candidate, Fraction> roundTallies =
-                    toFractionTallies(states, converged.totals(), candidates, ruleset.roundingRule());
-            Fraction roundExhausted = toFraction(converged.excess(), ruleset.roundingRule());
-
-            List<Candidate> meetingQuota = hopefuls.stream()
-                    .filter(candidate -> converged.totals().get(candidate) >= converged.quota())
-                    .toList();
-
-            if (!meetingQuota.isEmpty()) {
-                List<Candidate> electedThisStage = sortedByTallyDescending(
-                        new LinkedHashSet<>(meetingQuota), converged.totals(), ruleset.tieBreak(), priorRounds);
-                if (electedThisStage.size() > remainingSeats) {
-                    electedThisStage = electedThisStage.subList(0, remainingSeats);
-                }
-                for (int i = 0; i < electedThisStage.size(); i++) {
-                    Candidate candidate = electedThisStage.get(i);
-                    double candidateVotes = converged.totals().get(candidate);
-                    Fraction surplus = toFraction(candidateVotes - converged.quota(), ruleset.roundingRule());
-                    states.put(candidate, State.ELECTED);
-                    weights.put(candidate, 1.0);
-                    elected.add(candidate);
-                    rounds.add(new RoundRecord(roundNumber, roundTallies,
-                            new RoundAction.Elected(candidate, surplus.signum() > 0 ? surplus : Fraction.ZERO),
-                            roundExhausted));
-                    if (i < electedThisStage.size() - 1) {
-                        roundNumber++;
-                    }
-                }
-                continue;
-            }
-
-            double lowest = hopefuls.stream().mapToDouble(converged.totals()::get).min().orElseThrow();
-            List<Candidate> tiedLowest = hopefuls.stream()
-                    .filter(candidate -> Math.abs(converged.totals().get(candidate) - lowest) <= TIE_EPSILON)
-                    .toList();
-            Candidate toExclude = tiedLowest.size() == 1
-                    ? tiedLowest.getFirst()
-                    : ruleset.tieBreak().candidateToEliminate(tiedLowest, priorRounds);
-            states.put(toExclude, State.EXCLUDED);
-            rounds.add(new RoundRecord(roundNumber, roundTallies, new RoundAction.Eliminated(toExclude), roundExhausted));
-        }
-
-        return new StvResult(elected, rounds, lastQuota, formal.informal());
+        Count count = new Count(candidates, formal.ballots(), seats, new FixedPoint(ruleset.precision()));
+        return count.run(ruleset, formal);
     }
 
     private static void validate(List<Candidate> candidates, int seats) {
@@ -190,198 +91,257 @@ public final class MeekCounter {
         }
     }
 
-    private record Convergence(Map<Candidate, Double> totals, double excess, double quota) {
+    /** One distribution of every ballot: each standing candidate's votes, and the quota they imply. */
+    private record Distribution(Map<Candidate, Long> votes, long residual, long quota) {
     }
 
-    /**
-     * Runs rule 2.9's inner loop -- recompute every candidate's vote total (rule 2.3) and the
-     * quota (rule 2.5), then nudge every elected candidate's weight by {@code quota /
-     * theirTotal} and go again -- but checks rule 2.6 (has any hopeful reached quota?) on
-     * *every* iteration, not just once the elected candidates' weights have fully converged,
-     * and returns the moment that happens. Only once a full pass finds nobody newly qualifying
-     * *and* every elected candidate's weight has stopped moving (rule 2.9's own tolerance) does
-     * this return "as converged as it's going to get" for the caller to fall back to rule 2.7
-     * (exclude the lowest hopeful).
-     *
-     * <p>Checking rule 2.6 every iteration, rather than gating it behind full convergence,
-     * matters because electing someone is never premature -- their vote total can only still be
-     * correct or grow as other elected candidates' weights keep shrinking -- so there's no
-     * reason to wait. A hopeful who qualifies mid-convergence is folded into the very next
-     * weight-update alongside whoever was already elected, at their own starting weight of 1,
-     * while everyone already elected keeps whatever weight this loop had already nudged them
-     * to -- nobody's progress is thrown away and restarted. This matches real published
-     * per-round keep factors from a real Meek STV election (see {@code
-     * MeekMapLibreGoverningBoard2025FixtureTest}); an earlier version of this method converged
-     * the existing elected set to full tolerance before ever checking for new qualifiers, which
-     * gave the same eventual winners but visibly wrong (too converged, too fast) intermediate
-     * keep-factor figures compared to that real count.
-     */
-    private static Convergence runOneStage(List<Candidate> candidates, List<Ballot> ballots,
-            Map<Candidate, State> states, Map<Candidate, Double> weights, double totalVotes, int seats) {
-        Map<Candidate, Double> totals = computeTotals(candidates, ballots, states, weights);
-        double excess = excessOf(totalVotes, totals);
-        double quota = (totalVotes - excess) / (seats + 1);
+    private static final class Count {
+        private final List<Candidate> candidates;
+        private final List<Ballot> ballots;
+        private final int seats;
+        private final FixedPoint fixed;
+        private final long totalVotes;
+        private final long omega;
+        private final Map<Candidate, State> states = new LinkedHashMap<>();
+        private final Map<Candidate, Long> keepFactors = new LinkedHashMap<>();
 
-        for (int iteration = 0; iteration < MAX_CONVERGENCE_ITERATIONS; iteration++) {
-            List<Candidate> electedCandidates = candidates.stream()
-                    .filter(candidate -> states.get(candidate) == State.ELECTED)
+        Count(List<Candidate> candidates, List<Ballot> ballots, int seats, FixedPoint fixed) {
+            this.candidates = candidates;
+            this.ballots = ballots;
+            this.seats = seats;
+            this.fixed = fixed;
+            long total = 0;
+            for (Ballot ballot : ballots) {
+                total = Math.addExact(total, fixed.of(ballot.count()));
+            }
+            this.totalVotes = total;
+            this.omega = fixed.tenToTheMinus(fixed.places() * 2 / 3);
+            for (Candidate candidate : candidates) {
+                states.put(candidate, State.HOPEFUL);
+                keepFactors.put(candidate, fixed.one());
+            }
+        }
+
+        StvResult run(MeekRuleset ruleset, BallotFormality.FormalBallots formal) {
+            List<Candidate> elected = new ArrayList<>();
+            List<RoundRecord> rounds = new ArrayList<>();
+            // Before any iteration, droop's quota comes from every valid vote, not the votes held.
+            Distribution initial = distribute();
+            Distribution latest = new Distribution(initial.votes(), initial.residual(),
+                    fixed.divideDown(totalVotes, seats + 1) + fixed.epsilon());
+            int roundNumber = 0;
+
+            while (hopefuls().size() > seats - elected.size() && elected.size() < seats) {
+                roundNumber++;
+                Iteration iteration = iterate();
+                latest = iteration.distribution();
+                List<RoundRecord> priorRounds = List.copyOf(rounds);
+                Map<Candidate, Fraction> tallies = hopefulTallies(latest, iteration.newlyElected(), ruleset);
+                Fraction residual = display(latest.residual(), ruleset);
+
+                if (!iteration.newlyElected().isEmpty()) {
+                    List<Candidate> inOrder = byVotesDescending(
+                            iteration.newlyElected(), latest, ruleset.tieBreak(), priorRounds);
+                    for (int i = 0; i < inOrder.size(); i++) {
+                        Candidate candidate = inOrder.get(i);
+                        elected.add(candidate);
+                        Fraction surplus = display(latest.votes().get(candidate) - latest.quota(), ruleset);
+                        rounds.add(new RoundRecord(roundNumber, tallies,
+                                new RoundAction.Elected(candidate, surplus), residual));
+                        if (i < inOrder.size() - 1) {
+                            roundNumber++;
+                        }
+                    }
+                    continue;
+                }
+
+                Candidate excluded = lowestHopeful(latest, iteration.surplus(), ruleset.tieBreak(), priorRounds);
+                states.put(excluded, State.EXCLUDED);
+                keepFactors.put(excluded, 0L);
+                rounds.add(new RoundRecord(roundNumber, tallies, new RoundAction.Eliminated(excluded), residual));
+                // droop redistributes after an exclusion for reporting, keeping the iteration's quota.
+                Distribution redistributed = distribute();
+                latest = new Distribution(redistributed.votes(), redistributed.residual(), latest.quota());
+            }
+
+            if (elected.size() < seats) {
+                // Everyone still hopeful is needed to fill the seats: elected as they stand.
+                Set<Candidate> remaining = hopefuls();
+                Map<Candidate, Fraction> tallies = hopefulTallies(latest, Set.of(), ruleset);
+                Fraction residual = display(latest.residual(), ruleset);
+                List<RoundRecord> priorRounds = List.copyOf(rounds);
+                for (Candidate candidate : byVotesDescending(remaining, latest, ruleset.tieBreak(), priorRounds)) {
+                    roundNumber++;
+                    states.put(candidate, State.ELECTED);
+                    elected.add(candidate);
+                    rounds.add(new RoundRecord(roundNumber, tallies,
+                            new RoundAction.Elected(candidate, Fraction.ZERO), residual));
+                }
+            }
+
+            return new StvResult(elected, rounds, display(latest.quota(), ruleset), formal.informal());
+        }
+
+        private record Iteration(Distribution distribution, Set<Candidate> newlyElected, long surplus) {
+        }
+
+        /**
+         * droop's {@code iterate}: distribute, recompute the quota, elect whoever reaches it,
+         * and otherwise update keep factors and go again, until someone is elected or the
+         * surplus is at most {@code omega} or has stopped shrinking.
+         */
+        private Iteration iterate() {
+            long lastSurplus = totalVotes;
+            while (true) {
+                Distribution distribution = distribute();
+                Set<Candidate> newlyElected = new LinkedHashSet<>();
+                for (Candidate candidate : hopefuls()) {
+                    if (distribution.votes().get(candidate) >= distribution.quota()) {
+                        newlyElected.add(candidate);
+                    }
+                }
+                if (newlyElected.size() > seats - electedCount()) {
+                    throw new IllegalStateException("More candidates reached quota than there are seats left");
+                }
+                newlyElected.forEach(candidate -> states.put(candidate, State.ELECTED));
+
+                long surplus = 0;
+                for (Candidate candidate : candidates) {
+                    if (states.get(candidate) == State.ELECTED) {
+                        surplus += distribution.votes().get(candidate) - distribution.quota();
+                    }
+                }
+                if (!newlyElected.isEmpty() || surplus <= omega || surplus >= lastSurplus) {
+                    return new Iteration(distribution, newlyElected, surplus);
+                }
+                lastSurplus = surplus;
+
+                for (Candidate candidate : candidates) {
+                    if (states.get(candidate) == State.ELECTED) {
+                        long scaled = fixed.multiply(keepFactors.get(candidate), distribution.quota(), true);
+                        keepFactors.put(candidate, fixed.divide(scaled, distribution.votes().get(candidate), true));
+                    }
+                }
+            }
+        }
+
+        private Distribution distribute() {
+            Map<Candidate, Long> votes = new LinkedHashMap<>();
+            for (Candidate candidate : candidates) {
+                if (states.get(candidate) != State.EXCLUDED) {
+                    votes.put(candidate, 0L);
+                }
+            }
+            for (Ballot ballot : ballots) {
+                distribute(ballot.ranking(), 0, fixed.one(), ballot.count().longValueExact(), votes);
+            }
+            long held = 0;
+            for (long value : votes.values()) {
+                held += value;
+            }
+            long quota = fixed.divideDown(held, seats + 1) + fixed.epsilon();
+            return new Distribution(votes, totalVotes - held, quota);
+        }
+
+        /**
+         * Passes {@code weight} (per ballot, times {@code multiplier} identical ballots) down
+         * {@code ranking} from {@code index}: each standing candidate keeps {@code weight *
+         * keepFactor} and passes on {@code weight * (1 - keepFactor)}, both rounded down. A tied
+         * rank splits the weight reaching it evenly (rounded down) between its standing
+         * candidates, and what each one passes on flows to the next rank separately — the
+         * equal-preference distribution in droop's Meek rule ({@code distributeVotes}). One
+         * deliberate difference: droop routes any ballot containing a tie through a separate path
+         * that stops outright at the first rank with no standing candidate — tied or not — losing
+         * the rest of the ballot's value, whereas its path for untied ballots skips excluded
+         * candidates and carries on. This carries on in both cases, and matches a copy of droop
+         * with just that one path patched to carry on.
+         */
+        private void distribute(List<Set<Candidate>> ranking, int index, long weight, long multiplier,
+                Map<Candidate, Long> votes) {
+            for (int i = index; i < ranking.size() && weight > 0; i++) {
+                List<Candidate> standing = ranking.get(i).stream().filter(this::isStanding).toList();
+                if (standing.isEmpty()) {
+                    continue;
+                }
+                long share = fixed.divideDown(weight, standing.size());
+                for (Candidate candidate : standing) {
+                    long keepFactor = keepFactors.get(candidate);
+                    long kept = fixed.multiply(share, keepFactor, false);
+                    long passedOn = fixed.multiply(share, fixed.one() - keepFactor, false);
+                    votes.merge(candidate, Math.multiplyExact(kept, multiplier), Long::sum);
+                    if (standing.size() > 1) {
+                        distribute(ranking, i + 1, passedOn, multiplier, votes);
+                    } else {
+                        weight = passedOn;
+                    }
+                }
+                if (standing.size() > 1) {
+                    return;
+                }
+            }
+        }
+
+        private Candidate lowestHopeful(Distribution distribution, long surplus, TieBreakRule tieBreak,
+                List<RoundRecord> priorRounds) {
+            long lowest = hopefuls().stream().mapToLong(distribution.votes()::get).min().orElseThrow();
+            List<Candidate> tied = hopefuls().stream()
+                    .filter(candidate -> distribution.votes().get(candidate) <= lowest + surplus)
                     .toList();
-            Map<Candidate, Double> currentTotals = totals;
-            double currentQuota = quota;
-            boolean anyHopefulQualifies = candidates.stream().anyMatch(candidate ->
-                    states.get(candidate) == State.HOPEFUL && currentTotals.get(candidate) >= currentQuota);
-            if (anyHopefulQualifies || electedCandidates.isEmpty() || isConverged(electedCandidates, totals, quota)) {
-                return new Convergence(totals, excess, quota);
-            }
-            for (Candidate candidate : electedCandidates) {
-                weights.merge(candidate, quota / totals.get(candidate), (oldWeight, ratio) -> oldWeight * ratio);
-            }
-            totals = computeTotals(candidates, ballots, states, weights);
-            excess = excessOf(totalVotes, totals);
-            quota = (totalVotes - excess) / (seats + 1);
+            return tied.size() == 1 ? tied.getFirst() : tieBreak.candidateToEliminate(tied, priorRounds);
         }
-        throw new IllegalStateException(
-                "Meek's method failed to converge within " + MAX_CONVERGENCE_ITERATIONS + " iterations");
-    }
 
-    private static boolean isConverged(List<Candidate> electedCandidates, Map<Candidate, Double> totals, double quota) {
-        for (Candidate candidate : electedCandidates) {
-            double ratio = quota / totals.get(candidate);
-            if (ratio < 1 - CONVERGENCE_TOLERANCE || ratio > 1 + CONVERGENCE_TOLERANCE) {
-                return false;
+        private List<Candidate> byVotesDescending(Set<Candidate> group, Distribution distribution,
+                TieBreakRule tieBreak, List<RoundRecord> priorRounds) {
+            List<Candidate> remaining = new ArrayList<>(group);
+            List<Candidate> result = new ArrayList<>(remaining.size());
+            while (!remaining.isEmpty()) {
+                long highest = remaining.stream().mapToLong(distribution.votes()::get).max().orElseThrow();
+                List<Candidate> tied = remaining.stream()
+                        .filter(candidate -> distribution.votes().get(candidate) == highest)
+                        .toList();
+                Candidate top = tied.size() == 1 ? tied.getFirst() : tieBreak.candidateToElectFirst(tied, priorRounds);
+                result.add(top);
+                remaining.remove(top);
             }
+            return result;
         }
-        return true;
-    }
 
-    private static double excessOf(double totalVotes, Map<Candidate, Double> totals) {
-        double assigned = 0;
-        for (double value : totals.values()) {
-            assigned += value;
-        }
-        // Floating-point noise can push this a hair below zero when every ballot is fully
-        // assigned; excess is never negative in theory, so clamp rather than let a
-        // near-zero-but-negative value distort the quota or an exported figure.
-        return Math.max(0, totalVotes - assigned);
-    }
-
-    /**
-     * Every hopeful and elected candidate's current vote total (rule 2.3/2.4): each ballot's
-     * value cascades down its ranking, with every candidate along the way keeping {@code
-     * weight} of whatever reaches them (1 for hopeful, 0 for excluded, the candidate's own
-     * converging keep factor for elected) and passing the remainder to the next preference.
-     * Excluded candidates get no entry, matching {@link
-     * info.fkhodkov.rankedchoice.stv.StvCounter}'s "only continuing candidates" convention.
-     */
-    private static Map<Candidate, Double> computeTotals(
-            List<Candidate> candidates, List<Ballot> ballots, Map<Candidate, State> states, Map<Candidate, Double> weights) {
-        Map<Candidate, Double> totals = new LinkedHashMap<>();
-        for (Candidate candidate : candidates) {
-            if (states.get(candidate) != State.EXCLUDED) {
-                totals.put(candidate, 0.0);
+        /**
+         * The round's tallies: every candidate hopeful going into it (including any it just
+         * elected), in declared order — matches {@code StvCounter}'s display convention.
+         */
+        private Map<Candidate, Fraction> hopefulTallies(
+                Distribution distribution, Set<Candidate> justElected, MeekRuleset ruleset) {
+            Map<Candidate, Fraction> tallies = new LinkedHashMap<>();
+            for (Candidate candidate : candidates) {
+                if (states.get(candidate) == State.HOPEFUL || justElected.contains(candidate)) {
+                    tallies.put(candidate, display(distribution.votes().get(candidate), ruleset));
+                }
             }
+            return tallies;
         }
-        for (Ballot ballot : ballots) {
-            distribute(ballot.ranking(), 0, ballot.count().doubleValue(), candidates, states, weights, totals);
-        }
-        return totals;
-    }
 
-    /**
-     * Cascades {@code value} down {@code ranking} from {@code index} (see {@link
-     * #computeTotals}). A tied rank splits whatever reaches it evenly between its
-     * still-standing candidates; each keeps its own share by its keep factor, and what each one
-     * doesn't keep flows on to the next rank separately — the equal-preference distribution in
-     * droop's Meek rule ({@code jklundell/droop}, {@code rules/meek.py}, {@code
-     * distributeVotes}). One deliberate difference: droop routes any ballot containing a tie
-     * through a separate path that stops outright at the first rank with no standing
-     * candidate — tied or not — losing the rest of the ballot's value, whereas its path for
-     * untied ballots skips excluded candidates and carries on. This carries on in both cases.
-     * Verified on synthetic elections with hundreds of tied rankings: every round differs from
-     * stock droop only after that situation arises, and matches a copy of droop with just that
-     * one path patched to carry on, to within this class's own convergence tolerance.
-     */
-    private static void distribute(List<Set<Candidate>> ranking, int index, double value, List<Candidate> candidates,
-            Map<Candidate, State> states, Map<Candidate, Double> weights, Map<Candidate, Double> totals) {
-        for (int i = index; i < ranking.size() && value > 0; i++) {
-            Set<Candidate> rank = ranking.get(i);
-            // Tied members are taken in declared candidate order, so floating-point summation
-            // order doesn't depend on Set iteration order (which varies between JVM runs).
-            List<Candidate> standing = rank.size() == 1
-                    ? rank.stream().filter(candidate -> isStanding(states.get(candidate))).toList()
-                    : candidates.stream().filter(rank::contains)
-                            .filter(candidate -> isStanding(states.get(candidate))).toList();
-            if (standing.isEmpty()) {
-                continue;
+        private Fraction display(long value, MeekRuleset ruleset) {
+            return ruleset.roundingRule().apply(fixed.toFraction(value));
+        }
+
+        private boolean isStanding(Candidate candidate) {
+            State state = states.get(candidate);
+            return state == State.HOPEFUL || state == State.ELECTED;
+        }
+
+        private Set<Candidate> hopefuls() {
+            Set<Candidate> result = new LinkedHashSet<>();
+            for (Map.Entry<Candidate, State> entry : states.entrySet()) {
+                if (entry.getValue() == State.HOPEFUL) {
+                    result.add(entry.getKey());
+                }
             }
-            if (standing.size() == 1) {
-                Candidate candidate = standing.getFirst();
-                double kept = states.get(candidate) == State.HOPEFUL ? value : value * weights.get(candidate);
-                totals.merge(candidate, kept, Double::sum);
-                value -= kept;
-                continue;
-            }
-            double share = value / standing.size();
-            for (Candidate candidate : standing) {
-                double kept = states.get(candidate) == State.HOPEFUL ? share : share * weights.get(candidate);
-                totals.merge(candidate, kept, Double::sum);
-                distribute(ranking, i + 1, share - kept, candidates, states, weights, totals);
-            }
-            return;
+            return result;
         }
-    }
 
-    /** Hopeful or elected; a candidate this count doesn't know about (e.g. withdrawn) never is. */
-    private static boolean isStanding(State state) {
-        return state == State.HOPEFUL || state == State.ELECTED;
-    }
-
-    private static Set<Candidate> hopefuls(Map<Candidate, State> states) {
-        Set<Candidate> result = new LinkedHashSet<>();
-        for (Map.Entry<Candidate, State> entry : states.entrySet()) {
-            if (entry.getValue() == State.HOPEFUL) {
-                result.add(entry.getKey());
-            }
+        private int electedCount() {
+            return (int) states.values().stream().filter(state -> state == State.ELECTED).count();
         }
-        return result;
-    }
-
-    private static Candidate pickHighest(List<Candidate> candidates, Map<Candidate, Double> totals,
-            TieBreakRule tieBreak, List<RoundRecord> priorRounds) {
-        double highest = candidates.stream().mapToDouble(totals::get).max().orElseThrow();
-        List<Candidate> tiedHighest = candidates.stream()
-                .filter(candidate -> Math.abs(totals.get(candidate) - highest) <= TIE_EPSILON)
-                .toList();
-        return tiedHighest.size() == 1 ? tiedHighest.getFirst() : tieBreak.candidateToElectFirst(tiedHighest, priorRounds);
-    }
-
-    private static List<Candidate> sortedByTallyDescending(Set<Candidate> candidates, Map<Candidate, Double> totals,
-            TieBreakRule tieBreak, List<RoundRecord> priorRounds) {
-        List<Candidate> remaining = new ArrayList<>(candidates);
-        List<Candidate> result = new ArrayList<>(remaining.size());
-        while (!remaining.isEmpty()) {
-            Candidate top = pickHighest(remaining, totals, tieBreak, priorRounds);
-            result.add(top);
-            remaining.remove(top);
-        }
-        return result;
-    }
-
-    /** Only hopeful candidates are shown, in declared order — matches {@code StvCounter}'s display convention. */
-    private static Map<Candidate, Fraction> toFractionTallies(Map<Candidate, State> states,
-            Map<Candidate, Double> totals, List<Candidate> candidates, RoundingRule roundingRule) {
-        Map<Candidate, Fraction> tallies = new LinkedHashMap<>();
-        for (Candidate candidate : candidates) {
-            if (states.get(candidate) == State.HOPEFUL) {
-                tallies.put(candidate, toFraction(totals.get(candidate), roundingRule));
-            }
-        }
-        return tallies;
-    }
-
-    private static Fraction toFraction(double value, RoundingRule roundingRule) {
-        BigDecimal decimal = BigDecimal.valueOf(value).setScale(INTERMEDIATE_DECIMAL_PLACES, RoundingMode.HALF_UP);
-        Fraction exact = Fraction.of(decimal.unscaledValue(), BigInteger.TEN.pow(INTERMEDIATE_DECIMAL_PLACES));
-        return roundingRule.apply(exact);
     }
 }

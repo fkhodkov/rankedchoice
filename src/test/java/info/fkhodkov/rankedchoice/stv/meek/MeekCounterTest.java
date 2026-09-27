@@ -41,11 +41,13 @@ class MeekCounterTest {
 
     @Test
     void eliminatesThenElectsWithoutNeedingAnyKeepFactorConvergence() {
-        // 1 seat, quota 5 (10 votes / 2). Nobody meets quota in round 1 (A=4, B=4, C=2), so C
-        // (lowest) is eliminated; C's ballot ranks A next, so A's total becomes 4+2=6 in round
-        // 2, clearing quota by 1 -- all whole numbers, no repeating decimals, so this checks
-        // the elimination-transfer path without exercising rule 2.9's convergence loop at all
-        // (A is never elected until the very round it wins outright).
+        // 1 seat, quota 5.000000001 (10 votes / 2, plus the smallest amount 9 decimal places
+        // can hold, as droop's fixed-point quota always is). Nobody meets quota in round 1 (A=4,
+        // B=4, C=2), so C (lowest) is eliminated; C's ballot ranks A next, so A's total becomes
+        // 4+2=6 in round 2, clearing quota by 0.999999999 -- all whole numbers otherwise, so this
+        // checks the elimination-transfer path without any keep-factor iteration at all (A is
+        // never elected until the very round it wins outright). Every figure matches droop's
+        // report (meek arithmetic=fixed defeat_batch=none) exactly.
         Candidate a = Candidate.of("A");
         Candidate b = Candidate.of("B");
         Candidate c = Candidate.of("C");
@@ -57,7 +59,7 @@ class MeekCounterTest {
 
         StvResult result = MeekCounter.count(List.of(a, b, c), ballots, 1, ruleset);
 
-        assertThat(result.quota()).isEqualTo(Fraction.of(5));
+        assertThat(result.quota()).isEqualTo(Fraction.of(5_000_000_001L, 1_000_000_000));
         assertThat(result.electedInOrder()).containsExactly(a);
         assertThat(result.rounds()).hasSize(2);
 
@@ -68,23 +70,23 @@ class MeekCounterTest {
 
         RoundRecord round2 = result.rounds().get(1);
         assertThat(round2.tallies()).isEqualTo(Map.of(a, Fraction.of(6), b, Fraction.of(4)));
-        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(1)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(999_999_999, 1_000_000_000)));
         assertThat(round2.exhaustedVotes()).isEqualTo(Fraction.ZERO);
     }
 
     @Test
     void convergesAnElectedCandidatesKeepFactorAcrossSeveralRoundsAfterAnElimination() {
-        // 2 seats, 300 votes, quota starts at 100 (300/3). A wins round 1 outright (101 first
-        // preferences), keep factor converging toward 100/101. D (lowest, 29 votes) is
-        // eliminated in round 2, transferring through A -- which needs a second bout of
-        // keep-factor convergence (this time settling at exactly 10/13) before B finally
-        // clears quota in round 3. Hand-derived by simulating rules 2.2-2.9 directly (not
-        // taken from an external source): with w_A=10/13, (A,B)=101 gives A 1010/13 and B
-        // 303/13, and (D,A,C)=29 -- D excluded -- gives A 290/13 and C 87/13; summing,
-        // A = (1010+290)/13 = 1300/13 = 100 exactly (quota, converged), B = 80 + 303/13 =
-        // 1343/13, C = 90 + 87/13 = 1257/13. All of this is exact rational arithmetic; the
-        // assertions below truncate to 6dp (matching how any real Meek report would show it)
-        // since the counter itself only carries double precision through its convergence loop.
+        // 2 seats, 300 votes, quota starts at 100.000000001 (300/3, plus droop's smallest
+        // step). A wins round 1 outright (101 first preferences), keep factor converging toward
+        // 100/101 -- in round 2 B holds 80.999999990, not 81, the rest of A's surplus lost to
+        // rounding down at 9 decimal places. D (lowest, 29 votes) is eliminated in round 2,
+        // transferring through A -- which needs a second bout of keep-factor convergence (in
+        // exact arithmetic settling at 10/13) before B finally clears quota in round 3. In exact
+        // rational arithmetic, with w_A=10/13, (A,B)=101 gives A 1010/13 and B 303/13, and
+        // (D,A,C)=29 -- D excluded -- gives A 290/13 and C 87/13; summing, A = 1300/13 = 100
+        // (quota), B = 80 + 303/13 = 1343/13, C = 90 + 87/13 = 1257/13. The counter's fixed-point
+        // figures (B 103.307692230, C 96.692307670) agree with those to 6 decimal places, which
+        // is what the assertions below truncate to, and match droop's own report exactly.
         Candidate a = Candidate.of("A");
         Candidate b = Candidate.of("B");
         Candidate c = Candidate.of("C");
@@ -105,10 +107,11 @@ class MeekCounterTest {
         RoundRecord round1 = result.rounds().get(0);
         assertThat(round1.tallies()).isEqualTo(Map.of(
                 a, Fraction.of(101), b, Fraction.of(80), c, Fraction.of(90), d, Fraction.of(29)));
-        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(1)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(999_999, 1_000_000)));
 
         RoundRecord round2 = result.rounds().get(1);
-        assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(81), c, Fraction.of(90), d, Fraction.of(29)));
+        assertThat(round2.tallies())
+                .isEqualTo(Map.of(b, Fraction.of(80_999_999, 1_000_000), c, Fraction.of(90), d, Fraction.of(29)));
         assertThat(round2.action()).isEqualTo(new RoundAction.Eliminated(d));
 
         RoundRecord round3 = result.rounds().get(2);
@@ -131,7 +134,9 @@ class MeekCounterTest {
      * its own 3 single-preference ballots exhaust.
      * <p>Round 3 -- the tied rank now has only B standing, so B inherits the whole of those 2
      * ballots, not just the half it held while the tie lasted: B=4+2=6. Quota (16-3)/2 = 6.5,
-     * and A's 7 clears it.
+     * and A's 7 clears it by 0.499999999 (droop's quota is always a smallest step above the
+     * exact figure). Every figure matches a copy of droop patched as described in {@link
+     * MeekCounter}.
      */
     @Test
     void splitTiedRankingsCarryOnPastAnExcludedFirstChoiceAndReSplitAmongSurvivors() {
@@ -149,7 +154,8 @@ class MeekCounterTest {
         StvResult result = MeekCounter.count(List.of(a, b, c, d), ballots, 1, ruleset);
 
         assertThat(result.rounds()).extracting(RoundRecord::action).containsExactly(
-                new RoundAction.Eliminated(d), new RoundAction.Eliminated(c), new RoundAction.Elected(a, Fraction.of(1, 2)));
+                new RoundAction.Eliminated(d), new RoundAction.Eliminated(c),
+                new RoundAction.Elected(a, Fraction.of(499_999, 1_000_000)));
         assertThat(result.rounds().get(1).tallies())
                 .isEqualTo(Map.of(a, Fraction.of(7), b, Fraction.of(5), c, Fraction.of(4)));
         assertThat(result.rounds().get(2).tallies()).isEqualTo(Map.of(a, Fraction.of(7), b, Fraction.of(6)));

@@ -162,7 +162,10 @@ class MainTest {
         assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: X");
     }
 
-    /** X's 5 single-preference ballots become informal, leaving 6 valid votes: quota 6/2 = 3, not 11/2. */
+    /**
+     * X's 5 single-preference ballots become informal, leaving 6 valid votes: quota 6/2 = 3 (plus
+     * Meek's smallest fixed-point step), not 11/2.
+     */
     @Test
     void minimumPreferencesFlagMakesShortBallotsInformalForMeek() throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
@@ -172,7 +175,7 @@ class MainTest {
                 "--input", bltFile.toString(), "--method", "meek", "--minimum-preferences", "2");
 
         assertThat(exitCode).isZero();
-        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: 3\n").contains("X: 0");
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: 3.000000001\n").contains("X: 0");
     }
 
     @ParameterizedTest
