@@ -65,6 +65,20 @@ public final class QpqCounter {
                 rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
         List<Ballot> ballots = formal.ballots();
 
+        BigInteger total = ballots.stream().map(Ballot::count).reduce(BigInteger.ZERO, BigInteger::add);
+        if (total.bitLength() < Long.SIZE - 1) {
+            return new IndexedCount(candidates, ballots, seats, ruleset.tieBreak()).run(formal);
+        }
+        return countInBigIntegers(candidates, ballots, seats, ruleset, formal);
+    }
+
+    /**
+     * The count as {@link #count} describes it, over plain objects and {@link BigInteger} vote
+     * counts -- used only when the total vote doesn't fit in a {@code long}, which {@link
+     * IndexedCount} needs.
+     */
+    private static QpqResult countInBigIntegers(List<Candidate> candidates, List<Ballot> ballots, int seats,
+            QpqRuleset ruleset, BallotFormality.FormalBallots formal) {
         List<BallotState> states = new ArrayList<>(ballots.size());
         for (Ballot ballot : ballots) {
             if (!ballot.isBlank()) {
@@ -195,6 +209,184 @@ public final class QpqCounter {
         return highest
                 ? tieBreak.candidateToElectFirst(tied, List.of())
                 : tieBreak.candidateToEliminate(tied, List.of());
+    }
+
+    /**
+     * The same count over arrays: identical rankings merged, each held as candidate indices with
+     * a {@code long} count, and every per-candidate total an array entry. A ballot's holder only
+     * ever needs its next hopeful preference, and a candidate once excluded never returns, so
+     * each ballot remembers the position of its first not-yet-excluded preference: a restart
+     * resumes from there rather than re-walking from the first preference. Elected credits stay
+     * exact {@link Fraction}s, grouped by value as in {@link #weightedTotal}; most ballots carry
+     * none at all.
+     */
+    private static final class IndexedCount {
+        private final List<Candidate> candidates;
+        private final Map<Candidate, Integer> indexOf = new LinkedHashMap<>();
+        private final int seats;
+        private final TieBreakRule tieBreak;
+        private final int[][] rankings;
+        private final long[] counts;
+        private final int[] firstNotExcluded;
+        private final int[] next;
+        private final int[] holder;
+        private final Fraction[] credit;
+        private final boolean[] isHopeful;
+        private final boolean[] isExcluded;
+
+        IndexedCount(List<Candidate> candidates, List<Ballot> ballots, int seats, TieBreakRule tieBreak) {
+            this.candidates = candidates;
+            this.seats = seats;
+            this.tieBreak = tieBreak;
+            for (int c = 0; c < candidates.size(); c++) {
+                indexOf.put(candidates.get(c), c);
+            }
+            Map<List<Integer>, Integer> seen = new LinkedHashMap<>();
+            List<int[]> distinct = new ArrayList<>();
+            List<Long> distinctCounts = new ArrayList<>();
+            for (Ballot ballot : ballots) {
+                if (ballot.isBlank()) {
+                    continue;
+                }
+                // Ties never reach here (split is refused; the other policies remove them).
+                // A candidate this count doesn't know about can never be hopeful: dropped.
+                int[] ranking = ballot.ranking().stream().map(rank -> indexOf.get(rank.iterator().next()))
+                        .filter(java.util.Objects::nonNull).mapToInt(Integer::intValue).toArray();
+                Integer at = seen.putIfAbsent(java.util.Arrays.stream(ranking).boxed().toList(), distinct.size());
+                if (at == null) {
+                    distinct.add(ranking);
+                    distinctCounts.add(ballot.count().longValueExact());
+                } else {
+                    distinctCounts.set(at, distinctCounts.get(at) + ballot.count().longValueExact());
+                }
+            }
+            this.rankings = distinct.toArray(int[][]::new);
+            this.counts = distinctCounts.stream().mapToLong(Long::longValue).toArray();
+            int b = rankings.length;
+            this.firstNotExcluded = new int[b];
+            this.next = new int[b];
+            this.holder = new int[b];
+            this.credit = new Fraction[b];
+            this.isHopeful = new boolean[candidates.size()];
+            this.isExcluded = new boolean[candidates.size()];
+        }
+
+        QpqResult run(BallotFormality.FormalBallots formal) {
+            Set<Candidate> hopeful = new LinkedHashSet<>(candidates);
+            java.util.Arrays.fill(isHopeful, true);
+            // See the LinkedHashSet note in countInBigIntegers.
+            Set<Candidate> elected = new LinkedHashSet<>();
+            List<QpqRoundRecord> rounds = new ArrayList<>();
+            int stageNumber = 0;
+            boolean restartPending = true;
+
+            while (elected.size() < seats && hopeful.size() > seats - elected.size()) {
+                stageNumber++;
+                boolean restartedThisStage = restartPending;
+                if (restartPending) {
+                    for (Candidate candidate : elected) {
+                        isHopeful[indexOf.get(candidate)] = true;
+                    }
+                    hopeful.addAll(elected);
+                    elected.clear();
+                    for (int b = 0; b < rankings.length; b++) {
+                        int[] ranking = rankings[b];
+                        int first = firstNotExcluded[b];
+                        while (first < ranking.length && isExcluded[ranking[first]]) {
+                            first++;
+                        }
+                        firstNotExcluded[b] = first;
+                        next[b] = first;
+                        credit[b] = Fraction.ZERO;
+                        advance(b);
+                    }
+                    restartPending = false;
+                }
+
+                long[] vc = new long[candidates.size()];
+                long va = 0;
+                List<Map<Fraction, BigInteger>> heldByCredit = new ArrayList<>(candidates.size());
+                for (int c = 0; c < candidates.size(); c++) {
+                    heldByCredit.add(null);
+                }
+                Map<Fraction, BigInteger> exhaustedByCredit = new LinkedHashMap<>();
+                for (int b = 0; b < rankings.length; b++) {
+                    int h = holder[b];
+                    boolean hasCredit = credit[b].signum() != 0;
+                    if (h < 0) {
+                        if (hasCredit) {
+                            exhaustedByCredit.merge(credit[b], BigInteger.valueOf(counts[b]), BigInteger::add);
+                        }
+                    } else {
+                        va += counts[b];
+                        vc[h] += counts[b];
+                        if (hasCredit) {
+                            if (heldByCredit.get(h) == null) {
+                                heldByCredit.set(h, new LinkedHashMap<>());
+                            }
+                            heldByCredit.get(h).merge(credit[b], BigInteger.valueOf(counts[b]), BigInteger::add);
+                        }
+                    }
+                }
+
+                Map<Candidate, Fraction> quotients = new LinkedHashMap<>();
+                for (Candidate candidate : hopeful) {
+                    int c = indexOf.get(candidate);
+                    Fraction tc = heldByCredit.get(c) == null ? Fraction.ZERO : weightedTotal(heldByCredit.get(c));
+                    quotients.put(candidate, Fraction.of(vc[c]).divide(Fraction.ONE.add(tc)));
+                }
+                Fraction quota = Fraction.of(va).divide(Fraction.of(seats + 1L).subtract(weightedTotal(exhaustedByCredit)));
+
+                Candidate highest = pickExtreme(hopeful, quotients, true, tieBreak);
+                if (quotients.get(highest).compareTo(quota) > 0) {
+                    elected.add(highest);
+                    hopeful.remove(highest);
+                    int h = indexOf.get(highest);
+                    isHopeful[h] = false;
+                    Fraction newCredit = Fraction.ONE.divide(quotients.get(highest));
+                    for (int b = 0; b < rankings.length; b++) {
+                        if (holder[b] == h) {
+                            credit[b] = newCredit;
+                            advance(b);
+                        }
+                    }
+                    rounds.add(new QpqRoundRecord(
+                            stageNumber, quotients, quota, new QpqAction.Elected(highest), restartedThisStage));
+                } else {
+                    Candidate lowest = pickExtreme(hopeful, quotients, false, tieBreak);
+                    hopeful.remove(lowest);
+                    int l = indexOf.get(lowest);
+                    isHopeful[l] = false;
+                    isExcluded[l] = true;
+                    for (int b = 0; b < rankings.length; b++) {
+                        if (holder[b] == l) {
+                            advance(b);
+                        }
+                    }
+                    rounds.add(new QpqRoundRecord(
+                            stageNumber, quotients, quota, new QpqAction.Excluded(lowest), restartedThisStage));
+                    restartPending = true;
+                }
+            }
+
+            if (elected.size() < seats) {
+                elected.addAll(hopeful);
+            }
+            return new QpqResult(List.copyOf(elected), rounds, formal.informal());
+        }
+
+        /** Moves ballot {@code b} on to its next hopeful preference, or marks it exhausted. */
+        private void advance(int b) {
+            int[] ranking = rankings[b];
+            while (next[b] < ranking.length) {
+                int candidate = ranking[next[b]++];
+                if (isHopeful[candidate]) {
+                    holder[b] = candidate;
+                    return;
+                }
+            }
+            holder[b] = -1;
+        }
     }
 
     /** The sum of each credit times how many ballots carry it. */

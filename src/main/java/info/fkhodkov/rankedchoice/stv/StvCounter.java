@@ -122,6 +122,7 @@ public final class StvCounter {
 
         Fraction quota = ruleset.quota().compute(totalValidVotes, seats);
         boolean defers = defersSurplusTransfers(ruleset.transferMethod());
+        RunningTallies running = RunningTallies.of(states);
 
         List<Candidate> elected = new ArrayList<>();
         List<RoundRecord> rounds = new ArrayList<>();
@@ -146,8 +147,8 @@ public final class StvCounter {
             }
 
             if (continuing.size() <= remainingSeats) {
-                Map<Candidate, Fraction> tallies = computeTallies(states, continuing, ruleset.roundingRule());
-                Fraction exhausted = exhaustedVotes(states);
+                Map<Candidate, Fraction> tallies = running.tallies(continuing, ruleset.roundingRule());
+                Fraction exhausted = running.exhausted();
                 List<RoundRecord> priorRounds = List.copyOf(rounds);
                 for (Candidate candidate : sortedByTallyDescending(continuing, tallies, ruleset.tieBreak(), priorRounds)) {
                     elected.add(candidate);
@@ -156,12 +157,12 @@ public final class StvCounter {
                             roundNumber, tallies, new RoundAction.Elected(candidate, Fraction.ZERO), exhausted));
                     roundNumber++;
                 }
-                drainPendingSurplus(states, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
+                drainPendingSurplus(running, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
                 break;
             }
 
-            Map<Candidate, Fraction> tallies = computeTallies(states, continuing, ruleset.roundingRule());
-            Fraction exhausted = exhaustedVotes(states);
+            Map<Candidate, Fraction> tallies = running.tallies(continuing, ruleset.roundingRule());
+            Fraction exhausted = running.exhausted();
             List<RoundRecord> priorRounds = List.copyOf(rounds);
             List<Candidate> meetingQuota = continuing.stream()
                     .filter(candidate -> tallies.get(candidate).compareTo(quota) >= 0)
@@ -194,12 +195,12 @@ public final class StvCounter {
                         Map<Candidate, Fraction> roundTallies = tallies;
                         Fraction roundExhausted = exhausted;
                         if (i > 0) {
-                            roundTallies = computeTallies(states, continuing, ruleset.roundingRule());
+                            roundTallies = running.tallies(continuing, ruleset.roundingRule());
                             roundTallies.put(candidate, candidateVotes);
-                            roundExhausted = exhaustedVotes(states);
+                            roundExhausted = running.exhausted();
                         }
                         if (surplus.signum() > 0 && !continuing.isEmpty()) {
-                            transferSurplus(states, candidate, surplus, ruleset.transferMethod(),
+                            transferSurplus(states, running, candidate, surplus, ruleset.transferMethod(),
                                     ruleset.roundingRule(), continuing, nextParcelId++);
                         }
                         rounds.add(new RoundRecord(
@@ -229,7 +230,7 @@ public final class StvCounter {
                 Map<Candidate, Fraction> roundTallies = new LinkedHashMap<>(tallies);
                 roundTallies.put(candidate, frozenTally);
                 if (surplus.signum() > 0 && !continuing.isEmpty()) {
-                    transferSurplus(states, candidate, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
+                    transferSurplus(states, running, candidate, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
                             continuing, nextParcelId++);
                 }
                 rounds.add(new RoundRecord(
@@ -243,10 +244,10 @@ public final class StvCounter {
                 continuing.remove(candidate);
             }
             if (defers) {
-                nextParcelId = eliminateByValueGroup(states, toExclude, continuing, elected, pendingSurplus,
+                nextParcelId = eliminateByValueGroup(states, running, toExclude, continuing, elected, pendingSurplus,
                         quota, seats, ruleset, priorRounds, nextParcelId);
             } else {
-                transferEliminatedBallots(states, toExclude.getFirst(), continuing, nextParcelId++);
+                transferEliminatedBallots(states, running, toExclude.getFirst(), continuing, nextParcelId++);
             }
             for (int i = 0; i < toExclude.size(); i++) {
                 rounds.add(new RoundRecord(
@@ -257,7 +258,7 @@ public final class StvCounter {
             }
         }
 
-        drainPendingSurplus(states, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
+        drainPendingSurplus(running, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
 
         return new StvResult(elected, rounds, quota, formal.informal());
     }
@@ -282,14 +283,14 @@ public final class StvCounter {
      * Each gets its own sequential round number after {@code roundNumber}, same as the
      * shortcut's own bulk-election loop.
      */
-    private static void drainPendingSurplus(List<BallotState> states, Set<Candidate> continuing,
+    private static void drainPendingSurplus(RunningTallies running, Set<Candidate> continuing,
             Map<Candidate, Fraction> pendingSurplus, RoundingRule roundingRule, List<RoundRecord> rounds,
             int roundNumber) {
         if (pendingSurplus.isEmpty()) {
             return;
         }
-        Map<Candidate, Fraction> tallies = computeTallies(states, continuing, roundingRule);
-        Fraction exhausted = exhaustedVotes(states);
+        Map<Candidate, Fraction> tallies = running.tallies(continuing, roundingRule);
+        Fraction exhausted = running.exhausted();
         int number = roundNumber;
         for (Map.Entry<Candidate, Fraction> entry : pendingSurplus.entrySet()) {
             Map<Candidate, Fraction> roundTallies = new LinkedHashMap<>(tallies);
@@ -315,7 +316,7 @@ public final class StvCounter {
      * stops receiving any of the remaining, lower-valued groups. Returns the next available
      * parcel id (one is consumed per value-group).
      */
-    private static int eliminateByValueGroup(List<BallotState> states, List<Candidate> from, Set<Candidate> continuing,
+    private static int eliminateByValueGroup(List<BallotState> states, RunningTallies running, List<Candidate> from, Set<Candidate> continuing,
             List<Candidate> elected, Map<Candidate, Fraction> pendingSurplus, Fraction quota, int seats,
             StvRuleset ruleset, List<RoundRecord> priorRounds, int nextParcelId) {
         Set<Candidate> excluded = new LinkedHashSet<>(from);
@@ -330,15 +331,17 @@ public final class StvCounter {
         for (List<BallotState> group : byValueDescending.values()) {
             int thisGroupParcelId = parcelId++;
             for (BallotState state : group) {
+                running.remove(state);
                 state.parcelId = thisGroupParcelId;
                 assignNextHolder(state, continuing);
+                running.add(state);
             }
 
             int remainingSeats = seats - elected.size();
             if (remainingSeats <= 0) {
                 continue;
             }
-            Map<Candidate, Fraction> freshTallies = computeTallies(states, continuing, ruleset.roundingRule());
+            Map<Candidate, Fraction> freshTallies = running.tallies(continuing, ruleset.roundingRule());
             List<Candidate> newlyQualified = continuing.stream()
                     .filter(candidate -> freshTallies.get(candidate).compareTo(quota) >= 0)
                     .toList();
@@ -435,51 +438,107 @@ public final class StvCounter {
     }
 
     /**
-     * Every continuing candidate's current tally. Each candidate's summed total is passed
-     * through {@code roundingRule} once — a no-op for rulesets that already round per-parcel
-     * transfer values ({@link info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer}, {@link
+     * Every candidate's exact, unrounded share of the ballots they hold, and the exact value
+     * of the exhausted ballots, kept up to date as the count goes: every change to a ballot's
+     * holders or value is bracketed by {@link #remove} and {@link #add}, so a round's tallies
+     * never need a pass over every ballot. {@link #tallies} rounds each continuing candidate's
+     * exact total once -- a no-op for rulesets that already round per-parcel transfer values
+     * ({@link info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer}, {@link
      * info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer}, {@link
-     * info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer} — a sum of already-rounded
-     * multiples is already an exact multiple itself — but essential for {@link
+     * info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer} -- a sum of already-rounded
+     * multiples is already an exact multiple itself -- but essential for {@link
      * info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer}, whose whole
-     * point is deferring rounding to exactly this point instead.
+     * point is deferring rounding to exactly this point instead. Every figure is an exact sum,
+     * so keeping it running gives precisely what summing every ballot afresh would.
+     *
+     * <p>A ballot's holder(s) can remain an already-elected candidate forever under a
+     * last-parcel-only transfer method (parcels it doesn't select are simply never moved
+     * again), which is why only continuing candidates are read out. A tied ballot's value
+     * splits evenly across everyone still sharing its front-most rank (see {@link
+     * #assignNextHolder}) -- a singleton holder set is just the degenerate case, worth exactly
+     * its own full value.
      */
-    private static Map<Candidate, Fraction> computeTallies(
-            List<BallotState> states, Set<Candidate> continuing, RoundingRule roundingRule) {
-        Map<Candidate, Fraction> tallies = new LinkedHashMap<>();
-        for (Candidate candidate : continuing) {
-            tallies.put(candidate, Fraction.ZERO);
-        }
-        // Ballots are added up as whole numbers per (holder(s), value) first, and each group's
-        // total multiplied by its value once: the same exact sum as adding every ballot's own
-        // share, without an exact-fraction addition per ballot per round.
-        Map<Set<Candidate>, Map<Fraction, BigInteger>> ballotsByHoldersAndValue = new LinkedHashMap<>();
-        for (BallotState state : states) {
-            if (!state.holders.isEmpty()) {
+    private static final class RunningTallies {
+        private final Map<Candidate, Fraction> exact = new java.util.HashMap<>();
+        private Fraction exhausted = Fraction.ZERO;
+        // Changes not yet applied: net ballot counts per (holders, value), so a transfer moving
+        // many ballots at the same few values costs one exact operation per group, not per ballot.
+        private final Map<Set<Candidate>, Map<Fraction, BigInteger>> pending = new LinkedHashMap<>();
+
+        /** Built once, summing ballots per (holders, value) first so it's one pass. */
+        static RunningTallies of(List<BallotState> states) {
+            RunningTallies running = new RunningTallies();
+            Map<Set<Candidate>, Map<Fraction, BigInteger>> ballotsByHoldersAndValue = new LinkedHashMap<>();
+            for (BallotState state : states) {
                 ballotsByHoldersAndValue.computeIfAbsent(state.holders, _ -> new LinkedHashMap<>())
                         .merge(state.value, state.ballot.count(), BigInteger::add);
             }
-        }
-        for (Map.Entry<Set<Candidate>, Map<Fraction, BigInteger>> group : ballotsByHoldersAndValue.entrySet()) {
-            Set<Candidate> holders = group.getKey();
-            for (Map.Entry<Fraction, BigInteger> byValue : group.getValue().entrySet()) {
-                // A ballot's holder(s) can remain an already-elected candidate forever under a
-                // last-parcel-only transfer method (parcels it doesn't select are simply never
-                // moved again), so only count holders still in the running. A tied ballot's
-                // value splits evenly across everyone still sharing its front-most rank (see
-                // {@link #assignNextHolder}) -- a singleton holder set is just the degenerate
-                // case, worth exactly its own full value.
-                Fraction share = Fraction.of(byValue.getValue()).multiply(byValue.getKey())
-                        .divide(Fraction.of(holders.size()));
-                for (Candidate holder : holders) {
-                    if (continuing.contains(holder)) {
-                        tallies.merge(holder, share, Fraction::add);
+            for (Map.Entry<Set<Candidate>, Map<Fraction, BigInteger>> group : ballotsByHoldersAndValue.entrySet()) {
+                Set<Candidate> holders = group.getKey();
+                for (Map.Entry<Fraction, BigInteger> byValue : group.getValue().entrySet()) {
+                    Fraction total = Fraction.of(byValue.getValue()).multiply(byValue.getKey());
+                    if (holders.isEmpty()) {
+                        running.exhausted = running.exhausted.add(total);
+                    } else {
+                        Fraction share = total.divide(Fraction.of(holders.size()));
+                        for (Candidate holder : holders) {
+                            running.exact.merge(holder, share, Fraction::add);
+                        }
                     }
                 }
             }
+            return running;
         }
-        tallies.replaceAll((_, tally) -> roundingRule.apply(tally));
-        return tallies;
+
+        void add(BallotState state) {
+            apply(state, 1);
+        }
+
+        void remove(BallotState state) {
+            apply(state, -1);
+        }
+
+        private void apply(BallotState state, int sign) {
+            BigInteger count = sign > 0 ? state.ballot.count() : state.ballot.count().negate();
+            pending.computeIfAbsent(state.holders, _ -> new LinkedHashMap<>())
+                    .merge(state.value, count, BigInteger::add);
+        }
+
+        private void flush() {
+            for (Map.Entry<Set<Candidate>, Map<Fraction, BigInteger>> group : pending.entrySet()) {
+                Set<Candidate> holders = group.getKey();
+                for (Map.Entry<Fraction, BigInteger> byValue : group.getValue().entrySet()) {
+                    if (byValue.getValue().signum() == 0) {
+                        continue;
+                    }
+                    Fraction total = Fraction.of(byValue.getValue()).multiply(byValue.getKey());
+                    if (holders.isEmpty()) {
+                        exhausted = exhausted.add(total);
+                    } else {
+                        Fraction share = total.divide(Fraction.of(holders.size()));
+                        for (Candidate holder : holders) {
+                            exact.merge(holder, share, Fraction::add);
+                        }
+                    }
+                }
+            }
+            pending.clear();
+        }
+
+        /** Every continuing candidate's current tally, rounded, in {@code continuing}'s order. */
+        Map<Candidate, Fraction> tallies(Set<Candidate> continuing, RoundingRule roundingRule) {
+            flush();
+            Map<Candidate, Fraction> tallies = new LinkedHashMap<>();
+            for (Candidate candidate : continuing) {
+                tallies.put(candidate, roundingRule.apply(exact.getOrDefault(candidate, Fraction.ZERO)));
+            }
+            return tallies;
+        }
+
+        Fraction exhausted() {
+            flush();
+            return exhausted;
+        }
     }
 
     private static int largestDenominatorBits(List<BallotState> states) {
@@ -488,20 +547,6 @@ public final class StvCounter {
             largest = Math.max(largest, state.value.denominator().bitLength());
         }
         return largest;
-    }
-
-    private static Fraction exhaustedVotes(List<BallotState> states) {
-        Map<Fraction, BigInteger> ballotsByValue = new LinkedHashMap<>();
-        for (BallotState state : states) {
-            if (state.holders.isEmpty()) {
-                ballotsByValue.merge(state.value, state.ballot.count(), BigInteger::add);
-            }
-        }
-        Fraction total = Fraction.ZERO;
-        for (Map.Entry<Fraction, BigInteger> byValue : ballotsByValue.entrySet()) {
-            total = total.add(Fraction.of(byValue.getValue()).multiply(byValue.getKey()));
-        }
-        return total;
     }
 
     private record ParcelKey(int parcelId, Fraction value, boolean hasNextPreference) {
@@ -524,7 +569,8 @@ public final class StvCounter {
      * under a last-parcel-only method) is left exactly as it is, credited to {@code from} for
      * good.
      */
-    private static void transferSurplus(List<BallotState> states, Candidate from, Fraction surplus,
+    private static void transferSurplus(List<BallotState> states, RunningTallies running, Candidate from,
+            Fraction surplus,
             TransferMethod transferMethod, RoundingRule roundingRule, Set<Candidate> continuing, int newParcelId) {
         Map<ParcelKey, BigInteger> votesByKey = new LinkedHashMap<>();
         for (BallotState state : states) {
@@ -557,9 +603,11 @@ public final class StvCounter {
                 Integer id = idByKey.get(new ParcelKey(state.parcelId, share, hasNextPreference));
                 Fraction newShare = newValues.get(id);
                 if (newShare != null) {
+                    running.remove(state);
                     state.value = state.value.subtract(share).add(newShare);
                     state.parcelId = newParcelId;
                     assignNextHolder(state, continuing);
+                    running.add(state);
                 }
             }
         }
@@ -599,12 +647,14 @@ public final class StvCounter {
      * still-continuing candidate is untouched in every other respect: its pool simply
      * re-splits among whoever's left sharing that rank (see {@link #assignNextHolder}).
      */
-    private static void transferEliminatedBallots(List<BallotState> states, Candidate from,
+    private static void transferEliminatedBallots(List<BallotState> states, RunningTallies running, Candidate from,
             Set<Candidate> continuing, int newParcelId) {
         for (BallotState state : states) {
             if (state.holders.contains(from)) {
+                running.remove(state);
                 state.parcelId = newParcelId;
                 assignNextHolder(state, continuing);
+                running.add(state);
             }
         }
     }

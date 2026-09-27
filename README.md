@@ -563,10 +563,10 @@ engines that work per distinct ballot), ranking about 5 candidates on average:
 |---|---|---|---|
 | Borda | 0.7 s | 4.4 s | — |
 | Schulze | 0.5 s | 1.4 s | 0.7 s |
-| STV (fractional, exact) | 1.0 s | 5.5 s | 3.0 s |
-| STV (`scottish`, WIGM) | 1.3 s | 6.9 s | 3.1 s |
-| STV (`ers97`, last parcel) | 2.5 s | 7.8 s | 5.3 s |
-| QPQ | 2.3 s | 8.0 s | 9.2 s |
+| STV (fractional, exact) | 1.1 s | 3.5 s | 1.8 s |
+| STV (`scottish`, WIGM) | 1.4 s | 3.7 s | 1.6 s |
+| STV (`ers97`, last parcel) | 1.6 s | 3.7 s | 1.5 s |
+| QPQ | 1.3 s | 3.8 s | 2.1 s |
 | Meek / Warren | 1.6 / 1.7 s | 4.8 / 5.7 s | 6.4 / 7.2 s |
 
 Reading a 1M-ballot file takes about 1 s. Memory isn't a practical limit: every method counts
@@ -577,9 +577,9 @@ CPO-STV scales with the number of outcome pairs rather than voters: 10 candidate
 (120 outcomes) takes about 9 s at 100k voters, 12 / 4 (495 outcomes) about 34 s at 10k.
 
 At 300 candidates, 33 seats and 1M voters, with voters ranking about 5 (or about 40)
-candidates: Borda 3.8 s (27 s), Schulze 1.7 s (11 s), STV with a rounding ruleset 31–43 s,
-Meek 63 s (135 s), Warren 75 s (193 s), last-parcel STV 132 s (189 s), QPQ 266 s (309 s).
-Exact-arithmetic STV managed 43 s with short rankings but not the long ones (see
+candidates: Borda 3.8 s (27 s), Schulze 1.7 s (11 s), WIGM STV (`scottish`) 6.9 s (16 s),
+last-parcel STV (`ers97`) 8.9 s (26 s), QPQ 37 s (68 s), Meek 63 s (135 s), Warren 75 s
+(193 s). Exact-arithmetic STV managed 17 s with short rankings but not the long ones (see
 `--rounding`); CPO-STV can't run at all (C(300, 33) outcomes).
 
 ## Project layout
