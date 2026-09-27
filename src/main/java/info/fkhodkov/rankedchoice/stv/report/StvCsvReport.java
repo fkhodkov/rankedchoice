@@ -42,10 +42,10 @@ public final class StvCsvReport {
             return "";
         }
         return switch (action) {
-            case RoundAction.Elected elected when elected.surplusTransferred().signum() > 0 ->
-                    "elected (surplus " + ReportFormatting.format(elected.surplusTransferred(), decimalPlaces) + ")";
-            case RoundAction.Elected ignored -> "elected";
-            case RoundAction.Eliminated ignored -> "eliminated";
+            case RoundAction.Elected(_, var surplus) when surplus.signum() > 0 ->
+                    "elected (surplus " + ReportFormatting.format(surplus, decimalPlaces) + ")";
+            case RoundAction.Elected _ -> "elected";
+            case RoundAction.Eliminated _ -> "eliminated";
         };
     }
 

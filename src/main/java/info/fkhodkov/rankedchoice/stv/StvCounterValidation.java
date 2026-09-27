@@ -5,6 +5,10 @@ import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
+import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
 /**
  * Preconditions for {@link StvCounter#count}. Kept separate from the counting algorithm
@@ -23,11 +27,7 @@ final class StvCounterValidation {
             throw new IllegalArgumentException(
                     "cannot fill " + seats + " seat(s) with only " + candidates.size() + " candidate(s)");
         }
-        // Tied rankings are only supported under fractional transfer so far -- WIGM and the
-        // last-parcel family don't yet define how to split a tied ballot's value; see
-        // StvCounter's class javadoc for the fractional-transfer algorithm that is supported,
-        // verified against CRAN's `vote` package.
-        if (!(ruleset.transferMethod() instanceof FractionalTransfer)) {
+        if (!supportsTiedRankings(ruleset.transferMethod())) {
             for (Ballot ballot : ballots) {
                 for (Set<Candidate> rank : ballot.ranking()) {
                     if (rank.size() > 1) {
@@ -39,5 +39,20 @@ final class StvCounterValidation {
                 }
             }
         }
+    }
+
+    /**
+     * Whether a transfer method has a defined rule for splitting a tied ballot's value. Only
+     * fractional transfer does so far (see {@link StvCounter}'s class javadoc for the
+     * algorithm, verified against CRAN's {@code vote} package). Deliberately an exhaustive
+     * switch over the sealed {@link TransferMethod} rather than an {@code instanceof} check,
+     * so adding a new transfer method fails to compile here until someone decides whether it
+     * supports ties, instead of silently inheriting a rejection (or an acceptance) by default.
+     */
+    private static boolean supportsTiedRankings(TransferMethod transferMethod) {
+        return switch (transferMethod) {
+            case FractionalTransfer _ -> true;
+            case WigmTransfer _, LastParcelTransfer _, LastParcelDeferredRoundingTransfer _ -> false;
+        };
     }
 }

@@ -51,8 +51,8 @@ public final class QpqTextReport {
 
     private static String describe(QpqAction action) {
         return switch (action) {
-            case QpqAction.Elected elected -> elected.candidate().name() + " elected";
-            case QpqAction.Excluded excluded -> excluded.candidate().name() + " excluded";
+            case QpqAction.Elected(var candidate) -> candidate.name() + " elected";
+            case QpqAction.Excluded(var candidate) -> candidate.name() + " excluded";
         };
     }
 }

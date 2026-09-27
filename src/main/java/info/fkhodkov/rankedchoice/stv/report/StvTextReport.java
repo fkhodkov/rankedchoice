@@ -82,11 +82,10 @@ public final class StvTextReport {
 
     private static String describe(RoundAction action, OptionalInt decimalPlaces) {
         return switch (action) {
-            case RoundAction.Elected elected when elected.surplusTransferred().signum() > 0 ->
-                    elected.candidate().name() + " elected (surplus "
-                            + format(elected.surplusTransferred(), decimalPlaces) + " transferred)";
-            case RoundAction.Elected elected -> elected.candidate().name() + " elected";
-            case RoundAction.Eliminated eliminated -> eliminated.candidate().name() + " eliminated";
+            case RoundAction.Elected(var candidate, var surplus) when surplus.signum() > 0 ->
+                    candidate.name() + " elected (surplus " + format(surplus, decimalPlaces) + " transferred)";
+            case RoundAction.Elected(var candidate, _) -> candidate.name() + " elected";
+            case RoundAction.Eliminated(var candidate) -> candidate.name() + " eliminated";
         };
     }
 }

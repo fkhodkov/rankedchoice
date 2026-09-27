@@ -61,9 +61,9 @@ public final class StvJsonReport {
             tallies.put(entry.getKey().name(), ReportFormatting.format(entry.getValue(), decimalPlaces));
         }
         Action action = switch (round.action()) {
-            case RoundAction.Elected elected -> new Action("elected", elected.candidate().name(),
-                    ReportFormatting.format(elected.surplusTransferred(), decimalPlaces));
-            case RoundAction.Eliminated eliminated -> new Action("eliminated", eliminated.candidate().name(), null);
+            case RoundAction.Elected(var candidate, var surplus) ->
+                    new Action("elected", candidate.name(), ReportFormatting.format(surplus, decimalPlaces));
+            case RoundAction.Eliminated(var candidate) -> new Action("eliminated", candidate.name(), null);
         };
         return new Round(round.roundNumber(), tallies, action,
                 ReportFormatting.format(round.exhaustedVotes(), decimalPlaces));

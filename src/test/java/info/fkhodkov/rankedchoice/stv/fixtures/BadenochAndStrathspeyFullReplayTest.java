@@ -82,9 +82,9 @@ class BadenochAndStrathspeyFullReplayTest {
         assertThat(actual.candidate()).as(context + ", action candidate").isEqualTo(expectedCandidate);
 
         switch (expected) {
-            case ExpectedAction.Elected elected -> {
+            case ExpectedAction.Elected(_, var expectedSurplus) -> {
                 assertThat(actual).as(context + ", action type").isInstanceOf(RoundAction.Elected.class);
-                elected.surplus().ifPresent(surplus -> assertThat(((RoundAction.Elected) actual).surplusTransferred())
+                expectedSurplus.ifPresent(surplus -> assertThat(((RoundAction.Elected) actual).surplusTransferred())
                         .as(context + ", surplus")
                         .isEqualTo(surplus));
             }

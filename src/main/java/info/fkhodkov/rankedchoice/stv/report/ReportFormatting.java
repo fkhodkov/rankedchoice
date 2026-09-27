@@ -22,8 +22,8 @@ final class ReportFormatting {
     /** {@code truncate:N}'s fixed decimal places to render every figure with, or empty for {@link Exact}. */
     static OptionalInt decimalPlacesOf(RoundingRule roundingRule) {
         return switch (roundingRule) {
-            case TruncateDecimal truncate -> OptionalInt.of(truncate.decimalPlaces());
-            case Exact ignored -> OptionalInt.empty();
+            case TruncateDecimal(var decimalPlaces) -> OptionalInt.of(decimalPlaces);
+            case Exact _ -> OptionalInt.empty();
         };
     }
 

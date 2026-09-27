@@ -228,10 +228,8 @@ public final class StvCounter {
      */
     private static boolean defersSurplusTransfers(TransferMethod transferMethod) {
         return switch (transferMethod) {
-            case LastParcelTransfer _ -> true;
-            case LastParcelDeferredRoundingTransfer _ -> true;
-            case FractionalTransfer _ -> false;
-            case WigmTransfer _ -> false;
+            case LastParcelTransfer _, LastParcelDeferredRoundingTransfer _ -> true;
+            case FractionalTransfer _, WigmTransfer _ -> false;
         };
     }
 
