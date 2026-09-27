@@ -9,10 +9,11 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
  * round each round's reported figures, how to break a tie, and how to treat tied rankings
  * and short ballots (see {@link info.fkhodkov.rankedchoice.stv.BallotFormality}) — plus
  * {@code precision}, the number of decimal places the count itself works to (see {@link
- * MeekCounter}; 9 by default, droop's default for fixed-point Meek). Quota and transfer method
- * aren't configurable here — Meek's method fixes both itself: the quota is recomputed from the
- * votes candidates actually hold every iteration, and "transfer" is the iterative keep-factor
- * recalculation, not a pluggable strategy.
+ * MeekCounter}; 9 by default, droop's default for fixed-point Meek), and {@code keepRule},
+ * which makes the count Meek's method or Warren's (see {@link KeepRule}). Quota and transfer
+ * method aren't configurable here — both methods fix both themselves: the quota is recomputed
+ * from the votes candidates actually hold every iteration, and "transfer" is the iterative
+ * keep-factor recalculation, not a pluggable strategy.
  *
  * <p>{@code roundingRule} only shapes the reported figures. Every figure the count computes is
  * already an exact decimal at {@code precision} places, so {@code truncate:N} with N at least
@@ -22,7 +23,7 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
  * {@link MeekCounter}), so {@link TiedRankingPolicy#SPLIT} is the default.
  */
 public record MeekRuleset(RoundingRule roundingRule, TieBreakRule tieBreak, TiedRankingPolicy tiedRankings,
-        int minimumPreferences, int precision) {
+        int minimumPreferences, int precision, KeepRule keepRule) {
 
     public static final int DEFAULT_PRECISION = 9;
 
@@ -31,6 +32,14 @@ public record MeekRuleset(RoundingRule roundingRule, TieBreakRule tieBreak, Tied
             throw new IllegalArgumentException("minimumPreferences must not be negative, got: " + minimumPreferences);
         }
         new FixedPoint(precision); // validates the range
+        if (keepRule == null) {
+            throw new IllegalArgumentException("keepRule must not be null");
+        }
+    }
+
+    public MeekRuleset(RoundingRule roundingRule, TieBreakRule tieBreak, TiedRankingPolicy tiedRankings,
+            int minimumPreferences, int precision) {
+        this(roundingRule, tieBreak, tiedRankings, minimumPreferences, precision, KeepRule.MEEK);
     }
 
     public MeekRuleset(

@@ -13,6 +13,7 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvResult;
+import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
@@ -160,5 +161,49 @@ class MeekCounterTest {
                 .isEqualTo(Map.of(a, Fraction.of(7), b, Fraction.of(5), c, Fraction.of(4)));
         assertThat(result.rounds().get(2).tallies()).isEqualTo(Map.of(a, Fraction.of(7), b, Fraction.of(6)));
         assertThat(result.quota()).isEqualTo(Fraction.of(13, 2));
+    }
+
+    /**
+     * Warren's method differs from Meek's only once a ballot reaches a second elected candidate
+     * with part of its weight already spent: Meek has that candidate keep its fraction of what's
+     * left, Warren charges it a fixed amount per ballot (all that's left, if less).
+     * <pre>
+     *   40: A, B, C      30: B      20: C      10: D      (3 seats)
+     * </pre>
+     * <p>A and B are elected on first preferences under both. The A voters' ballots then pay A,
+     * then B, then reach C; Warren's flat charge at B leaves less of them for C, so C finishes on
+     * 25.287963160 under Warren against 27.673611080 under Meek, with correspondingly more value
+     * left unassigned. Both counts match droop's {@code warren} and {@code meek} reports exactly.
+     */
+    @Test
+    void warrenChargesAFlatAmountPerBallotWhereMeekKeepsAFraction() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        List<Candidate> candidates = List.of(a, b, c, d);
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(a), Set.of(b), Set.of(c)), BigInteger.valueOf(40)),
+                new Ballot(List.of(Set.of(b)), BigInteger.valueOf(30)),
+                new Ballot(List.of(Set.of(c)), BigInteger.valueOf(20)),
+                new Ballot(List.of(Set.of(d)), BigInteger.valueOf(10)));
+
+        StvResult meek = MeekCounter.count(candidates, ballots, 3, ruleset(candidates, KeepRule.MEEK));
+        StvResult warren = MeekCounter.count(candidates, ballots, 3, ruleset(candidates, KeepRule.WARREN));
+
+        assertThat(meek.electedInOrder()).containsExactly(a, b, c);
+        assertThat(warren.electedInOrder()).containsExactly(a, b, c);
+        assertThat(meek.rounds().get(2).tallies())
+                .isEqualTo(Map.of(c, Fraction.of(27_673_611_080L, 1_000_000_000), d, Fraction.of(10)));
+        assertThat(warren.rounds().get(2).tallies())
+                .isEqualTo(Map.of(c, Fraction.of(25_287_963_160L, 1_000_000_000), d, Fraction.of(10)));
+        assertThat(meek.rounds().get(2).exhaustedVotes()).isEqualTo(Fraction.of(14_166_666_670L, 1_000_000_000));
+        assertThat(warren.rounds().get(2).exhaustedVotes()).isEqualTo(Fraction.of(19_874_175_510L, 1_000_000_000));
+        assertThat(warren.quota()).isEqualTo(Fraction.of(20_031_456_123L, 1_000_000_000));
+    }
+
+    private static MeekRuleset ruleset(List<Candidate> candidates, KeepRule keepRule) {
+        return new MeekRuleset(Exact.INSTANCE, new DeclaredOrderTieBreak(candidates), TiedRankingPolicy.SPLIT, 0,
+                MeekRuleset.DEFAULT_PRECISION, keepRule);
     }
 }

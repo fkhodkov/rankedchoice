@@ -1,0 +1,142 @@
+
+Election: MapLibre Governing Board Election 2025
+
+	Droop package: droop v0.14
+	Rule: Warren Parametric (omega = 1/10^6)
+	Arithmetic: fixed-point decimal arithmetic (9 places)
+	Seats: 5
+	Ballots: 89
+	Quota: 14.833333334
+	Omega: 0.000001000
+
+	Add eligible: Yuri Astrakhan
+	Add eligible: Frank Elsinga
+	Add eligible: Stefan Karschti
+	Add eligible: Stephanie May
+	Add eligible: Birk Skyum
+	Add eligible: Haowen You
+Action: Begin Count
+	Hopeful:  Yuri Astrakhan (34.000000000)
+	Hopeful:  Frank Elsinga (3.000000000)
+	Hopeful:  Stefan Karschti (5.000000000)
+	Hopeful:  Stephanie May (11.000000000)
+	Hopeful:  Birk Skyum (25.000000000)
+	Hopeful:  Haowen You (11.000000000)
+	Quota: 14.833333334
+	Votes: 89.000000000
+	Residual: 0.000000000
+	Total: 89.000000000
+	Surplus: 0.000000000
+Round 1:
+Action: Elect: Yuri Astrakhan
+	Elected:  Yuri Astrakhan (34.000000000)
+	Hopeful:  Frank Elsinga (3.000000000)
+	Hopeful:  Stefan Karschti (5.000000000)
+	Hopeful:  Stephanie May (11.000000000)
+	Hopeful:  Birk Skyum (25.000000000)
+	Hopeful:  Haowen You (11.000000000)
+	Quota: 14.833333334
+	Votes: 89.000000000
+	Residual: 0.000000000
+	Total: 89.000000000
+	Surplus: 0.000000000
+Action: Elect: Birk Skyum
+	Elected:  Yuri Astrakhan (34.000000000)
+	Elected:  Birk Skyum (25.000000000)
+	Hopeful:  Frank Elsinga (3.000000000)
+	Hopeful:  Stefan Karschti (5.000000000)
+	Hopeful:  Stephanie May (11.000000000)
+	Hopeful:  Haowen You (11.000000000)
+	Quota: 14.833333334
+	Votes: 89.000000000
+	Residual: 0.000000000
+	Total: 89.000000000
+	Surplus: 0.000000000
+Action: Iterate (elected)
+	Quota: 14.833333334
+	Votes: 89.000000000
+	Residual: 0.000000000
+	Total: 89.000000000
+	Surplus: 29.333333332
+Round 2:
+Action: Elect: Stephanie May
+	Elected:  Yuri Astrakhan (21.746666662)
+	Elected:  Stephanie May (15.445294114)
+	Elected:  Birk Skyum (26.107843150)
+	Hopeful:  Frank Elsinga (5.254901960)
+	Hopeful:  Stefan Karschti (5.970392156)
+	Hopeful:  Haowen You (13.911176468)
+	Quota: 14.739379086
+	Votes: 88.436274510
+	Residual: 0.563725490
+	Total: 89.000000000
+	Surplus: 29.333333332
+Action: Iterate (elected)
+	Quota: 14.739379086
+	Votes: 88.436274510
+	Residual: 0.563725490
+	Total: 89.000000000
+	Surplus: 19.081666668
+Round 3:
+Action: Elect: Haowen You
+	Elected:  Yuri Astrakhan (15.171935028)
+	Elected:  Stephanie May (17.786885288)
+	Elected:  Birk Skyum (15.347911014)
+	Elected:  Haowen You (20.647986908)
+	Hopeful:  Frank Elsinga (10.016984908)
+	Hopeful:  Stefan Karschti (8.585328242)
+	Quota: 14.592838565
+	Votes: 87.557031388
+	Residual: 1.442968612
+	Total: 89.000000000
+	Surplus: 19.081666668
+Action: Iterate (elected)
+	Quota: 14.592838565
+	Votes: 87.557031388
+	Residual: 1.442968612
+	Total: 89.000000000
+	Surplus: 10.583363978
+Round 4:
+Action: Elect: Frank Elsinga
+	Elected:  Yuri Astrakhan (14.476468710)
+	Elected:  Frank Elsinga (14.618160081)
+	Elected:  Stephanie May (14.753295324)
+	Elected:  Birk Skyum (14.530821962)
+	Elected:  Haowen You (14.627845304)
+	Hopeful:  Stefan Karschti (13.708699616)
+	Quota: 14.452548500
+	Votes: 86.715290997
+	Residual: 2.284709003
+	Total: 89.000000000
+	Surplus: 1.434295312
+Action: Iterate (elected)
+	Quota: 14.452548500
+	Votes: 86.715290997
+	Residual: 2.284709003
+	Total: 89.000000000
+	Surplus: 0.743848881
+Action: Defeat remaining: Stefan Karschti
+	Elected:  Yuri Astrakhan (14.476468710)
+	Elected:  Frank Elsinga (14.618160081)
+	Elected:  Stephanie May (14.753295324)
+	Elected:  Birk Skyum (14.530821962)
+	Elected:  Haowen You (14.627845304)
+	Defeated: Stefan Karschti (13.708699616)
+	Quota: 14.452548500
+	Votes: 86.715290997
+	Residual: 2.284709003
+	Total: 89.000000000
+	Surplus: 0.743848881
+Action: Count Complete
+	Elected:  Yuri Astrakhan (15.198740708)
+	Elected:  Frank Elsinga (18.647736553)
+	Elected:  Stephanie May (18.232451869)
+	Elected:  Birk Skyum (15.775590735)
+	Elected:  Haowen You (17.723866658)
+	Defeated: Stefan Karschti (0.000000000)
+	Quota: 14.452548500
+	Votes: 85.578386523
+	Residual: 3.421613477
+	Total: 89.000000000
+	Surplus: 0.743848881
+

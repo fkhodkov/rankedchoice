@@ -17,7 +17,9 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
 
 /**
  * Runs an STV count by Meek's method (Hill, Wichmann &amp; Woodall, "Algorithm 123: Single
- * Transferable Vote by Meek's Method", <i>The Computer Journal</i> 30(3), 1987) — structurally
+ * Transferable Vote by Meek's Method", <i>The Computer Journal</i> 30(3), 1987), or by Warren's
+ * method, which differs only in how a keep factor applies to a ballot (see {@link KeepRule}) —
+ * structurally
  * different from every {@link info.fkhodkov.rankedchoice.stv.transfer.TransferMethod} in this
  * project, so it isn't one: instead of tracking which single "parcel" a ballot most recently
  * arrived through and moving only the ballots touched by one election/elimination event, every
@@ -30,13 +32,15 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
  * {@code a}, B {@code (1-a)*b}, and C the remainder {@code (1-a)*(1-b)}.
  *
  * <p>The count follows droop's Meek rule ({@code jklundell/droop}, {@code rules/meek.py}, with
- * {@code arithmetic=fixed defeat_batch=none}) step for step, in the same fixed-point decimal
+ * {@code arithmetic=fixed defeat_batch=none}, or droop's {@code warren} rule, the same code)
+ * step for step, in the same fixed-point decimal
  * arithmetic ({@link FixedPoint}, {@link MeekRuleset#precision()} places), so every figure is
  * reproducible exactly rather than to within a tolerance:
  * <ul>
  * <li>Each candidate keeps {@code weight * keepFactor} of what reaches them and passes on
  * {@code weight * (1 - keepFactor)}, both rounded down — so a little value is lost to rounding
- * at every elected candidate, and counts as part of the residual ("exhausted") votes.
+ * at every elected candidate, and counts as part of the residual ("exhausted") votes. (Under
+ * Warren's method, {@code min(keepFactor, weight)} and the exact remainder instead.)
  * <li>After each distribution the quota is recomputed from the votes candidates actually hold:
  * {@code votes / (seats + 1)}, rounded down, plus the smallest representable amount, and a
  * hopeful is elected on reaching it. Everyone who reaches it in the same iteration is elected
@@ -77,7 +81,8 @@ public final class MeekCounter {
         validate(candidates, seats);
         BallotFormality.FormalBallots formal = BallotFormality.apply(
                 rawBallots, ruleset.tiedRankings(), ruleset.minimumPreferences(), candidates.size());
-        Count count = new Count(candidates, formal.ballots(), seats, new FixedPoint(ruleset.precision()));
+        Count count = new Count(
+                candidates, formal.ballots(), seats, new FixedPoint(ruleset.precision()), ruleset.keepRule());
         return count.run(ruleset, formal);
     }
 
@@ -100,16 +105,18 @@ public final class MeekCounter {
         private final List<Ballot> ballots;
         private final int seats;
         private final FixedPoint fixed;
+        private final KeepRule keepRule;
         private final long totalVotes;
         private final long omega;
         private final Map<Candidate, State> states = new LinkedHashMap<>();
         private final Map<Candidate, Long> keepFactors = new LinkedHashMap<>();
 
-        Count(List<Candidate> candidates, List<Ballot> ballots, int seats, FixedPoint fixed) {
+        Count(List<Candidate> candidates, List<Ballot> ballots, int seats, FixedPoint fixed, KeepRule keepRule) {
             this.candidates = candidates;
             this.ballots = ballots;
             this.seats = seats;
             this.fixed = fixed;
+            this.keepRule = keepRule;
             long total = 0;
             for (Ballot ballot : ballots) {
                 total = Math.addExact(total, fixed.of(ballot.count()));
@@ -245,8 +252,9 @@ public final class MeekCounter {
 
         /**
          * Passes {@code weight} (per ballot, times {@code multiplier} identical ballots) down
-         * {@code ranking} from {@code index}: each standing candidate keeps {@code weight *
-         * keepFactor} and passes on {@code weight * (1 - keepFactor)}, both rounded down. A tied
+         * {@code ranking} from {@code index}: each standing candidate keeps part of it by the
+         * {@link KeepRule} and passes on the rest (under Meek, {@code weight * keepFactor} kept
+         * and {@code weight * (1 - keepFactor)} passed on, both rounded down). A tied
          * rank splits the weight reaching it evenly (rounded down) between its standing
          * candidates, and what each one passes on flows to the next rank separately — the
          * equal-preference distribution in droop's Meek rule ({@code distributeVotes}). One
@@ -266,8 +274,14 @@ public final class MeekCounter {
                 long share = fixed.divideDown(weight, standing.size());
                 for (Candidate candidate : standing) {
                     long keepFactor = keepFactors.get(candidate);
-                    long kept = fixed.multiply(share, keepFactor, false);
-                    long passedOn = fixed.multiply(share, fixed.one() - keepFactor, false);
+                    long kept = switch (keepRule) {
+                        case MEEK -> fixed.multiply(share, keepFactor, false);
+                        case WARREN -> Math.min(keepFactor, share);
+                    };
+                    long passedOn = switch (keepRule) {
+                        case MEEK -> fixed.multiply(share, fixed.one() - keepFactor, false);
+                        case WARREN -> share - kept;
+                    };
                     votes.merge(candidate, Math.multiplyExact(kept, multiplier), Long::sum);
                     if (standing.size() > 1) {
                         distribute(ranking, i + 1, passedOn, multiplier, votes);

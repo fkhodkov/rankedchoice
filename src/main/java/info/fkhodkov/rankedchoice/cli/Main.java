@@ -36,6 +36,7 @@ import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
+import info.fkhodkov.rankedchoice.stv.meek.KeepRule;
 import info.fkhodkov.rankedchoice.stv.meek.MeekCounter;
 import info.fkhodkov.rankedchoice.stv.meek.MeekRuleset;
 import info.fkhodkov.rankedchoice.stv.report.StvCsvReport;
@@ -88,9 +89,9 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
-    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|schulze|borda|cpo-stv|qpq. Defaults "
-            + "to stv. --quota/--transfer don't apply to meek (its quota and transfer are fixed by the method "
-            + "itself); schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all; "
+    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|warren|schulze|borda|cpo-stv|qpq. "
+            + "Defaults to stv. --quota/--transfer don't apply to meek or warren (their quota and transfer are fixed "
+            + "by the method itself); schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all; "
             + "cpo-stv uses --seats/--quota/--transfer/--rounding but not --tiebreak; qpq (Woodall's Quota "
             + "Preferential by Quotient -- unrelated to the hare-clark-qpq *ruleset*, a different, classic-STV "
             + "preset despite the similar name) uses --seats/--tiebreak but not --quota/--transfer/--rounding, "
@@ -139,17 +140,18 @@ public final class Main implements Callable<Integer> {
 
     @Option(names = {"--tied-rankings"},
             description = "What to do with a ballot ranking several candidates equally: reject|split|truncate|skip. "
-                    + "split divides the ballot between them (stv with fractional transfer, and meek); truncate "
+                    + "split divides the ballot between them (stv with fractional transfer, meek, and warren); truncate "
                     + "stops the ballot at the tie (a tie at first preference voids it, as Scottish law requires); "
-                    + "skip drops the tied rank and continues. Defaults to split for meek and for stv under "
-                    + "fractional transfer, reject otherwise. Applies to stv, meek, cpo-stv, and qpq (schulze and "
+                    + "skip drops the tied rank and continues. Defaults to split for meek, warren, and stv under "
+                    + "fractional transfer, reject otherwise. Applies to stv, meek, warren, cpo-stv, and qpq (schulze and "
                     + "borda count ties natively). Overrides --config/--ruleset.")
     private String tiedRankings;
 
     @Option(names = {"--minimum-preferences"},
             description = "Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as "
                     + "informal, capped at one fewer than the number of candidates. Defaults to none; the "
-                    + "hare-clark-qpq preset sets 7. Applies to stv, meek, cpo-stv, and qpq. Overrides --config/--ruleset.")
+                    + "hare-clark-qpq preset sets 7. Applies to stv, meek, warren, cpo-stv, and qpq. Overrides "
+                    + "--config/--ruleset.")
     private Integer minimumPreferences;
 
     static void main(String[] args) {
@@ -179,6 +181,7 @@ public final class Main implements Callable<Integer> {
         ElectionConfig fileConfig = loadFileConfig();
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
         boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek")
+                || effectiveMethod.equals("warren")
                 || effectiveMethod.equals("cpo-stv") || effectiveMethod.equals("qpq");
         if (tiedRankings != null && !seatsBasedMethod) {
             throw new IllegalArgumentException("--tied-rankings doesn't apply to --method " + effectiveMethod
@@ -264,21 +267,22 @@ public final class Main implements Callable<Integer> {
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
                 roundingRuleForReport = ruleset.roundingRule();
             }
-            case "meek" -> {
+            case "meek", "warren" -> {
                 if (quota != null || transfer != null) {
-                    throw new IllegalArgumentException(
-                            "--quota/--transfer don't apply to --method meek; its quota and transfer are fixed by the method itself");
+                    throw new IllegalArgumentException("--quota/--transfer don't apply to --method " + effectiveMethod
+                            + "; its quota and transfer are fixed by the method itself");
                 }
                 roundingRuleForReport = StvRulesetParser.parseRounding(firstNonNull(rounding, fileConfig.rounding()));
                 MeekRuleset ruleset = new MeekRuleset(roundingRuleForReport,
                         StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
                         StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.SPLIT),
-                        effectiveMinimumPreferences);
+                        effectiveMinimumPreferences, MeekRuleset.DEFAULT_PRECISION,
+                        effectiveMethod.equals("warren") ? KeepRule.WARREN : KeepRule.MEEK);
                 result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
             }
             default -> throw new IllegalArgumentException(
                     "Unsupported method '" + effectiveMethod
-                            + "'; expected 'stv', 'meek', 'schulze', 'borda', 'cpo-stv', or 'qpq'");
+                            + "'; expected 'stv', 'meek', 'warren', 'schulze', 'borda', 'cpo-stv', or 'qpq'");
         }
 
         String resolvedReportFormat = firstNonNull(reportFormat, fileConfig.reportFormat());

@@ -193,6 +193,17 @@ class MainTest {
     }
 
     @Test
+    void warrenMethodRunsFromTheCommandLine() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main()).execute("--input", bltFile.toString(), "--method", "warren");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Elected: X");
+    }
+
+    @Test
     void minimumPreferencesFlagIsRefusedForAMethodWithoutIt() throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, BLT);

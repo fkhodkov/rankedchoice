@@ -24,12 +24,14 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvResult;
+import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
 
 /**
  * Replays elections against reports produced by droop itself ({@code jklundell/droop} v0.14,
- * commit cf58293, {@code python3 Droop.py meek arithmetic=fixed defeat_batch=none <file>.blt}),
+ * commit cf58293, {@code python3 Droop.py meek arithmetic=fixed defeat_batch=none <file>.blt},
+ * or {@code warren} in place of {@code meek} for the {@code .warren.droop.txt} reports),
  * checked in next to the ballots under {@code testdata/meek/droop/}. Each of our rounds is paired
  * with droop's Elect or Defeat action at the same position (droop's closing "Defeat remaining"
  * entries aren't rounds here), and must agree to the last of droop's 9 decimal places:
@@ -43,7 +45,9 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
  * The cases: MapLibre's real 2025 election (see {@link MeekMapLibreGoverningBoard2025FixtureTest});
  * a synthetic count whose exclusions need droop's tie-break (every hopeful within the remaining
  * surplus of the lowest counts as tied); and a synthetic count where keep-factor iteration stops
- * because the surplus stopped shrinking rather than dropping below omega.
+ * because the surplus stopped shrinking rather than dropping below omega. For Warren's method:
+ * MapLibre again, and a synthetic count that Meek's and Warren's methods decide differently (C8
+ * elected under Meek, C2 under Warren), with droop's reports for both.
  */
 class MeekDroopReferenceTest {
 
@@ -57,12 +61,16 @@ class MeekDroopReferenceTest {
 
     @ParameterizedTest
     @CsvSource({
-            "maplibre-governing-board-2025.blt, droop/maplibre-governing-board-2025.droop.txt",
-            "droop/synthetic-tiebreak.blt, droop/synthetic-tiebreak.droop.txt",
-            "droop/synthetic-stable.blt, droop/synthetic-stable.droop.txt"})
-    void matchesDroopRoundByRound(String ballots, String report) throws IOException {
+            "maplibre-governing-board-2025.blt, droop/maplibre-governing-board-2025.droop.txt, MEEK",
+            "droop/synthetic-tiebreak.blt, droop/synthetic-tiebreak.droop.txt, MEEK",
+            "droop/synthetic-stable.blt, droop/synthetic-stable.droop.txt, MEEK",
+            "droop/synthetic-warren-differs.blt, droop/synthetic-warren-differs.droop.txt, MEEK",
+            "maplibre-governing-board-2025.blt, droop/maplibre-governing-board-2025.warren.droop.txt, WARREN",
+            "droop/synthetic-warren-differs.blt, droop/synthetic-warren-differs.warren.droop.txt, WARREN"})
+    void matchesDroopRoundByRound(String ballots, String report, KeepRule keepRule) throws IOException {
         ParsedElection election = BltParser.parse(DIR.resolve(ballots));
-        MeekRuleset ruleset = new MeekRuleset(Exact.INSTANCE, new DeclaredOrderTieBreak(election.candidates()));
+        MeekRuleset ruleset = new MeekRuleset(Exact.INSTANCE, new DeclaredOrderTieBreak(election.candidates()),
+                TiedRankingPolicy.SPLIT, 0, MeekRuleset.DEFAULT_PRECISION, keepRule);
         StvResult result = MeekCounter.count(election.candidates(), election.ballots(), election.seats(), ruleset);
         List<DroopAction> droop = parse(Files.readString(DIR.resolve(report)));
 

@@ -1,7 +1,7 @@
 # Ranked Choice Voting Calculator
 
 A Java library and CLI for tabulating ranked-choice elections: Single Transferable Vote (STV,
-plus Meek's method), Schulze, Borda, CPO-STV, and QPQ are implemented; Schulze-STV is deferred (see
+plus Meek's and Warren's methods), Schulze, Borda, CPO-STV, and QPQ are implemented; Schulze-STV is deferred (see
 below), and the Cambridge, MA "Cincinnati method" ruleset needs its own separate engine. See
 [PLAN.md](PLAN.md) for the full design and roadmap; this file covers what's built and how to
 use it today.
@@ -160,6 +160,16 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   behind full convergence — which droop's rule does too. The final keep factors (under the
   earlier floating-point engine) agreed with OpaVote's published figures to 5-6 significant
   digits; OpaVote's own arithmetic isn't published, so that comparison stays approximate
+- Warren's method (`--method warren`), the same count with one change: an elected candidate's
+  keep factor is a flat amount charged to every ballot reaching them (or all that's left of
+  the ballot, if less) rather than a fraction of what reaches them (C. H. E. Warren, "Counting
+  in STV Elections", *Voting matters* 1, 1994). droop counts both with the same code, and so
+  does this project (`KeepRule`). The two agree until a ballot reaches a second elected
+  candidate with part of its weight already spent. Checked the same way as Meek against
+  droop's `warren` rule, on the same 144 elections (MapLibre plus the 143 synthetic ones):
+  every round matches exactly, while Warren's own figures differ from Meek's in 73 of the 120
+  random ones and its winners in 7 (`MeekDroopReferenceTest` replays two droop Warren
+  reports, one a count the two methods decide differently; `MeekCounterTest` pins a small one)
 - Five bundled ruleset presets, shipped as YAML resources rather than hardcoded — `scottish`,
   `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark` — each a named combination of the
   building blocks above, with sourced rules and links under
@@ -410,19 +420,19 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-m, --method` | Counting method: `stv\|meek\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`; `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all; `cpo-stv` uses `--seats`/`--quota`/`--transfer`/`--rounding` but not `--tiebreak`; `qpq` uses `--seats`/`--tiebreak` but not `--quota`/`--transfer`/`--rounding` (both are derived formulas, not configurable). |
+| `-m, --method` | Counting method: `stv\|meek\|warren\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`/`warren`; `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all; `cpo-stv` uses `--seats`/`--quota`/`--transfer`/`--rounding` but not `--tiebreak`; `qpq` uses `--seats`/`--tiebreak` but not `--quota`/`--transfer`/`--rounding` (both are derived formulas, not configurable). |
 | `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. Can also come from `--config`'s `format` field. |
-| `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek`/`cpo-stv`/`qpq` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
+| `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek`/`warren`/`cpo-stv`/`qpq` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
 | `-o, --output` | Output file. Defaults to standard output. |
-| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`; only `text` exists so far for `schulze`/`borda`/`cpo-stv`/`qpq`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
+| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`/`warren`; only `text` exists so far for `schulze`/`borda`/`cpo-stv`/`qpq`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
 | `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
 | `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark`. Mutually exclusive with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
 | `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding`. Overrides `--config`/`--ruleset`. |
 | `--rounding` | `exact\|truncate:N`. Overrides `--config`/`--ruleset`. |
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
-| `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek` and fractional-transfer `stv`. Applies to `stv`, `meek`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
-| `--minimum-preferences` | Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as informal, capped at one fewer than the number of candidates. Defaults to none; the `hare-clark-qpq` preset sets 7. Applies to `stv`, `meek`, `cpo-stv`, and `qpq`. Overrides `--config`/`--ruleset`. |
+| `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek`/`warren` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek`/`warren` and fractional-transfer `stv`. Applies to `stv`, `meek`, `warren`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
+| `--minimum-preferences` | Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as informal, capped at one fewer than the number of candidates. Defaults to none; the `hare-clark-qpq` preset sets 7. Applies to `stv`, `meek`, `warren`, `cpo-stv`, and `qpq`. Overrides `--config`/`--ruleset`. |
 | `--borda-scoring` | `classic\|dowdall`. Only applies to `--method borda`; defaults to `classic`. `dowdall` is the Nauru system (`1, 1/2, 1/3, ...`). |
 
 ### Rules and config
@@ -547,8 +557,8 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   │              FirstPreferenceCountTieBreak, SeededRandomTieBreak
 │   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak string DSL)
 │   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
-│   ├── meek/      MeekCounter, MeekRuleset, FixedPoint -- Meek's method in droop's
-│   │              fixed-point arithmetic, producing the same StvResult
+│   ├── meek/      MeekCounter, MeekRuleset, KeepRule, FixedPoint -- Meek's and Warren's
+│   │              methods in droop's fixed-point arithmetic, producing the same StvResult
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy,
 │       BallotFormality, InformalBallots (tie policy + minimum preferences, shared by every
 │       ranked engine, and the count of ballots they set aside)

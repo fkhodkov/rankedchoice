@@ -1,0 +1,184 @@
+
+Election: synthetic-warren-differs
+
+	Droop package: droop v0.14
+	Rule: Warren Parametric (omega = 1/10^6)
+	Arithmetic: fixed-point decimal arithmetic (9 places)
+	Seats: 5
+	Ballots: 214
+	Quota: 35.666666667
+	Omega: 0.000001000
+
+	Add eligible: C1
+	Add eligible: C2
+	Add eligible: C3
+	Add eligible: C4
+	Add eligible: C5
+	Add eligible: C6
+	Add eligible: C7
+	Add eligible: C8
+Action: Begin Count
+	Hopeful:  C1 (44.000000000)
+	Hopeful:  C2 (17.000000000)
+	Hopeful:  C3 (5.000000000)
+	Hopeful:  C4 (40.000000000)
+	Hopeful:  C5 (36.000000000)
+	Hopeful:  C6 (0.000000000)
+	Hopeful:  C7 (40.000000000)
+	Hopeful:  C8 (32.000000000)
+	Quota: 35.666666667
+	Votes: 214.000000000
+	Residual: 0.000000000
+	Total: 214.000000000
+	Surplus: 0.000000000
+Round 1:
+Action: Elect: C1
+	Elected:  C1 (44.000000000)
+	Hopeful:  C2 (17.000000000)
+	Hopeful:  C3 (5.000000000)
+	Hopeful:  C4 (40.000000000)
+	Hopeful:  C5 (36.000000000)
+	Hopeful:  C6 (0.000000000)
+	Hopeful:  C7 (40.000000000)
+	Hopeful:  C8 (32.000000000)
+	Quota: 35.666666667
+	Votes: 214.000000000
+	Residual: 0.000000000
+	Total: 214.000000000
+	Surplus: 0.000000000
+Action: Elect: C4
+	Elected:  C1 (44.000000000)
+	Elected:  C4 (40.000000000)
+	Hopeful:  C2 (17.000000000)
+	Hopeful:  C3 (5.000000000)
+	Hopeful:  C5 (36.000000000)
+	Hopeful:  C6 (0.000000000)
+	Hopeful:  C7 (40.000000000)
+	Hopeful:  C8 (32.000000000)
+	Quota: 35.666666667
+	Votes: 214.000000000
+	Residual: 0.000000000
+	Total: 214.000000000
+	Surplus: 0.000000000
+Action: Elect: C5
+	Elected:  C1 (44.000000000)
+	Elected:  C4 (40.000000000)
+	Elected:  C5 (36.000000000)
+	Hopeful:  C2 (17.000000000)
+	Hopeful:  C3 (5.000000000)
+	Hopeful:  C6 (0.000000000)
+	Hopeful:  C7 (40.000000000)
+	Hopeful:  C8 (32.000000000)
+	Quota: 35.666666667
+	Votes: 214.000000000
+	Residual: 0.000000000
+	Total: 214.000000000
+	Surplus: 0.000000000
+Action: Elect: C7
+	Elected:  C1 (44.000000000)
+	Elected:  C4 (40.000000000)
+	Elected:  C5 (36.000000000)
+	Elected:  C7 (40.000000000)
+	Hopeful:  C2 (17.000000000)
+	Hopeful:  C3 (5.000000000)
+	Hopeful:  C6 (0.000000000)
+	Hopeful:  C8 (32.000000000)
+	Quota: 35.666666667
+	Votes: 214.000000000
+	Residual: 0.000000000
+	Total: 214.000000000
+	Surplus: 0.000000000
+Action: Iterate (elected)
+	Quota: 35.666666667
+	Votes: 214.000000000
+	Residual: 0.000000000
+	Total: 214.000000000
+	Surplus: 17.333333332
+Round 2:
+Action: Iterate (omega)
+	Quota: 35.454433708
+	Votes: 212.726602244
+	Residual: 1.273397756
+	Total: 214.000000000
+	Surplus: 0.000000932
+Action: Defeat (surplus 0.000000932 < omega): C3
+	Elected:  C1 (35.454433999)
+	Elected:  C4 (35.454433893)
+	Elected:  C5 (35.454433971)
+	Elected:  C7 (35.454433901)
+	Hopeful:  C2 (25.067269360)
+	Hopeful:  C6 (8.841597120)
+	Hopeful:  C8 (32.000000000)
+	Defeated: C3 (5.000000000)
+	Quota: 35.454433708
+	Votes: 212.726602244
+	Residual: 1.273397756
+	Total: 214.000000000
+	Surplus: 0.000000932
+Round 3:
+Action: Iterate (omega)
+	Quota: 34.738203961
+	Votes: 208.429223760
+	Residual: 5.570776240
+	Total: 214.000000000
+	Surplus: 0.000000913
+Action: Defeat (surplus 0.000000913 < omega): C6
+	Elected:  C1 (34.738204245)
+	Elected:  C4 (34.738204150)
+	Elected:  C5 (34.738204222)
+	Elected:  C7 (34.738204140)
+	Hopeful:  C2 (27.050814911)
+	Hopeful:  C8 (32.000000000)
+	Defeated: C6 (10.425592092)
+	Defeated: C3 (0.000000000)
+	Quota: 34.738203961
+	Votes: 208.429223760
+	Residual: 5.570776240
+	Total: 214.000000000
+	Surplus: 0.000000913
+Round 4:
+Action: Elect: C2
+	Elected:  C1 (34.858250630)
+	Elected:  C2 (34.793152523)
+	Elected:  C4 (35.186206594)
+	Elected:  C5 (35.111930802)
+	Elected:  C7 (34.888845114)
+	Hopeful:  C8 (33.056223753)
+	Defeated: C3, C6 (0.000000000)
+	Quota: 34.649101570
+	Votes: 207.894609416
+	Residual: 6.105390584
+	Total: 214.000000000
+	Surplus: 2.005084996
+Action: Iterate (elected)
+	Quota: 34.649101570
+	Votes: 207.894609416
+	Residual: 6.105390584
+	Total: 214.000000000
+	Surplus: 1.592877813
+Action: Defeat remaining: C8
+	Elected:  C1 (34.858250630)
+	Elected:  C2 (34.793152523)
+	Elected:  C4 (35.186206594)
+	Elected:  C5 (35.111930802)
+	Elected:  C7 (34.888845114)
+	Defeated: C8 (33.056223753)
+	Defeated: C3, C6 (0.000000000)
+	Quota: 34.649101570
+	Votes: 207.894609416
+	Residual: 6.105390584
+	Total: 214.000000000
+	Surplus: 1.592877813
+Action: Count Complete
+	Elected:  C1 (34.858250630)
+	Elected:  C2 (46.793152523)
+	Elected:  C4 (36.242430347)
+	Elected:  C5 (35.111930802)
+	Elected:  C7 (34.888845114)
+	Defeated: C3, C6, C8 (0.000000000)
+	Quota: 34.649101570
+	Votes: 187.894609416
+	Residual: 26.105390584
+	Total: 214.000000000
+	Surplus: 1.592877813
+
