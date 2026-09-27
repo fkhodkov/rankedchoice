@@ -962,4 +962,68 @@ class StvCounterTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("No valid votes");
     }
+
+    /**
+     * Under exact rounding, fractional transfers compound into ever-larger fractions when ballots
+     * pass through many elected candidates, and the count warns about it (once) while it's still
+     * running -- 40 candidates, 15 seats and 1,000 voters ranking about 20 each (with skewed
+     * popularity, so surpluses arise early and keep passing on) is already enough.
+     * The same count under truncate:9 never warns, nor does an ordinary small exact count.
+     */
+    @Test
+    void warnsOnceWhenExactArithmeticStartsCompounding() {
+        java.util.Random random = new java.util.Random(1);
+        List<Candidate> candidates = new ArrayList<>();
+        for (int i = 1; i <= 40; i++) {
+            candidates.add(Candidate.of("C" + i));
+        }
+        List<Ballot> ballots = new ArrayList<>();
+        for (int voter = 0; voter < 1000; voter++) {
+            // Skewed popularity, as in real elections (weight 1/i^0.8, drawn without replacement
+            // by sorting on log-weight plus Gumbel noise): a few candidates reach quota early and
+            // their surpluses pass on through many hands.
+            Map<Candidate, Double> key = new java.util.HashMap<>();
+            for (int i = 0; i < candidates.size(); i++) {
+                key.put(candidates.get(i), -0.8 * Math.log(i + 1) - Math.log(-Math.log(random.nextDouble())));
+            }
+            List<Candidate> pool = new ArrayList<>(candidates);
+            pool.sort(java.util.Comparator.comparing(key::get).reversed());
+            int length = 1;
+            while (length < pool.size() && random.nextDouble() < 19.0 / 20) {
+                length++;
+            }
+            List<Set<Candidate>> ranking = new ArrayList<>();
+            for (Candidate candidate : pool.subList(0, length)) {
+                ranking.add(Set.of(candidate));
+            }
+            ballots.add(new Ballot(ranking, BigInteger.ONE));
+        }
+
+        List<String> warnings = new ArrayList<>();
+        StvCounter.count(candidates, ballots, 15, fractional(Exact.INSTANCE, candidates), warnings::add);
+        assertThat(warnings).singleElement().asString()
+                .contains("-digit denominators by round")
+                .contains("a truncating rounding rule would keep values bounded");
+
+        List<String> truncated = new ArrayList<>();
+        StvCounter.count(candidates, ballots, 15, fractional(new TruncateDecimal(9), candidates), truncated::add);
+        assertThat(truncated).isEmpty();
+
+        Candidate x = Candidate.of("X");
+        Candidate y = Candidate.of("Y");
+        Candidate z = Candidate.of("Z");
+        List<String> small = new ArrayList<>();
+        StvCounter.count(List.of(x, y, z), List.of(
+                new Ballot(List.of(Set.of(x)), BigInteger.valueOf(5)),
+                new Ballot(List.of(Set.of(y), Set.of(x)), BigInteger.valueOf(3)),
+                new Ballot(List.of(Set.of(z), Set.of(x)), BigInteger.valueOf(3))),
+                1, fractional(Exact.INSTANCE, List.of(x, y, z)), small::add);
+        assertThat(small).isEmpty();
+    }
+
+    private static StvRuleset fractional(info.fkhodkov.rankedchoice.stv.rounding.RoundingRule rounding,
+            List<Candidate> candidates) {
+        return new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, rounding,
+                new DeclaredOrderTieBreak(candidates));
+    }
 }

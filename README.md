@@ -440,7 +440,7 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark`. Mutually exclusive with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
 | `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding`. Overrides `--config`/`--ruleset`. |
-| `--rounding` | `exact\|truncate:N`. Overrides `--config`/`--ruleset`. |
+| `--rounding` | `exact\|truncate:N`. Defaults to `exact`, which can grow very slow on large counts with long rankings and many seats — exact transfer ratios compound into ever-larger fractions as ballots pass through elected candidates (300 candidates / 33 seats / 40 preferences each took over 20 minutes even at 20,000 voters). A warning is printed on stderr as soon as that starts; `truncate:9` keeps figures bounded (43 s for the same count at 1M voters). Every bundled preset already rounds. Overrides `--config`/`--ruleset`. |
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
 | `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek`/`warren` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek`/`warren` and fractional-transfer `stv`. Applies to `stv`, `meek`, `warren`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
 | `--minimum-preferences` | Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as informal, capped at one fewer than the number of candidates. Defaults to none; the `hare-clark-qpq` preset sets 7. Applies to `stv`, `meek`, `warren`, `cpo-stv`, and `qpq`. Overrides `--config`/`--ruleset`. |
@@ -562,7 +562,7 @@ engines that work per distinct ballot), ranking about 5 candidates on average:
 | Method | 20 candidates, 5 seats, 100k voters | 20 / 5, 1M voters | 100 / 20, 100k voters |
 |---|---|---|---|
 | Borda | 0.7 s | 4.4 s | — |
-| Schulze | 1.4 s | 12 s | 13 s |
+| Schulze | 0.5 s | 1.4 s | 0.7 s |
 | STV (fractional, exact) | 1.0 s | 5.5 s | 3.0 s |
 | STV (`scottish`, WIGM) | 1.3 s | 6.9 s | 3.1 s |
 | STV (`ers97`, last parcel) | 2.5 s | 7.8 s | 5.3 s |
@@ -575,6 +575,12 @@ so the default heap is plenty — the JVM will still take more when it's availab
 a run's resident size can look much larger than it needs to be.
 CPO-STV scales with the number of outcome pairs rather than voters: 10 candidates / 3 seats
 (120 outcomes) takes about 9 s at 100k voters, 12 / 4 (495 outcomes) about 34 s at 10k.
+
+At 300 candidates, 33 seats and 1M voters, with voters ranking about 5 (or about 40)
+candidates: Borda 3.8 s (27 s), Schulze 1.7 s (11 s), STV with a rounding ruleset 31–43 s,
+Meek 63 s (135 s), Warren 75 s (193 s), last-parcel STV 132 s (189 s), QPQ 266 s (309 s).
+Exact-arithmetic STV managed 43 s with short rankings but not the long ones (see
+`--rounding`); CPO-STV can't run at all (C(300, 33) outcomes).
 
 ## Project layout
 

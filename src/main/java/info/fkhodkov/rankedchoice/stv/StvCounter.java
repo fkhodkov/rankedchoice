@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
@@ -74,7 +76,31 @@ public final class StvCounter {
     private StvCounter() {
     }
 
+    /**
+     * Ballot values whose denominators grow past this many bits (about 77 decimal digits) under
+     * {@link Exact} rounding mean the count is compounding exact transfer ratios, ballot after
+     * ballot, into ever-larger fractions: ordinary exact counts stay far below it, and past it the
+     * count can slow from seconds to hours (see {@link #count(List, List, int, StvRuleset,
+     * Consumer)}).
+     */
+    static final int EXACT_GROWTH_WARNING_BITS = 256;
+
     public static StvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, StvRuleset ruleset) {
+        return count(candidates, ballots, seats, ruleset, _ -> { });
+    }
+
+    /**
+     * As {@link #count(List, List, int, StvRuleset)}, reporting problems worth knowing about
+     * while the count is still running to {@code warnings}. At present there's one: under {@link
+     * Exact} rounding, fractional transfers compound into ballot values with ever-larger
+     * denominators when ballots pass through many elected candidates -- long rankings, many
+     * seats -- and a large count can then take hours rather than seconds. As soon as any ballot's
+     * value passes {@link #EXACT_GROWTH_WARNING_BITS}, this says so, once, so a caller can suggest
+     * a truncating rounding rule instead of leaving someone waiting. Nothing about the count
+     * itself changes.
+     */
+    public static StvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats, StvRuleset ruleset,
+            Consumer<String> warnings) {
         StvCounterValidation.validate(candidates, seats);
         ruleset.tiedRankings().requireSplitDefinedFor(ruleset.transferMethod());
         BallotFormality.FormalBallots formal = BallotFormality.apply(
@@ -105,9 +131,19 @@ public final class StvCounter {
         int roundNumber = 0;
         int nextParcelId = 1;
 
+        boolean watchExactGrowth = ruleset.roundingRule() instanceof Exact;
         while (elected.size() < seats) {
             roundNumber++;
             int remainingSeats = seats - elected.size();
+            if (watchExactGrowth) {
+                int bits = largestDenominatorBits(states);
+                if (bits > EXACT_GROWTH_WARNING_BITS) {
+                    warnings.accept("exact arithmetic has produced ballot values with " + (int) (bits * Math.log10(2))
+                            + "-digit denominators by round " + roundNumber + "; with this many transfers the count"
+                            + " may become very slow, and a truncating rounding rule would keep values bounded");
+                    watchExactGrowth = false;
+                }
+            }
 
             if (continuing.size() <= remainingSeats) {
                 Map<Candidate, Fraction> tallies = computeTallies(states, continuing, ruleset.roundingRule());
@@ -444,6 +480,14 @@ public final class StvCounter {
         }
         tallies.replaceAll((_, tally) -> roundingRule.apply(tally));
         return tallies;
+    }
+
+    private static int largestDenominatorBits(List<BallotState> states) {
+        int largest = 0;
+        for (BallotState state : states) {
+            largest = Math.max(largest, state.value.denominator().bitLength());
+        }
+        return largest;
     }
 
     private static Fraction exhaustedVotes(List<BallotState> states) {

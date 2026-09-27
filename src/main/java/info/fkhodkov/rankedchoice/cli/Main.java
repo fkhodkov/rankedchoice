@@ -130,7 +130,9 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"--transfer"}, description = "fractional|wigm. Overrides --config/--ruleset.")
     private String transfer;
 
-    @Option(names = {"--rounding"}, description = "exact|truncate:N. Overrides --config/--ruleset.")
+    @Option(names = {"--rounding"}, description = "exact|truncate:N. Defaults to exact, which can grow very slow on "
+            + "large counts with long rankings and many seats (a warning is printed if it starts to); truncate:9 "
+            + "keeps figures bounded. Overrides --config/--ruleset.")
     private String rounding;
 
     @Option(names = {"--tiebreak"},
@@ -274,7 +276,8 @@ public final class Main implements Callable<Integer> {
                         effectiveTiedRankings,
                         configuredMinimumPreferences,
                         candidates);
-                result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset);
+                result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset,
+                        warning -> System.err.println("Warning: " + warning + " -- e.g. --rounding truncate:9"));
                 roundingRuleForReport = ruleset.roundingRule();
             }
             case "meek", "warren" -> {

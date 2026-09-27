@@ -45,39 +45,58 @@ public final class SchulzeMethod {
         return new SchulzeResult(d, p, ranking);
     }
 
+    /**
+     * The strongest-path strengths {@code p}, by Floyd-Warshall over arrays indexed like {@code
+     * candidates} (hundreds of candidates make this cubic loop the costly part), converted back
+     * to maps once at the end.
+     */
     private static Map<Candidate, Map<Candidate, BigInteger>> strongestPaths(
             List<Candidate> candidates, Map<Candidate, Map<Candidate, BigInteger>> d) {
-        Map<Candidate, Map<Candidate, BigInteger>> p = new LinkedHashMap<>();
-        for (Candidate i : candidates) {
-            Map<Candidate, BigInteger> row = new LinkedHashMap<>();
-            for (Candidate j : candidates) {
-                if (i.equals(j)) {
-                    continue;
+        int n = candidates.size();
+        BigInteger[][] p = new BigInteger[n][n];
+        for (int i = 0; i < n; i++) {
+            Map<Candidate, BigInteger> fromI = d.get(candidates.get(i));
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    BigInteger dij = fromI.get(candidates.get(j));
+                    BigInteger dji = d.get(candidates.get(j)).get(candidates.get(i));
+                    p[i][j] = dij.compareTo(dji) > 0 ? dij : BigInteger.ZERO;
                 }
-                BigInteger dij = d.get(i).get(j);
-                BigInteger dji = d.get(j).get(i);
-                row.put(j, dij.compareTo(dji) > 0 ? dij : BigInteger.ZERO);
             }
-            p.put(i, row);
         }
 
-        for (Candidate k : candidates) {
-            for (Candidate i : candidates) {
-                if (i.equals(k)) {
+        for (int k = 0; k < n; k++) {
+            for (int i = 0; i < n; i++) {
+                if (i == k) {
                     continue;
                 }
-                for (Candidate j : candidates) {
-                    if (j.equals(i) || j.equals(k)) {
+                BigInteger iToK = p[i][k];
+                if (iToK.signum() == 0) {
+                    continue; // no path through k can be stronger than zero
+                }
+                for (int j = 0; j < n; j++) {
+                    if (j == i || j == k) {
                         continue;
                     }
-                    BigInteger viaK = p.get(i).get(k).min(p.get(k).get(j));
-                    if (viaK.compareTo(p.get(i).get(j)) > 0) {
-                        p.get(i).put(j, viaK);
+                    BigInteger viaK = iToK.min(p[k][j]);
+                    if (viaK.compareTo(p[i][j]) > 0) {
+                        p[i][j] = viaK;
                     }
                 }
             }
         }
-        return p;
+
+        Map<Candidate, Map<Candidate, BigInteger>> result = new LinkedHashMap<>();
+        for (int i = 0; i < n; i++) {
+            Map<Candidate, BigInteger> row = new LinkedHashMap<>();
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    row.put(candidates.get(j), p[i][j]);
+                }
+            }
+            result.put(candidates.get(i), row);
+        }
+        return result;
     }
 
     private static List<Set<Candidate>> rank(List<Candidate> candidates, Map<Candidate, Map<Candidate, BigInteger>> p) {
