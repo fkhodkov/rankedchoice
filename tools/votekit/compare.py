@@ -21,7 +21,6 @@ import concurrent.futures
 import json
 import math
 import os
-import re
 import subprocess
 import sys
 import tempfile
@@ -46,24 +45,22 @@ DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..
 
 
 def winners(method, report, seats):
-    """The winning committee from a CLI report, or the string 'tie' if it's ambiguous."""
+    """The winning committee from a method's JSON report, or the string 'tie' if it's ambiguous."""
+    data = json.loads(report)
     if method == "cpo-stv":
-        found = re.search(r"^Winning outcome: \{(.*)\}( \(tied)?", report, re.M)
-        return "tie" if found.group(2) else found.group(1).split(", ")
+        return "tie" if len(data["winners"]) > 1 else data["winners"][0]
     if method == "schulze":
-        groups = re.findall(r"^  \d+\. (.*)$", report.split("\nRanking:\n", 1)[1], re.M)
-        groups = [g.split(" = ") for g in groups]
+        groups = data["ranking"]
     elif method == "borda":
-        scores = re.findall(r"^(.*): (\S+)$", report, re.M)
         groups = []
-        for name, score in scores:  # already sorted best first; equal scores tie
-            if groups and groups[-1][0] == score:
-                groups[-1][1].append(name)
+        for entry in data["ranking"]:  # best first; candidates sharing a place are tied
+            if groups and groups[-1][0] == entry["place"]:
+                groups[-1][1].append(entry["candidate"])
             else:
-                groups.append((score, [name]))
+                groups.append((entry["place"], [entry["candidate"]]))
         groups = [names for _, names in groups]
     else:
-        return re.search(r"^Elected: (.*)$", report, re.M).group(1).split(", ")
+        return data["electedInOrder"]
     committee = []
     for group in groups:
         if len(committee) + len(group) > seats:
@@ -73,7 +70,7 @@ def winners(method, report, seats):
 
 
 def run(jar, blt, method):
-    result = subprocess.run(["java", "-jar", jar, "--input", blt, *METHODS[method][1]],
+    result = subprocess.run(["java", "-jar", jar, "--input", blt, *METHODS[method][1], "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode != 0:
         return f"error: {result.stderr.strip().splitlines()[-1] if result.stderr.strip() else result.returncode}"
