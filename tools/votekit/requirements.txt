@@ -1,0 +1,2 @@
+# VoteKit needs Python 3.11-3.13 (3.5.0 doesn't install on 3.14).
+votekit==3.5.0

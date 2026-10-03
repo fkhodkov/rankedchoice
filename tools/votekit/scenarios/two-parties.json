@@ -1,0 +1,14 @@
+{
+  "name": "two parties, 5 seats",
+  "seats": 5,
+  "voters": 10000,
+  "model": "slate-pl",
+  "slates": {"Red": ["R1", "R2", "R3", "R4", "R5"], "Blue": ["B1", "B2", "B3", "B4", "B5"]},
+  "blocs": {"Red": 0.62, "Blue": 0.38},
+  "cohesion": {"Red": {"Red": 0.85, "Blue": 0.15}, "Blue": {"Red": 0.2, "Blue": 0.8}},
+  "preferences": {
+    "Red": {"Red": {"R1": 0.35, "R2": 0.25, "R3": 0.2, "R4": 0.12, "R5": 0.08}},
+    "Blue": {"Blue": {"B1": 0.4, "B2": 0.25, "B3": 0.15, "B4": 0.12, "B5": 0.08}}
+  },
+  "truncation": {"mean_length": 4}
+}
