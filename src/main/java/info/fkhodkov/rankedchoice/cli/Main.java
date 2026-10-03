@@ -3,8 +3,10 @@ package info.fkhodkov.rankedchoice.cli;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.CsvBallotParser;
@@ -190,21 +192,9 @@ public final class Main implements Callable<Integer> {
     private String runCount() {
         ElectionConfig fileConfig = loadFileConfig();
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
-        boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek")
-                || effectiveMethod.equals("warren") || effectiveMethod.equals("cambridge")
-                || effectiveMethod.equals("cpo-stv") || effectiveMethod.equals("qpq");
-        if (tiedRankings != null && !seatsBasedMethod) {
-            throw new IllegalArgumentException("--tied-rankings doesn't apply to --method " + effectiveMethod
-                    + ", which counts tied rankings natively");
-        }
-        if (minimumPreferences != null && !seatsBasedMethod) {
-            throw new IllegalArgumentException("--minimum-preferences doesn't apply to --method " + effectiveMethod);
-        }
+        refuseUnusedOptions(effectiveMethod);
+        boolean seatsBasedMethod = !effectiveMethod.equals("schulze") && !effectiveMethod.equals("borda");
         String effectiveTiedRankings = firstNonNull(tiedRankings, fileConfig.tiedRankings());
-        boolean keepFactorMethod = effectiveMethod.equals("meek") || effectiveMethod.equals("warren");
-        if (precision != null && !keepFactorMethod) {
-            throw new IllegalArgumentException("--precision only applies to --method meek or warren");
-        }
         Integer configuredMinimumPreferences = minimumPreferences != null ? minimumPreferences : fileConfig.minimumPreferences();
         int effectiveMinimumPreferences = configuredMinimumPreferences == null ? 0 : configuredMinimumPreferences;
 
@@ -251,12 +241,6 @@ public final class Main implements Callable<Integer> {
             return CpoStvTextReport.render(result);
         }
         if (effectiveMethod.equals("qpq")) {
-            if (quota != null || transfer != null || rounding != null) {
-                throw new IllegalArgumentException(
-                        "--quota/--transfer/--rounding don't apply to --method qpq; its quota is a derived "
-                                + "formula recalculated every stage, its transfer is fixed by the method itself, "
-                                + "and every figure is this project's exact Fraction with no rounding needed");
-            }
             QpqRuleset ruleset = new QpqRuleset(
                     StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
                     StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.REJECT),
@@ -283,10 +267,6 @@ public final class Main implements Callable<Integer> {
                 roundingRuleForReport = ruleset.roundingRule();
             }
             case "meek", "warren" -> {
-                if (quota != null || transfer != null) {
-                    throw new IllegalArgumentException("--quota/--transfer don't apply to --method " + effectiveMethod
-                            + "; its quota and transfer are fixed by the method itself");
-                }
                 roundingRuleForReport = StvRulesetParser.parseRounding(firstNonNull(rounding, fileConfig.rounding()));
                 MeekRuleset ruleset = new MeekRuleset(roundingRuleForReport,
                         StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
@@ -298,10 +278,6 @@ public final class Main implements Callable<Integer> {
                 result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
             }
             case "cambridge" -> {
-                if (quota != null || transfer != null || rounding != null) {
-                    throw new IllegalArgumentException("--quota/--transfer/--rounding don't apply to --method cambridge;"
-                            + " its quota and whole-ballot transfers are fixed by the method itself");
-                }
                 roundingRuleForReport = info.fkhodkov.rankedchoice.stv.rounding.Exact.INSTANCE;
                 CambridgeRuleset ruleset = new CambridgeRuleset(
                         StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
@@ -334,6 +310,82 @@ public final class Main implements Callable<Integer> {
      * (see {@link SchulzeTextReport}, {@link BordaTextReport}); {@code --report-format}
      * csv/json/html isn't supported for these two methods yet.
      */
+    /**
+     * The options each method has no use for, with why. Every method refuses an option it would
+     * otherwise silently ignore, so a typo or a misremembered rule can't pass unnoticed. Only
+     * flags are checked: a config file or ruleset may legitimately carry fields another method
+     * uses.
+     */
+    private static final Map<String, Map<String, String>> UNUSED_OPTIONS = Map.of(
+            "stv", Map.of(
+                    "--precision", "only meek and warren use it",
+                    "--borda-scoring", "only borda uses it"),
+            "meek", Map.of(
+                    "--quota", "the method fixes its own quota",
+                    "--transfer", "the method fixes its own transfers",
+                    "--borda-scoring", "only borda uses it"),
+            "warren", Map.of(
+                    "--quota", "the method fixes its own quota",
+                    "--transfer", "the method fixes its own transfers",
+                    "--borda-scoring", "only borda uses it"),
+            "cambridge", Map.of(
+                    "--quota", "the method fixes its own quota",
+                    "--transfer", "the method moves whole ballots by the Cincinnati method",
+                    "--rounding", "it counts whole ballots, so there's nothing to round",
+                    "--precision", "only meek and warren use it",
+                    "--borda-scoring", "only borda uses it"),
+            "qpq", Map.of(
+                    "--quota", "its quota is a formula recalculated every stage",
+                    "--transfer", "votes are never transferred, only credited",
+                    "--rounding", "every quotient is exact",
+                    "--precision", "only meek and warren use it",
+                    "--borda-scoring", "only borda uses it"),
+            "cpo-stv", Map.of(
+                    "--tiebreak", "it compares whole committees, with no candidate-by-candidate decisions",
+                    "--precision", "only meek and warren use it",
+                    "--borda-scoring", "only borda uses it"),
+            "schulze", nonStvUnused("--borda-scoring", "only borda uses it"),
+            "borda", nonStvUnused(null, null));
+
+    private static Map<String, String> nonStvUnused(String extra, String extraReason) {
+        Map<String, String> unused = new LinkedHashMap<>();
+        unused.put("--seats", "it ranks every candidate rather than filling seats");
+        unused.put("--ruleset", "rulesets set STV rules");
+        for (String stvOption : List.of("--quota", "--transfer", "--rounding", "--tiebreak", "--precision")) {
+            unused.put(stvOption, "it's an STV option");
+        }
+        unused.put("--tied-rankings", "it counts tied rankings natively");
+        unused.put("--minimum-preferences", "it counts every ballot as ranked");
+        if (extra != null) {
+            unused.put(extra, extraReason);
+        }
+        return unused;
+    }
+
+    private void refuseUnusedOptions(String effectiveMethod) {
+        Map<String, String> unused = UNUSED_OPTIONS.get(effectiveMethod);
+        if (unused == null) {
+            return; // an unknown method is reported once its count is attempted
+        }
+        Map<String, Object> given = new LinkedHashMap<>();
+        given.put("--seats", seats);
+        given.put("--ruleset", rulesetName);
+        given.put("--quota", quota);
+        given.put("--transfer", transfer);
+        given.put("--rounding", rounding);
+        given.put("--tiebreak", tiebreak);
+        given.put("--tied-rankings", tiedRankings);
+        given.put("--minimum-preferences", minimumPreferences);
+        given.put("--precision", precision);
+        given.put("--borda-scoring", bordaScoring);
+        for (Map.Entry<String, Object> option : given.entrySet()) {
+            if (option.getValue() != null && unused.containsKey(option.getKey())) {
+                throw new IllegalArgumentException(option.getKey() + " doesn't apply to --method " + effectiveMethod
+                        + ": " + unused.get(option.getKey()));
+            }
+        }
+    }
+
     private String runNonStvMethod(String effectiveMethod, List<Candidate> candidates, List<Ballot> ballots) {
         String resolvedReportFormat = firstNonNull(reportFormat, "text").toLowerCase(Locale.ROOT);
         if (!resolvedReportFormat.equals("text")) {

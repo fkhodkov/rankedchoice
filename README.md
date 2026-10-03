@@ -112,7 +112,7 @@ QPQ method.
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
 | `-m, --method` | `stv\|meek\|warren\|cambridge\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. |
 | `-f, --format` | Input format, `blt` or `csv`; inferred from the file extension if omitted. |
-| `-s, --seats` | Seats to fill. Required for CSV input; for BLT, overrides the file's seat count. Not used by `schulze`/`borda`. |
+| `-s, --seats` | Seats to fill. Required for CSV input; for BLT, overrides the file's seat count. Not for `schulze`/`borda`, which rank every candidate. |
 | `-o, --output` | Output file. Defaults to standard output. |
 | `--report-format` | `text\|csv\|json\|html` (for `stv`, `meek`, `warren`, `cambridge`; the others have `text` only). Defaults to `text`, or inferred from `--output`'s extension. |
 | `-c, --config` | YAML config file (below). Not with `--ruleset`. |
@@ -126,11 +126,11 @@ QPQ method.
 | `--precision` | Decimal places a `meek`/`warren` count works to; default 9 (droop's default). Changes the count itself, not just the report. An electorate too large for the chosen precision (about 4.6 billion votes at 9 places, 4.6 million at 12) is refused, naming the highest precision that fits. |
 | `--borda-scoring` | `classic\|dowdall` for `--method borda`; default `classic`. |
 
-Every flag overrides the config file or ruleset, field by field. `meek`, `warren`, `cambridge`
-and `qpq` refuse `--quota`/`--transfer` (and `cambridge`/`qpq` `--rounding` too), since those
-are part of the method; `--tied-rankings`, `--minimum-preferences` and `--precision` are
-refused by methods that don't use them. `schulze` and `borda` ignore the STV options, and
-`cpo-stv` ignores `--tiebreak`.
+Every flag overrides the config file or ruleset, field by field. A flag the chosen method has
+no use for is refused with the reason, rather than silently ignored — e.g. `--quota` for
+`meek`, `warren`, `cambridge` or `qpq` (the method fixes its own), `--tiebreak` for `cpo-stv`,
+and every STV option, `--seats` and `--ruleset` for `schulze`/`borda`. A config file may still
+carry fields a method doesn't use.
 
 ### Config file
 

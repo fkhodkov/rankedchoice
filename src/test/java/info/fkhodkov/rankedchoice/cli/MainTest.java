@@ -241,7 +241,7 @@ class MainTest {
 
         assertThat(exitCode).isEqualTo(1);
         assertThat(capturedErr.toString(StandardCharsets.UTF_8))
-                .contains("--precision only applies to --method meek or warren");
+                .contains("--precision doesn't apply to --method stv: only meek and warren use it");
     }
 
     @Test
@@ -266,7 +266,7 @@ class MainTest {
         int refused = new CommandLine(new Main())
                 .execute("--input", bltFile.toString(), "--method", "cambridge", "--rounding", "truncate:2");
         assertThat(refused).isEqualTo(1);
-        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("don't apply to --method cambridge");
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("--rounding doesn't apply to --method cambridge");
     }
 
     @Test
@@ -280,6 +280,41 @@ class MainTest {
         assertThat(exitCode).isEqualTo(1);
         assertThat(capturedErr.toString(StandardCharsets.UTF_8))
                 .contains("--minimum-preferences doesn't apply to --method borda");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "schulze, --quota, hare",
+            "schulze, --ruleset, scottish",
+            "borda, --seats, 1",
+            "borda, --tiebreak, declared",
+            "cpo-stv, --tiebreak, declared",
+            "stv, --borda-scoring, dowdall",
+            "qpq, --rounding, truncate:2",
+            "meek, --transfer, wigm"})
+    void everyMethodRefusesAnOptionItWouldIgnore(String method, String option, String value) throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--method", method, option, value);
+
+        assertThat(exitCode).isEqualTo(1);
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8))
+                .contains(option + " doesn't apply to --method " + method + ": ");
+    }
+
+    @Test
+    void aConfigFileMayCarryFieldsTheMethodDoesntUse() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+        Path configFile = tempDir.resolve("config.yaml");
+        Files.writeString(configFile, "quota: hare\ntiebreak: declared\n");
+
+        int exitCode = new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--method", "schulze", "--config", configFile.toString());
+
+        assertThat(exitCode).isZero();
     }
 
     @Test
