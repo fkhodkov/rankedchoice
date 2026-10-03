@@ -346,7 +346,14 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   city doesn't currently publish ballot-level data, counting order matters, and its settings
   say "Random, every nth ballot", which may mean a random starting point where OpenSTV always
   starts at the n-th. Ties in rankings: `reject` by default, `truncate`/`skip` available,
-  `split` refused (whole ballots can't be split).
+  `split` refused (whole ballots can't be split). Because ballot order decides which ballots
+  move, the same votes counted in another order can elect different people;
+  `tools/order-sensitivity` measures it. At 10,000 voters, 200 random orders of each of 30
+  generated elections never changed the result; in small electorates with many seats it
+  sometimes does, and when the quota is close to the 50-vote cutoff (1,000 ballots for 9 seats)
+  it can even decide whether every seat is filled, since the first exclusion can then remove
+  too many candidates at once — OpenSTV counts those the same way, and real Cambridge quotas
+  (around 2,500) are far from it.
 - **QPQ** (`--method qpq`, Douglas Woodall's Quota Preferential by Quotient — see his paper
   "QPQ, a quota-preferential STV-like election rule", *Voting matters* Issue 17, 2003) — not to
   be confused with the bundled `hare-clark-qpq` *ruleset* above, an unrelated classic-STV preset
