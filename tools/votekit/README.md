@@ -38,8 +38,8 @@ The `cambridge` model resamples real Cambridge, MA ballots, so its lengths are a
 ```
 
 For each seed it generates an election and counts it with every method (Scottish, Gregory and
-ERS97 STV, Meek, Warren, Cambridge STV, QPQ, CPO-STV, and the top-ranked candidates under
-Schulze and Borda),
+ERS97 STV, Meek, Warren, Cambridge STV, QPQ, CPO-STV, Schulze STV, and the top-ranked
+candidates under Schulze and Borda),
 then reports, per method:
 
 - how the seats split between slates, across the seeds;
@@ -62,6 +62,8 @@ Scenarios in `scenarios/`, each built so methods have room to disagree:
 | `weak-loyalty` | 55/45 with heavy crossover between parties |
 | `near-tie` | 52/48 for 4 seats, each side near 2.5 quotas |
 | `four-parties` | 35/30/20/15 on a left–right line, 7 seats |
-| `cambridge` | 70/30 with real Cambridge ballot shapes (`cambridge` model) | CPO-STV is by far
-the slowest (seconds per election at 10 candidates / 5 seats) and is skipped automatically when
-the candidate/seat combination exceeds its 500-outcome cap.
+| `cambridge` | 70/30 with real Cambridge ballot shapes (`cambridge` model) |
+
+CPO-STV and Schulze STV compare whole committees, so they're the slowest (seconds per election
+at 10 candidates / 5 seats) and are skipped automatically when the candidate/seat combination
+exceeds their caps: 500 outcomes for CPO-STV, 50,000 committees and 20 seats for Schulze STV.

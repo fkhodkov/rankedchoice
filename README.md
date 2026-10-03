@@ -264,6 +264,8 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/order-sensitivity`](tools/order-sensitivity/README.md) — measure how much ballot
   order changes a Cambridge STV count.
 - `tools/reference/cpo_stv.py` — an independent CPO-STV scorer used to check this one.
+- [`tools/reference/schulze_stv`](tools/reference/schulze_stv/README.md) — check Schulze STV
+  against Schulze's own program and published figures, and against an independent count.
 
 ## Project layout
 

@@ -37,6 +37,7 @@ METHODS = {
     "cambridge": ("Cambridge STV (Cincinnati, whole ballots)", ["--method", "cambridge"]),
     "qpq": ("QPQ", ["--method", "qpq"]),
     "cpo-stv": ("CPO-STV", ["--method", "cpo-stv"]),
+    "schulze-stv": ("Schulze STV", ["--method", "schulze-stv"]),
     "schulze": ("Schulze, top-ranked", ["--method", "schulze"]),
     "borda": ("Borda, top-ranked", ["--method", "borda"]),
 }
@@ -47,7 +48,7 @@ DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..
 def winners(method, report, seats):
     """The winning committee from a method's JSON report, or the string 'tie' if it's ambiguous."""
     data = json.loads(report)
-    if method == "cpo-stv":
+    if method in ("cpo-stv", "schulze-stv"):
         return "tie" if len(data["winners"]) > 1 else data["winners"][0]
     if method == "schulze":
         groups = data["ranking"]
@@ -97,6 +98,10 @@ def main():
     if "cpo-stv" in methods and math.comb(len(candidates), seats) > 500:
         print(f"skipping cpo-stv: C({len(candidates)}, {seats}) outcomes exceeds its cap of 500")
         methods.remove("cpo-stv")
+    if "schulze-stv" in methods and (math.comb(len(candidates), seats) > 50_000 or seats > 20):
+        print(f"skipping schulze-stv: C({len(candidates)}, {seats}) committees or {seats} seats "
+              "exceeds its cap of 50,000 committees and 20 seats")
+        methods.remove("schulze-stv")
     slate_of = {c: slate for slate, members in scenario["slates"].items() for c in members}
     slates = list(scenario["slates"])
     if not os.path.exists(args.jar):
@@ -158,16 +163,16 @@ def main():
 
     print("\nSame committee (seeds out of " + str(args.seeds) + "):")
     width = max(len(m) for m in methods)
-    print(" " * (width + 2) + " ".join(f"{m[:7]:>7}" for m in methods))
-    for a in methods:
+    print(" " * (width + 6) + " ".join(f"{i:>3}" for i in range(1, len(methods) + 1)))
+    for number, a in enumerate(methods, 1):
         row = []
         for b in methods:
             same = sum(1 for seed in files
                        if not isinstance(committees[(seed, a)], str)
                        and not isinstance(committees[(seed, b)], str)
                        and set(committees[(seed, a)]) == set(committees[(seed, b)]))
-            row.append(f"{same:>7}")
-        print(f"{a:>{width}}  " + " ".join(row))
+            row.append(f"{same:>3}")
+        print(f"{number:>2}. {a:>{width}}  " + " ".join(row))
     if args.keep:
         print(f"\nelections kept in {directory}")
     if args.json:

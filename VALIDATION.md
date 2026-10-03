@@ -182,14 +182,19 @@ election). Checked against them:
   how a candidate ranks within its contest rather than by margin, and its Stage 4 tie-break
   uses an older single-winner ranking ("TBRL"). The committees agree on 63 of the 65 elections.
   On A04 the link definitions disagree. On A34, five committees go unbeaten and the two
-  single-winner rankings break the tie differently. An independent Python implementation of
-  the paper's definition, written from the paper alone, picks the same committee as this one
-  in every election it finished (59, including A04 and A34). Five of the elections need Stage 4.
+  single-winner rankings break the tie differently. An independent count written from the paper alone
+  (`tools/reference/schulze_stv/schulze_stv.py`) agrees with this one on every election with
+  at most 500 committees (58, including A04 and A34): all 48,233 supports, the potential
+  winners and the winners. Five of the elections need Stage 4.
 - **Hand-derived cases** (`SchulzeStvCounterTest`): the closed form; two opposed factions
   winning a seat each rather than the compromise candidate; the paper's own proportional
   completion example (56/44); completion with nobody to copy, where every order of the tied
   candidates is equally likely (a deliberately wrong equal split over above/below patterns
   fails it); and a Stage 4 tie-break.
+
+`tools/reference/schulze_stv` reruns all of this: the conversion, the comparison with the
+published supports and with Schulze's program (with the one fix it needs to build), and the
+independent count.
 
 Two conventions had to be settled from the program, not the paper. Completion is done per
 contest, over its M+1 candidates only. In the database's letter format, a candidate named twice
