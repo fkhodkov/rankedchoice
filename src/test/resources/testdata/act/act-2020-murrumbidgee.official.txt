@@ -1,0 +1,1022 @@
+# Elections ACT's official distribution of preferences (table2_Murrumbidgee.xlsx), extracted
+# by tools/reference/act/act_table.py: votes at the end of each count.
+
+count 1
+Edmund Handby: 464
+Yana Del valle: 613
+Jill Mail: 374
+Geoff Buckmaster: 461
+Terry Baker: 982
+Tjanara Goreng goreng: 1644
+Emma Davidson: 3677
+Gordon Yeatman: 339
+Mark Gilmayer: 422
+Brendan Long: 1828
+Bec Cody: 3686
+Chris Steel: 7407
+Marisa Paterson: 4197
+Tim Dobson: 2264
+Rohan Byrnes: 121
+Jackson Hillman: 146
+Peter Veenstra: 167
+Richard Forner: 104
+Andrew Demetrios: 133
+Amardeep Singh: 3226
+Giulia Jones: 3535
+Sarah Suine: 1494
+Ed Cocks: 2658
+Jeremy Hanson: 8209
+Stephen Lin: 614
+Robert Knight: 837
+Brendan Whyte: 243
+Fiona Carrick: 3783
+Lee Perren-Leveridge: 126
+exhausted: 0
+loss: 0.000000
+remarks: First preferences Richard FORNER to be excluded.
+
+count 2
+Edmund Handby: 464
+Yana Del valle: 619
+Jill Mail: 376
+Geoff Buckmaster: 464
+Terry Baker: 983
+Tjanara Goreng goreng: 1646
+Emma Davidson: 3684
+Gordon Yeatman: 341
+Mark Gilmayer: 424
+Brendan Long: 1830
+Bec Cody: 3686
+Chris Steel: 7407
+Marisa Paterson: 4202
+Tim Dobson: 2266
+Rohan Byrnes: 131
+Jackson Hillman: 159
+Peter Veenstra: 179
+Richard Forner: 0
+Andrew Demetrios: 153
+Amardeep Singh: 3230
+Giulia Jones: 3535
+Sarah Suine: 1494
+Ed Cocks: 2661
+Jeremy Hanson: 8210
+Stephen Lin: 618
+Robert Knight: 837
+Brendan Whyte: 244
+Fiona Carrick: 3785
+Lee Perren-Leveridge: 126
+exhausted: 0
+loss: 0.000000
+remarks: Richard FORNER fully excluded. Lee PERREN-LEVERIDGE to be excluded.
+
+count 3
+Edmund Handby: 466
+Yana Del valle: 619
+Jill Mail: 378
+Geoff Buckmaster: 466
+Terry Baker: 983
+Tjanara Goreng goreng: 1647
+Emma Davidson: 3686
+Gordon Yeatman: 343
+Mark Gilmayer: 424
+Brendan Long: 1831
+Bec Cody: 3690
+Chris Steel: 7407
+Marisa Paterson: 4207
+Tim Dobson: 2267
+Rohan Byrnes: 131
+Jackson Hillman: 159
+Peter Veenstra: 179
+Richard Forner: 0
+Andrew Demetrios: 153
+Amardeep Singh: 3232
+Giulia Jones: 3539
+Sarah Suine: 1495
+Ed Cocks: 2662
+Jeremy Hanson: 8215
+Stephen Lin: 626
+Robert Knight: 841
+Brendan Whyte: 286
+Fiona Carrick: 3822
+Lee Perren-Leveridge: 0
+exhausted: 0
+loss: 0.000000
+remarks: Lee PERREN-LEVERIDGE fully excluded. Rohan BYRNES to be excluded.
+
+count 4
+Edmund Handby: 470
+Yana Del valle: 620
+Jill Mail: 389
+Geoff Buckmaster: 467
+Terry Baker: 991
+Tjanara Goreng goreng: 1650
+Emma Davidson: 3694
+Gordon Yeatman: 345
+Mark Gilmayer: 424
+Brendan Long: 1836
+Bec Cody: 3691
+Chris Steel: 7409
+Marisa Paterson: 4209
+Tim Dobson: 2269
+Rohan Byrnes: 0
+Jackson Hillman: 181
+Peter Veenstra: 200
+Richard Forner: 0
+Andrew Demetrios: 177
+Amardeep Singh: 3233
+Giulia Jones: 3541
+Sarah Suine: 1496
+Ed Cocks: 2664
+Jeremy Hanson: 8217
+Stephen Lin: 626
+Robert Knight: 842
+Brendan Whyte: 288
+Fiona Carrick: 3825
+Lee Perren-Leveridge: 0
+exhausted: 0
+loss: 0.000000
+remarks: Rohan BYRNES fully excluded. Andrew DEMETRIOS to be excluded.
+
+count 5
+Edmund Handby: 471
+Yana Del valle: 623
+Jill Mail: 394
+Geoff Buckmaster: 472
+Terry Baker: 1002
+Tjanara Goreng goreng: 1659
+Emma Davidson: 3703
+Gordon Yeatman: 346
+Mark Gilmayer: 429
+Brendan Long: 1838
+Bec Cody: 3696
+Chris Steel: 7411
+Marisa Paterson: 4211
+Tim Dobson: 2270
+Rohan Byrnes: 0
+Jackson Hillman: 226
+Peter Veenstra: 243
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3238
+Giulia Jones: 3543
+Sarah Suine: 1498
+Ed Cocks: 2668
+Jeremy Hanson: 8226
+Stephen Lin: 628
+Robert Knight: 842
+Brendan Whyte: 288
+Fiona Carrick: 3828
+Lee Perren-Leveridge: 0
+exhausted: 1
+loss: 0.000000
+remarks: Andrew DEMETRIOS fully excluded. Jackson HILLMAN to be excluded.
+
+count 6
+Edmund Handby: 474
+Yana Del valle: 633
+Jill Mail: 400
+Geoff Buckmaster: 477
+Terry Baker: 1012
+Tjanara Goreng goreng: 1671
+Emma Davidson: 3716
+Gordon Yeatman: 347
+Mark Gilmayer: 430
+Brendan Long: 1842
+Bec Cody: 3705
+Chris Steel: 7418
+Marisa Paterson: 4214
+Tim Dobson: 2271
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 361
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3239
+Giulia Jones: 3547
+Sarah Suine: 1498
+Ed Cocks: 2670
+Jeremy Hanson: 8232
+Stephen Lin: 629
+Robert Knight: 846
+Brendan Whyte: 289
+Fiona Carrick: 3832
+Lee Perren-Leveridge: 0
+exhausted: 1
+loss: 0.000000
+remarks: Jackson HILLMAN fully excluded. Brendan WHYTE to be excluded.
+
+count 7
+Edmund Handby: 476
+Yana Del valle: 637
+Jill Mail: 414
+Geoff Buckmaster: 486
+Terry Baker: 1013
+Tjanara Goreng goreng: 1677
+Emma Davidson: 3723
+Gordon Yeatman: 351
+Mark Gilmayer: 434
+Brendan Long: 1845
+Bec Cody: 3709
+Chris Steel: 7421
+Marisa Paterson: 4217
+Tim Dobson: 2274
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 367
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3247
+Giulia Jones: 3559
+Sarah Suine: 1502
+Ed Cocks: 2678
+Jeremy Hanson: 8246
+Stephen Lin: 640
+Robert Knight: 859
+Brendan Whyte: 0
+Fiona Carrick: 3978
+Lee Perren-Leveridge: 0
+exhausted: 1
+loss: 0.000000
+remarks: Brendan WHYTE fully excluded. Gordon YEATMAN to be excluded.
+
+count 8
+Edmund Handby: 481
+Yana Del valle: 641
+Jill Mail: 422
+Geoff Buckmaster: 488
+Terry Baker: 1017
+Tjanara Goreng goreng: 1678
+Emma Davidson: 3726
+Gordon Yeatman: 0
+Mark Gilmayer: 699
+Brendan Long: 1848
+Bec Cody: 3712
+Chris Steel: 7431
+Marisa Paterson: 4221
+Tim Dobson: 2277
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 368
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3252
+Giulia Jones: 3560
+Sarah Suine: 1505
+Ed Cocks: 2688
+Jeremy Hanson: 8250
+Stephen Lin: 643
+Robert Knight: 861
+Brendan Whyte: 0
+Fiona Carrick: 3982
+Lee Perren-Leveridge: 0
+exhausted: 4
+loss: 0.000000
+remarks: Gordon YEATMAN fully excluded. Peter VEENSTRA to be excluded.
+
+count 9
+Edmund Handby: 489
+Yana Del valle: 649
+Jill Mail: 445
+Geoff Buckmaster: 509
+Terry Baker: 1033
+Tjanara Goreng goreng: 1691
+Emma Davidson: 3744
+Gordon Yeatman: 0
+Mark Gilmayer: 704
+Brendan Long: 1855
+Bec Cody: 3720
+Chris Steel: 7445
+Marisa Paterson: 4226
+Tim Dobson: 2279
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3259
+Giulia Jones: 3567
+Sarah Suine: 1512
+Ed Cocks: 2701
+Jeremy Hanson: 8259
+Stephen Lin: 662
+Robert Knight: 876
+Brendan Whyte: 0
+Fiona Carrick: 4005
+Lee Perren-Leveridge: 0
+exhausted: 124
+loss: 0.000000
+remarks: Peter VEENSTRA fully excluded. Jill MAIL to be excluded.
+
+count 10
+Edmund Handby: 510
+Yana Del valle: 664
+Jill Mail: 0
+Geoff Buckmaster: 770
+Terry Baker: 1048
+Tjanara Goreng goreng: 1700
+Emma Davidson: 3767
+Gordon Yeatman: 0
+Mark Gilmayer: 711
+Brendan Long: 1858
+Bec Cody: 3730
+Chris Steel: 7449
+Marisa Paterson: 4236
+Tim Dobson: 2286
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3264
+Giulia Jones: 3569
+Sarah Suine: 1515
+Ed Cocks: 2703
+Jeremy Hanson: 8261
+Stephen Lin: 674
+Robert Knight: 889
+Brendan Whyte: 0
+Fiona Carrick: 4023
+Lee Perren-Leveridge: 0
+exhausted: 127
+loss: 0.000000
+remarks: Jill MAIL fully excluded. Edmund HANDBY to be excluded.
+
+count 11
+Edmund Handby: 0
+Yana Del valle: 882
+Jill Mail: 0
+Geoff Buckmaster: 819
+Terry Baker: 1103
+Tjanara Goreng goreng: 1713
+Emma Davidson: 3829
+Gordon Yeatman: 0
+Mark Gilmayer: 717
+Brendan Long: 1864
+Bec Cody: 3737
+Chris Steel: 7461
+Marisa Paterson: 4242
+Tim Dobson: 2293
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3270
+Giulia Jones: 3572
+Sarah Suine: 1518
+Ed Cocks: 2710
+Jeremy Hanson: 8266
+Stephen Lin: 691
+Robert Knight: 896
+Brendan Whyte: 0
+Fiona Carrick: 4033
+Lee Perren-Leveridge: 0
+exhausted: 138
+loss: 0.000000
+remarks: Edmund HANDBY fully excluded. Stephen LIN to be excluded.
+
+count 12
+Edmund Handby: 0
+Yana Del valle: 909
+Jill Mail: 0
+Geoff Buckmaster: 851
+Terry Baker: 1132
+Tjanara Goreng goreng: 1722
+Emma Davidson: 3886
+Gordon Yeatman: 0
+Mark Gilmayer: 718
+Brendan Long: 1875
+Bec Cody: 3756
+Chris Steel: 7488
+Marisa Paterson: 4256
+Tim Dobson: 2305
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3286
+Giulia Jones: 3580
+Sarah Suine: 1524
+Ed Cocks: 2720
+Jeremy Hanson: 8282
+Stephen Lin: 0
+Robert Knight: 1243
+Brendan Whyte: 0
+Fiona Carrick: 4076
+Lee Perren-Leveridge: 0
+exhausted: 145
+loss: 0.000000
+remarks: Stephen LIN fully excluded. Mark GILMAYER to be excluded.
+
+count 13
+Edmund Handby: 0
+Yana Del valle: 961
+Jill Mail: 0
+Geoff Buckmaster: 932
+Terry Baker: 1151
+Tjanara Goreng goreng: 1730
+Emma Davidson: 3893
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 1890
+Bec Cody: 3796
+Chris Steel: 7540
+Marisa Paterson: 4287
+Tim Dobson: 2324
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3329
+Giulia Jones: 3625
+Sarah Suine: 1558
+Ed Cocks: 2800
+Jeremy Hanson: 8350
+Stephen Lin: 0
+Robert Knight: 1269
+Brendan Whyte: 0
+Fiona Carrick: 4152
+Lee Perren-Leveridge: 0
+exhausted: 167
+loss: 0.000000
+remarks: Mark GILMAYER fully excluded. Geoff BUCKMASTER to be excluded.
+
+count 14
+Edmund Handby: 0
+Yana Del valle: 1090
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 1211
+Tjanara Goreng goreng: 1773
+Emma Davidson: 3990
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 1903
+Bec Cody: 3816
+Chris Steel: 7575
+Marisa Paterson: 4307
+Tim Dobson: 2342
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3355
+Giulia Jones: 3648
+Sarah Suine: 1573
+Ed Cocks: 2825
+Jeremy Hanson: 8397
+Stephen Lin: 0
+Robert Knight: 1392
+Brendan Whyte: 0
+Fiona Carrick: 4308
+Lee Perren-Leveridge: 0
+exhausted: 249
+loss: 0.000000
+remarks: Geoff BUCKMASTER fully excluded. Yana del VALLE to be excluded.
+
+count 15
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 1294
+Tjanara Goreng goreng: 1923
+Emma Davidson: 4200
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 1919
+Bec Cody: 3853
+Chris Steel: 7626
+Marisa Paterson: 4336
+Tim Dobson: 2366
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3375
+Giulia Jones: 3676
+Sarah Suine: 1593
+Ed Cocks: 2855
+Jeremy Hanson: 8433
+Stephen Lin: 0
+Robert Knight: 1487
+Brendan Whyte: 0
+Fiona Carrick: 4419
+Lee Perren-Leveridge: 0
+exhausted: 399
+loss: 0.000000
+remarks: Yana del VALLE fully excluded. Terry BAKER to be excluded.
+
+count 16
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 2312
+Emma Davidson: 4720
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 1992
+Bec Cody: 3885
+Chris Steel: 7688
+Marisa Paterson: 4382
+Tim Dobson: 2407
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3393
+Giulia Jones: 3683
+Sarah Suine: 1598
+Ed Cocks: 2866
+Jeremy Hanson: 8448
+Stephen Lin: 0
+Robert Knight: 1502
+Brendan Whyte: 0
+Fiona Carrick: 4435
+Lee Perren-Leveridge: 0
+exhausted: 443
+loss: 0.000000
+remarks: Terry BAKER fully excluded. Robert KNIGHT to be excluded.
+
+count 17
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 2461
+Emma Davidson: 5014
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 2019
+Bec Cody: 3984
+Chris Steel: 7767
+Marisa Paterson: 4447
+Tim Dobson: 2462
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3421
+Giulia Jones: 3709
+Sarah Suine: 1610
+Ed Cocks: 2900
+Jeremy Hanson: 8532
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 4875
+Lee Perren-Leveridge: 0
+exhausted: 553
+loss: 0.000000
+remarks: Robert KNIGHT fully excluded. Sarah SUINE to be excluded.
+
+count 18
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 2465
+Emma Davidson: 5056
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 2028
+Bec Cody: 4001
+Chris Steel: 7799
+Marisa Paterson: 4469
+Tim Dobson: 2470
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3696
+Giulia Jones: 4229
+Sarah Suine: 0
+Ed Cocks: 3163
+Jeremy Hanson: 8894
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 4905
+Lee Perren-Leveridge: 0
+exhausted: 579
+loss: 0.000000
+remarks: Sarah SUINE fully excluded. Brendan LONG to be excluded.
+
+count 19
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 2503
+Emma Davidson: 5123
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 4385
+Chris Steel: 8296
+Marisa Paterson: 4884
+Tim Dobson: 2793
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3775
+Giulia Jones: 4282
+Sarah Suine: 0
+Ed Cocks: 3188
+Jeremy Hanson: 8939
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 4953
+Lee Perren-Leveridge: 0
+exhausted: 633
+loss: 0.000000
+remarks: Brendan LONG fully excluded. Tjanara GORENG GORENG to be excluded.
+
+count 20
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 6988
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 4519
+Chris Steel: 8397
+Marisa Paterson: 4997
+Tim Dobson: 2868
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3794
+Giulia Jones: 4300
+Sarah Suine: 0
+Ed Cocks: 3195
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5030
+Lee Perren-Leveridge: 0
+exhausted: 706
+loss: 0.000000
+remarks: Tjanara GORENG GORENG fully excluded. Jeremy HANSON elected 1. Tim DOBSON to be excluded.
+
+count 21
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 7171
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 5214
+Chris Steel: 9272
+Marisa Paterson: 5790
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3840
+Giulia Jones: 4339
+Sarah Suine: 0
+Ed Cocks: 3229
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5099
+Lee Perren-Leveridge: 0
+exhausted: 840
+loss: 0.000000
+remarks: Tim DOBSON fully excluded. Chris STEEL elected 2.
+
+count 22
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 7190.827338
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 5352.043165
+Chris Steel: 8960
+Marisa Paterson: 5922.431654
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 3846.733812
+Giulia Jones: 4343.863309
+Sarah Suine: 0
+Ed Cocks: 3234.23741
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5103.863309
+Lee Perren-Leveridge: 0
+exhausted: 840
+loss: 0.000003
+remarks: Ed COCKS to be excluded.
+
+count 23
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 7270.827338
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 5424.043165
+Chris Steel: 8960
+Marisa Paterson: 6024.431654
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 4933.733812
+Giulia Jones: 5929.863309
+Sarah Suine: 0
+Ed Cocks: 5.23741
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5202.863309
+Lee Perren-Leveridge: 0
+exhausted: 1043
+loss: 0.000003
+remarks: Ed COCKS partially excluded.
+
+count 24
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 7271.201438
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 5424.791366
+Chris Steel: 8960
+Marisa Paterson: 6024.805754
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 4934.482013
+Giulia Jones: 5929.863309
+Sarah Suine: 0
+Ed Cocks: 0
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5203.237409
+Lee Perren-Leveridge: 0
+exhausted: 1045.618705
+loss: 0.000006
+remarks: Ed COCKS fully excluded. Amardeep SINGH to be excluded.
+
+count 25
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 7423.201438
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 5559.791366
+Chris Steel: 8960
+Marisa Paterson: 6219.805754
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 7.482013
+Giulia Jones: 9699.863309
+Sarah Suine: 0
+Ed Cocks: 0
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5398.237409
+Lee Perren-Leveridge: 0
+exhausted: 1525.618705
+loss: 0.000006
+remarks: Amardeep SINGH partially excluded. Giulia JONES elected 3.
+
+count 26
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 7423.575538
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 5561.287768
+Chris Steel: 8960
+Marisa Paterson: 6220.553955
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 0
+Giulia Jones: 9699.863309
+Sarah Suine: 0
+Ed Cocks: 0
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5399.359711
+Lee Perren-Leveridge: 0
+exhausted: 1529.359712
+loss: 0.000007
+remarks: Amardeep SINGH fully excluded.
+
+count 27
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 7543.575538
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 5641.287768
+Chris Steel: 8960
+Marisa Paterson: 6327.553955
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 0
+Giulia Jones: 8960
+Sarah Suine: 0
+Ed Cocks: 0
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5759.359711
+Lee Perren-Leveridge: 0
+exhausted: 1529.359712
+loss: 72.863316
+remarks: Bec CODY to be excluded.
+
+count 28
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 8134.575538
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 140.287768
+Chris Steel: 8960
+Marisa Paterson: 10329.553955
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 0
+Giulia Jones: 8960
+Sarah Suine: 0
+Ed Cocks: 0
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5982.359711
+Lee Perren-Leveridge: 0
+exhausted: 2214.359712
+loss: 72.863316
+remarks: Bec CODY partially excluded. Marisa PATERSON elected 4.
+
+count 29
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 8165.251796
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 0
+Chris Steel: 8960
+Marisa Paterson: 10329.553955
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 0
+Giulia Jones: 8960
+Sarah Suine: 0
+Ed Cocks: 0
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 5988.719423
+Lee Perren-Leveridge: 0
+exhausted: 2317.61151
+loss: 72.863316
+remarks: Bec CODY fully excluded.
+
+count 30
+Edmund Handby: 0
+Yana Del valle: 0
+Jill Mail: 0
+Geoff Buckmaster: 0
+Terry Baker: 0
+Tjanara Goreng goreng: 0
+Emma Davidson: 9303.251796
+Gordon Yeatman: 0
+Mark Gilmayer: 0
+Brendan Long: 0
+Bec Cody: 0
+Chris Steel: 8960
+Marisa Paterson: 8960
+Tim Dobson: 0
+Rohan Byrnes: 0
+Jackson Hillman: 0
+Peter Veenstra: 0
+Richard Forner: 0
+Andrew Demetrios: 0
+Amardeep Singh: 0
+Giulia Jones: 8960
+Sarah Suine: 0
+Ed Cocks: 0
+Jeremy Hanson: 8960
+Stephen Lin: 0
+Robert Knight: 0
+Brendan Whyte: 0
+Fiona Carrick: 6213.719423
+Lee Perren-Leveridge: 0
+exhausted: 2317.61151
+loss: 79.417271
+remarks: Emma DAVIDSON elected 5.

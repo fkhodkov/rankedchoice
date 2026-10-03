@@ -15,7 +15,9 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
  * to rounding)": the valid votes not accounted for by the tallies, the votes credited to
  * candidates already elected, and the exhausted votes, so that a round's figures add up to
  * the total. It's zero for counts that lose nothing to rounding, and for Meek and Warren,
- * whose residual ({@code exhaustedVotes}) already includes it.
+ * whose residual ({@code exhaustedVotes}) already includes it. Under the ACT's Hare-Clark it
+ * also holds the part of a surplus no transferable paper can carry, which the ACT's official
+ * sheets count as "loss by fraction" too.
  */
 public record RoundRecord(
         int roundNumber,

@@ -1,0 +1,1556 @@
+# Elections ACT's official distribution of preferences (table2_Ginninderra.xlsx), extracted
+# by tools/reference/act/act_table.py: votes at the end of each count.
+
+count 1
+Oliver Smith: 614
+Matthew Ogilvie: 676
+Helen Mcclure: 724
+Ian Mcclure: 623
+Oksana Demetrios: 200
+Jonathan Stavridis: 215
+Sok Kheng Ngep: 203
+Carolyne Drew: 418
+Lara Drew: 541
+Paul Gabriel: 408
+Mark O'Connor: 579
+Vijay Dubey: 414
+Angela Lount: 493
+Alan Tutt: 626
+Bill Stefaniak: 2214
+Chic Henry: 1517
+Ignatius Rozario: 1608
+Elizabeth Kikkert: 5222
+Robert Gunning: 2822
+Kacey Lam: 2256
+Peter Cain: 3069
+Guy Jakeman: 258
+Dominic De luca: 206
+Katt Millner: 2242
+Jo Clay: 3495
+Tim Liersch: 1269
+Tara Cheyne: 6306
+Yvette Berry: 8756
+Gordon Ramsay: 4783
+Sue Ducker: 1288
+Greg Lloyd: 1276
+Mignonne Cullen: 704
+exhausted: 0
+loss: 0.000000
+remarks: First preferences Oksana DEMETRIOS to be excluded.
+
+count 2
+Oliver Smith: 617
+Matthew Ogilvie: 676
+Helen Mcclure: 729
+Ian Mcclure: 623
+Oksana Demetrios: 0
+Jonathan Stavridis: 260
+Sok Kheng Ngep: 240
+Carolyne Drew: 438
+Lara Drew: 555
+Paul Gabriel: 428
+Mark O'Connor: 584
+Vijay Dubey: 416
+Angela Lount: 493
+Alan Tutt: 627
+Bill Stefaniak: 2216
+Chic Henry: 1518
+Ignatius Rozario: 1609
+Elizabeth Kikkert: 5223
+Robert Gunning: 2822
+Kacey Lam: 2258
+Peter Cain: 3074
+Guy Jakeman: 259
+Dominic De luca: 206
+Katt Millner: 2257
+Jo Clay: 3499
+Tim Liersch: 1274
+Tara Cheyne: 6307
+Yvette Berry: 8759
+Gordon Ramsay: 4786
+Sue Ducker: 1288
+Greg Lloyd: 1279
+Mignonne Cullen: 704
+exhausted: 1
+loss: 0.000000
+remarks: Oksana DEMETRIOS fully excluded. Dominic DE LUCA to be excluded.
+
+count 3
+Oliver Smith: 617
+Matthew Ogilvie: 679
+Helen Mcclure: 729
+Ian Mcclure: 624
+Oksana Demetrios: 0
+Jonathan Stavridis: 261
+Sok Kheng Ngep: 240
+Carolyne Drew: 438
+Lara Drew: 556
+Paul Gabriel: 428
+Mark O'Connor: 585
+Vijay Dubey: 418
+Angela Lount: 495
+Alan Tutt: 631
+Bill Stefaniak: 2222
+Chic Henry: 1522
+Ignatius Rozario: 1613
+Elizabeth Kikkert: 5233
+Robert Gunning: 2823
+Kacey Lam: 2267
+Peter Cain: 3080
+Guy Jakeman: 384
+Dominic De luca: 0
+Katt Millner: 2259
+Jo Clay: 3503
+Tim Liersch: 1277
+Tara Cheyne: 6309
+Yvette Berry: 8761
+Gordon Ramsay: 4791
+Sue Ducker: 1291
+Greg Lloyd: 1281
+Mignonne Cullen: 705
+exhausted: 3
+loss: 0.000000
+remarks: Dominic DE LUCA fully excluded. Sok Kheng NGEP to be excluded.
+
+count 4
+Oliver Smith: 619
+Matthew Ogilvie: 679
+Helen Mcclure: 732
+Ian Mcclure: 626
+Oksana Demetrios: 0
+Jonathan Stavridis: 396
+Sok Kheng Ngep: 0
+Carolyne Drew: 449
+Lara Drew: 569
+Paul Gabriel: 437
+Mark O'Connor: 591
+Vijay Dubey: 418
+Angela Lount: 496
+Alan Tutt: 636
+Bill Stefaniak: 2228
+Chic Henry: 1523
+Ignatius Rozario: 1613
+Elizabeth Kikkert: 5236
+Robert Gunning: 2824
+Kacey Lam: 2270
+Peter Cain: 3081
+Guy Jakeman: 384
+Dominic De luca: 0
+Katt Millner: 2261
+Jo Clay: 3511
+Tim Liersch: 1286
+Tara Cheyne: 6315
+Yvette Berry: 8766
+Gordon Ramsay: 4795
+Sue Ducker: 1292
+Greg Lloyd: 1282
+Mignonne Cullen: 706
+exhausted: 4
+loss: 0.000000
+remarks: Sok Kheng NGEP fully excluded. Guy JAKEMAN to be excluded.
+
+count 5
+Oliver Smith: 640
+Matthew Ogilvie: 696
+Helen Mcclure: 742
+Ian Mcclure: 634
+Oksana Demetrios: 0
+Jonathan Stavridis: 400
+Sok Kheng Ngep: 0
+Carolyne Drew: 460
+Lara Drew: 574
+Paul Gabriel: 447
+Mark O'Connor: 595
+Vijay Dubey: 429
+Angela Lount: 501
+Alan Tutt: 644
+Bill Stefaniak: 2247
+Chic Henry: 1537
+Ignatius Rozario: 1641
+Elizabeth Kikkert: 5267
+Robert Gunning: 2847
+Kacey Lam: 2287
+Peter Cain: 3106
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2280
+Jo Clay: 3524
+Tim Liersch: 1294
+Tara Cheyne: 6328
+Yvette Berry: 8779
+Gordon Ramsay: 4803
+Sue Ducker: 1294
+Greg Lloyd: 1290
+Mignonne Cullen: 720
+exhausted: 19
+loss: 0.000000
+remarks: Guy JAKEMAN fully excluded. Jonathan STAVRIDIS to be excluded.
+
+count 6
+Oliver Smith: 647
+Matthew Ogilvie: 702
+Helen Mcclure: 746
+Ian Mcclure: 637
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 493
+Lara Drew: 621
+Paul Gabriel: 480
+Mark O'Connor: 644
+Vijay Dubey: 435
+Angela Lount: 507
+Alan Tutt: 648
+Bill Stefaniak: 2255
+Chic Henry: 1543
+Ignatius Rozario: 1645
+Elizabeth Kikkert: 5278
+Robert Gunning: 2852
+Kacey Lam: 2296
+Peter Cain: 3107
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2312
+Jo Clay: 3570
+Tim Liersch: 1315
+Tara Cheyne: 6339
+Yvette Berry: 8795
+Gordon Ramsay: 4812
+Sue Ducker: 1297
+Greg Lloyd: 1292
+Mignonne Cullen: 730
+exhausted: 27
+loss: 0.000000
+remarks: Jonathan STAVRIDIS fully excluded. Vijay DUBEY to be excluded.
+
+count 7
+Oliver Smith: 659
+Matthew Ogilvie: 704
+Helen Mcclure: 756
+Ian Mcclure: 641
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 501
+Lara Drew: 627
+Paul Gabriel: 488
+Mark O'Connor: 653
+Vijay Dubey: 0
+Angela Lount: 551
+Alan Tutt: 700
+Bill Stefaniak: 2322
+Chic Henry: 1597
+Ignatius Rozario: 1671
+Elizabeth Kikkert: 5289
+Robert Gunning: 2861
+Kacey Lam: 2313
+Peter Cain: 3117
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2325
+Jo Clay: 3572
+Tim Liersch: 1322
+Tara Cheyne: 6360
+Yvette Berry: 8805
+Gordon Ramsay: 4832
+Sue Ducker: 1301
+Greg Lloyd: 1295
+Mignonne Cullen: 736
+exhausted: 27
+loss: 0.000000
+remarks: Vijay DUBEY fully excluded. Paul GABRIEL to be excluded.
+
+count 8
+Oliver Smith: 662
+Matthew Ogilvie: 704
+Helen Mcclure: 757
+Ian Mcclure: 643
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 519
+Lara Drew: 633
+Paul Gabriel: 0
+Mark O'Connor: 975
+Vijay Dubey: 0
+Angela Lount: 559
+Alan Tutt: 705
+Bill Stefaniak: 2333
+Chic Henry: 1602
+Ignatius Rozario: 1678
+Elizabeth Kikkert: 5297
+Robert Gunning: 2865
+Kacey Lam: 2319
+Peter Cain: 3121
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2349
+Jo Clay: 3587
+Tim Liersch: 1329
+Tara Cheyne: 6366
+Yvette Berry: 8810
+Gordon Ramsay: 4840
+Sue Ducker: 1301
+Greg Lloyd: 1297
+Mignonne Cullen: 746
+exhausted: 28
+loss: 0.000000
+remarks: Paul GABRIEL fully excluded. Carolyne DREW to be excluded.
+
+count 9
+Oliver Smith: 673
+Matthew Ogilvie: 710
+Helen Mcclure: 770
+Ian Mcclure: 644
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 941
+Paul Gabriel: 0
+Mark O'Connor: 994
+Vijay Dubey: 0
+Angela Lount: 569
+Alan Tutt: 715
+Bill Stefaniak: 2339
+Chic Henry: 1615
+Ignatius Rozario: 1687
+Elizabeth Kikkert: 5302
+Robert Gunning: 2871
+Kacey Lam: 2330
+Peter Cain: 3124
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2373
+Jo Clay: 3595
+Tim Liersch: 1343
+Tara Cheyne: 6380
+Yvette Berry: 8819
+Gordon Ramsay: 4844
+Sue Ducker: 1305
+Greg Lloyd: 1298
+Mignonne Cullen: 753
+exhausted: 31
+loss: 0.000000
+remarks: Carolyne DREW fully excluded. Angela LOUNT to be excluded.
+
+count 10
+Oliver Smith: 679
+Matthew Ogilvie: 720
+Helen Mcclure: 773
+Ian Mcclure: 646
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 961
+Paul Gabriel: 0
+Mark O'Connor: 1025
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 791
+Bill Stefaniak: 2452
+Chic Henry: 1725
+Ignatius Rozario: 1696
+Elizabeth Kikkert: 5334
+Robert Gunning: 2884
+Kacey Lam: 2354
+Peter Cain: 3129
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2383
+Jo Clay: 3617
+Tim Liersch: 1348
+Tara Cheyne: 6394
+Yvette Berry: 8843
+Gordon Ramsay: 4852
+Sue Ducker: 1314
+Greg Lloyd: 1306
+Mignonne Cullen: 763
+exhausted: 36
+loss: 0.000000
+remarks: Angela LOUNT fully excluded. Ian McCLURE to be excluded.
+
+count 11
+Oliver Smith: 690
+Matthew Ogilvie: 738
+Helen Mcclure: 1098
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 1007
+Paul Gabriel: 0
+Mark O'Connor: 1045
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 802
+Bill Stefaniak: 2462
+Chic Henry: 1732
+Ignatius Rozario: 1701
+Elizabeth Kikkert: 5352
+Robert Gunning: 2892
+Kacey Lam: 2367
+Peter Cain: 3142
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2392
+Jo Clay: 3633
+Tim Liersch: 1359
+Tara Cheyne: 6404
+Yvette Berry: 8875
+Gordon Ramsay: 4870
+Sue Ducker: 1328
+Greg Lloyd: 1325
+Mignonne Cullen: 766
+exhausted: 45
+loss: 0.000000
+remarks: Ian McCLURE fully excluded. Oliver SMITH to be excluded.
+
+count 12
+Oliver Smith: 0
+Matthew Ogilvie: 1103
+Helen Mcclure: 1174
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 1037
+Paul Gabriel: 0
+Mark O'Connor: 1075
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 816
+Bill Stefaniak: 2484
+Chic Henry: 1767
+Ignatius Rozario: 1712
+Elizabeth Kikkert: 5364
+Robert Gunning: 2901
+Kacey Lam: 2378
+Peter Cain: 3154
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2402
+Jo Clay: 3635
+Tim Liersch: 1362
+Tara Cheyne: 6409
+Yvette Berry: 8882
+Gordon Ramsay: 4880
+Sue Ducker: 1329
+Greg Lloyd: 1331
+Mignonne Cullen: 774
+exhausted: 56
+loss: 0.000000
+remarks: Oliver SMITH fully excluded. Mignonne CULLEN to be excluded.
+
+count 13
+Oliver Smith: 0
+Matthew Ogilvie: 1134
+Helen Mcclure: 1194
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 1077
+Paul Gabriel: 0
+Mark O'Connor: 1167
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 845
+Bill Stefaniak: 2536
+Chic Henry: 1787
+Ignatius Rozario: 1730
+Elizabeth Kikkert: 5399
+Robert Gunning: 2918
+Kacey Lam: 2399
+Peter Cain: 3176
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2451
+Jo Clay: 3709
+Tim Liersch: 1405
+Tara Cheyne: 6464
+Yvette Berry: 8942
+Gordon Ramsay: 4922
+Sue Ducker: 1343
+Greg Lloyd: 1345
+Mignonne Cullen: 0
+exhausted: 82
+loss: 0.000000
+remarks: Mignonne CULLEN fully excluded. Alan TUTT to be excluded.
+
+count 14
+Oliver Smith: 0
+Matthew Ogilvie: 1163
+Helen Mcclure: 1205
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 1088
+Paul Gabriel: 0
+Mark O'Connor: 1193
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 2833
+Chic Henry: 2015
+Ignatius Rozario: 1737
+Elizabeth Kikkert: 5432
+Robert Gunning: 2951
+Kacey Lam: 2413
+Peter Cain: 3196
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2458
+Jo Clay: 3722
+Tim Liersch: 1418
+Tara Cheyne: 6480
+Yvette Berry: 8974
+Gordon Ramsay: 4952
+Sue Ducker: 1349
+Greg Lloyd: 1352
+Mignonne Cullen: 0
+exhausted: 94
+loss: 0.000000
+remarks: Alan TUTT fully excluded. Lara DREW to be excluded.
+
+count 15
+Oliver Smith: 0
+Matthew Ogilvie: 1222
+Helen Mcclure: 1231
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 1386
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 2868
+Chic Henry: 2062
+Ignatius Rozario: 1749
+Elizabeth Kikkert: 5470
+Robert Gunning: 2975
+Kacey Lam: 2436
+Peter Cain: 3216
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2581
+Jo Clay: 3861
+Tim Liersch: 1494
+Tara Cheyne: 6527
+Yvette Berry: 9022
+Gordon Ramsay: 4995
+Sue Ducker: 1363
+Greg Lloyd: 1376
+Mignonne Cullen: 0
+exhausted: 191
+loss: 0.000000
+remarks: Lara DREW fully excluded. Matthew OGILVIE to be excluded.
+
+count 16
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 1332
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 1548
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3004
+Chic Henry: 2261
+Ignatius Rozario: 1776
+Elizabeth Kikkert: 5534
+Robert Gunning: 3050
+Kacey Lam: 2455
+Peter Cain: 3276
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2595
+Jo Clay: 3875
+Tim Liersch: 1513
+Tara Cheyne: 6559
+Yvette Berry: 9085
+Gordon Ramsay: 5048
+Sue Ducker: 1385
+Greg Lloyd: 1391
+Mignonne Cullen: 0
+exhausted: 338
+loss: 0.000000
+remarks: Matthew OGILVIE fully excluded. Helen McCLURE to be excluded.
+
+count 17
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 1655
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3080
+Chic Henry: 2335
+Ignatius Rozario: 1824
+Elizabeth Kikkert: 5602
+Robert Gunning: 3083
+Kacey Lam: 2496
+Peter Cain: 3331
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2681
+Jo Clay: 3929
+Tim Liersch: 1556
+Tara Cheyne: 6690
+Yvette Berry: 9180
+Gordon Ramsay: 5145
+Sue Ducker: 1466
+Greg Lloyd: 1448
+Mignonne Cullen: 0
+exhausted: 524
+loss: 0.000000
+remarks: Helen McCLURE fully excluded. Greg LLOYD to be excluded.
+
+count 18
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 1672
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3089
+Chic Henry: 2364
+Ignatius Rozario: 1830
+Elizabeth Kikkert: 5617
+Robert Gunning: 3094
+Kacey Lam: 2502
+Peter Cain: 3360
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2709
+Jo Clay: 3975
+Tim Liersch: 1596
+Tara Cheyne: 6995
+Yvette Berry: 9525
+Gordon Ramsay: 5471
+Sue Ducker: 1670
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 556
+loss: 0.000000
+remarks: Greg LLOYD fully excluded. Yvette BERRY elected 1.
+
+count 19
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 1673.1
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3090.1
+Chic Henry: 2365.65
+Ignatius Rozario: 1830
+Elizabeth Kikkert: 5618.1
+Robert Gunning: 3094.55
+Kacey Lam: 2503.1
+Peter Cain: 3361.65
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 2712.3
+Jo Clay: 3985.45
+Tim Liersch: 1599.3
+Tara Cheyne: 7056.6
+Yvette Berry: 9338
+Gordon Ramsay: 5531.5
+Sue Ducker: 1709.6
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 556
+loss: 0.000000
+remarks: Tim LIERSCH to be excluded.
+
+count 20
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 1704.1
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3109.1
+Chic Henry: 2380.65
+Ignatius Rozario: 1838
+Elizabeth Kikkert: 5634.1
+Robert Gunning: 3106.55
+Kacey Lam: 2523.1
+Peter Cain: 3376.65
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3306.3
+Jo Clay: 4579.45
+Tim Liersch: 3.3
+Tara Cheyne: 7137.6
+Yvette Berry: 9338
+Gordon Ramsay: 5635.5
+Sue Ducker: 1737.6
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 615
+loss: 0.000000
+remarks: Tim LIERSCH partially excluded.
+
+count 21
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 1704.1
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3109.1
+Chic Henry: 2380.65
+Ignatius Rozario: 1838.55
+Elizabeth Kikkert: 5634.1
+Robert Gunning: 3106.55
+Kacey Lam: 2523.1
+Peter Cain: 3376.65
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3307.95
+Jo Clay: 4580
+Tim Liersch: 0
+Tara Cheyne: 7137.6
+Yvette Berry: 9338
+Gordon Ramsay: 5636.05
+Sue Ducker: 1737.6
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 615
+loss: 0.000000
+remarks: Tim LIERSCH fully excluded. Mark O'CONNOR to be excluded.
+
+count 22
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 1.1
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3262.1
+Chic Henry: 2521.65
+Ignatius Rozario: 1865.55
+Elizabeth Kikkert: 5714.1
+Robert Gunning: 3165.55
+Kacey Lam: 2558.1
+Peter Cain: 3436.65
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3458.95
+Jo Clay: 4913
+Tim Liersch: 0
+Tara Cheyne: 7247.6
+Yvette Berry: 9338
+Gordon Ramsay: 5748.05
+Sue Ducker: 1771.6
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1023
+loss: 0.000000
+remarks: Mark O'CONNOR partially excluded.
+
+count 23
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3262.1
+Chic Henry: 2521.65
+Ignatius Rozario: 1865.55
+Elizabeth Kikkert: 5714.1
+Robert Gunning: 3165.55
+Kacey Lam: 2558.1
+Peter Cain: 3436.65
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3458.95
+Jo Clay: 4913.55
+Tim Liersch: 0
+Tara Cheyne: 7248.15
+Yvette Berry: 9338
+Gordon Ramsay: 5748.05
+Sue Ducker: 1771.6
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1023
+loss: 0.000000
+remarks: Mark O'CONNOR fully excluded. Sue DUCKER to be excluded.
+
+count 24
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3297.1
+Chic Henry: 2540.65
+Ignatius Rozario: 1870.55
+Elizabeth Kikkert: 5740.1
+Robert Gunning: 3176.55
+Kacey Lam: 2609.1
+Peter Cain: 3454.65
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3516.95
+Jo Clay: 4968.55
+Tim Liersch: 0
+Tara Cheyne: 8039.15
+Yvette Berry: 9338
+Gordon Ramsay: 6329.05
+Sue Ducker: 39.6
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1105
+loss: 0.000000
+remarks: Sue DUCKER partially excluded.
+
+count 25
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3297.1
+Chic Henry: 2540.65
+Ignatius Rozario: 1870.55
+Elizabeth Kikkert: 5740.1
+Robert Gunning: 3176.55
+Kacey Lam: 2609.65
+Peter Cain: 3455.2
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3517.5
+Jo Clay: 4970.2
+Tim Liersch: 0
+Tara Cheyne: 8047.4
+Yvette Berry: 9338
+Gordon Ramsay: 6353.25
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1108.85
+loss: 0.000000
+remarks: Sue DUCKER fully excluded. Ignatius ROZARIO to be excluded.
+
+count 26
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3340.1
+Chic Henry: 2557.65
+Ignatius Rozario: 0.55
+Elizabeth Kikkert: 6261.1
+Robert Gunning: 3558.55
+Kacey Lam: 2899.65
+Peter Cain: 3802.2
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3577.5
+Jo Clay: 4991.2
+Tim Liersch: 0
+Tara Cheyne: 8103.4
+Yvette Berry: 9338
+Gordon Ramsay: 6398.25
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1196.85
+loss: 0.000000
+remarks: Ignatius ROZARIO partially excluded.
+
+count 27
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 3340.1
+Chic Henry: 2557.65
+Ignatius Rozario: 0
+Elizabeth Kikkert: 6261.1
+Robert Gunning: 3558.55
+Kacey Lam: 2900.2
+Peter Cain: 3802.2
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3577.5
+Jo Clay: 4991.2
+Tim Liersch: 0
+Tara Cheyne: 8103.4
+Yvette Berry: 9338
+Gordon Ramsay: 6398.25
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1196.85
+loss: 0.000000
+remarks: Ignatius ROZARIO fully excluded. Chic HENRY to be excluded.
+
+count 28
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 4722.1
+Chic Henry: 1.65
+Ignatius Rozario: 0
+Elizabeth Kikkert: 6385.1
+Robert Gunning: 3674.55
+Kacey Lam: 2971.2
+Peter Cain: 3919.2
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3627.5
+Jo Clay: 5052.2
+Tim Liersch: 0
+Tara Cheyne: 8238.4
+Yvette Berry: 9338
+Gordon Ramsay: 6543.25
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1551.85
+loss: 0.000000
+remarks: Chic HENRY partially excluded.
+
+count 29
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 4722.1
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 6385.1
+Robert Gunning: 3674.55
+Kacey Lam: 2971.2
+Peter Cain: 3919.2
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3627.5
+Jo Clay: 5052.2
+Tim Liersch: 0
+Tara Cheyne: 8238.4
+Yvette Berry: 9338
+Gordon Ramsay: 6544.35
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1552.4
+loss: 0.000000
+remarks: Chic HENRY fully excluded. Kacey LAM to be excluded.
+
+count 30
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 4883.1
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 7503.1
+Robert Gunning: 4236.55
+Kacey Lam: 2.2
+Peter Cain: 4500.2
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3690.5
+Jo Clay: 5148.2
+Tim Liersch: 0
+Tara Cheyne: 8352.4
+Yvette Berry: 9338
+Gordon Ramsay: 6625.35
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1745.4
+loss: 0.000000
+remarks: Kacey LAM partially excluded.
+
+count 31
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 4883.1
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 7503.1
+Robert Gunning: 4236.55
+Kacey Lam: 0
+Peter Cain: 4500.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 3690.5
+Jo Clay: 5148.2
+Tim Liersch: 0
+Tara Cheyne: 8352.95
+Yvette Berry: 9338
+Gordon Ramsay: 6625.9
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 1745.95
+loss: 0.000000
+remarks: Kacey LAM fully excluded. Katt MILLNER to be excluded.
+
+count 32
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 4920.1
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 7549.1
+Robert Gunning: 4259.55
+Kacey Lam: 0
+Peter Cain: 4544.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 5.5
+Jo Clay: 7821.2
+Tim Liersch: 0
+Tara Cheyne: 8720.95
+Yvette Berry: 9338
+Gordon Ramsay: 6816.9
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 2048.95
+loss: 0.000000
+remarks: Katt MILLNER partially excluded.
+
+count 33
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 4920.1
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 7549.65
+Robert Gunning: 4259.55
+Kacey Lam: 0
+Peter Cain: 4544.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 7823.4
+Tim Liersch: 0
+Tara Cheyne: 8721.5
+Yvette Berry: 9338
+Gordon Ramsay: 6818
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 2050.05
+loss: 0.000000
+remarks: Katt MILLNER fully excluded. Robert GUNNING to be excluded.
+
+count 34
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 5061.1
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 9199.65
+Robert Gunning: 0.55
+Kacey Lam: 0
+Peter Cain: 6379.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 7873.4
+Tim Liersch: 0
+Tara Cheyne: 8811.5
+Yvette Berry: 9338
+Gordon Ramsay: 6991
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 2370.05
+loss: 0.000000
+remarks: Robert GUNNING partially excluded.
+
+count 35
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 5061.1
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 9199.65
+Robert Gunning: 0
+Kacey Lam: 0
+Peter Cain: 6379.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 7873.4
+Tim Liersch: 0
+Tara Cheyne: 8811.5
+Yvette Berry: 9338
+Gordon Ramsay: 6991
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 2370.6
+loss: 0.000000
+remarks: Robert GUNNING fully excluded. Bill STEFANIAK to be excluded.
+
+count 36
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 1.1
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 10106.65
+Robert Gunning: 0
+Kacey Lam: 0
+Peter Cain: 7032.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 8087.4
+Tim Liersch: 0
+Tara Cheyne: 9099.5
+Yvette Berry: 9338
+Gordon Ramsay: 7347
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 5012.6
+loss: 0.000000
+remarks: Bill STEFANIAK partially excluded. Elizabeth KIKKERT elected 2.
+
+count 37
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 0
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 10106.65
+Robert Gunning: 0
+Kacey Lam: 0
+Peter Cain: 7032.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 8087.4
+Tim Liersch: 0
+Tara Cheyne: 9099.5
+Yvette Berry: 9338
+Gordon Ramsay: 7347
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 5013.7
+loss: 0.000000
+remarks: Bill STEFANIAK fully excluded.
+
+count 38
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 0
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 9338
+Robert Gunning: 0
+Kacey Lam: 0
+Peter Cain: 7539.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 8108.4
+Tim Liersch: 0
+Tara Cheyne: 9137.5
+Yvette Berry: 9338
+Gordon Ramsay: 7373
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 5013.7
+loss: 176.650000
+remarks: Gordon RAMSAY to be excluded.
+
+count 39
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 0
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 9338
+Robert Gunning: 0
+Kacey Lam: 0
+Peter Cain: 7823.75
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 8668.4
+Tim Liersch: 0
+Tara Cheyne: 13995.5
+Yvette Berry: 9338
+Gordon Ramsay: 88
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 6596.7
+loss: 176.650000
+remarks: Gordon RAMSAY partially excluded. Tara CHEYNE elected 3.
+
+count 40
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 0
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 9338
+Robert Gunning: 0
+Kacey Lam: 0
+Peter Cain: 7824.85
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 8687.1
+Tim Liersch: 0
+Tara Cheyne: 13995.5
+Yvette Berry: 9338
+Gordon Ramsay: 0
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 6664.9
+loss: 176.650000
+remarks: Gordon RAMSAY fully excluded.
+
+count 41
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 0
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 9338
+Robert Gunning: 0
+Kacey Lam: 0
+Peter Cain: 7993.85
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 9937.1
+Tim Liersch: 0
+Tara Cheyne: 9338
+Yvette Berry: 9338
+Gordon Ramsay: 0
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 6664.9
+loss: 3415.150000
+remarks: Jo CLAY elected 4.
+
+count 42
+Oliver Smith: 0
+Matthew Ogilvie: 0
+Helen Mcclure: 0
+Ian Mcclure: 0
+Oksana Demetrios: 0
+Jonathan Stavridis: 0
+Sok Kheng Ngep: 0
+Carolyne Drew: 0
+Lara Drew: 0
+Paul Gabriel: 0
+Mark O'Connor: 0
+Vijay Dubey: 0
+Angela Lount: 0
+Alan Tutt: 0
+Bill Stefaniak: 0
+Chic Henry: 0
+Ignatius Rozario: 0
+Elizabeth Kikkert: 9338
+Robert Gunning: 0
+Kacey Lam: 0
+Peter Cain: 8294.85
+Guy Jakeman: 0
+Dominic De luca: 0
+Katt Millner: 0
+Jo Clay: 9338
+Tim Liersch: 0
+Tara Cheyne: 9338
+Yvette Berry: 9338
+Gordon Ramsay: 0
+Sue Ducker: 0
+Greg Lloyd: 0
+Mignonne Cullen: 0
+exhausted: 6664.9
+loss: 3713.250000
+remarks: Peter CAIN elected 5.

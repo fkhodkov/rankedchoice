@@ -1,0 +1,931 @@
+# Elections ACT's official distribution of preferences (table2_Yerrabi.xlsx), extracted
+# by tools/reference/act/act_table.py: votes at the end of each count.
+
+count 1
+Bernie Strang: 1039
+Olivia Helmore: 1478
+Krishna Nadimpalli: 1899
+James Milligan: 3834
+Jacob Vadakkedathu: 2680
+Leanne Castley: 4601
+Alistair Coe: 8685
+Andrew Braddock: 3431
+Mainul Haque: 2009
+John Kearsley: 331
+Scott Young: 363
+Bethany Williams: 1128
+Mike Stelzig: 318
+Stephanie Pollard: 319
+David Pollard: 1410
+Bernie Brennan: 310
+Francine Horne: 391
+Deepak-Raj Gupta: 3763
+Tom Fischer: 1796
+Suzanne Orr: 4344
+Georgia Phillips: 3273
+Michael Pettersson: 5086
+Helen Cross: 199
+Fuxin Li: 656
+Mohammad Munir Hussain: 116
+exhausted: 0
+loss: 0.000000
+remarks: First preferences Mohammad Munir HUSSAIN to be excluded.
+
+count 2
+Bernie Strang: 1041
+Olivia Helmore: 1482
+Krishna Nadimpalli: 1901
+James Milligan: 3840
+Jacob Vadakkedathu: 2687
+Leanne Castley: 4602
+Alistair Coe: 8691
+Andrew Braddock: 3434
+Mainul Haque: 2030
+John Kearsley: 331
+Scott Young: 367
+Bethany Williams: 1130
+Mike Stelzig: 319
+Stephanie Pollard: 321
+David Pollard: 1415
+Bernie Brennan: 312
+Francine Horne: 393
+Deepak-Raj Gupta: 3768
+Tom Fischer: 1798
+Suzanne Orr: 4349
+Georgia Phillips: 3278
+Michael Pettersson: 5091
+Helen Cross: 212
+Fuxin Li: 664
+Mohammad Munir Hussain: 0
+exhausted: 3
+loss: 0.000000
+remarks: Mohammad Munir HUSSAIN fully excluded. Helen CROSS to be excluded.
+
+count 3
+Bernie Strang: 1044
+Olivia Helmore: 1486
+Krishna Nadimpalli: 1901
+James Milligan: 3842
+Jacob Vadakkedathu: 2694
+Leanne Castley: 4614
+Alistair Coe: 8700
+Andrew Braddock: 3441
+Mainul Haque: 2032
+John Kearsley: 333
+Scott Young: 380
+Bethany Williams: 1144
+Mike Stelzig: 323
+Stephanie Pollard: 334
+David Pollard: 1441
+Bernie Brennan: 316
+Francine Horne: 400
+Deepak-Raj Gupta: 3773
+Tom Fischer: 1803
+Suzanne Orr: 4360
+Georgia Phillips: 3286
+Michael Pettersson: 5101
+Helen Cross: 0
+Fuxin Li: 707
+Mohammad Munir Hussain: 0
+exhausted: 4
+loss: 0.000000
+remarks: Helen CROSS fully excluded. Bernie BRENNAN to be excluded.
+
+count 4
+Bernie Strang: 1049
+Olivia Helmore: 1487
+Krishna Nadimpalli: 1903
+James Milligan: 3844
+Jacob Vadakkedathu: 2695
+Leanne Castley: 4617
+Alistair Coe: 8705
+Andrew Braddock: 3467
+Mainul Haque: 2034
+John Kearsley: 343
+Scott Young: 386
+Bethany Williams: 1152
+Mike Stelzig: 325
+Stephanie Pollard: 343
+David Pollard: 1443
+Bernie Brennan: 0
+Francine Horne: 601
+Deepak-Raj Gupta: 3782
+Tom Fischer: 1805
+Suzanne Orr: 4363
+Georgia Phillips: 3291
+Michael Pettersson: 5109
+Helen Cross: 0
+Fuxin Li: 709
+Mohammad Munir Hussain: 0
+exhausted: 6
+loss: 0.000000
+remarks: Bernie BRENNAN fully excluded. Mike STELZIG to be excluded.
+
+count 5
+Bernie Strang: 1050
+Olivia Helmore: 1489
+Krishna Nadimpalli: 1909
+James Milligan: 3852
+Jacob Vadakkedathu: 2706
+Leanne Castley: 4621
+Alistair Coe: 8705
+Andrew Braddock: 3479
+Mainul Haque: 2040
+John Kearsley: 358
+Scott Young: 397
+Bethany Williams: 1319
+Mike Stelzig: 0
+Stephanie Pollard: 368
+David Pollard: 1468
+Bernie Brennan: 0
+Francine Horne: 605
+Deepak-Raj Gupta: 3784
+Tom Fischer: 1813
+Suzanne Orr: 4367
+Georgia Phillips: 3296
+Michael Pettersson: 5113
+Helen Cross: 0
+Fuxin Li: 711
+Mohammad Munir Hussain: 0
+exhausted: 9
+loss: 0.000000
+remarks: Mike STELZIG fully excluded. John KEARSLEY to be excluded.
+
+count 6
+Bernie Strang: 1057
+Olivia Helmore: 1490
+Krishna Nadimpalli: 1911
+James Milligan: 3858
+Jacob Vadakkedathu: 2709
+Leanne Castley: 4626
+Alistair Coe: 8708
+Andrew Braddock: 3507
+Mainul Haque: 2045
+John Kearsley: 0
+Scott Young: 634
+Bethany Williams: 1340
+Mike Stelzig: 0
+Stephanie Pollard: 377
+David Pollard: 1476
+Bernie Brennan: 0
+Francine Horne: 611
+Deepak-Raj Gupta: 3788
+Tom Fischer: 1814
+Suzanne Orr: 4370
+Georgia Phillips: 3298
+Michael Pettersson: 5118
+Helen Cross: 0
+Fuxin Li: 712
+Mohammad Munir Hussain: 0
+exhausted: 10
+loss: 0.000000
+remarks: John KEARSLEY fully excluded. Stephanie POLLARD to be excluded.
+
+count 7
+Bernie Strang: 1059
+Olivia Helmore: 1494
+Krishna Nadimpalli: 1919
+James Milligan: 3862
+Jacob Vadakkedathu: 2718
+Leanne Castley: 4634
+Alistair Coe: 8712
+Andrew Braddock: 3530
+Mainul Haque: 2051
+John Kearsley: 0
+Scott Young: 654
+Bethany Williams: 1380
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 1677
+Bernie Brennan: 0
+Francine Horne: 617
+Deepak-Raj Gupta: 3794
+Tom Fischer: 1825
+Suzanne Orr: 4374
+Georgia Phillips: 3304
+Michael Pettersson: 5124
+Helen Cross: 0
+Fuxin Li: 719
+Mohammad Munir Hussain: 0
+exhausted: 12
+loss: 0.000000
+remarks: Stephanie POLLARD fully excluded. Francine HORNE to be excluded.
+
+count 8
+Bernie Strang: 1064
+Olivia Helmore: 1513
+Krishna Nadimpalli: 1927
+James Milligan: 3878
+Jacob Vadakkedathu: 2726
+Leanne Castley: 4660
+Alistair Coe: 8730
+Andrew Braddock: 3630
+Mainul Haque: 2127
+John Kearsley: 0
+Scott Young: 769
+Bethany Williams: 1427
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 1711
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 3810
+Tom Fischer: 1835
+Suzanne Orr: 4398
+Georgia Phillips: 3323
+Michael Pettersson: 5148
+Helen Cross: 0
+Fuxin Li: 748
+Mohammad Munir Hussain: 0
+exhausted: 35
+loss: 0.000000
+remarks: Francine HORNE fully excluded. Fuxin LI to be excluded.
+
+count 9
+Bernie Strang: 1087
+Olivia Helmore: 1542
+Krishna Nadimpalli: 1938
+James Milligan: 3910
+Jacob Vadakkedathu: 2765
+Leanne Castley: 4702
+Alistair Coe: 8786
+Andrew Braddock: 3668
+Mainul Haque: 2147
+John Kearsley: 0
+Scott Young: 809
+Bethany Williams: 1457
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 1786
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 3860
+Tom Fischer: 1884
+Suzanne Orr: 4456
+Georgia Phillips: 3376
+Michael Pettersson: 5219
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 67
+loss: 0.000000
+remarks: Fuxin LI fully excluded. Scott YOUNG to be excluded.
+
+count 10
+Bernie Strang: 1100
+Olivia Helmore: 1564
+Krishna Nadimpalli: 1951
+James Milligan: 3943
+Jacob Vadakkedathu: 2780
+Leanne Castley: 4743
+Alistair Coe: 8826
+Andrew Braddock: 3781
+Mainul Haque: 2212
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 1616
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 1907
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 3877
+Tom Fischer: 1907
+Suzanne Orr: 4469
+Georgia Phillips: 3401
+Michael Pettersson: 5249
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 133
+loss: 0.000000
+remarks: Scott YOUNG fully excluded. Bernie STRANG to be excluded.
+
+count 11
+Bernie Strang: 0
+Olivia Helmore: 2067
+Krishna Nadimpalli: 1996
+James Milligan: 3997
+Jacob Vadakkedathu: 2817
+Leanne Castley: 4802
+Alistair Coe: 8878
+Andrew Braddock: 3879
+Mainul Haque: 2228
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 1634
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 1913
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 3929
+Tom Fischer: 1929
+Suzanne Orr: 4499
+Georgia Phillips: 3428
+Michael Pettersson: 5311
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 152
+loss: 0.000000
+remarks: Bernie STRANG fully excluded. Bethany WILLIAMS to be excluded.
+
+count 12
+Bernie Strang: 0
+Olivia Helmore: 2108
+Krishna Nadimpalli: 2027
+James Milligan: 4027
+Jacob Vadakkedathu: 2844
+Leanne Castley: 4872
+Alistair Coe: 8924
+Andrew Braddock: 4332
+Mainul Haque: 2348
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 2234
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 3993
+Tom Fischer: 1983
+Suzanne Orr: 4599
+Georgia Phillips: 3513
+Michael Pettersson: 5389
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 266
+loss: 0.000000
+remarks: Bethany WILLIAMS fully excluded. Alistair COE elected 1.
+
+count 13
+Bernie Strang: 0
+Olivia Helmore: 2108
+Krishna Nadimpalli: 2027.717948
+James Milligan: 4030.589743
+Jacob Vadakkedathu: 2845.076923
+Leanne Castley: 4877.384615
+Alistair Coe: 8910
+Andrew Braddock: 4332.358974
+Mainul Haque: 2348
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 2234.358974
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 3993.358974
+Tom Fischer: 1983.358974
+Suzanne Orr: 4599
+Georgia Phillips: 3513.358974
+Michael Pettersson: 5390.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 266
+loss: 0.000004
+remarks: Tom FISCHER to be excluded.
+
+count 14
+Bernie Strang: 0
+Olivia Helmore: 2155
+Krishna Nadimpalli: 2034.717948
+James Milligan: 4066.589743
+Jacob Vadakkedathu: 2850.076923
+Leanne Castley: 4901.384615
+Alistair Coe: 8910
+Andrew Braddock: 4406.358974
+Mainul Haque: 2410
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 2268.358974
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 4308.358974
+Tom Fischer: 0.358974
+Suzanne Orr: 4971
+Georgia Phillips: 3948.358974
+Michael Pettersson: 5939.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 289
+loss: 0.000004
+remarks: Tom FISCHER partially excluded.
+
+count 15
+Bernie Strang: 0
+Olivia Helmore: 2155
+Krishna Nadimpalli: 2034.717948
+James Milligan: 4066.589743
+Jacob Vadakkedathu: 2850.076923
+Leanne Castley: 4901.384615
+Alistair Coe: 8910
+Andrew Braddock: 4406.358974
+Mainul Haque: 2410
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 2268.358974
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 4308.717948
+Tom Fischer: 0
+Suzanne Orr: 4971
+Georgia Phillips: 3948.358974
+Michael Pettersson: 5939.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 289
+loss: 0.000004
+remarks: Tom FISCHER fully excluded. Krishna NADIMPALLI to be excluded.
+
+count 16
+Bernie Strang: 0
+Olivia Helmore: 2187
+Krishna Nadimpalli: 0.717948
+James Milligan: 4418.589743
+Jacob Vadakkedathu: 3628.076923
+Leanne Castley: 5244.384615
+Alistair Coe: 8910
+Andrew Braddock: 4518.358974
+Mainul Haque: 2450
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 2292.358974
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 4535.717948
+Tom Fischer: 0
+Suzanne Orr: 5005
+Georgia Phillips: 3966.358974
+Michael Pettersson: 5968.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 334
+loss: 0.000004
+remarks: Krishna NADIMPALLI partially excluded.
+
+count 17
+Bernie Strang: 0
+Olivia Helmore: 2187
+Krishna Nadimpalli: 0
+James Milligan: 4418.589743
+Jacob Vadakkedathu: 3628.435897
+Leanne Castley: 5244.743589
+Alistair Coe: 8910
+Andrew Braddock: 4518.358974
+Mainul Haque: 2450
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 2292.358974
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 4535.717948
+Tom Fischer: 0
+Suzanne Orr: 5005
+Georgia Phillips: 3966.358974
+Michael Pettersson: 5968.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 334
+loss: 0.000004
+remarks: Krishna NADIMPALLI fully excluded. Olivia HELMORE to be excluded.
+
+count 18
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 4639.589743
+Jacob Vadakkedathu: 3775.435897
+Leanne Castley: 5475.743589
+Alistair Coe: 8910
+Andrew Braddock: 4835.358974
+Mainul Haque: 2686
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 2395.358974
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 4651.717948
+Tom Fischer: 0
+Suzanne Orr: 5240
+Georgia Phillips: 4192.358974
+Michael Pettersson: 6162.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 495
+loss: 0.000004
+remarks: Olivia HELMORE partially excluded. David POLLARD to be excluded.
+
+count 19
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 4904.589743
+Jacob Vadakkedathu: 3934.435897
+Leanne Castley: 5729.743589
+Alistair Coe: 8910
+Andrew Braddock: 5215.358974
+Mainul Haque: 2853
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0.358974
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 4807.717948
+Tom Fischer: 0
+Suzanne Orr: 5436
+Georgia Phillips: 4342.358974
+Michael Pettersson: 6366.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 959
+loss: 0.000004
+remarks: David POLLARD partially excluded.
+
+count 20
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 4904.589743
+Jacob Vadakkedathu: 3934.435897
+Leanne Castley: 5729.743589
+Alistair Coe: 8910
+Andrew Braddock: 5215.358974
+Mainul Haque: 2853
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 4807.717948
+Tom Fischer: 0
+Suzanne Orr: 5436
+Georgia Phillips: 4342.358974
+Michael Pettersson: 6366.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 959.358974
+loss: 0.000004
+remarks: David POLLARD fully excluded. Mainul HAQUE to be excluded.
+
+count 21
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 5006.589743
+Jacob Vadakkedathu: 4021.435897
+Leanne Castley: 5809.743589
+Alistair Coe: 8910
+Andrew Braddock: 7012.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 5000.717948
+Tom Fischer: 0
+Suzanne Orr: 5576
+Georgia Phillips: 4440.358974
+Michael Pettersson: 6526.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 1155.358974
+loss: 0.000004
+remarks: Mainul HAQUE partially excluded. Jacob VADAKKEDATHU to be excluded.
+
+count 22
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6379.589743
+Jacob Vadakkedathu: 1.435897
+Leanne Castley: 7178.743589
+Alistair Coe: 8910
+Andrew Braddock: 7239.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 5466.717948
+Tom Fischer: 0
+Suzanne Orr: 5710
+Georgia Phillips: 4515.358974
+Michael Pettersson: 6654.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 1403.358974
+loss: 0.000004
+remarks: Jacob VADAKKEDATHU partially excluded.
+
+count 23
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6380.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 7179.102563
+Alistair Coe: 8910
+Andrew Braddock: 7239.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 5466.717948
+Tom Fischer: 0
+Suzanne Orr: 5710
+Georgia Phillips: 4515.358974
+Michael Pettersson: 6654.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 1403.358974
+loss: 0.000004
+remarks: Jacob VADAKKEDATHU fully excluded. Georgia PHILLIPS to be excluded.
+
+count 24
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6451.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 7356.102563
+Alistair Coe: 8910
+Andrew Braddock: 7556.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 6187.717948
+Tom Fischer: 0
+Suzanne Orr: 7535
+Georgia Phillips: 0.358974
+Michael Pettersson: 7834.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 1627.358974
+loss: 0.000004
+remarks: Georgia PHILLIPS partially excluded.
+
+count 25
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6451.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 7356.102563
+Alistair Coe: 8910
+Andrew Braddock: 7556.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 6187.717948
+Tom Fischer: 0
+Suzanne Orr: 7535
+Georgia Phillips: 0
+Michael Pettersson: 7834.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 1627.717948
+loss: 0.000004
+remarks: Georgia PHILLIPS fully excluded. Deepak-Raj GUPTA to be excluded.
+
+count 26
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6721.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 7600.102563
+Alistair Coe: 8910
+Andrew Braddock: 8125.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 0.717948
+Tom Fischer: 0
+Suzanne Orr: 9784
+Georgia Phillips: 0
+Michael Pettersson: 9996.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 2320.717948
+loss: 0.000004
+remarks: Deepak-Raj GUPTA partially excluded. Michael PETTERSSON elected 2. Suzanne ORR elected 3.
+
+count 27
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6721.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 7600.102563
+Alistair Coe: 8910
+Andrew Braddock: 8125.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 0
+Tom Fischer: 0
+Suzanne Orr: 9784
+Georgia Phillips: 0
+Michael Pettersson: 9996.435897
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 2321.435896
+loss: 0.000004
+remarks: Deepak-Raj GUPTA fully excluded.
+
+count 28
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6813.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 7681.102563
+Alistair Coe: 8910
+Andrew Braddock: 8630.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 0
+Tom Fischer: 0
+Suzanne Orr: 9784
+Georgia Phillips: 0
+Michael Pettersson: 8910
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 2321.435896
+loss: 408.435901
+
+count 29
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6896.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 7749.102563
+Alistair Coe: 8910
+Andrew Braddock: 9208.358974
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 0
+Tom Fischer: 0
+Suzanne Orr: 8910
+Georgia Phillips: 0
+Michael Pettersson: 8910
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 2321.435896
+loss: 553.435901
+remarks: Andrew BRADDOCK elected 4.
+
+count 30
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 6965.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 7824.102563
+Alistair Coe: 8910
+Andrew Braddock: 8910
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 0
+Tom Fischer: 0
+Suzanne Orr: 8910
+Georgia Phillips: 0
+Michael Pettersson: 8910
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 2321.435896
+loss: 707.794875
+remarks: James MILLIGAN to be excluded.
+
+count 31
+Bernie Strang: 0
+Olivia Helmore: 0
+Krishna Nadimpalli: 0
+James Milligan: 4.666666
+Jacob Vadakkedathu: 0
+Leanne Castley: 13086.102563
+Alistair Coe: 8910
+Andrew Braddock: 8910
+Mainul Haque: 0
+John Kearsley: 0
+Scott Young: 0
+Bethany Williams: 0
+Mike Stelzig: 0
+Stephanie Pollard: 0
+David Pollard: 0
+Bernie Brennan: 0
+Francine Horne: 0
+Deepak-Raj Gupta: 0
+Tom Fischer: 0
+Suzanne Orr: 8910
+Georgia Phillips: 0
+Michael Pettersson: 8910
+Helen Cross: 0
+Fuxin Li: 0
+Mohammad Munir Hussain: 0
+exhausted: 4020.435896
+loss: 707.794875
+remarks: James MILLIGAN partially excluded. Leanne CASTLEY elected 5.

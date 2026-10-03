@@ -122,14 +122,17 @@ public final class StvCounter {
 
         Fraction quota = ruleset.quota().compute(totalValidVotes, seats);
         boolean defers = defersSurplusTransfers(ruleset.transferMethod());
-        RunningTallies running = RunningTallies.of(states);
+        // The ACT rounds each candidate's gain from each transfer step, not their running total.
+        RunningTallies running = RunningTallies.of(states,
+                ruleset.transferMethod() instanceof LastParcelDeferredRoundingTransfer ? ruleset.roundingRule() : null);
 
         List<Candidate> elected = new ArrayList<>();
         List<RoundRecord> rounds = new ArrayList<>();
         // Candidates who have crossed quota but whose surplus hasn't been transferred yet —
         // only ever populated when `defers` is true. Processed one at a time, largest first.
         Map<Candidate, Fraction> pendingSurplus = new LinkedHashMap<>();
-        Credits credits = new Credits(Fraction.of(totalValidVotes), elected, pendingSurplus);
+        Credits credits = new Credits(Fraction.of(totalValidVotes), elected, pendingSurplus, running,
+                ruleset.roundingRule());
         int roundNumber = 0;
         int nextParcelId = 1;
 
@@ -286,20 +289,28 @@ public final class StvCounter {
         private final List<Candidate> elected;
         private final Map<Candidate, Fraction> pendingSurplus;
         private final Map<Candidate, Fraction> settled = new LinkedHashMap<>();
+        private final RunningTallies running;
+        private final RoundingRule roundingRule;
 
-        Credits(Fraction totalValidVotes, List<Candidate> elected, Map<Candidate, Fraction> pendingSurplus) {
+        Credits(Fraction totalValidVotes, List<Candidate> elected, Map<Candidate, Fraction> pendingSurplus,
+                RunningTallies running, RoundingRule roundingRule) {
             this.totalValidVotes = totalValidVotes;
             this.elected = elected;
             this.pendingSurplus = pendingSurplus;
+            this.running = running;
+            this.roundingRule = roundingRule;
         }
 
         void settle(Candidate candidate, Fraction votes) {
             settled.put(candidate, votes);
         }
 
-        /** The valid votes not in {@code tallies}, credited to an elected candidate, or exhausted. */
+        /**
+         * The valid votes not in {@code tallies}, credited to an elected candidate, exhausted, or
+         * still held by an excluded candidate (whose exclusion stopped once every seat was filled).
+         */
         Fraction roundingLoss(Map<Candidate, Fraction> tallies, Fraction exhausted) {
-            Fraction accounted = exhausted;
+            Fraction accounted = exhausted.add(running.heldOutside(tallies.keySet(), elected, roundingRule));
             for (Fraction tally : tallies.values()) {
                 accounted = accounted.add(tally);
             }
@@ -388,6 +399,7 @@ public final class StvCounter {
                 assignNextHolder(state, continuing);
                 running.add(state);
             }
+            running.endStep();
 
             int remainingSeats = seats - elected.size();
             if (remainingSeats <= 0) {
@@ -409,6 +421,12 @@ public final class StvCounter {
                 elected.add(candidate);
                 continuing.remove(candidate);
                 pendingSurplus.put(candidate, freshTallies.get(candidate));
+            }
+            if (elected.size() >= seats) {
+                // Every seat is filled: the count ends here, and the rest of the excluded
+                // candidate's papers stay where they are ("partially excluded", as the ACT's
+                // official sheets put it).
+                break;
             }
         }
         return parcelId;
@@ -513,13 +531,21 @@ public final class StvCounter {
     private static final class RunningTallies {
         private final Map<Candidate, Fraction> exact = new java.util.HashMap<>();
         private Fraction exhausted = Fraction.ZERO;
+        // Rulesets rounding per transfer step (see endStep): the exact total at the last step's
+        // end, and the sum of each step's rounded gain.
+        private RoundingRule perStepRounding;
+        private final Map<Candidate, Fraction> stepBase = new java.util.HashMap<>();
+        private final Map<Candidate, Fraction> credited = new java.util.HashMap<>();
+        private Fraction exhaustedBase = Fraction.ZERO;
+        private Fraction exhaustedCredited = Fraction.ZERO;
         // Changes not yet applied: net ballot counts per (holders, value), so a transfer moving
         // many ballots at the same few values costs one exact operation per group, not per ballot.
         private final Map<Set<Candidate>, Map<Fraction, BigInteger>> pending = new LinkedHashMap<>();
 
         /** Built once, summing ballots per (holders, value) first so it's one pass. */
-        static RunningTallies of(List<BallotState> states) {
+        static RunningTallies of(List<BallotState> states, RoundingRule perStepRounding) {
             RunningTallies running = new RunningTallies();
+            running.perStepRounding = perStepRounding;
             Map<Set<Candidate>, Map<Fraction, BigInteger>> ballotsByHoldersAndValue = new LinkedHashMap<>();
             for (BallotState state : states) {
                 ballotsByHoldersAndValue.computeIfAbsent(state.holders, _ -> new LinkedHashMap<>())
@@ -539,7 +565,38 @@ public final class StvCounter {
                     }
                 }
             }
+            running.endStep();
             return running;
+        }
+
+        /**
+         * Closes a transfer step (a surplus, or one value group of an exclusion) for a ruleset
+         * that rounds per step: each candidate's gain over the step, rounded, is added to the
+         * total they're credited with. The ACT's Schedule 4 rounds this way ("BP x TV ... any
+         * fraction must be rounded down to 6 decimal places", per transfer), so its official
+         * tallies, and its exhausted votes, are sums of rounded gains, not rounded sums. A
+         * no-op otherwise.
+         */
+        void endStep() {
+            if (perStepRounding == null) {
+                return;
+            }
+            flush();
+            for (Map.Entry<Candidate, Fraction> entry : exact.entrySet()) {
+                Fraction base = stepBase.getOrDefault(entry.getKey(), Fraction.ZERO);
+                Fraction gain = entry.getValue().subtract(base);
+                if (entry.getValue().signum() == 0) {
+                    // Holding no papers, they hold no votes, whatever rounding their losses had.
+                    credited.put(entry.getKey(), Fraction.ZERO);
+                    stepBase.put(entry.getKey(), Fraction.ZERO);
+                } else if (gain.signum() != 0) {
+                    credited.merge(entry.getKey(), perStepRounding.apply(gain), Fraction::add);
+                    stepBase.put(entry.getKey(), entry.getValue());
+                }
+            }
+            // Votes exhausted in the step are rounded the same way.
+            exhaustedCredited = exhaustedCredited.add(perStepRounding.apply(exhausted.subtract(exhaustedBase)));
+            exhaustedBase = exhausted;
         }
 
         void add(BallotState state) {
@@ -582,14 +639,29 @@ public final class StvCounter {
             flush();
             Map<Candidate, Fraction> tallies = new LinkedHashMap<>();
             for (Candidate candidate : continuing) {
-                tallies.put(candidate, roundingRule.apply(exact.getOrDefault(candidate, Fraction.ZERO)));
+                tallies.put(candidate, perStepRounding != null ? credited.getOrDefault(candidate, Fraction.ZERO)
+                        : roundingRule.apply(exact.getOrDefault(candidate, Fraction.ZERO)));
             }
             return tallies;
         }
 
         Fraction exhausted() {
             flush();
-            return exhausted;
+            return perStepRounding != null ? exhaustedCredited : exhausted;
+        }
+
+        /** The votes held by candidates in neither {@code shown} nor {@code elected}. */
+        Fraction heldOutside(Set<Candidate> shown, List<Candidate> elected, RoundingRule roundingRule) {
+            flush();
+            Fraction held = Fraction.ZERO;
+            for (Map.Entry<Candidate, Fraction> entry : exact.entrySet()) {
+                Candidate candidate = entry.getKey();
+                if (!shown.contains(candidate) && !elected.contains(candidate)) {
+                    held = held.add(perStepRounding != null ? credited.getOrDefault(candidate, Fraction.ZERO)
+                            : roundingRule.apply(entry.getValue()));
+                }
+            }
+            return held;
         }
 
         /** Surplus no ballot carries on: it counts as exhausted, though it's on no ballot. */
@@ -671,7 +743,9 @@ public final class StvCounter {
 
         // If every paper moved at its full value and that still fell short of the surplus (a
         // last-parcel transfer whose transferable papers are worth less than the surplus), the
-        // rest can't be passed on: non-transferable, not lost to rounding.
+        // rest can't be passed on. ERS97 counts it as non-transferable (pyRCV2: exhausted); the
+        // ACT's official sheets count it as "loss by fraction", so for the ACT's method it's left
+        // to the rounding loss.
         Fraction moved = Fraction.ZERO;
         Fraction movable = Fraction.ZERO;
         for (HeldParcel parcel : parcels) {
@@ -681,9 +755,11 @@ public final class StvCounter {
                 movable = movable.add(parcel.totalValue());
             }
         }
-        if (moved.signum() > 0 && moved.equals(movable) && moved.compareTo(surplus) < 0) {
+        if (moved.signum() > 0 && moved.equals(movable) && moved.compareTo(surplus) < 0
+                && !(transferMethod instanceof LastParcelDeferredRoundingTransfer)) {
             running.addNonTransferable(surplus.subtract(moved));
         }
+        running.endStep();
     }
 
     /** {@code from}'s portion of a (possibly tied) ballot's current pooled value. */
@@ -730,6 +806,7 @@ public final class StvCounter {
                 running.add(state);
             }
         }
+        running.endStep();
     }
 
     /**

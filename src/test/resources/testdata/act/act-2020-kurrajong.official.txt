@@ -1,0 +1,1850 @@
+# Elections ACT's official distribution of preferences (table2_Kurrajong.xlsx), extracted
+# by tools/reference/act/act_table.py: votes at the end of each count.
+
+count 1
+Adriana Boisen: 1250
+Michael Brewer: 904
+Shane Rattenbury: 6388
+Rebecca Vassarotti: 3093
+John Haydon: 365
+Joy Angel: 435
+Rattesh Gumber: 929
+Candice Burch: 3978
+Elizabeth Lee: 5040
+Patrick Pentony: 2384
+Robert Johnson: 1628
+Alvin Hopper: 108
+Robyn Williams: 75
+Rachel Stephen-Smith: 2786
+Judy Anderson: 1371
+Andrew Barr: 11148
+Jacob Ingram: 1736
+Maddy Northam: 2172
+Petar Johnson: 156
+Sophia Forner: 209
+Alix O'Hara: 195
+Peta Anne Bryant: 472
+Therese Faulkner: 901
+Tim Bohm: 1173
+Julie Smith: 447
+Serrin Rutledge-Prior: 343
+Bruce Paine: 693
+Marilena Damiano: 221
+exhausted: 0
+loss: 0.000000
+remarks: First preferences Andrew BARR elected 1.
+
+count 2
+Adriana Boisen: 1277.386971
+Michael Brewer: 930.408865
+Shane Rattenbury: 6703.439228
+Rebecca Vassarotti: 3142.394359
+John Haydon: 370.379583
+Joy Angel: 440.868636
+Rattesh Gumber: 934.379583
+Candice Burch: 4011.255608
+Elizabeth Lee: 5102.843319
+Patrick Pentony: 2402.584016
+Robert Johnson: 1640.715379
+Alvin Hopper: 109.467159
+Robyn Williams: 79.156951
+Rachel Stephen-Smith: 3708.354085
+Judy Anderson: 1655.384358
+Andrew Barr: 8434
+Jacob Ingram: 2226.031173
+Maddy Northam: 2529.497792
+Petar Johnson: 164.313902
+Sophia Forner: 218.781061
+Alix O'Hara: 208.448959
+Peta Anne Bryant: 475.178844
+Therese Faulkner: 912.003694
+Tim Bohm: 1192.317596
+Julie Smith: 457.270114
+Serrin Rutledge-Prior: 349.113163
+Bruce Paine: 699.602216
+Marilena Damiano: 224.423371
+exhausted: 0
+loss: 0.000015
+remarks: Robyn WILLIAMS to be excluded.
+
+count 3
+Adriana Boisen: 1277.386971
+Michael Brewer: 931.408865
+Shane Rattenbury: 6704.439228
+Rebecca Vassarotti: 3143.394359
+John Haydon: 370.379583
+Joy Angel: 442.868636
+Rattesh Gumber: 934.379583
+Candice Burch: 4012.255608
+Elizabeth Lee: 5107.843319
+Patrick Pentony: 2402.584016
+Robert Johnson: 1640.715379
+Alvin Hopper: 149.467159
+Robyn Williams: 4.156951
+Rachel Stephen-Smith: 3709.354085
+Judy Anderson: 1657.384358
+Andrew Barr: 8434
+Jacob Ingram: 2228.031173
+Maddy Northam: 2530.497792
+Petar Johnson: 164.313902
+Sophia Forner: 220.781061
+Alix O'Hara: 209.448959
+Peta Anne Bryant: 475.178844
+Therese Faulkner: 914.003694
+Tim Bohm: 1195.317596
+Julie Smith: 460.270114
+Serrin Rutledge-Prior: 349.113163
+Bruce Paine: 701.602216
+Marilena Damiano: 227.423371
+exhausted: 2
+loss: 0.000015
+remarks: Robyn WILLIAMS partially excluded.
+
+count 4
+Adriana Boisen: 1277.386971
+Michael Brewer: 931.897918
+Shane Rattenbury: 6704.928281
+Rebecca Vassarotti: 3143.394359
+John Haydon: 370.868636
+Joy Angel: 443.357689
+Rattesh Gumber: 934.379583
+Candice Burch: 4012.500134
+Elizabeth Lee: 5108.087845
+Patrick Pentony: 2402.584016
+Robert Johnson: 1640.715379
+Alvin Hopper: 149.467159
+Robyn Williams: 0
+Rachel Stephen-Smith: 3709.354085
+Judy Anderson: 1657.384358
+Andrew Barr: 8434
+Jacob Ingram: 2228.520226
+Maddy Northam: 2530.497792
+Petar Johnson: 164.313902
+Sophia Forner: 220.781061
+Alix O'Hara: 209.448959
+Peta Anne Bryant: 475.42337
+Therese Faulkner: 914.737273
+Tim Bohm: 1195.562122
+Julie Smith: 460.270114
+Serrin Rutledge-Prior: 349.113163
+Bruce Paine: 701.602216
+Marilena Damiano: 227.423371
+exhausted: 2
+loss: 0.000018
+remarks: Robyn WILLIAMS fully excluded. Alvin HOPPER to be excluded.
+
+count 5
+Adriana Boisen: 1282.386971
+Michael Brewer: 934.897918
+Shane Rattenbury: 6711.928281
+Rebecca Vassarotti: 3150.394359
+John Haydon: 380.868636
+Joy Angel: 450.357689
+Rattesh Gumber: 935.379583
+Candice Burch: 4021.500134
+Elizabeth Lee: 5114.087845
+Patrick Pentony: 2406.584016
+Robert Johnson: 1644.715379
+Alvin Hopper: 1.467159
+Robyn Williams: 0
+Rachel Stephen-Smith: 3717.354085
+Judy Anderson: 1658.384358
+Andrew Barr: 8434
+Jacob Ingram: 2231.520226
+Maddy Northam: 2533.497792
+Petar Johnson: 166.313902
+Sophia Forner: 220.781061
+Alix O'Hara: 211.448959
+Peta Anne Bryant: 485.42337
+Therese Faulkner: 922.737273
+Tim Bohm: 1208.562122
+Julie Smith: 462.270114
+Serrin Rutledge-Prior: 352.113163
+Bruce Paine: 725.602216
+Marilena Damiano: 230.423371
+exhausted: 5
+loss: 0.000018
+remarks: Alvin HOPPER partially excluded.
+
+count 6
+Adriana Boisen: 1282.386971
+Michael Brewer: 934.897918
+Shane Rattenbury: 6712.417334
+Rebecca Vassarotti: 3150.394359
+John Haydon: 381.113162
+Joy Angel: 450.602215
+Rattesh Gumber: 935.868636
+Candice Burch: 4021.500134
+Elizabeth Lee: 5114.087845
+Patrick Pentony: 2406.584016
+Robert Johnson: 1644.715379
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3717.354085
+Judy Anderson: 1658.384358
+Andrew Barr: 8434
+Jacob Ingram: 2231.520226
+Maddy Northam: 2533.497792
+Petar Johnson: 166.313902
+Sophia Forner: 220.781061
+Alix O'Hara: 211.448959
+Peta Anne Bryant: 485.42337
+Therese Faulkner: 922.737273
+Tim Bohm: 1208.562122
+Julie Smith: 462.270114
+Serrin Rutledge-Prior: 352.113163
+Bruce Paine: 725.602216
+Marilena Damiano: 230.423371
+exhausted: 5
+loss: 0.000019
+remarks: Alvin HOPPER fully excluded. Petar JOHNSON to be excluded.
+
+count 7
+Adriana Boisen: 1287.386971
+Michael Brewer: 934.897918
+Shane Rattenbury: 6718.417334
+Rebecca Vassarotti: 3151.394359
+John Haydon: 391.113162
+Joy Angel: 452.602215
+Rattesh Gumber: 935.868636
+Candice Burch: 4022.500134
+Elizabeth Lee: 5116.087845
+Patrick Pentony: 2407.584016
+Robert Johnson: 1644.715379
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3723.354085
+Judy Anderson: 1659.384358
+Andrew Barr: 8434
+Jacob Ingram: 2232.520226
+Maddy Northam: 2535.497792
+Petar Johnson: 8.313902
+Sophia Forner: 255.781061
+Alix O'Hara: 270.448959
+Peta Anne Bryant: 489.42337
+Therese Faulkner: 927.737273
+Tim Bohm: 1212.562122
+Julie Smith: 465.270114
+Serrin Rutledge-Prior: 353.113163
+Bruce Paine: 731.602216
+Marilena Damiano: 232.423371
+exhausted: 6
+loss: 0.000019
+remarks: Petar JOHNSON partially excluded.
+
+count 8
+Adriana Boisen: 1288.12055
+Michael Brewer: 934.897918
+Shane Rattenbury: 6718.906387
+Rebecca Vassarotti: 3151.394359
+John Haydon: 392.091268
+Joy Angel: 452.602215
+Rattesh Gumber: 935.868636
+Candice Burch: 4022.74466
+Elizabeth Lee: 5116.087845
+Patrick Pentony: 2407.584016
+Robert Johnson: 1644.715379
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3723.598611
+Judy Anderson: 1660.117937
+Andrew Barr: 8434
+Jacob Ingram: 2232.764752
+Maddy Northam: 2535.742318
+Petar Johnson: 0
+Sophia Forner: 256.270114
+Alix O'Hara: 272.160644
+Peta Anne Bryant: 490.156949
+Therese Faulkner: 928.470852
+Tim Bohm: 1212.562122
+Julie Smith: 466.003693
+Serrin Rutledge-Prior: 353.113163
+Bruce Paine: 731.602216
+Marilena Damiano: 232.423371
+exhausted: 6
+loss: 0.000025
+remarks: Petar JOHNSON fully excluded. Marilena DAMIANO to be excluded.
+
+count 9
+Adriana Boisen: 1292.12055
+Michael Brewer: 938.897918
+Shane Rattenbury: 6724.906387
+Rebecca Vassarotti: 3157.394359
+John Haydon: 392.091268
+Joy Angel: 458.602215
+Rattesh Gumber: 936.868636
+Candice Burch: 4025.74466
+Elizabeth Lee: 5125.087845
+Patrick Pentony: 2409.584016
+Robert Johnson: 1647.715379
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3725.598611
+Judy Anderson: 1660.117937
+Andrew Barr: 8434
+Jacob Ingram: 2233.764752
+Maddy Northam: 2542.742318
+Petar Johnson: 0
+Sophia Forner: 260.270114
+Alix O'Hara: 275.160644
+Peta Anne Bryant: 500.156949
+Therese Faulkner: 938.470852
+Tim Bohm: 1225.562122
+Julie Smith: 472.003693
+Serrin Rutledge-Prior: 359.113163
+Bruce Paine: 851.602216
+Marilena Damiano: 3.423371
+exhausted: 9
+loss: 0.000025
+remarks: Marilena DAMIANO partially excluded.
+
+count 10
+Adriana Boisen: 1292.365076
+Michael Brewer: 938.897918
+Shane Rattenbury: 6725.150913
+Rebecca Vassarotti: 3157.394359
+John Haydon: 392.091268
+Joy Angel: 458.602215
+Rattesh Gumber: 936.868636
+Candice Burch: 4025.74466
+Elizabeth Lee: 5125.332371
+Patrick Pentony: 2409.828542
+Robert Johnson: 1647.715379
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3725.843137
+Judy Anderson: 1660.362463
+Andrew Barr: 8434
+Jacob Ingram: 2233.764752
+Maddy Northam: 2542.986844
+Petar Johnson: 0
+Sophia Forner: 260.270114
+Alix O'Hara: 275.160644
+Peta Anne Bryant: 500.156949
+Therese Faulkner: 938.470852
+Tim Bohm: 1225.562122
+Julie Smith: 472.003693
+Serrin Rutledge-Prior: 359.113163
+Bruce Paine: 853.313901
+Marilena Damiano: 0
+exhausted: 9
+loss: 0.000029
+remarks: Marilena DAMIANO fully excluded. Sophia FORNER to be excluded.
+
+count 11
+Adriana Boisen: 1300.365076
+Michael Brewer: 951.897918
+Shane Rattenbury: 6735.150913
+Rebecca Vassarotti: 3174.394359
+John Haydon: 396.091268
+Joy Angel: 477.602215
+Rattesh Gumber: 937.868636
+Candice Burch: 4028.74466
+Elizabeth Lee: 5129.332371
+Patrick Pentony: 2411.828542
+Robert Johnson: 1650.715379
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3731.843137
+Judy Anderson: 1667.362463
+Andrew Barr: 8434
+Jacob Ingram: 2238.764752
+Maddy Northam: 2543.986844
+Petar Johnson: 0
+Sophia Forner: 10.270114
+Alix O'Hara: 393.160644
+Peta Anne Bryant: 501.156949
+Therese Faulkner: 945.470852
+Tim Bohm: 1230.562122
+Julie Smith: 480.003693
+Serrin Rutledge-Prior: 365.113163
+Bruce Paine: 854.313901
+Marilena Damiano: 0
+exhausted: 10
+loss: 0.000029
+remarks: Sophia FORNER partially excluded.
+
+count 12
+Adriana Boisen: 1300.365076
+Michael Brewer: 952.142444
+Shane Rattenbury: 6735.884492
+Rebecca Vassarotti: 3175.861518
+John Haydon: 396.091268
+Joy Angel: 478.580321
+Rattesh Gumber: 937.868636
+Candice Burch: 4028.989186
+Elizabeth Lee: 5129.576897
+Patrick Pentony: 2411.828542
+Robert Johnson: 1651.204432
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3732.33219
+Judy Anderson: 1667.362463
+Andrew Barr: 8434
+Jacob Ingram: 2239.742858
+Maddy Northam: 2545.209476
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 394.383276
+Peta Anne Bryant: 501.401475
+Therese Faulkner: 945.715378
+Tim Bohm: 1230.806648
+Julie Smith: 481.226325
+Serrin Rutledge-Prior: 365.113163
+Bruce Paine: 854.313901
+Marilena Damiano: 0
+exhausted: 10
+loss: 0.000035
+remarks: Sophia FORNER fully excluded. Serrin RUTLEDGE-PRIOR to be excluded.
+
+count 13
+Adriana Boisen: 1304.365076
+Michael Brewer: 960.142444
+Shane Rattenbury: 6748.884492
+Rebecca Vassarotti: 3186.861518
+John Haydon: 399.091268
+Joy Angel: 495.580321
+Rattesh Gumber: 937.868636
+Candice Burch: 4035.989186
+Elizabeth Lee: 5131.576897
+Patrick Pentony: 2412.828542
+Robert Johnson: 1653.204432
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3734.33219
+Judy Anderson: 1676.362463
+Andrew Barr: 8434
+Jacob Ingram: 2243.742858
+Maddy Northam: 2547.209476
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 399.383276
+Peta Anne Bryant: 504.401475
+Therese Faulkner: 966.715378
+Tim Bohm: 1257.806648
+Julie Smith: 682.226325
+Serrin Rutledge-Prior: 6.113163
+Bruce Paine: 871.313901
+Marilena Damiano: 0
+exhausted: 10
+loss: 0.000035
+remarks: Serrin RUTLEDGE-PRIOR partially excluded.
+
+count 14
+Adriana Boisen: 1304.609602
+Michael Brewer: 960.142444
+Shane Rattenbury: 6749.862598
+Rebecca Vassarotti: 3187.106044
+John Haydon: 399.091268
+Joy Angel: 495.580321
+Rattesh Gumber: 937.868636
+Candice Burch: 4035.989186
+Elizabeth Lee: 5131.576897
+Patrick Pentony: 2413.073068
+Robert Johnson: 1653.204432
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3734.33219
+Judy Anderson: 1676.851516
+Andrew Barr: 8434
+Jacob Ingram: 2243.742858
+Maddy Northam: 2547.698529
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 399.872329
+Peta Anne Bryant: 504.890528
+Therese Faulkner: 966.715378
+Tim Bohm: 1258.540227
+Julie Smith: 683.93801
+Serrin Rutledge-Prior: 0
+Bruce Paine: 871.313901
+Marilena Damiano: 0
+exhausted: 10
+loss: 0.000038
+remarks: Serrin RUTLEDGE-PRIOR fully excluded. John HAYDON to be excluded.
+
+count 15
+Adriana Boisen: 1313.609602
+Michael Brewer: 967.142444
+Shane Rattenbury: 6761.862598
+Rebecca Vassarotti: 3194.106044
+John Haydon: 7.091268
+Joy Angel: 746.580321
+Rattesh Gumber: 942.868636
+Candice Burch: 4039.989186
+Elizabeth Lee: 5141.576897
+Patrick Pentony: 2415.073068
+Robert Johnson: 1658.204432
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3745.33219
+Judy Anderson: 1677.851516
+Andrew Barr: 8434
+Jacob Ingram: 2249.742858
+Maddy Northam: 2548.698529
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 407.872329
+Peta Anne Bryant: 514.890528
+Therese Faulkner: 972.715378
+Tim Bohm: 1267.540227
+Julie Smith: 696.93801
+Serrin Rutledge-Prior: 0
+Bruce Paine: 883.313901
+Marilena Damiano: 0
+exhausted: 13
+loss: 0.000038
+remarks: John HAYDON partially excluded.
+
+count 16
+Adriana Boisen: 1314.098655
+Michael Brewer: 967.631497
+Shane Rattenbury: 6763.08523
+Rebecca Vassarotti: 3194.35057
+John Haydon: 0
+Joy Angel: 748.292006
+Rattesh Gumber: 942.868636
+Candice Burch: 4039.989186
+Elizabeth Lee: 5141.576897
+Patrick Pentony: 2415.073068
+Robert Johnson: 1658.693485
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3745.576716
+Judy Anderson: 1678.096042
+Andrew Barr: 8434
+Jacob Ingram: 2250.231911
+Maddy Northam: 2548.943055
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 408.116855
+Peta Anne Bryant: 514.890528
+Therese Faulkner: 972.959904
+Tim Bohm: 1267.540227
+Julie Smith: 697.182536
+Serrin Rutledge-Prior: 0
+Bruce Paine: 883.802954
+Marilena Damiano: 0
+exhausted: 13
+loss: 0.000042
+remarks: John HAYDON fully excluded. Alix O'HARA to be excluded.
+
+count 17
+Adriana Boisen: 1330.098655
+Michael Brewer: 981.631497
+Shane Rattenbury: 6819.08523
+Rebecca Vassarotti: 3220.35057
+John Haydon: 0
+Joy Angel: 812.292006
+Rattesh Gumber: 946.868636
+Candice Burch: 4044.989186
+Elizabeth Lee: 5153.576897
+Patrick Pentony: 2416.073068
+Robert Johnson: 1665.693485
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3748.576716
+Judy Anderson: 1681.096042
+Andrew Barr: 8434
+Jacob Ingram: 2262.231911
+Maddy Northam: 2559.943055
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 17.116855
+Peta Anne Bryant: 536.890528
+Therese Faulkner: 988.959904
+Tim Bohm: 1299.540227
+Julie Smith: 749.182536
+Serrin Rutledge-Prior: 0
+Bruce Paine: 901.802954
+Marilena Damiano: 0
+exhausted: 30
+loss: 0.000042
+remarks: Alix O'HARA partially excluded.
+
+count 18
+Adriana Boisen: 1330.587708
+Michael Brewer: 982.12055
+Shane Rattenbury: 6822.753128
+Rebecca Vassarotti: 3220.839623
+John Haydon: 0
+Joy Angel: 813.514638
+Rattesh Gumber: 946.868636
+Candice Burch: 4045.722765
+Elizabeth Lee: 5154.06595
+Patrick Pentony: 2416.317594
+Robert Johnson: 1665.693485
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3750.288401
+Judy Anderson: 1681.829621
+Andrew Barr: 8434
+Jacob Ingram: 2263.454543
+Maddy Northam: 2560.676634
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 537.135054
+Therese Faulkner: 989.448957
+Tim Bohm: 1300.273806
+Julie Smith: 751.627801
+Serrin Rutledge-Prior: 0
+Bruce Paine: 902.292007
+Marilena Damiano: 0
+exhausted: 30.489053
+loss: 0.000046
+remarks: Alix O'HARA fully excluded. Peta Anne BRYANT to be excluded.
+
+count 19
+Adriana Boisen: 1359.587708
+Michael Brewer: 997.12055
+Shane Rattenbury: 6853.753128
+Rebecca Vassarotti: 3254.839623
+John Haydon: 0
+Joy Angel: 825.514638
+Rattesh Gumber: 949.868636
+Candice Burch: 4046.722765
+Elizabeth Lee: 5161.06595
+Patrick Pentony: 2418.317594
+Robert Johnson: 1667.693485
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3755.288401
+Judy Anderson: 1687.829621
+Andrew Barr: 8434
+Jacob Ingram: 2268.454543
+Maddy Northam: 2571.676634
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 5.135054
+Therese Faulkner: 1180.448957
+Tim Bohm: 1440.273806
+Julie Smith: 777.627801
+Serrin Rutledge-Prior: 0
+Bruce Paine: 914.292007
+Marilena Damiano: 0
+exhausted: 30.489053
+loss: 0.000046
+remarks: Peta Anne BRYANT partially excluded.
+
+count 20
+Adriana Boisen: 1359.587708
+Michael Brewer: 997.609603
+Shane Rattenbury: 6854.242181
+Rebecca Vassarotti: 3255.084149
+John Haydon: 0
+Joy Angel: 825.514638
+Rattesh Gumber: 950.357689
+Candice Burch: 4047.211818
+Elizabeth Lee: 5161.310476
+Patrick Pentony: 2418.806647
+Robert Johnson: 1667.693485
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3756.02198
+Judy Anderson: 1687.829621
+Andrew Barr: 8434
+Jacob Ingram: 2268.943596
+Maddy Northam: 2571.92116
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1180.93801
+Tim Bohm: 1440.273806
+Julie Smith: 777.872327
+Serrin Rutledge-Prior: 0
+Bruce Paine: 914.292007
+Marilena Damiano: 0
+exhausted: 30.489053
+loss: 0.000046
+remarks: Peta Anne BRYANT fully excluded. Julie SMITH to be excluded.
+
+count 21
+Adriana Boisen: 1401.587708
+Michael Brewer: 1027.609603
+Shane Rattenbury: 6946.242181
+Rebecca Vassarotti: 3337.084149
+John Haydon: 0
+Joy Angel: 934.514638
+Rattesh Gumber: 958.357689
+Candice Burch: 4073.211818
+Elizabeth Lee: 5191.310476
+Patrick Pentony: 2425.806647
+Robert Johnson: 1675.693485
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3782.02198
+Judy Anderson: 1708.829621
+Andrew Barr: 8434
+Jacob Ingram: 2286.943596
+Maddy Northam: 2601.92116
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1221.93801
+Tim Bohm: 1491.273806
+Julie Smith: 16.872327
+Serrin Rutledge-Prior: 0
+Bruce Paine: 982.292007
+Marilena Damiano: 0
+exhausted: 102.489053
+loss: 0.000046
+remarks: Julie SMITH partially excluded.
+
+count 22
+Adriana Boisen: 1403.54392
+Michael Brewer: 1027.854129
+Shane Rattenbury: 6948.442919
+Rebecca Vassarotti: 3339.040361
+John Haydon: 0
+Joy Angel: 936.226323
+Rattesh Gumber: 958.602215
+Candice Burch: 4073.700871
+Elizabeth Lee: 5192.288582
+Patrick Pentony: 2426.051173
+Robert Johnson: 1675.938011
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3783.489139
+Judy Anderson: 1709.318674
+Andrew Barr: 8434
+Jacob Ingram: 2287.921702
+Maddy Northam: 2602.410213
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1222.182536
+Tim Bohm: 1492.740965
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 982.78106
+Marilena Damiano: 0
+exhausted: 103.467159
+loss: 0.000048
+remarks: Julie SMITH fully excluded. Joy ANGEL to be excluded.
+
+count 23
+Adriana Boisen: 1445.54392
+Michael Brewer: 1066.854129
+Shane Rattenbury: 7020.442919
+Rebecca Vassarotti: 3426.040361
+John Haydon: 0
+Joy Angel: 12.226323
+Rattesh Gumber: 969.602215
+Candice Burch: 4116.700871
+Elizabeth Lee: 5241.288582
+Patrick Pentony: 2446.051173
+Robert Johnson: 1699.938011
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3806.489139
+Judy Anderson: 1717.318674
+Andrew Barr: 8434
+Jacob Ingram: 2312.921702
+Maddy Northam: 2636.410213
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1312.182536
+Tim Bohm: 1581.740965
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 1106.78106
+Marilena Damiano: 0
+exhausted: 247.467159
+loss: 0.000048
+remarks: Joy ANGEL partially excluded.
+
+count 24
+Adriana Boisen: 1446.032973
+Michael Brewer: 1068.076761
+Shane Rattenbury: 7023.13271
+Rebecca Vassarotti: 3427.50752
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 969.602215
+Candice Burch: 4116.700871
+Elizabeth Lee: 5242.022161
+Patrick Pentony: 2446.051173
+Robert Johnson: 1699.938011
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3807.467245
+Judy Anderson: 1718.29678
+Andrew Barr: 8434
+Jacob Ingram: 2313.166228
+Maddy Northam: 2637.388319
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1313.160642
+Tim Bohm: 1581.740965
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 1106.78106
+Marilena Damiano: 0
+exhausted: 248.934318
+loss: 0.000048
+remarks: Joy ANGEL fully excluded. Rattesh GUMBER to be excluded.
+
+count 25
+Adriana Boisen: 1460.032973
+Michael Brewer: 1071.076761
+Shane Rattenbury: 7034.13271
+Rebecca Vassarotti: 3432.50752
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 6.602215
+Candice Burch: 4336.700871
+Elizabeth Lee: 5471.022161
+Patrick Pentony: 2645.051173
+Robert Johnson: 1890.938011
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3838.467245
+Judy Anderson: 1725.29678
+Andrew Barr: 8434
+Jacob Ingram: 2327.166228
+Maddy Northam: 2644.388319
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1319.160642
+Tim Bohm: 1585.740965
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 1115.78106
+Marilena Damiano: 0
+exhausted: 261.934318
+loss: 0.000048
+remarks: Rattesh GUMBER partially excluded.
+
+count 26
+Adriana Boisen: 1461.011079
+Michael Brewer: 1071.076761
+Shane Rattenbury: 7034.621763
+Rebecca Vassarotti: 3432.752046
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4337.189924
+Elizabeth Lee: 5471.75574
+Patrick Pentony: 2645.540226
+Robert Johnson: 1890.938011
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3838.711771
+Judy Anderson: 1726.030359
+Andrew Barr: 8434
+Jacob Ingram: 2328.144334
+Maddy Northam: 2644.388319
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1319.405168
+Tim Bohm: 1585.740965
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 1116.025586
+Marilena Damiano: 0
+exhausted: 262.667897
+loss: 0.000051
+remarks: Rattesh GUMBER fully excluded. Michael BREWER to be excluded.
+
+count 27
+Adriana Boisen: 1686.011079
+Michael Brewer: 30.076761
+Shane Rattenbury: 7298.621763
+Rebecca Vassarotti: 3729.752046
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4373.189924
+Elizabeth Lee: 5487.75574
+Patrick Pentony: 2658.540226
+Robert Johnson: 1913.938011
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3851.711771
+Judy Anderson: 1765.030359
+Andrew Barr: 8434
+Jacob Ingram: 2347.144334
+Maddy Northam: 2675.388319
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1344.405168
+Tim Bohm: 1598.740965
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 1117.025586
+Marilena Damiano: 0
+exhausted: 288.667897
+loss: 0.000051
+remarks: Michael BREWER partially excluded.
+
+count 28
+Adriana Boisen: 1689.678977
+Michael Brewer: 0
+Shane Rattenbury: 7302.534187
+Rebecca Vassarotti: 3732.686364
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4374.16803
+Elizabeth Lee: 5488.244793
+Patrick Pentony: 2659.029279
+Robert Johnson: 1914.67159
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3853.667983
+Judy Anderson: 1769.431836
+Andrew Barr: 8434
+Jacob Ingram: 2350.567705
+Maddy Northam: 2677.833584
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1345.872327
+Tim Bohm: 1599.474544
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 1118.003692
+Marilena Damiano: 0
+exhausted: 290.135056
+loss: 0.000053
+remarks: Michael BREWER fully excluded. Bruce PAINE to be excluded.
+
+count 29
+Adriana Boisen: 1721.678977
+Michael Brewer: 0
+Shane Rattenbury: 7373.534187
+Rebecca Vassarotti: 3783.686364
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4431.16803
+Elizabeth Lee: 5573.244793
+Patrick Pentony: 2708.029279
+Robert Johnson: 1956.67159
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3893.667983
+Judy Anderson: 1793.431836
+Andrew Barr: 8434
+Jacob Ingram: 2378.567705
+Maddy Northam: 2705.833584
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1493.872327
+Tim Bohm: 1897.474544
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 11.003692
+Marilena Damiano: 0
+exhausted: 444.135056
+loss: 0.000053
+remarks: Bruce PAINE partially excluded.
+
+count 30
+Adriana Boisen: 1722.16803
+Michael Brewer: 0
+Shane Rattenbury: 7374.756819
+Rebecca Vassarotti: 3785.398049
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4431.412556
+Elizabeth Lee: 5573.733846
+Patrick Pentony: 2708.029279
+Robert Johnson: 1956.916116
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3894.890615
+Judy Anderson: 1793.920889
+Andrew Barr: 8434
+Jacob Ingram: 2379.301284
+Maddy Northam: 2707.056216
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 1494.36138
+Tim Bohm: 1898.45265
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 445.602215
+loss: 0.000056
+remarks: Bruce PAINE fully excluded. Therese FAULKNER to be excluded.
+
+count 31
+Adriana Boisen: 1776.16803
+Michael Brewer: 0
+Shane Rattenbury: 7487.756819
+Rebecca Vassarotti: 3949.398049
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4455.412556
+Elizabeth Lee: 5595.733846
+Patrick Pentony: 2715.029279
+Robert Johnson: 1965.916116
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3952.890615
+Judy Anderson: 1827.920889
+Andrew Barr: 8434
+Jacob Ingram: 2402.301284
+Maddy Northam: 2744.056216
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 17.36138
+Tim Bohm: 2743.45265
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 532.602215
+loss: 0.000056
+remarks: Therese FAULKNER partially excluded.
+
+count 32
+Adriana Boisen: 1776.901609
+Michael Brewer: 0
+Shane Rattenbury: 7490.935663
+Rebecca Vassarotti: 3951.598787
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4455.901609
+Elizabeth Lee: 5596.467425
+Patrick Pentony: 2715.273805
+Robert Johnson: 1965.916116
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 3953.868721
+Judy Anderson: 1829.388048
+Andrew Barr: 8434
+Jacob Ingram: 2403.034863
+Maddy Northam: 2745.278848
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 2745.408862
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 536.025586
+loss: 0.000058
+remarks: Therese FAULKNER fully excluded. Adriana BOISEN to be excluded.
+
+count 33
+Adriana Boisen: 37.901609
+Michael Brewer: 0
+Shane Rattenbury: 7978.935663
+Rebecca Vassarotti: 4800.598787
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4476.901609
+Elizabeth Lee: 5623.467425
+Patrick Pentony: 2722.273805
+Robert Johnson: 1984.916116
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4050.868721
+Judy Anderson: 1862.388048
+Andrew Barr: 8434
+Jacob Ingram: 2430.034863
+Maddy Northam: 2815.278848
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 2777.408862
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 605.025586
+loss: 0.000058
+remarks: Adriana BOISEN partially excluded.
+
+count 34
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 7985.293352
+Rebecca Vassarotti: 4810.135321
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4478.368768
+Elizabeth Lee: 5623.956478
+Patrick Pentony: 2722.518331
+Robert Johnson: 1985.405169
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4056.981884
+Judy Anderson: 1865.077839
+Andrew Barr: 8434
+Jacob Ingram: 2432.235601
+Maddy Northam: 2818.213166
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 2777.408862
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 610.405169
+loss: 0.000060
+remarks: Adriana BOISEN fully excluded. Judy ANDERSON to be excluded.
+
+count 35
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8078.293352
+Rebecca Vassarotti: 4906.135321
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4545.368768
+Elizabeth Lee: 5658.956478
+Patrick Pentony: 2739.518331
+Robert Johnson: 2001.405169
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4559.981884
+Judy Anderson: 298.077839
+Andrew Barr: 8434
+Jacob Ingram: 2757.235601
+Maddy Northam: 3142.213166
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 2807.408862
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 671.405169
+loss: 0.000060
+remarks: Judy ANDERSON partially excluded.
+
+count 36
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8097.121895
+Rebecca Vassarotti: 4915.182802
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 4548.058559
+Elizabeth Lee: 5664.825114
+Patrick Pentony: 2740.496437
+Robert Johnson: 2003.850434
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4669.285244
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 2827.170189
+Maddy Northam: 3214.59302
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 2809.365074
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 676.051173
+loss: 0.000059
+remarks: Judy ANDERSON fully excluded. Robert JOHNSON to be excluded.
+
+count 37
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8133.121895
+Rebecca Vassarotti: 4941.182802
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 5049.058559
+Elizabeth Lee: 6265.825114
+Patrick Pentony: 3338.496437
+Robert Johnson: 17.850434
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4692.285244
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 2860.170189
+Maddy Northam: 3276.59302
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 2837.365074
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 754.051173
+loss: 0.000059
+remarks: Robert JOHNSON partially excluded.
+
+count 38
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8134.83358
+Rebecca Vassarotti: 4941.427328
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 5050.525718
+Elizabeth Lee: 6266.80322
+Patrick Pentony: 3339.963596
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4694.485982
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 2863.104507
+Maddy Northam: 3278.549232
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 2838.098653
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 758.208124
+loss: 0.000060
+remarks: Robert JOHNSON fully excluded. Tim BOHM to be excluded.
+
+count 39
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8728.83358
+Rebecca Vassarotti: 5552.427328
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 5198.525718
+Elizabeth Lee: 6474.80322
+Patrick Pentony: 3445.963596
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4923.485982
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 3038.104507
+Maddy Northam: 3441.549232
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 29.098653
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1333.208124
+loss: 0.000060
+remarks: Tim BOHM partially excluded. Shane RATTENBURY elected 2.
+
+count 40
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8728.83358
+Rebecca Vassarotti: 5555.606172
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 5199.503824
+Elizabeth Lee: 6477.982064
+Patrick Pentony: 3446.208122
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4928.865565
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 3042.750511
+Maddy Northam: 3445.950709
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1340.299393
+loss: 0.000060
+remarks: Tim BOHM fully excluded.
+
+count 41
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 5780.295592
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 5204.066045
+Elizabeth Lee: 6485.965952
+Patrick Pentony: 3447.348677
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 4960.230839
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 3056.437176
+Maddy Northam: 3457.356263
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1340.299393
+loss: 0.000063
+remarks: Jacob INGRAM to be excluded.
+
+count 42
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6028.295592
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 5254.066045
+Elizabeth Lee: 6573.965952
+Patrick Pentony: 3525.348677
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 5936.230839
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 594.437176
+Maddy Northam: 4278.356263
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1541.299393
+loss: 0.000063
+remarks: Jacob INGRAM partially excluded.
+
+count 43
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6031.717258
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 5254.636322
+Elizabeth Lee: 6573.965952
+Patrick Pentony: 3525.348677
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 5938.511949
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 580.750511
+Maddy Northam: 4282.348207
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1544.721059
+loss: 0.000065
+remarks: Jacob INGRAM partially excluded.
+
+count 44
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6063.99476
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 5265.884542
+Elizabeth Lee: 6588.14849
+Patrick Pentony: 3532.684473
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 6214.582405
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 4494.108185
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1572.597083
+loss: 0.000062
+remarks: Jacob INGRAM fully excluded. Patrick PENTONY to be excluded.
+
+count 45
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6167.99476
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 6810.884542
+Elizabeth Lee: 8099.14849
+Patrick Pentony: 32.684473
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 6270.582405
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 4539.108185
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1811.597083
+loss: 0.000062
+remarks: Patrick PENTONY partially excluded.
+
+count 46
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6167.99476
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 6810.884542
+Elizabeth Lee: 8099.14849
+Patrick Pentony: 31.543918
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 6270.582405
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 4539.108185
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1812.737638
+loss: 0.000062
+remarks: Patrick PENTONY partially excluded.
+
+count 47
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6170.684551
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 6816.997705
+Elizabeth Lee: 8104.528073
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 6275.228409
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 4542.531556
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 1822.029646
+loss: 0.000060
+remarks: Patrick PENTONY fully excluded. Maddy NORTHAM to be excluded.
+
+count 48
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6636.684551
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 6902.997705
+Elizabeth Lee: 8205.528073
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8983.228409
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 679.531556
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 2324.029646
+loss: 0.000060
+remarks: Maddy NORTHAM partially excluded. Rachel STEPHEN-SMITH elected 3.
+
+count 49
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6643.527883
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 6903.567982
+Elizabeth Lee: 8205.528073
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8983.228409
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 664.134058
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 2332.013534
+loss: 0.000061
+remarks: Maddy NORTHAM partially excluded.
+
+count 50
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 6848.685644
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 6914.082622
+Elizabeth Lee: 8231.692412
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8983.228409
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 0
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 2754.310858
+loss: 0.000055
+remarks: Maddy NORTHAM fully excluded.
+
+count 51
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 7343.315104
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 6936.292363
+Elizabeth Lee: 8264.081618
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8434
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 0
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 2754.310858
+loss: 0.000057
+remarks: Candice BURCH to be excluded.
+
+count 52
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 7466.315104
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 100.292363
+Elizabeth Lee: 14074.081618
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8434
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 0
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 3657.310858
+loss: 0.000057
+remarks: Candice BURCH partially excluded. Elizabeth LEE elected 4.
+
+count 53
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 7467.455659
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 94.589588
+Elizabeth Lee: 14074.081618
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8434
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 0
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 3661.873079
+loss: 0.000056
+remarks: Candice BURCH partially excluded.
+
+count 54
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 7479.485935
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 72.379847
+Elizabeth Lee: 14074.081618
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8434
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 0
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 3672.052544
+loss: 0.000056
+remarks: Candice BURCH partially excluded.
+
+count 55
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 7487.066257
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 0
+Elizabeth Lee: 14074.081618
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8434
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 0
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 3736.852075
+loss: 0.000050
+remarks: Candice BURCH fully excluded.
+
+count 56
+Adriana Boisen: 0
+Michael Brewer: 0
+Shane Rattenbury: 8434
+Rebecca Vassarotti: 8013.066257
+John Haydon: 0
+Joy Angel: 0
+Rattesh Gumber: 0
+Candice Burch: 0
+Elizabeth Lee: 8434
+Patrick Pentony: 0
+Robert Johnson: 0
+Alvin Hopper: 0
+Robyn Williams: 0
+Rachel Stephen-Smith: 8434
+Judy Anderson: 0
+Andrew Barr: 8434
+Jacob Ingram: 0
+Maddy Northam: 0
+Petar Johnson: 0
+Sophia Forner: 0
+Alix O'Hara: 0
+Peta Anne Bryant: 0
+Therese Faulkner: 0
+Tim Bohm: 0
+Julie Smith: 0
+Serrin Rutledge-Prior: 0
+Bruce Paine: 0
+Marilena Damiano: 0
+exhausted: 3736.852075
+loss: 5114.081668
+remarks: Rebecca VASSAROTTI elected 5.

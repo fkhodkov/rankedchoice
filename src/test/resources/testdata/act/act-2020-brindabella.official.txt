@@ -1,0 +1,644 @@
+# Elections ACT's official distribution of preferences (table2_Brindabella.xlsx), extracted
+# by tools/reference/act/act_table.py: votes at the end of each count.
+
+count 1
+Cathy Day: 2592
+Taimus Werner-Gibbings: 4568
+Joy Burch: 6459
+Mick Gentleman: 6395
+Brendan Forde: 2546
+Robyn Soxsmith: 582
+Jannah Fahiz: 653
+Johnathan Davis: 3019
+Sue Ellerman: 1309
+Laura Nuttall: 1657
+Mark Parton: 6218
+James Daniels: 2179
+Jane Hiatt: 2448
+Andrew Wall: 4579
+Nicole Lawder: 5866
+Jacob Gowor: 318
+Matthew Knight: 427
+Andrew Clapham: 763
+Bruce Willett: 514
+Greg Baynham: 894
+Adrian Olley: 833
+Scott Sandford: 148
+Jason Potter: 446
+exhausted: 0
+loss: 0.000000
+remarks: First preferences Scott SANDFORD to be excluded.
+
+count 2
+Cathy Day: 2595
+Taimus Werner-Gibbings: 4568
+Joy Burch: 6463
+Mick Gentleman: 6397
+Brendan Forde: 2549
+Robyn Soxsmith: 584
+Jannah Fahiz: 654
+Johnathan Davis: 3019
+Sue Ellerman: 1311
+Laura Nuttall: 1657
+Mark Parton: 6222
+James Daniels: 2179
+Jane Hiatt: 2452
+Andrew Wall: 4580
+Nicole Lawder: 5869
+Jacob Gowor: 322
+Matthew Knight: 429
+Andrew Clapham: 773
+Bruce Willett: 516
+Greg Baynham: 909
+Adrian Olley: 841
+Scott Sandford: 0
+Jason Potter: 523
+exhausted: 1
+loss: 0.000000
+remarks: Scott SANDFORD fully excluded. Jacob GOWOR to be excluded.
+
+count 3
+Cathy Day: 2599
+Taimus Werner-Gibbings: 4571
+Joy Burch: 6470
+Mick Gentleman: 6401
+Brendan Forde: 2551
+Robyn Soxsmith: 589
+Jannah Fahiz: 656
+Johnathan Davis: 3024
+Sue Ellerman: 1312
+Laura Nuttall: 1662
+Mark Parton: 6240
+James Daniels: 2183
+Jane Hiatt: 2464
+Andrew Wall: 4592
+Nicole Lawder: 5874
+Jacob Gowor: 0
+Matthew Knight: 628
+Andrew Clapham: 781
+Bruce Willett: 521
+Greg Baynham: 918
+Adrian Olley: 846
+Scott Sandford: 0
+Jason Potter: 526
+exhausted: 5
+loss: 0.000000
+remarks: Jacob GOWOR fully excluded. Bruce WILLETT to be excluded.
+
+count 4
+Cathy Day: 2604
+Taimus Werner-Gibbings: 4576
+Joy Burch: 6475
+Mick Gentleman: 6404
+Brendan Forde: 2553
+Robyn Soxsmith: 599
+Jannah Fahiz: 672
+Johnathan Davis: 3032
+Sue Ellerman: 1326
+Laura Nuttall: 1680
+Mark Parton: 6242
+James Daniels: 2191
+Jane Hiatt: 2467
+Andrew Wall: 4598
+Nicole Lawder: 5883
+Jacob Gowor: 0
+Matthew Knight: 633
+Andrew Clapham: 1128
+Bruce Willett: 0
+Greg Baynham: 929
+Adrian Olley: 871
+Scott Sandford: 0
+Jason Potter: 545
+exhausted: 5
+loss: 0.000000
+remarks: Bruce WILLETT fully excluded. Jason POTTER to be excluded.
+
+count 5
+Cathy Day: 2611
+Taimus Werner-Gibbings: 4593
+Joy Burch: 6495
+Mick Gentleman: 6414
+Brendan Forde: 2561
+Robyn Soxsmith: 608
+Jannah Fahiz: 689
+Johnathan Davis: 3050
+Sue Ellerman: 1338
+Laura Nuttall: 1690
+Mark Parton: 6277
+James Daniels: 2220
+Jane Hiatt: 2505
+Andrew Wall: 4657
+Nicole Lawder: 5931
+Jacob Gowor: 0
+Matthew Knight: 663
+Andrew Clapham: 1210
+Bruce Willett: 0
+Greg Baynham: 977
+Adrian Olley: 916
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 8
+loss: 0.000000
+remarks: Jason POTTER fully excluded. Robyn SOXSMITH to be excluded.
+
+count 6
+Cathy Day: 2623
+Taimus Werner-Gibbings: 4598
+Joy Burch: 6508
+Mick Gentleman: 6427
+Brendan Forde: 2574
+Robyn Soxsmith: 0
+Jannah Fahiz: 1030
+Johnathan Davis: 3084
+Sue Ellerman: 1358
+Laura Nuttall: 1722
+Mark Parton: 6289
+James Daniels: 2229
+Jane Hiatt: 2513
+Andrew Wall: 4664
+Nicole Lawder: 5935
+Jacob Gowor: 0
+Matthew Knight: 667
+Andrew Clapham: 1253
+Bruce Willett: 0
+Greg Baynham: 1007
+Adrian Olley: 922
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 10
+loss: 0.000000
+remarks: Robyn SOXSMITH fully excluded. Matthew KNIGHT to be excluded.
+
+count 7
+Cathy Day: 2637
+Taimus Werner-Gibbings: 4612
+Joy Burch: 6535
+Mick Gentleman: 6453
+Brendan Forde: 2594
+Robyn Soxsmith: 0
+Jannah Fahiz: 1058
+Johnathan Davis: 3099
+Sue Ellerman: 1379
+Laura Nuttall: 1741
+Mark Parton: 6339
+James Daniels: 2290
+Jane Hiatt: 2558
+Andrew Wall: 4722
+Nicole Lawder: 6004
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 1312
+Bruce Willett: 0
+Greg Baynham: 1053
+Adrian Olley: 983
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 44
+loss: 0.000000
+remarks: Matthew KNIGHT fully excluded. Adrian OLLEY to be excluded.
+
+count 8
+Cathy Day: 2645
+Taimus Werner-Gibbings: 4621
+Joy Burch: 6542
+Mick Gentleman: 6470
+Brendan Forde: 2607
+Robyn Soxsmith: 0
+Jannah Fahiz: 1096
+Johnathan Davis: 3107
+Sue Ellerman: 1391
+Laura Nuttall: 1749
+Mark Parton: 6352
+James Daniels: 2312
+Jane Hiatt: 2573
+Andrew Wall: 4747
+Nicole Lawder: 6025
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 1338
+Bruce Willett: 0
+Greg Baynham: 1781
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 57
+loss: 0.000000
+remarks: Adrian OLLEY fully excluded. Jannah FAHIZ to be excluded.
+
+count 9
+Cathy Day: 2670
+Taimus Werner-Gibbings: 4661
+Joy Burch: 6612
+Mick Gentleman: 6520
+Brendan Forde: 2635
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 3192
+Sue Ellerman: 1532
+Laura Nuttall: 1892
+Mark Parton: 6380
+James Daniels: 2345
+Jane Hiatt: 2604
+Andrew Wall: 4770
+Nicole Lawder: 6068
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 1573
+Bruce Willett: 0
+Greg Baynham: 1853
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 106
+loss: 0.000000
+remarks: Jannah FAHIZ fully excluded. Sue ELLERMAN to be excluded.
+
+count 10
+Cathy Day: 2716
+Taimus Werner-Gibbings: 4722
+Joy Burch: 6692
+Mick Gentleman: 6573
+Brendan Forde: 2662
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 3635
+Sue Ellerman: 0
+Laura Nuttall: 2549
+Mark Parton: 6392
+James Daniels: 2367
+Jane Hiatt: 2621
+Andrew Wall: 4787
+Nicole Lawder: 6093
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 1608
+Bruce Willett: 0
+Greg Baynham: 1865
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 131
+loss: 0.000000
+remarks: Sue ELLERMAN fully excluded. Andrew CLAPHAM to be excluded.
+
+count 11
+Cathy Day: 2774
+Taimus Werner-Gibbings: 4811
+Joy Burch: 6798
+Mick Gentleman: 6650
+Brendan Forde: 2696
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 3855
+Sue Ellerman: 0
+Laura Nuttall: 2809
+Mark Parton: 6456
+James Daniels: 2393
+Jane Hiatt: 2683
+Andrew Wall: 4842
+Nicole Lawder: 6191
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 2145
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 310
+loss: 0.000000
+remarks: Andrew CLAPHAM fully excluded. Greg BAYNHAM to be excluded.
+
+count 12
+Cathy Day: 2828
+Taimus Werner-Gibbings: 4883
+Joy Burch: 6904
+Mick Gentleman: 6843
+Brendan Forde: 2776
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 3966
+Sue Ellerman: 0
+Laura Nuttall: 2895
+Mark Parton: 6716
+James Daniels: 2510
+Jane Hiatt: 2794
+Andrew Wall: 5022
+Nicole Lawder: 6355
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 921
+loss: 0.000000
+remarks: Greg BAYNHAM fully excluded. James DANIELS to be excluded.
+
+count 13
+Cathy Day: 2850
+Taimus Werner-Gibbings: 4964
+Joy Burch: 6936
+Mick Gentleman: 6878
+Brendan Forde: 2794
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 3988
+Sue Ellerman: 0
+Laura Nuttall: 2915
+Mark Parton: 7294
+James Daniels: 0
+Jane Hiatt: 3239
+Andrew Wall: 5622
+Nicole Lawder: 6915
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 1018
+loss: 0.000000
+remarks: James DANIELS fully excluded. Brendan FORDE to be excluded.
+
+count 14
+Cathy Day: 3355
+Taimus Werner-Gibbings: 5475
+Joy Burch: 7518
+Mick Gentleman: 7460
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 4142
+Sue Ellerman: 0
+Laura Nuttall: 3008
+Mark Parton: 7350
+James Daniels: 0
+Jane Hiatt: 3268
+Andrew Wall: 5689
+Nicole Lawder: 7030
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 1118
+loss: 0.000000
+remarks: Brendan FORDE fully excluded. Laura NUTTALL to be excluded.
+
+count 15
+Cathy Day: 3480
+Taimus Werner-Gibbings: 5578
+Joy Burch: 7719
+Mick Gentleman: 7545
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 6260
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 7378
+James Daniels: 0
+Jane Hiatt: 3333
+Andrew Wall: 5714
+Nicole Lawder: 7121
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 1285
+loss: 0.000000
+remarks: Laura NUTTALL fully excluded. Jane HIATT to be excluded.
+
+count 16
+Cathy Day: 3536
+Taimus Werner-Gibbings: 5619
+Joy Burch: 7871
+Mick Gentleman: 7609
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 6313
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 8197
+James Daniels: 0
+Jane Hiatt: 0
+Andrew Wall: 6548
+Nicole Lawder: 8245
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 1475
+loss: 0.000000
+remarks: Jane HIATT fully excluded. Cathy DAY to be excluded.
+
+count 17
+Cathy Day: 0
+Taimus Werner-Gibbings: 6501
+Joy Burch: 9088
+Mick Gentleman: 8305
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 6583
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 8282
+James Daniels: 0
+Jane Hiatt: 0
+Andrew Wall: 6611
+Nicole Lawder: 8364
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 1679
+loss: 0.000000
+remarks: Cathy DAY fully excluded. Taimus WERNER-GIBBINGS to be excluded.
+
+count 18
+Cathy Day: 0
+Taimus Werner-Gibbings: 0
+Joy Burch: 11480
+Mick Gentleman: 10687
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 7263
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 8455
+James Daniels: 0
+Jane Hiatt: 0
+Andrew Wall: 6743
+Nicole Lawder: 8588
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 2197
+loss: 0.000000
+remarks: Taimus WERNER-GIBBINGS fully excluded. Joy BURCH elected 1. Mick GENTLEMAN elected 2.
+
+count 19
+Cathy Day: 0
+Taimus Werner-Gibbings: 0
+Joy Burch: 9236
+Mick Gentleman: 10687
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 7916
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 8507
+James Daniels: 0
+Jane Hiatt: 0
+Andrew Wall: 6780
+Nicole Lawder: 8662
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 2197
+loss: 1428.000000
+
+count 20
+Cathy Day: 0
+Taimus Werner-Gibbings: 0
+Joy Burch: 9236
+Mick Gentleman: 9236
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 8578
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 8590
+James Daniels: 0
+Jane Hiatt: 0
+Andrew Wall: 6824
+Nicole Lawder: 8737
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 2197
+loss: 2015.000000
+remarks: Andrew WALL to be excluded.
+
+count 21
+Cathy Day: 0
+Taimus Werner-Gibbings: 0
+Joy Burch: 9236
+Mick Gentleman: 9236
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 8755
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 11417
+James Daniels: 0
+Jane Hiatt: 0
+Andrew Wall: 0
+Nicole Lawder: 11856
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 2898
+loss: 2015.000000
+remarks: Andrew WALL fully excluded. Nicole LAWDER elected 3. Mark PARTON elected 4.
+
+count 22
+Cathy Day: 0
+Taimus Werner-Gibbings: 0
+Joy Burch: 9236
+Mick Gentleman: 9236
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 9032
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 11417
+James Daniels: 0
+Jane Hiatt: 0
+Andrew Wall: 0
+Nicole Lawder: 9236
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 2898
+loss: 4358.000000
+
+count 23
+Cathy Day: 0
+Taimus Werner-Gibbings: 0
+Joy Burch: 9236
+Mick Gentleman: 9236
+Brendan Forde: 0
+Robyn Soxsmith: 0
+Jannah Fahiz: 0
+Johnathan Davis: 9298
+Sue Ellerman: 0
+Laura Nuttall: 0
+Mark Parton: 9236
+James Daniels: 0
+Jane Hiatt: 0
+Andrew Wall: 0
+Nicole Lawder: 9236
+Jacob Gowor: 0
+Matthew Knight: 0
+Andrew Clapham: 0
+Bruce Willett: 0
+Greg Baynham: 0
+Adrian Olley: 0
+Scott Sandford: 0
+Jason Potter: 0
+exhausted: 2898
+loss: 6273.000000
+remarks: Johnathan DAVIS elected 5.
