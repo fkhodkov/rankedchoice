@@ -1,0 +1,128 @@
+# The ERS97 rulebook's own count sheet for its model election (Electoral Reform Society, "How to
+# conduct an election by the Single Transferable Vote", 3rd edition), as transcribed in pyRCV2's
+# tests/data/ers97.csv (https://yingtongli.me/git/pyRCV2). Each stage: every candidate's votes,
+# then the non-transferable votes (exhausted and lost to rounding together), and the votes required
+# for election where the sheet gives it.
+
+stage 1
+comment: First preferences
+Smith: 134
+Carpenter: 81
+Wright: 27
+Glazier: 24
+Duke: 105
+Prince: 91
+Baron: 64
+Abbot: 59
+Vicar: 55
+Monk: 23
+Freeman: 90
+non-transferable: 0
+
+stage 2
+comment: Surplus of Smith
+Smith: 107.58
+Carpenter: 88.35
+Wright: 32.25
+Glazier: 30.51
+Duke: 106.68
+Prince: 91
+Baron: 64
+Abbot: 59.84
+Vicar: 55
+Monk: 23.42
+Freeman: 93.78
+non-transferable: 0.59
+
+stage 3
+comment: Exclusion of Monk
+Smith: 107.58
+Carpenter: 88.35
+Wright: 32.25
+Glazier: 30.51
+Duke: 108.68
+Prince: 91
+Baron: 64
+Abbot: 64.84
+Vicar: 69
+Monk: 0.42
+Freeman: 95.78
+non-transferable: 0.59
+
+stage 4
+comment: Exclusion of Monk
+Smith: 107.58
+Carpenter: 88.35
+Wright: 32.25
+Glazier: 30.51
+Duke: 108.68
+Prince: 91
+Baron: 64.21
+Abbot: 64.84
+Vicar: 69.21
+Monk: 0
+Freeman: 95.78
+non-transferable: 0.59
+
+stage 5
+comment: Exclusion of Glazier, Wright
+Smith: 107.58
+Carpenter: 122.35
+Wright: 5.25
+Glazier: 6.51
+Duke: 108.68
+Prince: 102
+Baron: 67.21
+Abbot: 65.84
+Vicar: 69.21
+Monk: 0
+Freeman: 95.78
+non-transferable: 2.59
+
+stage 6
+comment: Exclusion of Glazier, Wright
+Smith: 107.58
+Carpenter: 122.35
+Wright: 0
+Glazier: 0
+Duke: 108.68
+Prince: 104.31
+Baron: 68.26
+Abbot: 67.1
+Vicar: 71.31
+Monk: 0
+Freeman: 96.62
+non-transferable: 6.79
+votes required: 105.87
+
+stage 7
+comment: Surplus of Carpenter
+Smith: 107.58
+Carpenter: 107.58
+Wright: 0
+Glazier: 0
+Duke: 108.68
+Prince: 104.31
+Baron: 70.26
+Abbot: 68.1
+Vicar: 71.31
+Monk: 0
+Freeman: 101.62
+non-transferable: 13.56
+votes required: 104.13
+
+stage 8
+comment: Exclusion of Abbot
+Smith: 107.58
+Carpenter: 107.58
+Wright: 0
+Glazier: 0
+Duke: 108.68
+Prince: 104.31
+Baron: 82.26
+Abbot: 2.1
+Vicar: 113.31
+Monk: 0
+Freeman: 101.62
+non-transferable: 25.56
+votes required: 96.41

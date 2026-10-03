@@ -36,14 +36,12 @@ import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
  * ballots arrived last, as distinct from an inclusive method that doesn't care.
  *
  * <p>Last-parcel-family rulesets ({@link LastParcelTransfer}, {@link
- * LastParcelDeferredRoundingTransfer} — see {@link #defersSurplusTransfers}) defer every
- * surplus transfer rather than performing it the moment a candidate qualifies: a candidate
- * who crosses quota is immediately frozen (removed from {@code continuing}, added to {@code
- * elected}) but their surplus isn't transferred until a later round pops it as the largest
- * still-pending one — confirmed against the ERS97 rulebook's own model election, where a
- * frozen candidate's own surplus transfer can be deferred for many further rounds while other
- * business (including other candidates crossing quota later) takes priority. This also means
- * eliminating a candidate under these rulesets processes their held ballots one value-group at
+ * LastParcelDeferredRoundingTransfer} — see {@link #defersSurplusTransfers}) don't transfer a
+ * surplus the moment a candidate qualifies: a candidate who crosses quota is immediately
+ * frozen (removed from {@code continuing}, added to {@code elected}) and their surplus waits
+ * for a later round, largest first. Under ERS97's {@code deferSurpluses} it can wait for many
+ * rounds, while exclusions go ahead, as long as it couldn't change who is excluded. This also
+ * means eliminating a candidate under these rulesets processes their held ballots one value-group at
  * a time (largest value first, per ERS97's "exclusion by value"), re-checking for newly
  * quota-crossing candidates after each group — a candidate who qualifies partway through
  * stops receiving that same elimination's remaining, lower-valued groups entirely, rather than
@@ -172,8 +170,13 @@ public final class StvCounter {
             Fraction exhausted = running.exhausted();
             Fraction loss = credits.roundingLoss(tallies, exhausted);
             List<RoundRecord> priorRounds = List.copyOf(rounds);
+            Fraction activeVotes = positiveSurplusTotal(pendingSurplus, quota);
+            for (Fraction tally : tallies.values()) {
+                activeVotes = activeVotes.add(tally);
+            }
+            Fraction required = votesRequired(ruleset, activeVotes, remainingSeats);
             List<Candidate> meetingQuota = continuing.stream()
-                    .filter(candidate -> tallies.get(candidate).compareTo(quota) >= 0)
+                    .filter(candidate -> elects(tallies.get(candidate), quota, required))
                     .toList();
 
             if (!meetingQuota.isEmpty()) {
@@ -181,8 +184,11 @@ public final class StvCounter {
                 // elected as a batch, before any of their surpluses are transferred — so none
                 // of them can still receive (and thus inflate their own eventual surplus with)
                 // a fellow batch member's transfer.
-                List<Candidate> electedThisStage = sortedByTallyDescending(
-                        new LinkedHashSet<>(meetingQuota), tallies, ruleset.tieBreak(), priorRounds);
+                List<Candidate> electedThisStage = ruleset.votesRequired()
+                        ? electOneByOne(continuing, tallies, quota, positiveSurplusTotal(pendingSurplus, quota),
+                                remainingSeats, ruleset, priorRounds)
+                        : sortedByTallyDescending(
+                                new LinkedHashSet<>(meetingQuota), tallies, ruleset.tieBreak(), priorRounds);
                 if (electedThisStage.size() > remainingSeats) {
                     electedThisStage = electedThisStage.subList(0, remainingSeats);
                 }
@@ -231,12 +237,19 @@ public final class StvCounter {
                 // possibly an older one) is currently largest.
                 pendingSurplus.putAll(frozenVotes);
             }
+            if (defers && elected.size() >= seats) {
+                break; // every seat filled: the count ends, pending surpluses untransferred
+            }
 
-            if (defers && !pendingSurplus.isEmpty()) {
+            boolean deferred = ruleset.deferSurpluses() && !pendingSurplus.isEmpty()
+                    && canDeferSurpluses(continuing, tallies, pendingSurplus, quota, seats - elected.size(),
+                            ruleset.batchExclusion());
+            if (defers && !pendingSurplus.isEmpty() && !deferred) {
                 Candidate candidate = pickHighest(
                         new ArrayList<>(pendingSurplus.keySet()), pendingSurplus, ruleset.tieBreak(), priorRounds);
                 Fraction frozenTally = pendingSurplus.remove(candidate);
-                Fraction surplus = frozenTally.subtract(quota);
+                // Elected on ERS97's votes required, below quota, there's no surplus.
+                Fraction surplus = max(frozenTally.subtract(quota), Fraction.ZERO);
                 // `tallies` and `exhausted` were captured before any of this round's actions
                 // (including the freeze just above, if any) -- exactly the "before this
                 // round's action" state the RoundRecord needs, so read them now, before the
@@ -406,14 +419,30 @@ public final class StvCounter {
                 continue;
             }
             Map<Candidate, Fraction> freshTallies = running.tallies(continuing, ruleset.roundingRule());
+            Fraction required = null;
+            if (ruleset.votesRequired()) {
+                // Active: continuing candidates, what the excluded still hold, pending surpluses.
+                Fraction activeVotes = running.heldOutside(continuing, elected, ruleset.roundingRule())
+                        .add(positiveSurplusTotal(pendingSurplus, quota));
+                for (Fraction tally : freshTallies.values()) {
+                    activeVotes = activeVotes.add(tally);
+                }
+                required = votesRequired(ruleset, activeVotes, remainingSeats);
+            }
+            Fraction threshold = required;
             List<Candidate> newlyQualified = continuing.stream()
-                    .filter(candidate -> freshTallies.get(candidate).compareTo(quota) >= 0)
+                    .filter(candidate -> elects(freshTallies.get(candidate), quota, threshold))
                     .toList();
             if (newlyQualified.isEmpty()) {
                 continue;
             }
-            List<Candidate> ordered = sortedByTallyDescending(
-                    new LinkedHashSet<>(newlyQualified), freshTallies, ruleset.tieBreak(), priorRounds);
+            List<Candidate> ordered = ruleset.votesRequired()
+                    ? electOneByOne(continuing, freshTallies, quota,
+                            running.heldOutside(continuing, elected, ruleset.roundingRule())
+                                    .add(positiveSurplusTotal(pendingSurplus, quota)),
+                            remainingSeats, ruleset, priorRounds)
+                    : sortedByTallyDescending(
+                            new LinkedHashSet<>(newlyQualified), freshTallies, ruleset.tieBreak(), priorRounds);
             if (ordered.size() > remainingSeats) {
                 ordered = ordered.subList(0, remainingSeats);
             }
@@ -436,12 +465,10 @@ public final class StvCounter {
      * Picks which continuing candidate(s) to exclude this stage. Ordinarily that's just the
      * (tie-broken) single lowest candidate. When {@code batchExclusion} is enabled, ERS97 rule
      * 5.2.5 instead allows excluding several of the lowest candidates together in one stage:
-     * grow the batch upward from the bottom while enough candidates remain to fill the
-     * remaining seats and the batch's combined tally, plus the total of any deferred surplus,
-     * still doesn't exceed the tally of the next candidate above it — confirmed against a real,
-     * independent implementation (OpenSTV) reproducing the exact batch ERS97's own rulebook
-     * model election selects. Falls back to the single lowest candidate whenever that growth
-     * can't get started (the lowest candidate alone already exceeds the one above them).
+     * the largest such set that leaves enough candidates for the seats, doesn't split
+     * candidates on equal votes, and whose votes plus any pending surplus don't exceed the next
+     * candidate's (see {@link #bulkExclusion}). Falls back to the single lowest candidate when
+     * there's none.
      */
     private static List<Candidate> selectCandidatesToExclude(Set<Candidate> continuing,
             Map<Candidate, Fraction> tallies, Map<Candidate, Fraction> pendingSurplus, Fraction quota,
@@ -450,27 +477,8 @@ public final class StvCounter {
         ascending.sort(Comparator.comparing(tallies::get));
 
         if (batchExclusion) {
-            Fraction deferredSurplusTotal = Fraction.ZERO;
-            for (Fraction frozenTally : pendingSurplus.values()) {
-                deferredSurplusTotal = deferredSurplusTotal.add(frozenTally.subtract(quota));
-            }
-            List<Candidate> batch = new ArrayList<>();
-            Fraction batchTotal = Fraction.ZERO;
-            for (int i = 0; i < ascending.size(); i++) {
-                if (continuing.size() - (i + 1) < remainingSeats) {
-                    break;
-                }
-                Candidate candidate = ascending.get(i);
-                Fraction tentativeTotal = batchTotal.add(tallies.get(candidate));
-                if (i + 1 < ascending.size()) {
-                    Fraction nextAboveTally = tallies.get(ascending.get(i + 1));
-                    if (tentativeTotal.add(deferredSurplusTotal).compareTo(nextAboveTally) > 0) {
-                        break;
-                    }
-                }
-                batch.add(candidate);
-                batchTotal = tentativeTotal;
-            }
+            List<Candidate> batch = bulkExclusion(ascending, tallies, positiveSurplusTotal(pendingSurplus, quota),
+                    remainingSeats);
             if (!batch.isEmpty()) {
                 return batch;
             }
@@ -484,6 +492,148 @@ public final class StvCounter {
                 ? tiedLowest.getFirst()
                 : tieBreak.candidateToEliminate(tiedLowest, priorRounds);
         return List.of(toEliminate);
+    }
+
+    /**
+     * ERS97's bulk exclusion, as pyRCV2 counts it: the largest set of the lowest candidates
+     * that leaves enough candidates for the seats, doesn't split candidates on equal votes, and
+     * whose votes plus every pending surplus don't exceed the next candidate's. Empty if none.
+     */
+    private static List<Candidate> bulkExclusion(List<Candidate> ascending, Map<Candidate, Fraction> tallies,
+            Fraction pendingSurpluses, int remainingSeats) {
+        for (int size = ascending.size(); size >= 1; size--) {
+            if (ascending.size() - size < remainingSeats) {
+                continue;
+            }
+            if (size < ascending.size()) {
+                Fraction next = tallies.get(ascending.get(size));
+                if (tallies.get(ascending.get(size - 1)).equals(next)) {
+                    continue;
+                }
+                Fraction total = pendingSurpluses;
+                for (Candidate candidate : ascending.subList(0, size)) {
+                    total = total.add(tallies.get(candidate));
+                }
+                if (total.compareTo(next) > 0) {
+                    continue;
+                }
+            }
+            return ascending.subList(0, size);
+        }
+        return List.of();
+    }
+
+    /** The surpluses of candidates elected but not yet transferred: what's above quota. */
+    private static Fraction positiveSurplusTotal(Map<Candidate, Fraction> pendingSurplus, Fraction quota) {
+        Fraction total = Fraction.ZERO;
+        for (Fraction frozenTally : pendingSurplus.values()) {
+            if (frozenTally.compareTo(quota) > 0) {
+                total = total.add(frozenTally.subtract(quota));
+            }
+        }
+        return total;
+    }
+
+    /**
+     * ERS97's surplus deferral, as pyRCV2 counts it: every pending surplus can wait if together
+     * they're no more than the gap between the two lowest continuing candidates, and, with bulk
+     * exclusion, no more than the gap pyRCV2 checks above the bulk batch (the candidate two
+     * above it, as pyRCV2 indexes it).
+     */
+    private static boolean canDeferSurpluses(Set<Candidate> continuing, Map<Candidate, Fraction> tallies,
+            Map<Candidate, Fraction> pendingSurplus, Fraction quota, int remainingSeats, boolean batchExclusion) {
+        Fraction surpluses = positiveSurplusTotal(pendingSurplus, quota);
+        List<Candidate> ascending = new ArrayList<>(continuing);
+        ascending.sort(Comparator.comparing(tallies::get));
+        if (ascending.size() < 2
+                || surpluses.compareTo(tallies.get(ascending.get(1)).subtract(tallies.get(ascending.get(0)))) > 0) {
+            return false;
+        }
+        if (batchExclusion) {
+            List<Candidate> batch = bulkExclusion(ascending, tallies, surpluses, remainingSeats);
+            if (!batch.isEmpty()) {
+                if (batch.size() + 1 >= ascending.size()) {
+                    return false;
+                }
+                Fraction excluded = Fraction.ZERO;
+                for (Candidate candidate : batch) {
+                    excluded = excluded.add(tallies.get(candidate));
+                }
+                if (surpluses.compareTo(tallies.get(ascending.get(batch.size() + 1)).subtract(excluded)) > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * ERS97's votes required for election: the total active vote (continuing candidates' votes,
+     * any still held by a candidate being excluded, and pending surpluses) divided by one more
+     * than the seats still to fill, rounded up at the ruleset's precision. Null if the ruleset
+     * doesn't use it.
+     */
+    private static Fraction votesRequired(StvRuleset ruleset, Fraction activeVotes, int remainingSeats) {
+        if (!ruleset.votesRequired() || remainingSeats <= 0) {
+            return null;
+        }
+        Fraction share = activeVotes.divide(Fraction.of(remainingSeats + 1));
+        return ruleset.roundingRule().apply(share.negate()).negate(); // rounded up
+    }
+
+    /**
+     * Who is elected, in order, under ERS97's votes required, as pyRCV2 elects them: the
+     * highest qualifying candidate first, then the next, and after each election the votes
+     * required is worked out again (fewer seats remain, and the elected candidate's votes leave
+     * the active vote but for their surplus), until nobody else reaches it or the quota.
+     * {@code otherActive} is the active vote outside {@code continuing}: pending surpluses, and
+     * anything an excluded candidate still holds.
+     */
+    private static List<Candidate> electOneByOne(Set<Candidate> continuing, Map<Candidate, Fraction> tallies,
+            Fraction quota, Fraction otherActive, int remainingSeats, StvRuleset ruleset,
+            List<RoundRecord> priorRounds) {
+        List<Candidate> elected = new ArrayList<>();
+        Set<Candidate> pool = new LinkedHashSet<>(continuing);
+        Fraction extra = otherActive;
+        while (true) {
+            Fraction required = votesRequired(ruleset, active(pool, tallies).add(extra), remainingSeats - elected.size());
+            List<Candidate> qualifying = qualifying(pool, tallies, quota, required);
+            if (qualifying.isEmpty() || elected.size() >= remainingSeats) {
+                return elected;
+            }
+            while (!qualifying.isEmpty() && elected.size() < remainingSeats) {
+                Candidate highest = pickHighest(qualifying, tallies, ruleset.tieBreak(), priorRounds);
+                elected.add(highest);
+                pool.remove(highest);
+                extra = extra.add(max(tallies.get(highest).subtract(quota), Fraction.ZERO));
+                // pyRCV2 picks the next from those meeting the threshold it started with ...
+                qualifying = qualifying(pool, tallies, quota, required);
+                // ... and works out the new one for its next pass.
+                required = votesRequired(ruleset, active(pool, tallies).add(extra), remainingSeats - elected.size());
+            }
+        }
+    }
+
+    private static Fraction active(Set<Candidate> pool, Map<Candidate, Fraction> tallies) {
+        Fraction total = Fraction.ZERO;
+        for (Candidate candidate : pool) {
+            total = total.add(tallies.get(candidate));
+        }
+        return total;
+    }
+
+    private static List<Candidate> qualifying(Set<Candidate> pool, Map<Candidate, Fraction> tallies, Fraction quota,
+            Fraction required) {
+        return pool.stream().filter(candidate -> elects(tallies.get(candidate), quota, required)).toList();
+    }
+
+    /** Whether a candidate on {@code tally} is elected: the quota, or ERS97's votes required. */
+    private static boolean elects(Fraction tally, Fraction quota, Fraction votesRequired) {
+        return tally.compareTo(quota) >= 0 || (votesRequired != null && tally.compareTo(votesRequired) >= 0);
+    }
+
+    private static Fraction max(Fraction a, Fraction b) {
+        return a.compareTo(b) >= 0 ? a : b;
     }
 
     private static Candidate pickHighest(List<Candidate> candidates, Map<Candidate, Fraction> tallies,

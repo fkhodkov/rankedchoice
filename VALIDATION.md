@@ -100,11 +100,33 @@ implementation's own correctness test ([pyRCV2](https://yingtongli.me/git/pyRCV2
   whenever their combined votes, plus any pending surplus, still couldn't reach the candidate
   above them. Excluding Wright and Glazier one at a time instead turned the rulebook's winner,
   Vicar, into a wrong Baron; [OpenSTV](http://www.openstv.org/) batches the two, as the rulebook
-  does. The `batchExclusion` ruleset flag now grows the batch upward from the lowest candidate
-  while enough candidates remain for the seats and the batch's total plus pending surplus
-  stays below the next candidate. Enabled for the `ers97`/`ers76` presets only: the Scottish
-  statute ([SSI 2007/42 rule 50](https://www.legislation.gov.uk/ssi/2007/42)) only ever
-  excludes one candidate, and for Hare-Clark no primary source settles it either way.
+  does. The `batchExclusion` ruleset flag takes the largest such set that leaves enough
+  candidates for the seats and doesn't split candidates on equal votes, as pyRCV2 does. Enabled
+  for the `ers97`/`ers76` presets only: the Scottish statute
+  ([SSI 2007/42 rule 50](https://www.legislation.gov.uk/ssi/2007/42)) only ever excludes one
+  candidate, and for Hare-Clark no primary source settles it either way.
+
+The count now replays the rulebook's count sheet in full: every round matches one of its
+stages, every candidate's votes and the non-transferable votes, through the last stage. That
+took two more of its provisions, as pyRCV2 counts them (`deferSurpluses` and `votesRequired`,
+again only in the `ers97`/`ers76` presets), and one change for every last-parcel ruleset:
+
+- **Surplus deferral.** Pending surpluses wait while exclusions go ahead, unless together they
+  could change which candidate, or bulk exclusion, comes next. Duke's 1.10 waits to the end.
+- **Votes required for election.** The total active vote divided by one more than the seats
+  left, rounded up: as votes are lost it drops below the quota, and Prince (104.31) and Freeman
+  (101.62) are elected on it. It's worked out again after each election, so one step can elect
+  several candidates.
+- **The count ends when the last seat is filled**, with any surplus untransferred.
+
+pyRCV2 itself runs as a Python program (`tools/reference/ers97`), so it also served as a
+reference on 100 random elections (4–13 candidates, up to 1,000 voters): 98 match it in every
+round. In one, pyRCV2 elects four candidates for three seats (two tied exactly on the votes
+required, and it elects both). In the other, two candidates tie for exclusion and the
+tie-break differs: ERS97 counts each value group of an exclusion as a stage, and pyRCV2 looks
+back through those; this engine looks back through rounds. The next round excludes the other
+of the two anyway, and the counts agree again from there. Three of the random elections are
+fixtures (`testdata/ers97/pyrcv2`), picked for what they exercise.
 
 ## Classic STV building blocks
 

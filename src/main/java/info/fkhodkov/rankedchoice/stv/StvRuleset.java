@@ -34,15 +34,31 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * must number 1–7 "without omission or duplication" (s.102(1)) or it's informal
  * (s.103(1)(c)), and a council ballot needs 1–3, or 1–2 with 3 candidates, or just 1 with 2
  * (s.102(2)) — which the cap reproduces exactly.
+ *
+ * <p>{@code deferSurpluses} and {@code votesRequired} are two more ERS97 provisions, both off
+ * except in the bundled {@code ers97}/{@code ers76} rulesets. With the first, pending surpluses
+ * wait while an exclusion goes ahead, unless their total could change which candidate (or bulk
+ * exclusion) comes next. With the second, a candidate is also elected on reaching the "votes
+ * required for election": the total active vote divided by one more than the seats still to
+ * fill, rounded up, which drops below the quota as votes are lost. Both as pyRCV2 counts ERS97
+ * ("defer surpluses", and the "static with ERS97 rules" quota mode); the rulebook's own model
+ * election count sheet shows both, its votes-required row included.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
-        boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
+        boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
+        boolean deferSurpluses, boolean votesRequired) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
             throw new IllegalArgumentException("minimumPreferences must not be negative, got: " + minimumPreferences);
         }
+    }
+
+    public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
+            boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
+        this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
+                false);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

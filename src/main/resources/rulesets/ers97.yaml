@@ -17,4 +17,10 @@ transfer: last-parcel
 rounding: truncate:2
 tiebreak: previous-round,declared
 batchExclusion: true
+# A surplus waits while exclusions go ahead, unless it could change who is excluded; and once
+# votes have been lost, a candidate is elected on reaching the votes required for election (the
+# total active vote over one more than the seats left), not only the quota. Both as pyRCV2
+# counts ERS97, reproducing every stage of the rulebook's model election count sheet.
+deferSurpluses: true
+votesRequired: true
 tiedRankings: truncate

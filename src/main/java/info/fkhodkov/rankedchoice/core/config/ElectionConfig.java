@@ -16,6 +16,8 @@ public record ElectionConfig(
         Boolean batchExclusion,
         String tiedRankings,
         Integer minimumPreferences,
-        Integer precision
+        Integer precision,
+        Boolean deferSurpluses,
+        Boolean votesRequired
 ) {
 }

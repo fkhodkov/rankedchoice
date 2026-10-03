@@ -64,6 +64,11 @@ A classic STV ruleset is a combination of independent choices:
   `previous-round`, `first-preference` and `seeded-random:SEED`, e.g. `previous-round,declared`.
 - **Batch exclusion** (config `batchExclusion`): ERS97 rule 5.2.5 — exclude several of the
   lowest candidates at once when together they still couldn't overtake the next.
+- **Surplus deferral** (config `deferSurpluses`, last-parcel only): ERS97 — let pending surpluses
+  wait while exclusions go ahead, unless they could change who is excluded.
+- **Votes required** (config `votesRequired`): ERS97 — also elect a candidate on reaching the total
+  active vote divided by one more than the seats left, which falls below the quota as votes are
+  lost.
 
 ### Tied rankings and short ballots
 
@@ -94,7 +99,7 @@ Ballots set aside this way, and blank ones, are reported as informal ballots, wi
 | Name | Rules | Used for | Source |
 |---|---|---|---|
 | `scottish` | Droop + WIGM + truncate:5, tied rankings truncated | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rules 43(1)(c) and 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
-| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
+| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, surplus deferral and votes required for election, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No technical spec or election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule difference (quota rounded to 0dp above 100, not implemented here); treat as "believed similar", not verified |
 | `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections: add `--minimum-preferences 3`) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
@@ -138,8 +143,8 @@ carry fields a method doesn't use.
 ### Config file
 
 A YAML file (`--config`) can set any of `quota`, `transfer`, `rounding`, `tiebreak`, `seats`,
-`format`, `reportFormat`, `batchExclusion`, `tiedRankings`, `minimumPreferences` and
-`precision`:
+`format`, `reportFormat`, `batchExclusion`, `deferSurpluses`, `votesRequired`, `tiedRankings`,
+`minimumPreferences` and `precision`:
 
 ```yaml
 quota: hare
@@ -150,8 +155,8 @@ reportFormat: json
 ```
 
 Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
-always flag, then config or ruleset, then built-in default. `batchExclusion` has no flag: it's
-treated as a fixed property of a ruleset.
+always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`
+and `votesRequired` have no flags: they're treated as fixed properties of a ruleset.
 
 ## Reports
 
@@ -212,9 +217,10 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   candidates, 33 seats and 40 preferences per ballot stalls even at 20,000 voters. The count
   warns on stderr when this starts; `--rounding truncate:9` keeps it bounded, and every bundled
   preset rounds anyway.
-- **ERS97 surplus deferral.** Real ERS97 counts may put off a surplus and exclude first when it
-  can't change who is excluded; this engine always transfers pending surpluses first. Tallies
-  and winners still match the ERS97 model election and Kurrajong; only stage numbering can differ.
+- **ERS97 tie-breaks look back by round, not by stage.** ERS97 counts each value group of an
+  exclusion as a stage, and breaks a tie on the most recent one where the tied candidates
+  differed; this engine looks back through whole rounds. Rarely, that excludes the other of two
+  tied candidates first (once in 100 random elections, without changing the result).
 - **Not validated:** `ers76` and `hare-clark-qpq` (no data to check against); Cambridge STV
   against official Cambridge counts (no public ballot data; ballot order matters). See
   [VALIDATION.md](VALIDATION.md#not-validated).
@@ -267,6 +273,8 @@ about 45 s, 16 / 8 about a minute.
   against Schulze's own program and published figures, and against an independent count.
 - [`tools/reference/act`](tools/reference/act/README.md) — convert Elections ACT's ballot data
   and official distributions of preferences into the ACT test fixtures.
+- [`tools/reference/ers97`](tools/reference/ers97/README.md) — count an election with pyRCV2's
+  ERS97 counter and compare it with this one, round by round.
 
 ## Project layout
 

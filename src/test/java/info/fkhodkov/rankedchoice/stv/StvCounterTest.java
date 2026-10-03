@@ -436,7 +436,8 @@ class StvCounterTest {
         // X's parcel-1 (8) and own ballots (15) stay with X untouched -> X settles at 23, not
         // 27 (quota) -- the documented trade-off of last-parcel-only methods.
         assertThat(round4.tallies()).isEqualTo(Map.of(y, Fraction.of(31), z, Fraction.of(20)));
-        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(y, Fraction.of(4)));
+        // Y fills the last seat, so the count ends there: Y's surplus of 4 isn't transferred.
+        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(y, Fraction.ZERO));
     }
 
     /**

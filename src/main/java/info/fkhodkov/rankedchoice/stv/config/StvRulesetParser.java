@@ -1,5 +1,6 @@
 package info.fkhodkov.rankedchoice.stv.config;
 
+import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
@@ -65,11 +66,27 @@ public final class StvRulesetParser {
      */
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, List<Candidate> declaredOrder) {
+        return parse(quota, transfer, rounding, tiebreak, batchExclusion, tiedRankings, minimumPreferences, null, null,
+                declaredOrder);
+    }
+
+    /** As above, plus ERS97's surplus deferral and votes required for election — see {@link StvRuleset}. */
+    public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
+            Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, Boolean deferSurpluses,
+            Boolean votesRequired, List<Candidate> declaredOrder) {
         TransferMethod transferMethod = parseTransfer(transfer);
         return new StvRuleset(
                 parseQuota(quota), transferMethod, parseRounding(rounding),
                 parseTieBreak(tiebreak, declaredOrder), batchExclusion != null && batchExclusion,
-                parseTiedRankings(tiedRankings, transferMethod), minimumPreferences == null ? 0 : minimumPreferences);
+                parseTiedRankings(tiedRankings, transferMethod), minimumPreferences == null ? 0 : minimumPreferences,
+                deferSurpluses != null && deferSurpluses, votesRequired != null && votesRequired);
+    }
+
+    /** Every STV setting a config file or bundled ruleset gives. */
+    public static StvRuleset parse(ElectionConfig config, List<Candidate> declaredOrder) {
+        return parse(config.quota(), config.transfer(), config.rounding(), config.tiebreak(), config.batchExclusion(),
+                config.tiedRankings(), config.minimumPreferences(), config.deferSurpluses(), config.votesRequired(),
+                declaredOrder);
     }
 
     /**

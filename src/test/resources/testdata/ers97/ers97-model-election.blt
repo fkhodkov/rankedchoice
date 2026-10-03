@@ -17,15 +17,11 @@
 # quota-crossing candidates frozen mid-elimination" rule (see
 # info.fkhodkov.rankedchoice.stv.StvCounter's class javadoc): Duke crosses quota partway
 # through Monk's elimination and must stop receiving votes from its remaining, lower-valued
-# groups. Final result: Smith, Duke, Carpenter, Prince, Freeman, and Baron elected, matching
+# groups. Final result: Smith, Duke, Carpenter, Prince, Freeman, and Vicar elected, matching
 # the rulebook.
 #
-# Not a full round-by-round replay: real ERS97 counting only defers a surplus transfer when a
-# vote-gap safety check proves doing so can't affect any exclusion decision (and additionally
-# supports "bulk exclusion" of multiple safely-doomed candidates at once), neither of which
-# this engine implements -- so beyond round 3, this engine's deferred-surplus timing and the
-# rulebook's own stage sequence diverge, even though every individual tally, once transferred,
-# and the final elected set, still match exactly.
+# Ers97ModelElectionFixtureTest replays the whole count against the rulebook's count sheet
+# (ers97-model-election.rulebook.txt): every round matches one of its stages.
 11 6
 35 1 2 0
 3 1 3 9 0
