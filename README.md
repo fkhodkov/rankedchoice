@@ -159,7 +159,9 @@ Every method reports as text, CSV, JSON or a self-contained HTML page, with the 
 each format:
 
 - **STV, Meek, Warren, Cambridge**: every round's tallies, the action (elected with the surplus
-  transferred, or excluded) and exhausted votes.
+  transferred, or excluded), exhausted votes and votes lost to rounding, the line official
+  sheets call "non-transferable (due to rounding)" or "loss by fraction", so each round adds up
+  to the total. (Meek and Warren fold it into their residual, as droop does.)
 - **QPQ**: every stage's quota and quotients, whether it restarted, and the action.
 - **CPO-STV**: the winning committee and the full ranking; JSON and CSV add every pairwise
   score, HTML a score table when there are at most 20 committees.
@@ -210,9 +212,6 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   candidates, 33 seats and 40 preferences per ballot stalls even at 20,000 voters. The count
   warns on stderr when this starts; `--rounding truncate:9` keeps it bounded, and every bundled
   preset rounds anyway.
-- **Rounding loss isn't reported separately.** Official reports list votes lost to truncation
-  as their own line so totals reconcile; here a round's tallies plus exhausted votes fall short
-  of the total by that loss. Individual tallies and winners are unaffected.
 - **ERS97 surplus deferral.** Real ERS97 counts may put off a surplus and exclude first when it
   can't change who is excluded; this engine always transfers pending surpluses first. Tallies
   and winners still match the ERS97 model election and Kurrajong; only stage numbering can differ.

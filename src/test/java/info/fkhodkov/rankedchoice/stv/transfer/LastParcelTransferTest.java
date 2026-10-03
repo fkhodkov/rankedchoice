@@ -54,7 +54,7 @@ class LastParcelTransferTest {
     }
 
     @Test
-    void nonTransferablePapersAreExcludedFromTheRatioAndKeepTheirOwnValue() {
+    void nonTransferablePapersAreExcludedFromTheRatioAndStayWithTheElectedCandidate() {
         // 20 papers with a further preference, 5 without (would become non-transferable).
         // Confirmed against both the ACT Electoral Act Schedule 4 ("CP means the number of
         // ballot papers ... that specify a next available preference") and opavote's citation
@@ -69,21 +69,44 @@ class LastParcelTransferTest {
 
         // ratio = surplus / transferablePapers = 10/20 = 1/2 -- NOT 10/25, which is what
         // including the non-transferable papers in the denominator would wrongly give.
-        assertThat(result)
-                .containsEntry(1, Fraction.of(1, 2))
-                // The non-transferable papers carry their own existing value (1) forward
-                // unscaled -- they never entered the ratio, so they're not reduced by it.
-                .containsEntry(2, Fraction.ONE);
+        // The non-transferable papers aren't transferred: they stay with the elected candidate
+        // as part of the quota, as in the ERS97 rulebook's model election (Smith's 11 such
+        // papers are not non-transferable votes there; only the 0.59 lost to rounding is).
+        assertThat(result).containsOnly(Map.entry(1, Fraction.of(1, 2)));
     }
 
     @Test
-    void allPapersNonTransferableGivesNoRatioButStillReturnsTheirOwnValue() {
+    void allPapersNonTransferableTransfersNothing() {
         HeldParcel nonTransferable = new HeldParcel(1, 1, Fraction.ONE, BigInteger.valueOf(5), false);
 
         Map<Integer, Fraction> result = LastParcelTransfer.INSTANCE.computeTransferValues(
                 Fraction.of(10), List.of(nonTransferable), Exact.INSTANCE);
 
-        assertThat(result).containsOnly(Map.entry(1, Fraction.ONE));
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void papersFromAnEarlierSurplusMoveAtTheTransferValueNotAShareOfTheirOwn() {
+        // 20 papers that arrived at 1/4 each (5 votes); a surplus of 2 gives each 2/20 = 1/10,
+        // passing on the whole surplus -- not 1/4 x 1/10, which would pass on only a quarter.
+        HeldParcel fractional = new HeldParcel(1, 3, Fraction.of(1, 4), BigInteger.valueOf(20), true);
+
+        Map<Integer, Fraction> result = LastParcelTransfer.INSTANCE.computeTransferValues(
+                Fraction.of(2), List.of(fractional), Exact.INSTANCE);
+
+        assertThat(result).containsOnly(Map.entry(1, Fraction.of(1, 10)));
+    }
+
+    @Test
+    void aSurplusAtLeastTheTransferablePapersValueMovesThemAtTheirOwnValue() {
+        // The same 20 papers worth 5 votes, but a surplus of 6: 6/20 would give each more
+        // than it's worth, so each keeps its 1/4. The engine counts the other 1 as exhausted.
+        HeldParcel fractional = new HeldParcel(1, 3, Fraction.of(1, 4), BigInteger.valueOf(20), true);
+
+        Map<Integer, Fraction> result = LastParcelTransfer.INSTANCE.computeTransferValues(
+                Fraction.of(6), List.of(fractional), Exact.INSTANCE);
+
+        assertThat(result).containsOnly(Map.entry(1, Fraction.of(1, 4)));
     }
 
     @Test

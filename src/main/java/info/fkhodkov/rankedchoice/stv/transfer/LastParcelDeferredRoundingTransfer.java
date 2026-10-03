@@ -35,21 +35,22 @@ public record LastParcelDeferredRoundingTransfer() implements TransferMethod {
             return Map.of();
         }
 
+        // Papers with no further preference stay with the elected candidate (see LastParcelTransfer).
         Map<Integer, Fraction> result = new LinkedHashMap<>();
-        for (HeldParcel parcel : lastParcel) {
-            if (!parcel.hasNextPreference()) {
-                result.put(parcel.id(), parcel.value());
-            }
-        }
-
         List<HeldParcel> transferable = lastParcel.stream().filter(HeldParcel::hasNextPreference).toList();
         BigInteger transferablePapers = transferable.stream()
                 .map(HeldParcel::voteCount)
                 .reduce(BigInteger.ZERO, BigInteger::add);
-        if (transferablePapers.signum() > 0) {
-            Fraction ratio = surplus.divide(Fraction.of(transferablePapers));
+        if (transferablePapers.signum() > 0 && surplus.compareTo(LastParcelTransfer.totalValue(transferable)) >= 0) {
+            // A paper never gains value (see LastParcelTransfer).
             for (HeldParcel parcel : transferable) {
-                result.put(parcel.id(), parcel.value().multiply(ratio));
+                result.put(parcel.id(), parcel.value());
+            }
+        } else if (transferablePapers.signum() > 0) {
+            // A value per paper (votes = BP x TV), as in LastParcelTransfer.
+            Fraction transferValue = surplus.divide(Fraction.of(transferablePapers));
+            for (HeldParcel parcel : transferable) {
+                result.put(parcel.id(), transferValue);
             }
         }
         return result;

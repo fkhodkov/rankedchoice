@@ -57,6 +57,11 @@ public final class StvTextReport {
                         .append(format(round.exhaustedVotes(), decimalPlaces))
                         .append(")\n");
             }
+            if (round.roundingLoss().signum() > 0) {
+                text.append("  (lost to rounding so far: ")
+                        .append(format(round.roundingLoss(), decimalPlaces))
+                        .append(")\n");
+            }
             text.append('\n');
         }
 

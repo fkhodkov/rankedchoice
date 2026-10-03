@@ -23,13 +23,10 @@
 # on every transfer (e.g. round 1: surplus 174 / 1280 ballots truncates to 0.13593, one step
 # short of the exact 0.1359375, losing 0.00960 votes). The official report tracks this as a
 # separate "non-transferable votes (due to rounding)" line so its grand total always reconciles
-# to exactly 5529.00000; our engine has no such separate bucket — the lost fraction simply
-# isn't attributed anywhere; it doesn't appear in any candidate's tally, and it doesn't appear
-# in "exhausted" either. As a result, the "exhausted" values below match the official report's
-# "Non-transferable votes" line exactly (both track only real, ballot-exhaustion-caused
-# non-transferability), but do NOT include that separate rounding-loss line, and the sum of a
-# round's tallies + exhausted will therefore be a little short of 5529 by the rounding loss
-# accumulated so far. This is expected and does not affect who gets elected.
+# to exactly 5529.00000; the engine reports it separately too, as each round's rounding loss
+# (RoundRecord.roundingLoss), not as exhausted. So the "exhausted" values below match the
+# official report's "Non-transferable votes" line exactly, and a round's tallies + exhausted +
+# rounding loss + the quotas of candidates already elected add up to 5529.
 
 quota: 1106
 

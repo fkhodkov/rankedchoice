@@ -129,6 +129,7 @@ public final class StvCounter {
         // Candidates who have crossed quota but whose surplus hasn't been transferred yet —
         // only ever populated when `defers` is true. Processed one at a time, largest first.
         Map<Candidate, Fraction> pendingSurplus = new LinkedHashMap<>();
+        Credits credits = new Credits(Fraction.of(totalValidVotes), elected, pendingSurplus);
         int roundNumber = 0;
         int nextParcelId = 1;
 
@@ -149,20 +150,24 @@ public final class StvCounter {
             if (continuing.size() <= remainingSeats) {
                 Map<Candidate, Fraction> tallies = running.tallies(continuing, ruleset.roundingRule());
                 Fraction exhausted = running.exhausted();
+                Fraction loss = credits.roundingLoss(tallies, exhausted);
                 List<RoundRecord> priorRounds = List.copyOf(rounds);
                 for (Candidate candidate : sortedByTallyDescending(continuing, tallies, ruleset.tieBreak(), priorRounds)) {
                     elected.add(candidate);
                     continuing.remove(candidate);
+                    credits.settle(candidate, tallies.get(candidate));
                     rounds.add(new RoundRecord(
-                            roundNumber, tallies, new RoundAction.Elected(candidate, Fraction.ZERO), exhausted));
+                            roundNumber, tallies, new RoundAction.Elected(candidate, Fraction.ZERO), exhausted, loss));
                     roundNumber++;
                 }
-                drainPendingSurplus(running, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
+                drainPendingSurplus(running, continuing, pendingSurplus, credits, ruleset.roundingRule(), rounds,
+                        roundNumber);
                 break;
             }
 
             Map<Candidate, Fraction> tallies = running.tallies(continuing, ruleset.roundingRule());
             Fraction exhausted = running.exhausted();
+            Fraction loss = credits.roundingLoss(tallies, exhausted);
             List<RoundRecord> priorRounds = List.copyOf(rounds);
             List<Candidate> meetingQuota = continuing.stream()
                     .filter(candidate -> tallies.get(candidate).compareTo(quota) >= 0)
@@ -183,6 +188,9 @@ public final class StvCounter {
                     frozenVotes.put(candidate, tallies.get(candidate));
                     elected.add(candidate);
                     continuing.remove(candidate);
+                    if (!defers) {
+                        credits.settle(candidate, tallies.get(candidate)); // until their surplus moves
+                    }
                 }
 
                 if (!defers) {
@@ -194,17 +202,20 @@ public final class StvCounter {
                         Fraction surplus = candidateVotes.subtract(quota);
                         Map<Candidate, Fraction> roundTallies = tallies;
                         Fraction roundExhausted = exhausted;
+                        Fraction roundLoss = loss;
                         if (i > 0) {
                             roundTallies = running.tallies(continuing, ruleset.roundingRule());
                             roundTallies.put(candidate, candidateVotes);
                             roundExhausted = running.exhausted();
+                            roundLoss = credits.roundingLoss(roundTallies, roundExhausted);
                         }
                         if (surplus.signum() > 0 && !continuing.isEmpty()) {
                             transferSurplus(states, running, candidate, surplus, ruleset.transferMethod(),
                                     ruleset.roundingRule(), continuing, nextParcelId++);
+                            credits.settle(candidate, quota);
                         }
-                        rounds.add(new RoundRecord(
-                                roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus), roundExhausted));
+                        rounds.add(new RoundRecord(roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus),
+                                roundExhausted, roundLoss));
                         if (i < electedThisStage.size() - 1) {
                             roundNumber++;
                         }
@@ -229,12 +240,14 @@ public final class StvCounter {
                 // transfer below mutates ballot state.
                 Map<Candidate, Fraction> roundTallies = new LinkedHashMap<>(tallies);
                 roundTallies.put(candidate, frozenTally);
+                credits.settle(candidate, frozenTally);
                 if (surplus.signum() > 0 && !continuing.isEmpty()) {
                     transferSurplus(states, running, candidate, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
                             continuing, nextParcelId++);
+                    credits.settle(candidate, quota);
                 }
                 rounds.add(new RoundRecord(
-                        roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus), exhausted));
+                        roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus), exhausted, loss));
                 continue;
             }
 
@@ -251,16 +264,53 @@ public final class StvCounter {
             }
             for (int i = 0; i < toExclude.size(); i++) {
                 rounds.add(new RoundRecord(
-                        roundNumber, tallies, new RoundAction.Eliminated(toExclude.get(i)), exhausted));
+                        roundNumber, tallies, new RoundAction.Eliminated(toExclude.get(i)), exhausted, loss));
                 if (i < toExclude.size() - 1) {
                     roundNumber++;
                 }
             }
         }
 
-        drainPendingSurplus(running, continuing, pendingSurplus, ruleset.roundingRule(), rounds, roundNumber);
+        drainPendingSurplus(running, continuing, pendingSurplus, credits, ruleset.roundingRule(), rounds, roundNumber);
 
         return new StvResult(elected, rounds, quota, formal.informal());
+    }
+
+    /**
+     * What each elected candidate is credited with, for {@link RoundRecord#roundingLoss}: their
+     * frozen tally while their surplus waits ({@code pendingSurplus}), or until it moves, then
+     * the quota; their tally if it never moves.
+     */
+    private static final class Credits {
+        private final Fraction totalValidVotes;
+        private final List<Candidate> elected;
+        private final Map<Candidate, Fraction> pendingSurplus;
+        private final Map<Candidate, Fraction> settled = new LinkedHashMap<>();
+
+        Credits(Fraction totalValidVotes, List<Candidate> elected, Map<Candidate, Fraction> pendingSurplus) {
+            this.totalValidVotes = totalValidVotes;
+            this.elected = elected;
+            this.pendingSurplus = pendingSurplus;
+        }
+
+        void settle(Candidate candidate, Fraction votes) {
+            settled.put(candidate, votes);
+        }
+
+        /** The valid votes not in {@code tallies}, credited to an elected candidate, or exhausted. */
+        Fraction roundingLoss(Map<Candidate, Fraction> tallies, Fraction exhausted) {
+            Fraction accounted = exhausted;
+            for (Fraction tally : tallies.values()) {
+                accounted = accounted.add(tally);
+            }
+            for (Candidate candidate : elected) {
+                if (!tallies.containsKey(candidate)) {
+                    Fraction pending = pendingSurplus.get(candidate);
+                    accounted = accounted.add(pending != null ? pending : settled.get(candidate));
+                }
+            }
+            return totalValidVotes.subtract(accounted);
+        }
     }
 
     /**
@@ -284,19 +334,21 @@ public final class StvCounter {
      * shortcut's own bulk-election loop.
      */
     private static void drainPendingSurplus(RunningTallies running, Set<Candidate> continuing,
-            Map<Candidate, Fraction> pendingSurplus, RoundingRule roundingRule, List<RoundRecord> rounds,
-            int roundNumber) {
+            Map<Candidate, Fraction> pendingSurplus, Credits credits, RoundingRule roundingRule,
+            List<RoundRecord> rounds, int roundNumber) {
         if (pendingSurplus.isEmpty()) {
             return;
         }
         Map<Candidate, Fraction> tallies = running.tallies(continuing, roundingRule);
         Fraction exhausted = running.exhausted();
+        Fraction loss = credits.roundingLoss(tallies, exhausted);
         int number = roundNumber;
         for (Map.Entry<Candidate, Fraction> entry : pendingSurplus.entrySet()) {
             Map<Candidate, Fraction> roundTallies = new LinkedHashMap<>(tallies);
             roundTallies.put(entry.getKey(), entry.getValue());
+            credits.settle(entry.getKey(), entry.getValue());
             rounds.add(new RoundRecord(
-                    number, roundTallies, new RoundAction.Elected(entry.getKey(), Fraction.ZERO), exhausted));
+                    number, roundTallies, new RoundAction.Elected(entry.getKey(), Fraction.ZERO), exhausted, loss));
             number++;
         }
         // So a second, unconditional call after the shortcut branch's `break` (there to catch
@@ -539,6 +591,11 @@ public final class StvCounter {
             flush();
             return exhausted;
         }
+
+        /** Surplus no ballot carries on: it counts as exhausted, though it's on no ballot. */
+        void addNonTransferable(Fraction votes) {
+            exhausted = exhausted.add(votes);
+        }
     }
 
     private static int largestDenominatorBits(List<BallotState> states) {
@@ -610,6 +667,22 @@ public final class StvCounter {
                     running.add(state);
                 }
             }
+        }
+
+        // If every paper moved at its full value and that still fell short of the surplus (a
+        // last-parcel transfer whose transferable papers are worth less than the surplus), the
+        // rest can't be passed on: non-transferable, not lost to rounding.
+        Fraction moved = Fraction.ZERO;
+        Fraction movable = Fraction.ZERO;
+        for (HeldParcel parcel : parcels) {
+            Fraction newValue = newValues.get(parcel.id());
+            if (newValue != null) {
+                moved = moved.add(newValue.multiply(Fraction.of(parcel.voteCount())));
+                movable = movable.add(parcel.totalValue());
+            }
+        }
+        if (moved.signum() > 0 && moved.equals(movable) && moved.compareTo(surplus) < 0) {
+            running.addNonTransferable(surplus.subtract(moved));
         }
     }
 

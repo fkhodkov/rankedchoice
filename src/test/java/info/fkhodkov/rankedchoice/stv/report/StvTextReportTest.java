@@ -82,7 +82,8 @@ class StvTextReportTest {
         // giving B 11 * 0.54 = 5.94 -- reported as "5.94" (not "297/50"), and every other
         // figure padded to the same 2 decimal places ("11" -> "11.00") so the decimal points
         // line up; values are also right-padded to a common width ("5.94" gains a leading
-        // space to match "11.00"'s length).
+        // space to match "11.00"'s length). The 0.06 of A's surplus the truncated ratio doesn't
+        // pass on (6 - 5.94) is reported as lost to rounding.
         Candidate a = Candidate.of("A");
         Candidate b = Candidate.of("B");
         Candidate c = Candidate.of("C");
@@ -109,6 +110,7 @@ class StvTextReportTest {
                   B:  5.94
                   C:  2.00
                   -> B elected (surplus 0.94 transferred)
+                  (lost to rounding so far: 0.06)
 
                 Elected: A, B
                 """;

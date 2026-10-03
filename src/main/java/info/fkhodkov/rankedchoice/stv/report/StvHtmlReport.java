@@ -52,6 +52,11 @@ public final class StvHtmlReport {
                         .append(ReportFormatting.format(round.exhaustedVotes(), decimalPlaces))
                         .append("</p>\n");
             }
+            if (round.roundingLoss().signum() > 0) {
+                html.append("<p>Lost to rounding so far: ")
+                        .append(ReportFormatting.format(round.roundingLoss(), decimalPlaces))
+                        .append("</p>\n");
+            }
         }
 
         html.append("<p>Elected: ");

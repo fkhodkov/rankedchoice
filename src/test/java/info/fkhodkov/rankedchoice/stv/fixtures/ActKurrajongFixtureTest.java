@@ -90,6 +90,35 @@ class ActKurrajongFixtureTest {
                 .containsEntry(candidateNamed(candidates, "Michael Brewer"), Fraction.of(930408865L, 1_000_000));
     }
 
+    /**
+     * Exhausted votes and loss by fraction against the official report's own columns. Barr's
+     * 49 papers with no further preference stay with him as part of his quota (official count
+     * 2: none exhausted), and every exhausted figure after that matches too, ending at
+     * 3736.852075. The engine truncates each candidate's total where ACT truncates each value
+     * group's transfer, so later figures can differ by a few millionths.
+     */
+    @Test
+    void exhaustedVotesAndLossByFractionMatchTheOfficialReport() {
+        ParsedElection election = BltParser.parse(readLines("/testdata/act/act-2020-kurrajong.blt"));
+        List<Candidate> candidates = election.candidates();
+        ElectionConfig actHareClark = ConfigLoader.loadResource("/rulesets/act-hare-clark.yaml");
+        StvRuleset ruleset = StvRulesetParser.parse(
+                actHareClark.quota(), actHareClark.transfer(), actHareClark.rounding(), actHareClark.tiebreak(),
+                candidates);
+
+        StvResult result = StvCounter.count(candidates, election.ballots(), election.seats(), ruleset);
+
+        RoundRecord afterBarr = result.rounds().get(1);   // official count 2
+        RoundRecord afterWilliams = result.rounds().get(2); // official count 4
+        assertThat(afterBarr.exhaustedVotes()).isEqualTo(Fraction.ZERO);
+        assertThat(afterBarr.roundingLoss()).isEqualTo(Fraction.of(15, 1_000_000));
+        assertThat(afterWilliams.exhaustedVotes()).isEqualTo(Fraction.of(2));
+        Fraction finalExhausted = result.rounds().getLast().exhaustedVotes();
+        Fraction official = Fraction.of(3736852075L, 1_000_000);
+        assertThat(finalExhausted.subtract(official).toBigDecimal(6, java.math.RoundingMode.HALF_UP).abs())
+                .isLessThanOrEqualTo(new java.math.BigDecimal("0.00001"));
+    }
+
     private static Candidate candidateNamed(List<Candidate> candidates, String name) {
         return candidates.stream()
                 .filter(candidate -> candidate.name().equals(name))

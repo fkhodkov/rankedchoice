@@ -37,7 +37,7 @@ class LastParcelDeferredRoundingTransferTest {
     }
 
     @Test
-    void nonTransferablePapersAreExcludedFromTheRatioAndKeepTheirOwnValue() {
+    void nonTransferablePapersAreExcludedFromTheRatioAndStayWithTheElectedCandidate() {
         HeldParcel transferable = new HeldParcel(1, 1, Fraction.ONE, BigInteger.valueOf(11099), true);
         HeldParcel nonTransferable = new HeldParcel(2, 1, Fraction.ONE, BigInteger.valueOf(49), false);
         Fraction surplus = Fraction.of(2714);
@@ -49,9 +49,21 @@ class LastParcelDeferredRoundingTransferTest {
         // truncated to 6dp -- rounding only happens once a destination candidate's own gain
         // (this ratio x their ballot count) is computed, which is StvCounter's job, not this
         // transfer method's. The rounding rule passed in here is unused entirely.
-        assertThat(result)
-                .containsEntry(1, Fraction.of(2714, 11099))
-                .containsEntry(2, Fraction.ONE);
+        // The 49 papers with no further preference stay with Barr as part of his quota: the
+        // whole 2714 surplus moves on through the other 11099, so they can't also be exhausted.
+        assertThat(result).containsOnly(Map.entry(1, Fraction.of(2714, 11099)));
+    }
+
+    @Test
+    void papersMoveAtTheTransferValueCappedAtTheirOwn() {
+        // ACT: votes = BP x TV, a value per paper. 20 papers at 1/4: a surplus of 2 gives each
+        // 1/10; a surplus of 6 would give 3/10, more than they're worth, so they keep 1/4.
+        HeldParcel fractional = new HeldParcel(1, 3, Fraction.of(1, 4), BigInteger.valueOf(20), true);
+
+        assertThat(LastParcelDeferredRoundingTransfer.INSTANCE.computeTransferValues(
+                Fraction.of(2), List.of(fractional), Exact.INSTANCE)).containsOnly(Map.entry(1, Fraction.of(1, 10)));
+        assertThat(LastParcelDeferredRoundingTransfer.INSTANCE.computeTransferValues(
+                Fraction.of(6), List.of(fractional), Exact.INSTANCE)).containsOnly(Map.entry(1, Fraction.of(1, 4)));
     }
 
     @Test

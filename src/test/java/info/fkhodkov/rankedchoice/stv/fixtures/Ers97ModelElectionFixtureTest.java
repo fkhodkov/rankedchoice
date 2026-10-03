@@ -157,6 +157,29 @@ class Ers97ModelElectionFixtureTest {
         assertThat(round6.action()).isEqualTo(new RoundAction.Elected(carpenter, Fraction.of(1477, 100))); // surplus 14.77
     }
 
+    /**
+     * The rulebook's "Non-transferable" row, which counts exhausted votes and votes lost to
+     * rounding together: 0.59 after Smith's surplus (stage 2) and still after Monk's exclusion
+     * (stage 4). Smith's 11 papers with no further preference stay with him as part of his
+     * quota; only the 0.59 his rounded transfer value fails to pass on is lost.
+     */
+    @Test
+    void nonTransferableVotesMatchTheRulebook() {
+        ParsedElection election = BltParser.parse(readLines("/testdata/ers97/ers97-model-election.blt"));
+        List<Candidate> candidates = election.candidates();
+        ElectionConfig ers97 = ConfigLoader.loadResource("/rulesets/ers97.yaml");
+        StvRuleset ruleset = StvRulesetParser.parse(
+                ers97.quota(), ers97.transfer(), ers97.rounding(), ers97.tiebreak(), ers97.batchExclusion(),
+                candidates);
+
+        StvResult result = StvCounter.count(candidates, election.ballots(), election.seats(), ruleset);
+
+        for (RoundRecord round : result.rounds().subList(1, 3)) { // rulebook stages 2 and 4
+            assertThat(round.exhaustedVotes()).isEqualTo(Fraction.ZERO);
+            assertThat(round.roundingLoss()).isEqualTo(Fraction.of(59, 100));
+        }
+    }
+
     private static Candidate candidateNamed(List<Candidate> candidates, String name) {
         return candidates.stream()
                 .filter(candidate -> candidate.name().equals(name))

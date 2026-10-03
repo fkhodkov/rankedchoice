@@ -36,12 +36,12 @@ class StvCsvReportTest {
         String csv = StvCsvReport.render(result, Exact.INSTANCE);
 
         String expected = """
-                round,candidate,tally,action,exhausted_votes,informal_ballots
-                1,X,5,,0,0
-                1,Y,3,eliminated,0,0
-                1,Z,3,,0,0
-                2,X,8,elected (surplus 2),0,0
-                2,Z,3,,0,0
+                round,candidate,tally,action,exhausted_votes,rounding_loss,informal_ballots
+                1,X,5,,0,0,0
+                1,Y,3,eliminated,0,0,0
+                1,Z,3,,0,0,0
+                2,X,8,elected (surplus 2),0,0,0
+                2,Z,3,,0,0,0
                 """;
 
         assertThat(csv).isEqualTo(expected);

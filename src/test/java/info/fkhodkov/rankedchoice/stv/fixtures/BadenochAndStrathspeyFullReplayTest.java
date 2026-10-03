@@ -58,6 +58,11 @@ class BadenochAndStrathspeyFullReplayTest {
             ExpectedRound expectedRound = expected.rounds().get(i);
             assertRoundMatches(candidates, actualRound, expectedRound);
         }
+
+        // Jones's surplus of 174 moves at a truncated 0.13593 per vote instead of 174/1280:
+        // 0.0096 of it is lost, the start of the official "non-transferable (due to rounding)" line.
+        assertThat(actual.rounds().getFirst().roundingLoss()).isEqualTo(Fraction.ZERO);
+        assertThat(actual.rounds().get(1).roundingLoss()).isEqualTo(Fraction.of(96, 10_000));
     }
 
     private static void assertRoundMatches(

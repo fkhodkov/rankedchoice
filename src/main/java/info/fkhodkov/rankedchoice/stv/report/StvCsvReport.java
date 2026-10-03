@@ -15,7 +15,8 @@ import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
  * {@link StvTextReport}, reshaped for spreadsheets. Each round's {@link RoundAction} is
  * recorded only on its own candidate's row ({@code action} is blank for every other candidate
  * that round); {@code exhausted_votes} repeats the round's running total on every row of that
- * round, since CSV has no notion of a merged cell, and {@code informal_ballots} likewise repeats
+ * round, since CSV has no notion of a merged cell, as does {@code rounding_loss} (the votes lost
+ * to rounding so far, see {@link RoundRecord#roundingLoss()}), and {@code informal_ballots} likewise repeats
  * the number of ballots set aside before the count on every row (the breakdown by reason is
  * in the other formats).
  */
@@ -26,9 +27,10 @@ public final class StvCsvReport {
 
     public static String render(StvResult result, RoundingRule roundingRule) {
         OptionalInt decimalPlaces = ReportFormatting.decimalPlacesOf(roundingRule);
-        StringBuilder csv = new StringBuilder("round,candidate,tally,action,exhausted_votes,informal_ballots\n");
+        StringBuilder csv = new StringBuilder("round,candidate,tally,action,exhausted_votes,rounding_loss,informal_ballots\n");
         for (RoundRecord round : result.rounds()) {
             String exhausted = ReportFormatting.format(round.exhaustedVotes(), decimalPlaces);
+            String loss = ReportFormatting.format(round.roundingLoss(), decimalPlaces);
             String informal = result.informal().total().toString();
             for (Map.Entry<Candidate, Fraction> entry : ReportFormatting.sortedByTallyDescending(round)) {
                 csv.append(round.roundNumber()).append(',')
@@ -36,6 +38,7 @@ public final class StvCsvReport {
                         .append(ReportFormatting.format(entry.getValue(), decimalPlaces)).append(',')
                         .append(field(actionFor(round.action(), entry.getKey(), decimalPlaces))).append(',')
                         .append(exhausted).append(',')
+                        .append(loss).append(',')
                         .append(informal).append('\n');
             }
         }

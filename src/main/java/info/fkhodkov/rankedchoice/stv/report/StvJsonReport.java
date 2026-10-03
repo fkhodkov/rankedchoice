@@ -35,7 +35,8 @@ public final class StvJsonReport {
     public record Action(String type, String candidate, String surplusTransferred) {
     }
 
-    public record Round(int roundNumber, Map<String, String> tallies, Action action, String exhaustedVotes) {
+    public record Round(int roundNumber, Map<String, String> tallies, Action action, String exhaustedVotes,
+            String roundingLoss) {
     }
 
     public record Informal(BigInteger total, BigInteger blank, BigInteger tiedRankings, BigInteger tooFewPreferences) {
@@ -74,6 +75,7 @@ public final class StvJsonReport {
             case RoundAction.Eliminated(var candidate) -> new Action("eliminated", candidate.name(), null);
         };
         return new Round(round.roundNumber(), tallies, action,
-                ReportFormatting.format(round.exhaustedVotes(), decimalPlaces));
+                ReportFormatting.format(round.exhaustedVotes(), decimalPlaces),
+                ReportFormatting.format(round.roundingLoss(), decimalPlaces));
     }
 }

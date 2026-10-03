@@ -250,6 +250,48 @@ class StvCounterTest {
     }
 
     @Test
+    void aLastParcelSurplusLargerThanItsTransferablePapersMovesThemAtFullValueAndExhaustsTheRest() {
+        // Quota 6 (Droop, 16 votes, 2 seats). A's surplus is 6, but only the 2 A>B papers can
+        // move: they go at their full value, 1 each, not 6/2 = 3 (a paper never gains value),
+        // and the other 4 votes of the surplus are exhausted. 6 + 3 + 3 + 4 = 16.
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(a)), BigInteger.valueOf(10)),
+                new Ballot(List.of(Set.of(a), Set.of(b)), BigInteger.valueOf(2)),
+                new Ballot(List.of(Set.of(c)), BigInteger.valueOf(3)),
+                new Ballot(List.of(Set.of(b)), BigInteger.ONE));
+        StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, LastParcelTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(a, b, c)));
+
+        StvResult result = StvCounter.count(List.of(a, b, c), ballots, 2, ruleset);
+
+        RoundRecord afterSurplus = result.rounds().get(1);
+        assertThat(afterSurplus.tallies()).containsEntry(b, Fraction.of(3)).containsEntry(c, Fraction.of(3));
+        assertThat(afterSurplus.exhaustedVotes()).isEqualTo(Fraction.of(4));
+        assertThat(afterSurplus.roundingLoss()).isEqualTo(Fraction.ZERO);
+    }
+
+    @Test
+    void roundingLossIsWhatATruncatedTransferValueFailsToPassOn() {
+        // A's surplus of 6 moves at a truncated 6/11 -> 0.54: B gets 5.94, and 0.06 is lost.
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(a), Set.of(b)), BigInteger.valueOf(11)),
+                new Ballot(List.of(Set.of(c)), BigInteger.valueOf(2)));
+        StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, new TruncateDecimal(2),
+                new DeclaredOrderTieBreak(List.of(a, b, c)));
+
+        StvResult result = StvCounter.count(List.of(a, b, c), ballots, 2, ruleset);
+
+        assertThat(result.rounds().getFirst().roundingLoss()).isEqualTo(Fraction.ZERO);
+        assertThat(result.rounds().get(1).roundingLoss()).isEqualTo(Fraction.of(6, 100));
+    }
+
+    @Test
     void roundingRuleIsAppliedToTheTransferValue() {
         // 13 voters, 2 seats -> quota = floor(13/3)+1 = 5. A's 11 ballots give a surplus of 6,
         // an exact transfer value of 6/11 = 0.545454... Truncating to 2 places (0.54) means B

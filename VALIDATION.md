@@ -14,7 +14,7 @@ Nine real elections, run through their own rulesets, reproduce their actual resu
 |---|---|---|---|
 | Shetland South 2012, Orkney North Isles 2012, Shetland North 2017, Orkney Kirkwall East 2022 | `scottish` | quota, first preferences, winners | [MGGG `scot-elex`](https://github.com/mggg/scot-elex) |
 | Badenoch and Strathspey 2022 (Highland Council) | `scottish` | every stage of the 8-round count, to 5 decimal places, against the council's "Candidate Votes Per Stage Report" | the council's official raw preference profile |
-| Kurrajong 2020 (ACT Legislative Assembly; 28 candidates, 5 seats, 50,600 ballots) | `act-hare-clark` | quota, first preferences, winners; round 2 to the 6 decimal places the Act specifies, against the official "Final Distribution of Preferences" | Elections ACT's official ballot-paper data |
+| Kurrajong 2020 (ACT Legislative Assembly; 28 candidates, 5 seats, 50,600 ballots) | `act-hare-clark` | quota, first preferences, winners; round 2 to the 6 decimal places the Act specifies; every round's tallies, exhausted votes and loss by fraction, against the official "Final Distribution of Preferences" | Elections ACT's official ballot-paper data |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
 
 Every one is cross-checked against the election's published or officially declared result,
@@ -41,6 +41,33 @@ Also checked against real data:
 - **Schulze**: a real Debian General Resolution's published pairwise tally — see
   [Schulze](#schulze).
 - **Borda (Dowdall)**: two constituencies of Nauru's 2019 election — see [Borda](#borda).
+
+Every one of Kurrajong's 28 rounds matches a count in the official report: the same exclusions
+in the same order, every tally within a few millionths, and exhausted votes ending at 3,736.85208
+against the official 3,736.852075. (The Act truncates each value group's transfer to 6 places,
+this engine each candidate's total, hence the millionths; the official "loss by fraction" ends
+at 0.000050, this engine's at 0.000002.) Checking the exhausted votes and the loss found two
+bugs in last-parcel transfers (`ers97`, `ers76`, `act-hare-clark`, `hare-clark-qpq`):
+
+- **Papers with no further preference** were moved to exhausted at full value. They stay with
+  the elected candidate as part of the quota: Kurrajong's count 2 shows none of Barr's 49 such
+  papers exhausted, and the ERS97 rulebook's stage 2 shows 0.59 non-transferable, not Smith's 11.
+  Reported exhausted votes were too high (Kurrajong's by 1,647 by the end); tallies and winners
+  weren't affected.
+- **The transfer value** is a value per paper (surplus / transferable papers; the Act's
+  "BP x TV"), not a fraction of each paper's own value. Applied as a fraction, a candidate
+  elected on papers from an earlier surplus passed on only part of their surplus; and when the
+  surplus exceeded what the transferable papers were worth, papers gained value, creating
+  votes. Papers now move at the transfer value, or at their own value if that's less, with the
+  rest of the surplus exhausted, as pyRCV2 counts ERS97. Neither case arises in Kurrajong or
+  the ERS97 model election; on 40 random elections under each last-parcel ruleset, tallies
+  after such surpluses changed and no winner did.
+
+The rounding loss is checked against the officially published figures where they exist:
+Highland's round 2 loses 0.0096 (Russell Jones's surplus of 174 at a truncated 0.13593 per
+vote), ERS97's stages 2 and 4 the rulebook's 0.59, Kurrajong's count 2 the official 0.000015.
+On those 40 random elections, no ruleset ever reports a negative loss, which would mean votes
+created.
 
 ## The ERS97 model election
 
