@@ -3,6 +3,7 @@ package info.fkhodkov.rankedchoice.stv.report;
 import java.util.Map;
 import java.util.OptionalInt;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.report.ReportMarkup;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
@@ -53,11 +54,7 @@ public final class StvCsvReport {
         };
     }
 
-    /** RFC 4180 quoting, applied only when a field actually needs it (comma, quote, or newline). */
     private static String field(String value) {
-        if (value.indexOf(',') < 0 && value.indexOf('"') < 0 && value.indexOf('\n') < 0) {
-            return value;
-        }
-        return '"' + value.replace("\"", "\"\"") + '"';
+        return ReportMarkup.csvField(value);
     }
 }

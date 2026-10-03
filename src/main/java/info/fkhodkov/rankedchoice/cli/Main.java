@@ -18,20 +18,24 @@ import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.borda.BordaMethod;
 import info.fkhodkov.rankedchoice.borda.BordaResult;
+import info.fkhodkov.rankedchoice.borda.BordaReports;
 import info.fkhodkov.rankedchoice.borda.BordaScoringRule;
 import info.fkhodkov.rankedchoice.borda.BordaTextReport;
 import info.fkhodkov.rankedchoice.borda.ClassicBorda;
 import info.fkhodkov.rankedchoice.borda.DowdallScoring;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvCounter;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvResult;
+import info.fkhodkov.rankedchoice.cpostv.CpoStvReports;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvRuleset;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvTextReport;
 import info.fkhodkov.rankedchoice.qpq.QpqCounter;
 import info.fkhodkov.rankedchoice.qpq.QpqResult;
+import info.fkhodkov.rankedchoice.qpq.QpqReports;
 import info.fkhodkov.rankedchoice.qpq.QpqRuleset;
 import info.fkhodkov.rankedchoice.qpq.QpqTextReport;
 import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
+import info.fkhodkov.rankedchoice.schulze.SchulzeReports;
 import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
@@ -193,6 +197,7 @@ public final class Main implements Callable<Integer> {
         ElectionConfig fileConfig = loadFileConfig();
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
         refuseUnusedOptions(effectiveMethod);
+        String reportAs = resolveReportFormat(fileConfig);
         boolean seatsBasedMethod = !effectiveMethod.equals("schulze") && !effectiveMethod.equals("borda");
         String effectiveTiedRankings = firstNonNull(tiedRankings, fileConfig.tiedRankings());
         Integer configuredMinimumPreferences = minimumPreferences != null ? minimumPreferences : fileConfig.minimumPreferences();
@@ -228,7 +233,7 @@ public final class Main implements Callable<Integer> {
         }
 
         if (effectiveMethod.equals("schulze") || effectiveMethod.equals("borda")) {
-            return runNonStvMethod(effectiveMethod, candidates, ballots);
+            return runNonStvMethod(effectiveMethod, candidates, ballots, reportAs);
         }
         if (effectiveMethod.equals("cpo-stv")) {
             CpoStvRuleset ruleset = new CpoStvRuleset(
@@ -238,7 +243,12 @@ public final class Main implements Callable<Integer> {
                     StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.REJECT),
                     effectiveMinimumPreferences);
             CpoStvResult result = CpoStvCounter.count(candidates, ballots, effectiveSeats, ruleset);
-            return CpoStvTextReport.render(result);
+            return switch (reportAs) {
+                case "csv" -> CpoStvReports.csv(result);
+                case "json" -> CpoStvReports.json(result);
+                case "html" -> CpoStvReports.html(result);
+                default -> CpoStvTextReport.render(result);
+            };
         }
         if (effectiveMethod.equals("qpq")) {
             QpqRuleset ruleset = new QpqRuleset(
@@ -246,7 +256,12 @@ public final class Main implements Callable<Integer> {
                     StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.REJECT),
                     effectiveMinimumPreferences);
             QpqResult result = QpqCounter.count(candidates, ballots, effectiveSeats, ruleset);
-            return QpqTextReport.render(result);
+            return switch (reportAs) {
+                case "csv" -> QpqReports.csv(result);
+                case "json" -> QpqReports.json(result);
+                case "html" -> QpqReports.html(result);
+                default -> QpqTextReport.render(result);
+            };
         }
 
         StvResult result;
@@ -290,18 +305,26 @@ public final class Main implements Callable<Integer> {
                             + "'; expected 'stv', 'meek', 'warren', 'cambridge', 'schulze', 'borda', 'cpo-stv', or 'qpq'");
         }
 
-        String resolvedReportFormat = firstNonNull(reportFormat, fileConfig.reportFormat());
-        String effectiveReportFormat = resolvedReportFormat != null
-                ? resolvedReportFormat.toLowerCase(Locale.ROOT)
-                : inferReportFormat(output);
-        return switch (effectiveReportFormat) {
-            case "text" -> StvTextReport.render(result, roundingRuleForReport);
+        return switch (reportAs) {
             case "csv" -> StvCsvReport.render(result, roundingRuleForReport);
             case "json" -> StvJsonReport.render(result, roundingRuleForReport);
             case "html" -> StvHtmlReport.render(result, roundingRuleForReport);
-            default -> throw new IllegalArgumentException(
-                    "Unsupported report format '" + effectiveReportFormat + "'; expected 'text', 'csv', 'json', or 'html'");
+            default -> StvTextReport.render(result, roundingRuleForReport);
         };
+    }
+
+    /**
+     * The report format, the same way for every method: {@code --report-format}, else the config
+     * file's {@code reportFormat}, else {@code --output}'s extension, else text.
+     */
+    private String resolveReportFormat(ElectionConfig fileConfig) {
+        String given = firstNonNull(reportFormat, fileConfig.reportFormat());
+        String resolved = given != null ? given.toLowerCase(Locale.ROOT) : inferReportFormat(output);
+        if (!List.of("text", "csv", "json", "html").contains(resolved)) {
+            throw new IllegalArgumentException(
+                    "Unsupported report format '" + resolved + "'; expected 'text', 'csv', 'json', or 'html'");
+        }
+        return resolved;
     }
 
     /**
@@ -386,22 +409,27 @@ public final class Main implements Callable<Integer> {
         }
     }
 
-    private String runNonStvMethod(String effectiveMethod, List<Candidate> candidates, List<Ballot> ballots) {
-        String resolvedReportFormat = firstNonNull(reportFormat, "text").toLowerCase(Locale.ROOT);
-        if (!resolvedReportFormat.equals("text")) {
-            throw new IllegalArgumentException(
-                    "--report-format '" + resolvedReportFormat + "' isn't supported yet for --method " + effectiveMethod
-                            + "; only 'text' is");
-        }
+    private String runNonStvMethod(String effectiveMethod, List<Candidate> candidates, List<Ballot> ballots,
+            String reportAs) {
         return switch (effectiveMethod) {
             case "schulze" -> {
                 SchulzeResult result = SchulzeMethod.count(candidates, ballots);
-                yield SchulzeTextReport.render(candidates, result);
+                yield switch (reportAs) {
+                    case "csv" -> SchulzeReports.csv(candidates, result);
+                    case "json" -> SchulzeReports.json(candidates, result);
+                    case "html" -> SchulzeReports.html(candidates, result);
+                    default -> SchulzeTextReport.render(candidates, result);
+                };
             }
             case "borda" -> {
                 BordaScoringRule rule = parseBordaScoring(firstNonNull(bordaScoring, "classic"));
                 BordaResult result = BordaMethod.count(candidates, ballots, rule);
-                yield BordaTextReport.render(result);
+                yield switch (reportAs) {
+                    case "csv" -> BordaReports.csv(result);
+                    case "json" -> BordaReports.json(result);
+                    case "html" -> BordaReports.html(result);
+                    default -> BordaTextReport.render(result);
+                };
             }
             default -> throw new IllegalStateException("unreachable: " + effectiveMethod);
         };

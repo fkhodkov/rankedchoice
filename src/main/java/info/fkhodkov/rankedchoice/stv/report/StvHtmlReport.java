@@ -3,6 +3,7 @@ package info.fkhodkov.rankedchoice.stv.report;
 import java.util.Map;
 import java.util.OptionalInt;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.report.ReportMarkup;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
@@ -77,6 +78,6 @@ public final class StvHtmlReport {
     }
 
     private static String escape(String text) {
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+        return ReportMarkup.escapeHtml(text);
     }
 }

@@ -114,7 +114,7 @@ QPQ method.
 | `-f, --format` | Input format, `blt` or `csv`; inferred from the file extension if omitted. |
 | `-s, --seats` | Seats to fill. Required for CSV input; for BLT, overrides the file's seat count. Not for `schulze`/`borda`, which rank every candidate. |
 | `-o, --output` | Output file. Defaults to standard output. |
-| `--report-format` | `text\|csv\|json\|html` (for `stv`, `meek`, `warren`, `cambridge`; the others have `text` only). Defaults to `text`, or inferred from `--output`'s extension. |
+| `--report-format` | `text\|csv\|json\|html`, for every method. Otherwise taken from the config file's `reportFormat`, then `--output`'s extension, then `text`. |
 | `-c, --config` | YAML config file (below). Not with `--ruleset`. |
 | `-r, --ruleset` | A [bundled ruleset](#bundled-rulesets). Not with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N` — `stv` and `cpo-stv`. |
@@ -152,11 +152,21 @@ treated as a fixed property of a ruleset.
 
 ## Reports
 
-Text, CSV, JSON and a self-contained HTML page, with the same figures in each: every round's
-tallies, the action (elected with its surplus, or excluded), and exhausted votes. Informal
-ballots are reported with their reasons — a leading line in text and HTML, an `informalBallots`
-object in JSON, an `informal_ballots` column in CSV. JSON's structure is also available as
-objects (`StvJsonReport.toReport`).
+Every method reports as text, CSV, JSON or a self-contained HTML page, with the same figures in
+each format:
+
+- **STV, Meek, Warren, Cambridge**: every round's tallies, the action (elected with the surplus
+  transferred, or excluded) and exhausted votes.
+- **QPQ**: every stage's quota and quotients, whether it restarted, and the action.
+- **CPO-STV**: the winning committee and the full ranking; JSON and CSV add every pairwise
+  score, HTML a score table when there are at most 20 committees.
+- **Schulze**: the pairwise and strongest-path matrices and the ranking.
+- **Borda**: every candidate's score and place.
+
+Informal ballots are reported with their reasons — a leading line in text and HTML, an
+`informalBallots` object in JSON, an `informal_ballots` column in CSV. Each method's JSON
+structure is also available as objects (`StvJsonReport.toReport`, `QpqReports.toReport`, and
+so on).
 
 ## Ballot formats
 
@@ -248,6 +258,7 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── model/     Candidate, Ballot
 │   ├── ballot/    BltParser, CsvBallotParser
 │   ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
+│   ├── report/    ReportMarkup (CSV quoting, HTML escaping and page, JSON writer)
 │   └── util/      Fraction (exact rational arithmetic)
 ├── stv/
 │   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota,
@@ -263,11 +274,12 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy,
 │       BallotFormality, InformalBallots (tied rankings and short ballots, for every engine)
 ├── cambridge/     CambridgeCounter, CambridgeRuleset
-├── qpq/           QpqCounter, QpqRuleset, QpqResult, QpqRoundRecord, QpqAction, QpqTextReport
-├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport
-├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport
+├── qpq/           QpqCounter, QpqRuleset, QpqResult, QpqRoundRecord, QpqAction, QpqTextReport,
+│                  QpqReports
+├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport, CpoStvReports
+├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport, SchulzeReports
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
-│                  BordaResult, BordaTextReport
+│                  BordaResult, BordaTextReport, BordaReports
 └── cli/           Main
 
 src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)

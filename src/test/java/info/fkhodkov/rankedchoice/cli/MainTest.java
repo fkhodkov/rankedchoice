@@ -317,6 +317,47 @@ class MainTest {
         assertThat(exitCode).isZero();
     }
 
+    @ParameterizedTest
+    @CsvSource({"qpq", "cpo-stv", "schulze", "borda", "cambridge"})
+    void everyMethodWritesJsonWhenAsked(String method) throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, method.equals("cambridge") ? BLT.replaceFirst("5 1 0", "60 1 0") : BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--method", method, "--report-format", "json");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).startsWith("{");
+    }
+
+    @Test
+    void reportFormatComesFromTheConfigFileOrTheOutputExtensionForEveryMethod() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+        Path configFile = tempDir.resolve("config.yaml");
+        Files.writeString(configFile, "reportFormat: csv\n");
+        Path csvOutput = tempDir.resolve("result.csv");
+
+        assertThat(new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--method", "schulze", "--config", configFile.toString())).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).startsWith("candidate,place,against");
+        assertThat(new CommandLine(new Main()).execute(
+                "--input", bltFile.toString(), "--method", "qpq", "--output", csvOutput.toString())).isZero();
+        assertThat(Files.readString(csvOutput)).startsWith("stage,restarted,candidate");
+    }
+
+    @Test
+    void anUnknownReportFormatIsRefusedForEveryMethod() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--method", "borda", "--report-format", "xml");
+
+        assertThat(exitCode).isEqualTo(1);
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("Unsupported report format 'xml'");
+    }
+
     @Test
     void unknownRulesetFails() throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
