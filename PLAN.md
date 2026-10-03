@@ -11,7 +11,7 @@ Milestones 1–7 are done:
   arithmetic; classic STV with every planned quota, fractional and WIGM transfer, truncation,
   every planned tie-break; YAML config with CLI override precedence and bundled rulesets; Meek;
   Schulze; Borda (classic, Dowdall, generic modified); CPO-STV with a 500-outcome cap;
-  Schulze-STV with a 20,000-committee cap; tied
+  Schulze-STV with a 50,000-committee cap; tied
   rankings throughout; text/CSV/JSON/HTML reports.
 - **Built differently from the plan:**
   - Real rulesets needed more than the plan's axes: two **last-parcel** transfer methods (ERS97,

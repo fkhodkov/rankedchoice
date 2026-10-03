@@ -236,8 +236,10 @@ previous implementation on random elections — every result identical — with 
 mistake confirming each check could fail: classic STV (2,000 elections, every quota, transfer,
 rounding, batch exclusion, tied-ranking policy and minimum-preferences setting), QPQ (2,000),
 CPO-STV (400, every pairwise score), Schulze (1,500, both matrices), the BLT parser (164 files),
-and Meek/Warren (byte-identical output at 100,000–1,000,000 voters, and droop on a
-100,000-voter count). A full JVM-level audit of iteration-order dependence (66 method/election
+Meek/Warren (byte-identical output at 100,000–1,000,000 voters, and droop on a
+100,000-voter count), and Schulze STV (every exact support, the potential winners and winners
+on Tideman's 65 elections and 300 random ones with ties and short ballots, plus byte-identical
+JSON on three 10,000-voter synthetic counts). A full JVM-level audit of iteration-order dependence (66 method/election
 pairs, 10 fresh JVM runs each) found the CPO-STV bug above and nothing else.
 
 ## Not validated

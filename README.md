@@ -220,7 +220,7 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   against official Cambridge counts (no public ballot data; ballot order matters). See
   [VALIDATION.md](VALIDATION.md#not-validated).
 - **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at
-  20,000 committees and 20 seats.
+  50,000 committees and 20 seats; near that cap it needs about 1 GB of heap.
 - **Schulze STV compares links by margin**, as the paper's worked example does. Schulze's own
   program ranks them differently, and its tie-break uses an older single-winner ranking, so on 2
   of Tideman's 65 elections it elects a different committee (see
@@ -252,9 +252,10 @@ At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Bo
 counts 1M ballots within a 256 MB heap.
 
 Schulze STV's cost grows with the number of contests of seats + 1 candidates, and with how many
-ballots rank candidates level or leave them unranked. Of Tideman's 65 elections, 61 take under
-7 s; two with 8–10 seats take 20–30 s, and two with 7 seats from 15–16 candidates and mostly
-short ballots take 1–2 minutes.
+distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 60 take
+under 2 s and the slowest (16 candidates, 7 seats) about 15 s. Synthetic elections of 10,000
+voters ranking 1–8 candidates: 20 candidates / 5 seats about 8 s, 24 / 5 (42,504 committees)
+about 45 s, 16 / 8 about a minute.
 
 ## Tools
 

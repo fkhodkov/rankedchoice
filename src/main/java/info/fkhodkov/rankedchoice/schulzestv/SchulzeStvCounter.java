@@ -54,13 +54,15 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
  * Dijkstra-style widest-path searches, from and to one committee.
  *
  * <p>Cost grows with {@code C(candidates, seats + 1)} contests, each needing M+1 supports
- * over 2^M subsets, so {@link #MAX_COMMITTEES} and {@link #MAX_SEATS} cap the election rather
- * than let it run for hours.
+ * over 2^M subsets, and with how many distinct orders the voters give each contest's
+ * candidates. Memory grows with the number of links, about M * (candidates - M) per
+ * committee, each holding an exact margin: around 1 GB of heap at the cap. {@link
+ * #MAX_COMMITTEES} and {@link #MAX_SEATS} cap the election rather than let it run for hours.
  */
 public final class SchulzeStvCounter {
 
     /** See the class javadoc's note on cost. */
-    public static final int MAX_COMMITTEES = 20_000;
+    public static final int MAX_COMMITTEES = 50_000;
 
     /** Each support takes the minimum over 2^seats subsets. */
     public static final int MAX_SEATS = 20;
@@ -107,22 +109,21 @@ public final class SchulzeStvCounter {
             }
         }
 
+        // One set per committee, shared by its supports against every outsider.
+        List<Set<Candidate>> committeeSets = toSets(IntStream.range(0, committees.size()).boxed().toList(),
+                committees, candidates);
         List<SchulzeStvResult.Support> supportList = new ArrayList<>(contests.size() * (seats + 1));
+        int[] committee = new int[seats];
         for (int s = 0; s < contests.size(); s++) {
             int[] contest = contests.get(s);
             for (int k = 0; k <= seats; k++) {
-                Set<Candidate> committee = new LinkedHashSet<>();
-                for (int member : contest) {
-                    if (member != contest[k]) {
-                        committee.add(candidates.get(member));
-                    }
-                }
-                supportList.add(new SchulzeStvResult.Support(
-                        committee, candidates.get(contest[k]), supports[s][k]));
+                remove(contest, k, committee);
+                supportList.add(new SchulzeStvResult.Support(committeeSets.get(binomials.rank(committee)),
+                        candidates.get(contest[k]), supports[s][k]));
             }
         }
-        return new SchulzeStvResult(supportList, toSets(potential, committees, candidates),
-                toSets(winners, committees, candidates), ranking);
+        return new SchulzeStvResult(supportList, potential.stream().map(committeeSets::get).toList(),
+                winners.stream().map(committeeSets::get).toList(), ranking);
     }
 
     private static void validate(int candidates, int seats) {
@@ -223,9 +224,10 @@ public final class SchulzeStvCounter {
      * Every distinct ballot once, as each candidate's position on it (equal positions for a
      * tie, {@link Integer#MAX_VALUE} for unranked: tied below everyone ranked), with how many
      * voters cast it. Blank ballots stay: proportional completion shares them out like any
-     * other indifference.
+     * other indifference. {@code smallCounts} holds the same counts as {@code long}s, or is
+     * null if their total wouldn't fit in one.
      */
-    private record IndexedBallots(int[][] positions, BigInteger[] counts) {
+    private record IndexedBallots(int[][] positions, BigInteger[] counts, long[] smallCounts) {
 
         static IndexedBallots of(List<Candidate> candidates, List<Ballot> ballots) {
             Map<Candidate, Integer> indexOf = new HashMap<>();
@@ -254,7 +256,10 @@ public final class SchulzeStvCounter {
                     counts.set(at, counts.get(at).add(ballot.count()));
                 }
             }
-            return new IndexedBallots(positions.toArray(int[][]::new), counts.toArray(BigInteger[]::new));
+            BigInteger total = counts.stream().reduce(BigInteger.ZERO, BigInteger::add);
+            long[] smallCounts = total.bitLength() < Long.SIZE
+                    ? counts.stream().mapToLong(BigInteger::longValueExact).toArray() : null;
+            return new IndexedBallots(positions.toArray(int[][]::new), counts.toArray(BigInteger[]::new), smallCounts);
         }
     }
 
@@ -270,155 +275,416 @@ public final class SchulzeStvCounter {
         }
     }
 
-    /** N[contest without member k; member k], for every k. */
+    /**
+     * N[contest without member k; member k], for every k. Only the order a ballot gives the
+     * contest's own candidates matters, so each ballot is first reduced to that: each member's
+     * level, the number of members it ranks ahead of them (unranked members share the level
+     * below every ranked one). Identical reductions are merged, which leaves far fewer to go
+     * through for each member.
+     */
     private static Fraction[] contestSupports(int[] contest, IndexedBallots ballots, int seats) {
-        Fraction[] supports = new Fraction[seats + 1];
-        int[] others = new int[seats];
-        for (int k = 0; k <= seats; k++) {
-            int g = contest[k];
-            for (int j = 0, o = 0; j <= seats; j++) {
-                if (j != k) {
-                    others[o++] = contest[j];
-                }
-            }
-            supports[k] = support(patterns(ballots, others, g), seats);
+        int size = seats + 1;
+        Reduced reduced = Reduced.of(contest, ballots);
+        Fraction[] supports = new Fraction[size];
+        for (int k = 0; k < size; k++) {
+            supports[k] = support(patterns(reduced, k, size), seats);
         }
         return supports;
     }
 
-    /**
-     * Each voter's pattern against outsider {@code g}, merged: bit j of the low {@code seats}
-     * bits says they prefer {@code others[j]} to g, bit j of the high bits that they rank the
-     * two level.
-     */
-    private static Map<Long, BigInteger> patterns(IndexedBallots ballots, int[] others, int g) {
-        Map<Long, BigInteger> patterns = new HashMap<>();
-        int seats = others.length;
-        for (int b = 0; b < ballots.positions().length; b++) {
-            int[] position = ballots.positions()[b];
-            int against = position[g];
-            long prefer = 0;
-            long tie = 0;
-            for (int j = 0; j < seats; j++) {
-                int at = position[others[j]];
-                if (at < against) {
-                    prefer |= 1L << j;
-                } else if (at == against) {
-                    tie |= 1L << j;
+    /** Ballots reduced to one contest: {@code levels[b][j]} is member j's level on group b. */
+    private record Reduced(int[][] levels, BigInteger[] counts) {
+
+        static Reduced of(int[] contest, IndexedBallots ballots) {
+            int size = contest.length;
+            int bits = Math.max(1, Integer.SIZE - Integer.numberOfLeadingZeros(size - 1));
+            boolean packable = bits * size <= Long.SIZE && ballots.smallCounts() != null;
+            int n = ballots.positions().length;
+            LongIndex index = packable ? new LongIndex(n) : null;
+            int[][] levels = new int[n][];
+            long[] smallCounts = packable ? new long[n] : null;
+            BigInteger[] counts = packable ? null : new BigInteger[n];
+            int groups = 0;
+            int[] level = new int[size];
+            int[] at = new int[size];
+            for (int b = 0; b < n; b++) {
+                int[] position = ballots.positions()[b];
+                for (int j = 0; j < size; j++) {
+                    at[j] = position[contest[j]];
+                }
+                long key = 0;
+                for (int j = 0; j < size; j++) {
+                    int ahead = 0;
+                    for (int i = 0; i < size; i++) {
+                        if (at[i] < at[j]) {
+                            ahead++;
+                        }
+                    }
+                    level[j] = ahead;
+                    key |= (long) ahead << (bits * j);
+                }
+                if (packable) {
+                    int g = index.of(key);
+                    if (g == groups) {
+                        levels[groups++] = level.clone();
+                    }
+                    smallCounts[g] += ballots.smallCounts()[b];
+                } else {
+                    levels[groups] = level.clone();
+                    counts[groups++] = ballots.counts()[b];
                 }
             }
-            patterns.merge(prefer | tie << seats, ballots.counts()[b], BigInteger::add);
+            if (packable) {
+                counts = new BigInteger[groups];
+                for (int g = 0; g < groups; g++) {
+                    counts[g] = BigInteger.valueOf(smallCounts[g]);
+                }
+            }
+            return new Reduced(Arrays.copyOf(levels, groups), counts);
+        }
+    }
+
+    /**
+     * Each voter's pattern against member {@code k} of the contest, merged: bit j of the low
+     * {@code size - 1} bits says they prefer the j-th other member to it, bit j of the high bits
+     * that they rank the two level.
+     */
+    private static Map<Long, BigInteger> patterns(Reduced reduced, int k, int size) {
+        Map<Long, BigInteger> patterns = new HashMap<>();
+        int seats = size - 1;
+        for (int b = 0; b < reduced.levels().length; b++) {
+            int[] level = reduced.levels()[b];
+            int against = level[k];
+            long prefer = 0;
+            long tie = 0;
+            for (int j = 0, o = 0; j < size; j++) {
+                if (j == k) {
+                    continue;
+                }
+                if (level[j] < against) {
+                    prefer |= 1L << o;
+                } else if (level[j] == against) {
+                    tie |= 1L << o;
+                }
+                o++;
+            }
+            patterns.merge(prefer | tie << seats, reduced.counts()[b], BigInteger::add);
         }
         return patterns;
     }
 
-    /** Completes {@code patterns} (section 8.1.1), then takes the closed-form support. */
-    private static Fraction support(Map<Long, BigInteger> patterns, int seats) {
-        long low = (1L << seats) - 1;
-        Completion completion = new Completion(patterns, seats);
-        List<Part> parts = new ArrayList<>(patterns.size());
-        for (Map.Entry<Long, BigInteger> pattern : patterns.entrySet()) {
-            long tie = pattern.getKey() >>> seats;
-            parts.add(new Part(pattern.getKey() & low, pattern.getValue(),
-                    tie == 0 ? Shares.WHOLE : completion.of(tie)));
-        }
-        return minimumOverSubsets(Shares.combine(parts, BigInteger.ONE), seats);
-    }
-
     /**
-     * Weights by pattern, as integer numerators over one common {@code denominator}: the sums
-     * in proportional completion then need no gcd, which would otherwise dominate the count.
-     * Not reduced, so the denominator can be larger than necessary, but every value is exact.
+     * Completes {@code patterns} (section 8.1.1) and takes the closed-form support: the minimum
+     * over non-empty J of supply(J) / |J|, where supply(J) is the weight preferring some
+     * member of J, i.e. the total less the weight preferring only members outside J.
+     *
+     * <p>Exact fractions over all 2^seats subsets are slow, since the completed weights' common
+     * denominator multiplies many voter counts together. So the subsets are first compared in
+     * {@code double}, and only those within {@link #CANDIDATE_TOLERANCE} of the smallest are
+     * then computed exactly. The tolerance is far wider than double rounding error over these
+     * sums, so the true minimum is always among them, and the result is exact.
      */
-    private record Shares(Map<Long, BigInteger> numerators, BigInteger denominator) {
+    private static Fraction support(Map<Long, BigInteger> patterns, int seats) {
+        Completion completion = new Completion(patterns, seats);
+        int size = 1 << seats;
+        int full = size - 1;
 
-        /** All the weight on the pattern with nothing further to place. */
-        static final Shares WHOLE = new Shares(Map.of(0L, BigInteger.ONE), BigInteger.ONE);
-
-        /** Each part's {@code count} times its {@code shares}, moved onto {@code prefix}, summed, divided by {@code divisor}. */
-        static Shares combine(List<Part> parts, BigInteger divisor) {
-            BigInteger common = BigInteger.ONE;
-            for (Part part : parts) {
-                BigInteger d = part.shares().denominator();
-                if (!common.mod(d).equals(BigInteger.ZERO)) {
-                    common = common.divide(common.gcd(d)).multiply(d);
+        double[] within = completion.approximateWeights();
+        for (int bit = 0; bit < seats; bit++) {
+            for (int set = 0; set < size; set++) {
+                if ((set & (1 << bit)) != 0) {
+                    within[set] += within[set ^ (1 << bit)];
                 }
             }
-            Map<Long, BigInteger> numerators = new HashMap<>();
-            for (Part part : parts) {
-                BigInteger scale = part.count().multiply(common.divide(part.shares().denominator()));
-                for (Map.Entry<Long, BigInteger> share : part.shares().numerators().entrySet()) {
-                    numerators.merge(part.prefix() | share.getKey(), share.getValue().multiply(scale), BigInteger::add);
-                }
-            }
-            return new Shares(numerators, common.multiply(divisor));
         }
+        double total = within[full];
+        double smallest = Double.POSITIVE_INFINITY;
+        double[] value = new double[size];
+        for (int j = 1; j < size; j++) {
+            value[j] = (total - within[full & ~j]) / Integer.bitCount(j);
+            smallest = Math.min(smallest, value[j]);
+        }
+
+        Fraction exactTotal = Fraction.of(completion.total());
+        Fraction best = null;
+        for (int j = 1; j < size; j++) {
+            if (value[j] <= smallest + CANDIDATE_TOLERANCE * total) {
+                Fraction exact = exactTotal.subtract(completion.exactWithin(full & ~j))
+                        .divide(Fraction.of(Integer.bitCount(j)));
+                if (best == null || exact.compareTo(best) < 0) {
+                    best = exact;
+                }
+            }
+        }
+        return best;
     }
 
-    /** {@code count} voters whose pattern is {@code prefix}, then completed by {@code shares}. */
-    private record Part(long prefix, BigInteger count, Shares shares) {
-    }
+    /** Relative to the total weight; see {@link #support}. */
+    private static final double CANDIDATE_TOLERANCE = 1e-7;
 
     /**
-     * How a voter ranking the members in {@code tie} level with g is completed: for each way
-     * of placing them above (bit set) or below g, the share of the voter's weight that goes
-     * there. Memoised by tie mask, since one tie mask serves every voter who has it.
+     * Proportional completion of one link's voters. A voter ranking the members in tie mask T
+     * level with g is replaced by the original voters who aren't level with g on all of T
+     * (the donors), in proportion, each passing on what they say about T. A donor itself level
+     * with g on part of T, T', is completed the same way for T', again from the original
+     * voters. With no donors, every order of T and g is equally likely: an order with s of T's
+     * k members above g is one of s! (k - s)! out of (k + 1)!.
      */
     private static final class Completion {
-        private final Map<Long, BigInteger> original;
         private final int seats;
-        private final Map<Long, Shares> memo = new HashMap<>();
+        private final long[] prefers;
+        private final long[] ties;
+        private final BigInteger[] counts;
+        private final double[] approximateCounts;
+        private final BigInteger total;
+        private final LongIndex index;
+        private final Map<Long, double[]> approximate = new HashMap<>();
+        private final Map<Long, ExactDonors> exactDonors = new HashMap<>();
+        private final Map<Long, Map<Long, Fraction>> exact = new HashMap<>();
 
-        Completion(Map<Long, BigInteger> original, int seats) {
-            this.original = original;
-            this.seats = seats;
+        /**
+         * The donors for one tie mask, grouped by what they say about it: group g places
+         * {@code fixed[g]} above g and is still level with g on {@code stillTied[g]};
+         * {@code groupOf[i]} is original pattern i's group, or -1 if it isn't a donor.
+         */
+        private record Donors(int[] groupOf, long[] fixed, long[] stillTied) {
         }
 
-        Shares of(long tie) {
-            Shares known = memo.get(tie);
+        private record ExactDonors(Donors donors, BigInteger[] counts, BigInteger total) {
+        }
+
+        Completion(Map<Long, BigInteger> patterns, int seats) {
+            this.seats = seats;
+            long low = (1L << seats) - 1;
+            int n = patterns.size();
+            prefers = new long[n];
+            ties = new long[n];
+            counts = new BigInteger[n];
+            approximateCounts = new double[n];
+            BigInteger sum = BigInteger.ZERO;
+            int i = 0;
+            for (Map.Entry<Long, BigInteger> pattern : patterns.entrySet()) {
+                prefers[i] = pattern.getKey() & low;
+                ties[i] = pattern.getKey() >>> seats;
+                counts[i] = pattern.getValue();
+                approximateCounts[i] = pattern.getValue().doubleValue();
+                sum = sum.add(pattern.getValue());
+                i++;
+            }
+            total = sum;
+            index = new LongIndex(n);
+        }
+
+        BigInteger total() {
+            return total;
+        }
+
+        private Donors donors(long tie) {
+            index.clear();
+            int[] groupOf = new int[counts.length];
+            long[] fixed = new long[counts.length];
+            long[] stillTied = new long[counts.length];
+            for (int i = 0; i < counts.length; i++) {
+                long theirTie = ties[i] & tie;
+                if (theirTie == tie) {
+                    groupOf[i] = -1;
+                    continue;
+                }
+                int groups = index.size();
+                int g = index.of((prefers[i] & tie) | theirTie << seats);
+                if (g == groups) {
+                    fixed[g] = prefers[i] & tie;
+                    stillTied[g] = theirTie;
+                }
+                groupOf[i] = g;
+            }
+            return new Donors(groupOf, Arrays.copyOf(fixed, index.size()), Arrays.copyOf(stillTied, index.size()));
+        }
+
+        /** Every completed pattern's weight, approximately, indexed by its prefer mask. */
+        double[] approximateWeights() {
+            double[] weights = new double[1 << seats];
+            for (int i = 0; i < counts.length; i++) {
+                if (ties[i] == 0) {
+                    weights[(int) prefers[i]] += approximateCounts[i];
+                } else {
+                    double[] shares = approximate(ties[i]);
+                    for (int a = 0; a < shares.length; a++) {
+                        weights[(int) (prefers[i] | Long.expand(a, ties[i]))] += approximateCounts[i] * shares[a];
+                    }
+                }
+            }
+            return weights;
+        }
+
+        /**
+         * How a voter level with g on {@code tie} is completed, approximately: entry a is the
+         * share placing above g the members {@code Long.expand(a, tie)}.
+         */
+        private double[] approximate(long tie) {
+            double[] known = approximate.get(tie);
             if (known != null) {
                 return known;
             }
-            long low = (1L << seats) - 1;
-            // The original voters who aren't level with g on every member of `tie`, by what
-            // they say about those members.
-            Map<Long, BigInteger> donors = new HashMap<>();
-            BigInteger total = BigInteger.ZERO;
-            for (Map.Entry<Long, BigInteger> pattern : original.entrySet()) {
-                long theirTie = (pattern.getKey() >>> seats) & tie;
-                if (theirTie != tie) {
-                    long theirPrefer = pattern.getKey() & low & tie;
-                    donors.merge(theirPrefer | theirTie << seats, pattern.getValue(), BigInteger::add);
-                    total = total.add(pattern.getValue());
+            int k = Long.bitCount(tie);
+            double[] shares = new double[1 << k];
+            Donors donors = donors(tie);
+            double[] weights = new double[donors.fixed().length];
+            double sum = 0;
+            for (int i = 0; i < counts.length; i++) {
+                if (donors.groupOf()[i] >= 0) {
+                    weights[donors.groupOf()[i]] += approximateCounts[i];
+                    sum += approximateCounts[i];
                 }
             }
-            Shares shares;
-            if (total.signum() > 0) {
-                List<Part> parts = new ArrayList<>(donors.size());
-                for (Map.Entry<Long, BigInteger> donor : donors.entrySet()) {
-                    long stillTied = donor.getKey() >>> seats;
-                    // A donor itself level with g on some of them: that smaller tie is
-                    // completed the same way, again from the original voters.
-                    parts.add(new Part(donor.getKey() & low, donor.getValue(),
-                            stillTied == 0 ? Shares.WHOLE : of(stillTied)));
-                }
-                shares = Shares.combine(parts, total);
-            } else {
-                // Nobody to copy: every order of the k tied members and g is equally likely.
-                // An order with s of them above g is one of s! (k - s)! out of (k + 1)!.
-                int k = Long.bitCount(tie);
-                Map<Long, BigInteger> numerators = new HashMap<>();
-                for (long above = tie; ; above = (above - 1) & tie) {
-                    int s = Long.bitCount(above);
-                    numerators.put(above, factorial(s).multiply(factorial(k - s)));
-                    if (above == 0) {
-                        break;
+            if (weights.length > 0) {
+                for (int d = 0; d < weights.length; d++) {
+                    double share = weights[d] / sum;
+                    long stillTied = donors.stillTied()[d];
+                    if (stillTied == 0) {
+                        shares[(int) Long.compress(donors.fixed()[d], tie)] += share;
+                    } else {
+                        double[] inner = approximate(stillTied);
+                        for (int a = 0; a < inner.length; a++) {
+                            long above = donors.fixed()[d] | Long.expand(a, stillTied);
+                            shares[(int) Long.compress(above, tie)] += share * inner[a];
+                        }
                     }
                 }
-                shares = new Shares(numerators, factorial(k + 1));
+            } else {
+                double orders = factorial(k + 1).doubleValue();
+                for (int a = 0; a < shares.length; a++) {
+                    int s = Integer.bitCount(a);
+                    shares[a] = factorial(s).multiply(factorial(k - s)).doubleValue() / orders;
+                }
             }
-            memo.put(tie, shares);
+            approximate.put(tie, shares);
             return shares;
+        }
+
+        private ExactDonors exactDonors(long tie) {
+            ExactDonors known = exactDonors.get(tie);
+            if (known != null) {
+                return known;
+            }
+            Donors donors = donors(tie);
+            BigInteger[] weights = new BigInteger[donors.fixed().length];
+            Arrays.fill(weights, BigInteger.ZERO);
+            BigInteger sum = BigInteger.ZERO;
+            for (int i = 0; i < counts.length; i++) {
+                if (donors.groupOf()[i] >= 0) {
+                    weights[donors.groupOf()[i]] = weights[donors.groupOf()[i]].add(counts[i]);
+                    sum = sum.add(counts[i]);
+                }
+            }
+            ExactDonors result = new ExactDonors(donors, weights, sum);
+            exactDonors.put(tie, result);
+            return result;
+        }
+
+        /** The weight preferring no member outside {@code inside}, exactly. */
+        Fraction exactWithin(long inside) {
+            Fraction sum = Fraction.ZERO;
+            for (int i = 0; i < counts.length; i++) {
+                if ((prefers[i] & ~inside) == 0) {
+                    Fraction count = Fraction.of(counts[i]);
+                    sum = sum.add(ties[i] == 0 ? count : count.multiply(exactInside(ties[i], inside & ties[i])));
+                }
+            }
+            return sum;
+        }
+
+        /** The share of a voter level with g on {@code tie} that completes with only {@code inside} above g. */
+        private Fraction exactInside(long tie, long inside) {
+            Map<Long, Fraction> byInside = exact.computeIfAbsent(tie, _ -> new HashMap<>());
+            Fraction known = byInside.get(inside);
+            if (known != null) {
+                return known;
+            }
+            Fraction share = Fraction.ZERO;
+            ExactDonors donors = exactDonors(tie);
+            if (donors.total().signum() > 0) {
+                for (int d = 0; d < donors.counts().length; d++) {
+                    if ((donors.donors().fixed()[d] & ~inside) != 0) {
+                        continue;
+                    }
+                    long stillTied = donors.donors().stillTied()[d];
+                    Fraction weight = Fraction.of(donors.counts()[d]);
+                    share = share.add(stillTied == 0 ? weight
+                            : weight.multiply(exactInside(stillTied, inside & stillTied)));
+                }
+                share = share.divide(Fraction.of(donors.total()));
+            } else {
+                // Orders placing above g exactly s members, all from `inside`: C(|inside|, s) of
+                // the subsets, each s! (k - s)! / (k + 1)!.
+                int k = Long.bitCount(tie);
+                int room = Long.bitCount(inside);
+                BigInteger orders = BigInteger.ZERO;
+                for (int s = 0; s <= room; s++) {
+                    orders = orders.add(Binomials.exact(room, s).multiply(factorial(s)).multiply(factorial(k - s)));
+                }
+                share = Fraction.of(orders, factorial(k + 1));
+            }
+            byInside.put(inside, share);
+            return share;
+        }
+    }
+
+    /**
+     * Numbers distinct {@code long} keys 0, 1, 2... in order of first appearance: a primitive
+     * open-addressing table, since boxing every key in a {@code HashMap} dominated the count.
+     */
+    private static final class LongIndex {
+        private final long[] keys;
+        private final int[] slots;
+        private final long[] used;
+        private final int shift;
+        private int size;
+
+        LongIndex(int capacity) {
+            int length = Integer.highestOneBit(Math.max(2, capacity) * 2 - 1) * 2;
+            keys = new long[length];
+            slots = new int[length];
+            shift = Long.SIZE - Integer.numberOfTrailingZeros(length);
+            used = new long[Math.max(2, capacity)];
+            Arrays.fill(slots, -1);
+        }
+
+        /** Forgets every key, in time proportional to how many there were. */
+        void clear() {
+            int mask = keys.length - 1;
+            for (int i = 0; i < size; i++) {
+                int at = slot(used[i]);
+                while (slots[at] >= 0) {
+                    slots[at] = -1;
+                    at = (at + 1) & mask;
+                }
+            }
+            size = 0;
+        }
+
+        /** Fibonacci hashing: the product's top bits depend on every bit of the key. */
+        private int slot(long key) {
+            return (int) ((key * 0x9E3779B97F4A7C15L) >>> shift);
+        }
+
+        int of(long key) {
+            int mask = keys.length - 1;
+            int at = slot(key);
+            while (slots[at] >= 0) {
+                if (keys[at] == key) {
+                    return slots[at];
+                }
+                at = (at + 1) & mask;
+            }
+            keys[at] = key;
+            slots[at] = size;
+            used[size] = key;
+            return size++;
+        }
+
+        int size() {
+            return size;
         }
     }
 
@@ -428,41 +694,6 @@ public final class SchulzeStvCounter {
             result = result.multiply(BigInteger.valueOf(i));
         }
         return result;
-    }
-
-    /**
-     * min over non-empty J of supply(J) / |J|, where supply(J) is the weight preferring some
-     * member of J: the total less the weight of patterns inside J's complement, summed over
-     * all subsets at once.
-     */
-    private static Fraction minimumOverSubsets(Shares completed, int seats) {
-        BigInteger denominator = completed.denominator();
-        int size = 1 << seats;
-        BigInteger[] within = new BigInteger[size];
-        Arrays.fill(within, BigInteger.ZERO);
-        for (Map.Entry<Long, BigInteger> pattern : completed.numerators().entrySet()) {
-            within[pattern.getKey().intValue()] = within[pattern.getKey().intValue()].add(pattern.getValue());
-        }
-        for (int bit = 0; bit < seats; bit++) {
-            for (int set = 0; set < size; set++) {
-                if ((set & (1 << bit)) != 0) {
-                    within[set] = within[set].add(within[set ^ (1 << bit)]);
-                }
-            }
-        }
-        BigInteger total = within[size - 1];
-        BigInteger bestSupply = null;
-        int bestSize = 0;
-        for (int j = 1; j < size; j++) {
-            BigInteger supply = total.subtract(within[(size - 1) & ~j]);
-            int count = Integer.bitCount(j);
-            if (bestSupply == null || supply.multiply(BigInteger.valueOf(bestSize))
-                    .compareTo(bestSupply.multiply(BigInteger.valueOf(count))) < 0) {
-                bestSupply = supply;
-                bestSize = count;
-            }
-        }
-        return Fraction.of(bestSupply, denominator.multiply(BigInteger.valueOf(bestSize)));
     }
 
     // ---- committees and paths ----------------------------------------------------------
