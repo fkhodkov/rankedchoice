@@ -20,10 +20,11 @@ original design.
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
 | QPQ | `qpq` | Woodall's Quota Preferential by Quotient: whole votes, quotients, a restart after each exclusion | droop and OpenSTV, to 9 decimal places |
 | CPO-STV | `cpo-stv` | Tideman's: every possible committee compared with every other | hand-worked cases; an independent implementation (4,830 scores) |
+| Schulze STV | `schulze-stv` | Schulze's: committees one swap apart compared by how well each could split the voters into separate quotas, then a beatpath | Schulze's own program and published figures on Tideman's 65 elections; the paper's worked example |
 | Schulze | `schulze` | Condorcet beatpath ranking (winning votes) | Wikipedia's example, a Debian vote's published tally |
 | Borda | `borda` | Positional scoring: classic, or Dowdall (Nauru) via `--borda-scoring`; tied ranks share their positions' points | Nauru 2019, two constituencies |
 
-IRV is STV with one seat. Schulze-STV isn't implemented (see [Limitations](#limitations)).
+IRV is STV with one seat.
 
 ## Quick start
 
@@ -67,7 +68,8 @@ A classic STV ruleset is a combination of independent choices:
 ### Tied rankings and short ballots
 
 These apply to every method that transfers votes (`stv`, `meek`, `warren`, `cambridge`, `qpq`,
-`cpo-stv`); Schulze and Borda count tied rankings natively.
+`cpo-stv`); Schulze, Schulze STV and Borda count tied rankings natively (Schulze STV by the
+method's own "proportional completion").
 
 - **`--tied-rankings`** — what to do with a ballot ranking several candidates equally:
   - `reject` refuses to count the election;
@@ -110,7 +112,7 @@ QPQ method.
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-m, --method` | `stv\|meek\|warren\|cambridge\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. |
+| `-m, --method` | `stv\|meek\|warren\|cambridge\|schulze\|borda\|cpo-stv\|schulze-stv\|qpq`. Defaults to `stv`. |
 | `-f, --format` | Input format, `blt` or `csv`; inferred from the file extension if omitted. |
 | `-s, --seats` | Seats to fill. Required for CSV input; for BLT, overrides the file's seat count. Not for `schulze`/`borda`, which rank every candidate. |
 | `-o, --output` | Output file. Defaults to standard output. |
@@ -129,7 +131,8 @@ QPQ method.
 Every flag overrides the config file or ruleset, field by field. A flag the chosen method has
 no use for is refused with the reason, rather than silently ignored — e.g. `--quota` for
 `meek`, `warren`, `cambridge` or `qpq` (the method fixes its own), `--tiebreak` for `cpo-stv`,
-and every STV option, `--seats` and `--ruleset` for `schulze`/`borda`. A config file may still
+every STV option, `--seats` and `--ruleset` for `schulze`/`borda`, and everything but `--seats`
+for `schulze-stv`. A config file may still
 carry fields a method doesn't use.
 
 ### Config file
@@ -161,6 +164,9 @@ each format:
 - **CPO-STV**: the winning committee and the full ranking; JSON and CSV add every pairwise
   score, HTML a score table when there are at most 20 committees.
 - **Schulze**: the pairwise and strongest-path matrices and the ranking.
+- **Schulze STV**: the winning committee and, when several committees go unbeaten, those and the
+  single-winner ranking that chose between them; JSON and CSV add every support `N[committee;
+  outsider]`, HTML a support table when there are at most 200.
 - **Borda**: every candidate's score and place.
 
 Informal ballots are reported with their reasons — a leading line in text and HTML, an
@@ -199,8 +205,6 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
 
 ## Limitations
 
-- **Schulze-STV isn't implemented.** Its "proportional completion" step needs an optimisation
-  solver per pair of outcomes, and no implementation exists to check one against.
 - **Exact arithmetic can be slow.** With `--rounding exact` (the default), fractional transfers
   compound into ever larger fractions when ballots pass through many elected candidates — 300
   candidates, 33 seats and 40 preferences per ballot stalls even at 20,000 voters. The count
@@ -215,7 +219,12 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
 - **Not validated:** `ers76` and `hare-clark-qpq` (no data to check against); Cambridge STV
   against official Cambridge counts (no public ballot data; ballot order matters). See
   [VALIDATION.md](VALIDATION.md#not-validated).
-- **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`).
+- **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at
+  20,000 committees and 20 seats.
+- **Schulze STV compares links by margin**, as the paper's worked example does. Schulze's own
+  program ranks them differently, and its tie-break uses an older single-winner ranking, so on 2
+  of Tideman's 65 elections it elects a different committee (see
+  [VALIDATION.md](VALIDATION.md#schulze-stv)).
 - **Cambridge STV depends on ballot order**: rarely at realistic sizes, but in small
   electorates with many seats another order can elect different people
   (`tools/order-sensitivity` measures it).
@@ -241,6 +250,11 @@ At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Bo
 63 s (135 s), Warren 75 s (193 s). CPO-STV grows with the number of committee pairs instead:
 10 candidates / 3 seats takes about 9 s at 100k voters, 12 / 4 about 34 s at 10k. Every method
 counts 1M ballots within a 256 MB heap.
+
+Schulze STV's cost grows with the number of contests of seats + 1 candidates, and with how many
+ballots rank candidates level or leave them unranked. Of Tideman's 65 elections, 61 take under
+7 s; two with 8–10 seats take 20–30 s, and two with 7 seats from 15–16 candidates and mostly
+short ballots take 1–2 minutes.
 
 ## Tools
 
@@ -278,6 +292,7 @@ src/main/java/info/fkhodkov/rankedchoice/
 │                  QpqReports
 ├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport, CpoStvReports
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport, SchulzeReports
+├── schulzestv/    SchulzeStvCounter, SchulzeStvResult, SchulzeStvTextReport, SchulzeStvReports
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport, BordaReports
 └── cli/           Main

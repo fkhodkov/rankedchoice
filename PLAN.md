@@ -5,12 +5,13 @@ This is the original design, kept as a record. For what's built and how to use i
 
 ## Status
 
-Milestones 1–7 are done, except Schulze-STV:
+Milestones 1–7 are done:
 
 - **Built as planned:** the tie-capable ballot model, BLT/CSV parsers, exact `Fraction`
   arithmetic; classic STV with every planned quota, fractional and WIGM transfer, truncation,
   every planned tie-break; YAML config with CLI override precedence and bundled rulesets; Meek;
-  Schulze; Borda (classic, Dowdall, generic modified); CPO-STV with a 500-outcome cap; tied
+  Schulze; Borda (classic, Dowdall, generic modified); CPO-STV with a 500-outcome cap;
+  Schulze-STV with a 20,000-committee cap; tied
   rankings throughout; text/CSV/JSON/HTML reports.
 - **Built differently from the plan:**
   - Real rulesets needed more than the plan's axes: two **last-parcel** transfer methods (ERS97,
@@ -24,12 +25,14 @@ Milestones 1–7 are done, except Schulze-STV:
   - **Meek** runs in droop's fixed-point arithmetic, not exact fractions, so every figure
     reproduces droop's exactly; **Warren's method** came with it.
   - Engines live in their own packages (`stv`, `stv/meek`, `cambridge`, `qpq`, `cpostv`,
-    `schulze`, `borda`) and share `StvResult`/`RoundRecord` where they can, instead of the
+    `schulze`, `schulzestv`, `borda`) and share `StvResult`/`RoundRecord` where they can, instead of the
     planned single sealed `RoundEvent` model and `condorcet` package.
   - Not built: round-half-up rounding and whole-vote random transfer (no ruleset needed them;
     Cambridge's is the deterministic Cincinnati method); a JSON ballot parser.
-- **Open:** Schulze-STV (needs an optimisation solver, and nothing to check it against);
-  replaying an official Cambridge count (no public ballot data); validating `ers76` and
+  - **Schulze-STV** needed no optimisation solver after all: a committee's support against an
+    outsider has a closed form, a minimum over subsets of the committee. Schulze's own program
+    and published figures turned out to exist to check it against.
+- **Open:** replaying an official Cambridge count (no public ballot data); validating `ers76` and
   `hare-clark-qpq` (no data).
 
 What follows is the plan as first written.

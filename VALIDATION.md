@@ -162,6 +162,40 @@ CPO-STV has never been used in a public election, so there is no real data. Chec
   committee that loses head to head to the one every classic STV variant elects — a genuine
   difference between the methods, correct under CPO-STV's rules.
 
+## Schulze STV
+
+Schulze STV has never been used in a public election either, but its author published a
+program and its output for 66 elections from Nicolaus Tideman's database (`schulze3.zip`,
+http://m-schulze.9mail.de/schulze3.zip: `singl01g.cpp` and an `A*_stv.dat` file of supports per
+election). Checked against them:
+
+- **Every support.** In all 65 elections within the committee cap, all 315,112 supports `N[committee; outsider]`
+  match the published values to the 6 decimals they're given in. That covers proportional
+  completion (most of these ballots are truncated, and a few rank candidates equally) and the
+  closed-form support. A90 (20 candidates, 12 seats, 125,970 committees) is over the cap;
+  Schulze's program didn't finish it in 10 minutes either.
+- **The paper's worked example**, A53 (section 8.2): every support, and the winning committee {a,
+  d, g, j} (`SchulzeStvTideman53FixtureTest`, which checks all 1,260 supports from the published
+  file).
+- **Winners.** The count follows the paper (arXiv:1804.02973, section 8.1.3). The 2017 program
+  differs from it in two places, so it isn't a reference for every winner: it compares links by
+  how a candidate ranks within its contest rather than by margin, and its Stage 4 tie-break
+  uses an older single-winner ranking ("TBRL"). The committees agree on 63 of the 65 elections.
+  On A04 the link definitions disagree. On A34, five committees go unbeaten and the two
+  single-winner rankings break the tie differently. An independent Python implementation of
+  the paper's definition, written from the paper alone, picks the same committee as this one
+  in every election it finished (59, including A04 and A34). Five of the elections need Stage 4.
+- **Hand-derived cases** (`SchulzeStvCounterTest`): the closed form; two opposed factions
+  winning a seat each rather than the compromise candidate; the paper's own proportional
+  completion example (56/44); completion with nobody to copy, where every order of the tied
+  candidates is equally likely (a deliberately wrong equal split over above/below patterns
+  fails it); and a Stage 4 tie-break.
+
+Two conventions had to be settled from the program, not the paper. Completion is done per
+contest, over its M+1 candidates only. In the database's letter format, a candidate named twice
+on a ballot ties everyone ranked since their first mention with them. Reading those ballots any
+other way changes the supports of the 7 elections that have them.
+
 ## QPQ
 
 Checked against two independent implementations of Woodall's rule, droop's `qpq.py` and

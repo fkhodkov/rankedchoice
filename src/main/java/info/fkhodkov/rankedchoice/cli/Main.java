@@ -37,6 +37,10 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 import info.fkhodkov.rankedchoice.schulze.SchulzeReports;
 import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
+import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvCounter;
+import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvReports;
+import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvResult;
+import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvTextReport;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
@@ -97,10 +101,10 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
-    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|warren|cambridge|schulze|borda|cpo-stv|qpq. "
+    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|warren|cambridge|schulze|borda|cpo-stv|schulze-stv|qpq. "
             + "Defaults to stv. --quota/--transfer don't apply to meek or warren (their quota and transfer are fixed "
             + "by the method itself); schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all; "
-            + "cpo-stv uses --seats/--quota/--transfer/--rounding but not --tiebreak; qpq (Woodall's Quota "
+            + "cpo-stv uses --seats/--quota/--transfer/--rounding but not --tiebreak; schulze-stv uses only --seats; qpq (Woodall's Quota "
             + "Preferential by Quotient -- unrelated to the hare-clark-qpq *ruleset*, a different, classic-STV "
             + "preset despite the similar name) uses --seats/--tiebreak but not --quota/--transfer/--rounding, "
             + "since its quota and transfer are both derived formulas, not configurable.")
@@ -153,8 +157,8 @@ public final class Main implements Callable<Integer> {
                     + "split divides the ballot between them (stv with fractional transfer, meek, and warren); truncate "
                     + "stops the ballot at the tie (a tie at first preference voids it, as Scottish law requires); "
                     + "skip drops the tied rank and continues. Defaults to split for meek, warren, and stv under "
-                    + "fractional transfer, reject otherwise. Applies to stv, meek, warren, cambridge, cpo-stv, and qpq (schulze and "
-                    + "borda count ties natively). Overrides --config/--ruleset.")
+                    + "fractional transfer, reject otherwise. Applies to stv, meek, warren, cambridge, cpo-stv, and qpq (schulze, "
+                    + "schulze-stv and borda count ties natively). Overrides --config/--ruleset.")
     private String tiedRankings;
 
     @Option(names = {"--minimum-preferences"},
@@ -250,6 +254,15 @@ public final class Main implements Callable<Integer> {
                 default -> CpoStvTextReport.render(result);
             };
         }
+        if (effectiveMethod.equals("schulze-stv")) {
+            SchulzeStvResult result = SchulzeStvCounter.count(candidates, ballots, effectiveSeats);
+            return switch (reportAs) {
+                case "csv" -> SchulzeStvReports.csv(result);
+                case "json" -> SchulzeStvReports.json(result);
+                case "html" -> SchulzeStvReports.html(result);
+                default -> SchulzeStvTextReport.render(result);
+            };
+        }
         if (effectiveMethod.equals("qpq")) {
             QpqRuleset ruleset = new QpqRuleset(
                     StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
@@ -302,7 +315,7 @@ public final class Main implements Callable<Integer> {
             }
             default -> throw new IllegalArgumentException(
                     "Unsupported method '" + effectiveMethod
-                            + "'; expected 'stv', 'meek', 'warren', 'cambridge', 'schulze', 'borda', 'cpo-stv', or 'qpq'");
+                            + "'; expected 'stv', 'meek', 'warren', 'cambridge', 'schulze', 'borda', 'cpo-stv', 'schulze-stv', or 'qpq'");
         }
 
         return switch (reportAs) {
@@ -366,6 +379,16 @@ public final class Main implements Callable<Integer> {
             "cpo-stv", Map.of(
                     "--tiebreak", "it compares whole committees, with no candidate-by-candidate decisions",
                     "--precision", "only meek and warren use it",
+                    "--borda-scoring", "only borda uses it"),
+            "schulze-stv", Map.of(
+                    "--ruleset", "rulesets set STV rules",
+                    "--quota", "it has no quota: committees are compared by their support",
+                    "--transfer", "votes are never transferred",
+                    "--rounding", "every support is exact",
+                    "--tiebreak", "ties are broken by the single-winner Schulze ranking",
+                    "--precision", "only meek and warren use it",
+                    "--tied-rankings", "it counts tied rankings natively, by proportional completion",
+                    "--minimum-preferences", "it counts every ballot, completing what's unranked",
                     "--borda-scoring", "only borda uses it"),
             "schulze", nonStvUnused("--borda-scoring", "only borda uses it"),
             "borda", nonStvUnused(null, null));
