@@ -245,6 +245,31 @@ class MainTest {
     }
 
     @Test
+    void cambridgeMethodRunsAndRefusesRounding() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, """
+                3 1
+                60 1 0
+                30 2 1 0
+                20 3 2 0
+                0
+                "X"
+                "Y"
+                "Z"
+                "Cambridge"
+                """);
+
+        int exitCode = new CommandLine(new Main()).execute("--input", bltFile.toString(), "--method", "cambridge");
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Quota: 56").contains("Elected: X");
+
+        int refused = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--method", "cambridge", "--rounding", "truncate:2");
+        assertThat(refused).isEqualTo(1);
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("don't apply to --method cambridge");
+    }
+
+    @Test
     void minimumPreferencesFlagIsRefusedForAMethodWithoutIt() throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, BLT);

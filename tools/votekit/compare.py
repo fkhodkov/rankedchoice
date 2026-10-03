@@ -35,6 +35,7 @@ METHODS = {
     "stv-ers97": ("STV, ERS97 (last parcel)", ["--ruleset", "ers97"]),
     "meek": ("Meek STV", ["--method", "meek"]),
     "warren": ("Warren STV", ["--method", "warren"]),
+    "cambridge": ("Cambridge STV (Cincinnati, whole ballots)", ["--method", "cambridge"]),
     "qpq": ("QPQ", ["--method", "qpq"]),
     "cpo-stv": ("CPO-STV", ["--method", "cpo-stv"]),
     "schulze": ("Schulze, top-ranked", ["--method", "schulze"]),

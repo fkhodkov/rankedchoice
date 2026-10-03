@@ -1,8 +1,8 @@
 # Ranked Choice Voting Calculator
 
 A Java library and CLI for tabulating ranked-choice elections: Single Transferable Vote (STV,
-plus Meek's and Warren's methods), Schulze, Borda, CPO-STV, and QPQ are implemented; Schulze-STV is deferred (see
-below), and the Cambridge, MA "Cincinnati method" ruleset needs its own separate engine. See
+plus Meek's and Warren's methods, and Cambridge, MA's whole-ballot "Cincinnati method"),
+Schulze, Borda, CPO-STV, and QPQ are implemented; Schulze-STV is deferred (see below). See
 [PLAN.md](PLAN.md) for the full design and roadmap; this file covers what's built and how to
 use it today.
 
@@ -324,6 +324,29 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   variant elects. Only a text report
   exists so far (`CpoStvTextReport`), and it doesn't print the full pairwise score matrix (grows
   quadratically, usually too large to read) — just the winning outcome and the full ranking.
+- **Cambridge STV** (`--method cambridge`) — the rules Cambridge, Massachusetts uses for its City
+  Council and School Committee (Massachusetts General Laws ch. 54A, surpluses by the
+  "Cincinnati method"), following OpenSTV's `CambridgeSTV` step for step (`CambridgeCounter`).
+  Every ballot counts whole for one candidate at a time, and which ballots move depends on
+  their *order* (a BLT line with count k is k consecutive identical ballots, as Cambridge
+  numbers them in counting order): a fixed whole-vote Droop quota; everyone elected once the
+  first count is done (Cambridge's result pages: "elected immediately (after the 1st count)");
+  each surplus, largest first, moved by taking every n-th of the candidate's ballots from the
+  n-th (n = total ÷ surplus, rounded), then every n-th from the (n+1)-th, and so on, skipping
+  ballots with no continuing next choice and closing to any candidate who reaches quota; the
+  first exclusion takes everyone under 50 votes at once; ties broken by looking back through
+  earlier rounds, then by `--tiebreak` (`declared`, the default, is OpenSTV's `-t index`).
+  Checked round by round against OpenSTV on 60 generated elections (114 surplus transfers,
+  batch exclusions in all of them, 19 tie-breaks): every stage's counts, non-transferable
+  total, and winners match exactly, and two deliberate rule mistakes (starting the every-n-th
+  run one ballot late; not closing a candidate who reaches quota mid-transfer) each fail most
+  of them (`CambridgeOpenStvReferenceTest` replays one stored OpenSTV count; `CambridgeCounterTest`
+  has a hand-worked case where the Cincinnati method gives a whole surplus to one candidate that
+  fractional STV would split). Not yet replayed against an official Cambridge count: the
+  city doesn't currently publish ballot-level data, counting order matters, and its settings
+  say "Random, every nth ballot", which may mean a random starting point where OpenSTV always
+  starts at the n-th. Ties in rankings: `reject` by default, `truncate`/`skip` available,
+  `split` refused (whole ballots can't be split).
 - **QPQ** (`--method qpq`, Douglas Woodall's Quota Preferential by Quotient — see his paper
   "QPQ, a quota-preferential STV-like election rule", *Voting matters* Issue 17, 2003) — not to
   be confused with the bundled `hare-clark-qpq` *ruleset* above, an unrelated classic-STV preset
@@ -375,13 +398,7 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   and a genuine fractional surplus transfer) both reproduce that package's round-by-round
   output exactly (`StvCounterTest`).
 
-Not yet implemented: the Cambridge MA ruleset (it uses the "Cincinnati method" — whole-ballot
-systematic sampling by literal individual-ballot sequence order, not aggregate ranking counts —
-so it doesn't fit either counting engine's current `Ballot(ranking, count)` model at all, and
-would need a ballot model extension plus its own separate engine; even then, Cambridge's own
-official round reports publish only aggregate totals, never individual ballot transfers, so an
-exact historical replay likely isn't achievable even with real ballot-level data) and
-Schulze-STV (the other multi-winner Condorcet-STV extension, alongside CPO-STV above — deferred
+Not yet implemented: Schulze-STV (the other multi-winner Condorcet-STV extension, alongside CPO-STV above — deferred
 specifically because its "proportional completion" step requires solving a genuine optimization
 problem per pairwise outcome comparison, i.e. an LP-style solver, which is a real dependency
 this project doesn't currently have and which the plan's own tooling section explicitly avoided
@@ -394,8 +411,8 @@ above — no surviving copy of the 1976 rulebook itself, or any election publish
 specifically, was found) and `hare-clark-qpq` (the Tasmanian Electoral Commission publishes
 genuine, detailed official round-by-round scrutiny reports per election, but — unlike the
 AEC or Elections ACT — never ballot-level preference data itself, so there's nothing to feed
-the engine and check it reproduces those reports from). A Cambridge MA validation is still
-ahead, blocked on the Cincinnati-method implementation above.
+the engine and check it reproduces those reports from). Cambridge STV is checked against
+OpenSTV but not yet against an official Cambridge count (see its entry above).
 
 One known, documented gap versus official reporting: when a candidate's surplus transfer
 causes a rounding truncation loss (e.g. a transfer ratio truncated from 0.1359375 to 0.13593),
@@ -439,19 +456,19 @@ java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-m, --method` | Counting method: `stv\|meek\|warren\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`/`warren`; `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all; `cpo-stv` uses `--seats`/`--quota`/`--transfer`/`--rounding` but not `--tiebreak`; `qpq` uses `--seats`/`--tiebreak` but not `--quota`/`--transfer`/`--rounding` (both are derived formulas, not configurable). |
+| `-m, --method` | Counting method: `stv\|meek\|warren\|cambridge\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`/`warren`, nor `--rounding` to `cambridge` (whole ballots, a fixed quota); `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all; `cpo-stv` uses `--seats`/`--quota`/`--transfer`/`--rounding` but not `--tiebreak`; `qpq` uses `--seats`/`--tiebreak` but not `--quota`/`--transfer`/`--rounding` (both are derived formulas, not configurable). |
 | `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. Can also come from `--config`'s `format` field. |
 | `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek`/`warren`/`cpo-stv`/`qpq` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
 | `-o, --output` | Output file. Defaults to standard output. |
-| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`/`warren`; only `text` exists so far for `schulze`/`borda`/`cpo-stv`/`qpq`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
+| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`/`warren`/`cambridge`; only `text` exists so far for `schulze`/`borda`/`cpo-stv`/`qpq`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
 | `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
 | `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark`. Mutually exclusive with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
 | `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding`. Overrides `--config`/`--ruleset`. |
 | `--rounding` | `exact\|truncate:N`. Defaults to `exact`, which can grow very slow on large counts with long rankings and many seats — exact transfer ratios compound into ever-larger fractions as ballots pass through elected candidates (300 candidates / 33 seats / 40 preferences each took over 20 minutes even at 20,000 voters). A warning is printed on stderr as soon as that starts; `truncate:9` keeps figures bounded (43 s for the same count at 1M voters). Every bundled preset already rounds. Overrides `--config`/`--ruleset`. |
 | `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
-| `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek`/`warren` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek`/`warren` and fractional-transfer `stv`. Applies to `stv`, `meek`, `warren`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
-| `--minimum-preferences` | Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as informal, capped at one fewer than the number of candidates. Defaults to none; the `hare-clark-qpq` preset sets 7. Applies to `stv`, `meek`, `warren`, `cpo-stv`, and `qpq`. Overrides `--config`/`--ruleset`. |
+| `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek`/`warren` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek`/`warren` and fractional-transfer `stv`. Applies to `stv`, `meek`, `warren`, `cambridge`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
+| `--minimum-preferences` | Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as informal, capped at one fewer than the number of candidates. Defaults to none; the `hare-clark-qpq` preset sets 7. Applies to `stv`, `meek`, `warren`, `cambridge`, `cpo-stv`, and `qpq`. Overrides `--config`/`--ruleset`. |
 | `--precision` | Decimal places a `meek`/`warren` count works to. Defaults to 9 (droop's default for fixed-point Meek). Only shapes the count itself — `--rounding` still controls how figures are reported. `meek`/`warren` only. Overrides `--config`. |
 | `--borda-scoring` | `classic\|dowdall`. Only applies to `--method borda`; defaults to `classic`. `dowdall` is the Nauru system (`1, 1/2, 1/3, ...`). |
 
@@ -575,6 +592,7 @@ engines that work per distinct ballot), ranking about 5 candidates on average:
 | STV (`scottish`, WIGM) | 1.4 s | 3.7 s | 1.6 s |
 | STV (`ers97`, last parcel) | 1.6 s | 3.7 s | 1.5 s |
 | QPQ | 1.3 s | 3.8 s | 2.1 s |
+| Cambridge STV | 1.3 s | 3.7 s | — |
 | Meek / Warren | 1.6 / 1.7 s | 4.8 / 5.7 s | 6.4 / 7.2 s |
 
 Reading a 1M-ballot file takes about 1 s. Memory isn't a practical limit: every method counts
@@ -619,6 +637,7 @@ src/main/java/info/fkhodkov/rankedchoice/
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport
 ├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport
+├── cambridge/     CambridgeCounter, CambridgeRuleset -- Cambridge, MA STV (Cincinnati method)
 ├── qpq/           QpqCounter, QpqRuleset, QpqResult, QpqRoundRecord, QpqAction, QpqTextReport
 └── cli/
     └── Main

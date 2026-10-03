@@ -36,6 +36,8 @@ import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
+import info.fkhodkov.rankedchoice.cambridge.CambridgeCounter;
+import info.fkhodkov.rankedchoice.cambridge.CambridgeRuleset;
 import info.fkhodkov.rankedchoice.stv.meek.KeepRule;
 import info.fkhodkov.rankedchoice.stv.meek.MeekCounter;
 import info.fkhodkov.rankedchoice.stv.meek.MeekRuleset;
@@ -89,7 +91,7 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
-    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|warren|schulze|borda|cpo-stv|qpq. "
+    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|warren|cambridge|schulze|borda|cpo-stv|qpq. "
             + "Defaults to stv. --quota/--transfer don't apply to meek or warren (their quota and transfer are fixed "
             + "by the method itself); schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all; "
             + "cpo-stv uses --seats/--quota/--transfer/--rounding but not --tiebreak; qpq (Woodall's Quota "
@@ -145,14 +147,14 @@ public final class Main implements Callable<Integer> {
                     + "split divides the ballot between them (stv with fractional transfer, meek, and warren); truncate "
                     + "stops the ballot at the tie (a tie at first preference voids it, as Scottish law requires); "
                     + "skip drops the tied rank and continues. Defaults to split for meek, warren, and stv under "
-                    + "fractional transfer, reject otherwise. Applies to stv, meek, warren, cpo-stv, and qpq (schulze and "
+                    + "fractional transfer, reject otherwise. Applies to stv, meek, warren, cambridge, cpo-stv, and qpq (schulze and "
                     + "borda count ties natively). Overrides --config/--ruleset.")
     private String tiedRankings;
 
     @Option(names = {"--minimum-preferences"},
             description = "Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as "
                     + "informal, capped at one fewer than the number of candidates. Defaults to none; the "
-                    + "hare-clark-qpq preset sets 7. Applies to stv, meek, warren, cpo-stv, and qpq. Overrides "
+                    + "hare-clark-qpq preset sets 7. Applies to stv, meek, warren, cambridge, cpo-stv, and qpq. Overrides "
                     + "--config/--ruleset.")
     private Integer minimumPreferences;
 
@@ -189,7 +191,7 @@ public final class Main implements Callable<Integer> {
         ElectionConfig fileConfig = loadFileConfig();
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
         boolean seatsBasedMethod = effectiveMethod.equals("stv") || effectiveMethod.equals("meek")
-                || effectiveMethod.equals("warren")
+                || effectiveMethod.equals("warren") || effectiveMethod.equals("cambridge")
                 || effectiveMethod.equals("cpo-stv") || effectiveMethod.equals("qpq");
         if (tiedRankings != null && !seatsBasedMethod) {
             throw new IllegalArgumentException("--tied-rankings doesn't apply to --method " + effectiveMethod
@@ -295,9 +297,21 @@ public final class Main implements Callable<Integer> {
                         effectiveMethod.equals("warren") ? KeepRule.WARREN : KeepRule.MEEK);
                 result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
             }
+            case "cambridge" -> {
+                if (quota != null || transfer != null || rounding != null) {
+                    throw new IllegalArgumentException("--quota/--transfer/--rounding don't apply to --method cambridge;"
+                            + " its quota and whole-ballot transfers are fixed by the method itself");
+                }
+                roundingRuleForReport = info.fkhodkov.rankedchoice.stv.rounding.Exact.INSTANCE;
+                CambridgeRuleset ruleset = new CambridgeRuleset(
+                        StvRulesetParser.parseTieBreak(firstNonNull(tiebreak, fileConfig.tiebreak()), candidates),
+                        StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.REJECT),
+                        effectiveMinimumPreferences);
+                result = CambridgeCounter.count(candidates, ballots, effectiveSeats, ruleset);
+            }
             default -> throw new IllegalArgumentException(
                     "Unsupported method '" + effectiveMethod
-                            + "'; expected 'stv', 'meek', 'warren', 'schulze', 'borda', 'cpo-stv', or 'qpq'");
+                            + "'; expected 'stv', 'meek', 'warren', 'cambridge', 'schulze', 'borda', 'cpo-stv', or 'qpq'");
         }
 
         String resolvedReportFormat = firstNonNull(reportFormat, fileConfig.reportFormat());

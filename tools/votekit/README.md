@@ -38,7 +38,8 @@ The `cambridge` model resamples real Cambridge, MA ballots, so its lengths are a
 ```
 
 For each seed it generates an election and counts it with every method (Scottish, Gregory and
-ERS97 STV, Meek, Warren, QPQ, CPO-STV, and the top-ranked candidates under Schulze and Borda),
+ERS97 STV, Meek, Warren, Cambridge STV, QPQ, CPO-STV, and the top-ranked candidates under
+Schulze and Borda),
 then reports, per method:
 
 - how the seats split between slates, across the seeds;
