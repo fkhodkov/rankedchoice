@@ -313,7 +313,15 @@ Currently implemented (Phase 1–3 of the plan, in progress):
   pairwise comparison that the beatpath completion still resolves to a full strict ranking; and
   the `seats = candidates - 1` boundary case, where no outcome pair ever excludes anyone from
   standing and a shared candidate's transferred surplus can itself push a second shared
-  candidate over quota, cascading a further transfer (`CpoStvCounterTest`). Only a text report
+  candidate over quota, cascading a further transfer (`CpoStvCounterTest`). Beyond those, one
+  realistic-size count is checked against an independent implementation
+  (`tools/reference/cpo_stv.py`, written from the method's rules alone): a synthetic 52/48 race
+  with 8 candidates, 4 seats and 10,000 voters from the VoteKit tool below, where all 4,830
+  pairwise scores match exactly and an independent Schulze computation over them picks the same
+  committee (`CpoStvNearTieCycleFixtureTest`). It's also a case where CPO-STV genuinely parts
+  company with STV: committees differing by one equally popular candidate form a cycle, and the
+  beatpath completion elects a committee that loses head to head to the one every classic STV
+  variant elects. Only a text report
   exists so far (`CpoStvTextReport`), and it doesn't print the full pairwise score matrix (grows
   quadratically, usually too large to read) — just the winning outcome and the full ranking.
 - **QPQ** (`--method qpq`, Douglas Woodall's Quota Preferential by Quotient — see his paper
