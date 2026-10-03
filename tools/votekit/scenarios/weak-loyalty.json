@@ -1,0 +1,14 @@
+{
+  "name": "two parties, weak party loyalty, 5 seats",
+  "seats": 5,
+  "voters": 10000,
+  "model": "slate-pl",
+  "slates": {"Red": ["R1", "R2", "R3", "R4", "R5"], "Blue": ["B1", "B2", "B3", "B4", "B5"]},
+  "blocs": {"Red": 0.55, "Blue": 0.45},
+  "cohesion": {"Red": {"Red": 0.6, "Blue": 0.4}, "Blue": {"Red": 0.45, "Blue": 0.55}},
+  "preferences": {
+    "Red": {"Red": {"R1": 0.35, "R2": 0.25, "R3": 0.2, "R4": 0.12, "R5": 0.08}},
+    "Blue": {"Blue": {"B1": 0.35, "B2": 0.25, "B3": 0.2, "B4": 0.12, "B5": 0.08}}
+  },
+  "truncation": {"mean_length": 4}
+}

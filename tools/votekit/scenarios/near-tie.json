@@ -1,0 +1,10 @@
+{
+  "name": "two parties at 52/48 for 4 seats (each near 2.5 quotas)",
+  "seats": 4,
+  "voters": 10000,
+  "model": "slate-pl",
+  "slates": {"Red": ["R1", "R2", "R3", "R4"], "Blue": ["B1", "B2", "B3", "B4"]},
+  "blocs": {"Red": 0.52, "Blue": 0.48},
+  "cohesion": {"Red": {"Red": 0.85, "Blue": 0.15}, "Blue": {"Red": 0.15, "Blue": 0.85}},
+  "truncation": {"mean_length": 4}
+}

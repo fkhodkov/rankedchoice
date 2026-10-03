@@ -1,0 +1,9 @@
+{
+  "name": "Cambridge-style 70/30 two-bloc election (real ballot shapes), 5 seats",
+  "seats": 5,
+  "voters": 10000,
+  "model": "cambridge",
+  "slates": {"W": ["W1", "W2", "W3", "W4", "W5"], "C": ["C1", "C2", "C3", "C4"]},
+  "blocs": {"W": 0.7, "C": 0.3},
+  "cohesion": {"W": {"W": 0.9, "C": 0.1}, "C": {"W": 0.2, "C": 0.8}}
+}

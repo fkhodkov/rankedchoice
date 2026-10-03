@@ -7,7 +7,10 @@ For each seed 1..N, generates an election with generate.py's model and counts it
 method through the project's CLI jar (build it first: mvn package -DskipTests). Reports, per
 method, how the seats split between the scenario's slates across all seeds -- the natural
 measure for bloc/slate scenarios, where a proportional method should give each bloc's slate
-roughly its share of the seats.
+roughly its share of the seats. Two measures sum it up: seats misallocated, i.e. half the sum
+over slates of |seats won - seats deserved by first-preference share| (0 is perfectly
+proportional; a whole seat in the wrong party's hands counts 1), and a table of how often each
+pair of methods elected exactly the same committee.
 
 Schulze and Borda only rank candidates; their "committee" is the top-ranked candidates, a
 common non-proportional baseline. A tie across the seat cutoff is reported as a tie.
@@ -84,6 +87,7 @@ def main():
     parser.add_argument("--jar", default=DEFAULT_JAR)
     parser.add_argument("--methods", default=",".join(METHODS), help="comma-separated subset of: " + ", ".join(METHODS))
     parser.add_argument("--keep", help="directory to keep the generated .blt files in")
+    parser.add_argument("--json", help="also write the results (committees per seed, measures) to this file")
     args = parser.parse_args()
 
     with open(args.scenario) as f:
@@ -111,26 +115,32 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=os.cpu_count()) as pool:
         reports = dict(zip(jobs, pool.map(lambda job: run(args.jar, files[job[0]], job[1]), jobs)))
 
+    # Each election's first-preference share by slate: the vote share a proportional result
+    # should mirror (it differs from the bloc sizes whenever voters cross party lines).
+    deserved = {seed: deserved_seats(files[seed], candidates, slate_of, slates, seats) for seed in files}
+    committees = {}
+    for (seed, method), report in reports.items():
+        committees[(seed, method)] = report if report.startswith("error:") else winners(method, report, seats)
+
     print(f"{scenario.get('name', args.scenario)}: {seats} seats, {voters} voters, "
           f"model {scenario.get('model', 'slate-pl')}, {args.seeds} seeds")
-    if set(scenario["blocs"]) == set(slates):
-        target = ", ".join(f"{s} {scenario['blocs'][s] * seats:.2f}" for s in slates)
-        print(f"proportional share of seats by bloc: {target}")
+    mean_deserved = {s: sum(d[s] for d in deserved.values()) / len(deserved) for s in slates}
+    print("seats deserved by first-preference share (mean): "
+          + ", ".join(f"{s} {mean_deserved[s]:.2f}" for s in slates))
     print()
+    summary = []
     for method in methods:
         splits = collections.Counter()
         problems = collections.Counter()
+        misallocated = []
         for seed in files:
-            report = reports[(seed, method)]
-            if report.startswith("error:"):
-                problems[report] += 1
-                continue
-            committee = winners(method, report, seats)
-            if committee == "tie":
-                problems["tied at the seat cutoff"] += 1
+            committee = committees[(seed, method)]
+            if isinstance(committee, str):
+                problems["tied at the seat cutoff" if committee == "tie" else committee] += 1
                 continue
             counts = collections.Counter(slate_of[c] for c in committee)
             splits[" / ".join(f"{s} {counts[s]}" for s in slates)] += 1
+            misallocated.append(sum(abs(counts[s] - deserved[seed][s]) for s in slates) / 2)
         counted = sum(splits.values())
         mean = {s: 0.0 for s in slates}
         for split, n in splits.items():
@@ -139,12 +149,54 @@ def main():
                 mean[slate] += int(seats_won) * n / max(counted, 1)
         print(f"{METHODS[method][0]}")
         print(f"  mean seats: " + ", ".join(f"{s} {mean[s]:.2f}" for s in slates))
+        if misallocated:
+            print(f"  seats misallocated vs first preferences: mean {sum(misallocated) / len(misallocated):.2f},"
+                  f" worst {max(misallocated):.2f}")
+            summary.append((method, sum(misallocated) / len(misallocated), max(misallocated)))
         for split, n in splits.most_common():
             print(f"  {split}: {n}/{args.seeds}")
         for problem, n in problems.items():
             print(f"  {problem}: {n}/{args.seeds}")
+
+    print("\nSame committee (seeds out of " + str(args.seeds) + "):")
+    width = max(len(m) for m in methods)
+    print(" " * (width + 2) + " ".join(f"{m[:7]:>7}" for m in methods))
+    for a in methods:
+        row = []
+        for b in methods:
+            same = sum(1 for seed in files
+                       if not isinstance(committees[(seed, a)], str)
+                       and not isinstance(committees[(seed, b)], str)
+                       and set(committees[(seed, a)]) == set(committees[(seed, b)]))
+            row.append(f"{same:>7}")
+        print(f"{a:>{width}}  " + " ".join(row))
     if args.keep:
         print(f"\nelections kept in {directory}")
+    if args.json:
+        with open(args.json, "w") as out:
+            json.dump({
+                "scenario": scenario.get("name", args.scenario), "seats": seats, "voters": voters,
+                "seeds": args.seeds, "deserved": mean_deserved,
+                "methods": {m: {"mean_misallocated": mean_mis, "worst_misallocated": worst}
+                            for m, mean_mis, worst in summary},
+                "committees": {f"{seed}:{m}": (c if isinstance(c, str) else sorted(c))
+                               for (seed, m), c in committees.items()},
+            }, out, indent=1)
+
+
+def deserved_seats(blt, candidates, slate_of, slates, seats):
+    """Each slate's share of first preferences in a BLT file, times the number of seats."""
+    first = collections.Counter()
+    with open(blt) as f:
+        next(f)
+        for line in f:
+            parts = line.split()
+            if parts == ["0"]:
+                break
+            if len(parts) > 2:
+                first[slate_of[candidates[int(parts[1]) - 1]]] += int(parts[0])
+    total = sum(first.values())
+    return {s: first[s] / total * seats for s in slates}
 
 
 if __name__ == "__main__":

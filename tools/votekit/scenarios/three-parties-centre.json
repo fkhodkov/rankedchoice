@@ -1,0 +1,14 @@
+{
+  "name": "three parties, centre is everyone's second choice, 5 seats",
+  "seats": 5,
+  "voters": 10000,
+  "model": "slate-pl",
+  "slates": {"Left": ["L1", "L2", "L3", "L4"], "Centre": ["C1", "C2", "C3"], "Right": ["R1", "R2", "R3", "R4"]},
+  "blocs": {"Left": 0.41, "Centre": 0.18, "Right": 0.41},
+  "cohesion": {
+    "Left": {"Left": 0.75, "Centre": 0.2, "Right": 0.05},
+    "Centre": {"Left": 0.2, "Centre": 0.6, "Right": 0.2},
+    "Right": {"Left": 0.05, "Centre": 0.2, "Right": 0.75}
+  },
+  "truncation": {"mean_length": 4}
+}

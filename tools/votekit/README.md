@@ -39,7 +39,28 @@ The `cambridge` model resamples real Cambridge, MA ballots, so its lengths are a
 
 For each seed it generates an election and counts it with every method (Scottish, Gregory and
 ERS97 STV, Meek, Warren, QPQ, CPO-STV, and the top-ranked candidates under Schulze and Borda),
-then reports how the seats split between slates. `--methods` picks a subset, `--voters`
-overrides the scenario's size, `--keep DIR` keeps the generated `.blt` files. CPO-STV is by far
+then reports, per method:
+
+- how the seats split between slates, across the seeds;
+- **seats misallocated**: half the sum over slates of |seats won − seats deserved|, where a
+  slate deserves its share of first preferences in that election times the number of seats
+  (its vote share, which differs from the bloc sizes when voters cross party lines). 0 is
+  perfectly proportional; one seat in the wrong party's hands counts 1;
+
+and finally how often each pair of methods elected exactly the same committee.
+
+`--methods` picks a subset, `--voters` overrides the scenario's size, `--keep DIR` keeps the
+generated `.blt` files, and `--json FILE` also writes every committee and measure as JSON.
+
+Scenarios in `scenarios/`, each built so methods have room to disagree:
+
+| Scenario | What it tests |
+|---|---|
+| `two-parties` | 62/38, loyal voters: the baseline |
+| `three-parties-centre` | 41/18/41, the centre party everyone's second choice |
+| `weak-loyalty` | 55/45 with heavy crossover between parties |
+| `near-tie` | 52/48 for 4 seats, each side near 2.5 quotas |
+| `four-parties` | 35/30/20/15 on a left–right line, 7 seats |
+| `cambridge` | 70/30 with real Cambridge ballot shapes (`cambridge` model) | CPO-STV is by far
 the slowest (seconds per election at 10 candidates / 5 seats) and is skipped automatically when
 the candidate/seat combination exceeds its 500-outcome cap.
