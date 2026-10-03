@@ -1,5 +1,39 @@
 # Plan: Java Ranked-Choice Voting Calculator (STV + Condorcet + Positional methods)
 
+This is the original design, kept as a record. For what's built and how to use it, see
+[README.md](README.md); for how it's checked, [VALIDATION.md](VALIDATION.md).
+
+## Status
+
+Milestones 1–7 are done, except Schulze-STV:
+
+- **Built as planned:** the tie-capable ballot model, BLT/CSV parsers, exact `Fraction`
+  arithmetic; classic STV with every planned quota, fractional and WIGM transfer, truncation,
+  every planned tie-break; YAML config with CLI override precedence and bundled rulesets; Meek;
+  Schulze; Borda (classic, Dowdall, generic modified); CPO-STV with a 500-outcome cap; tied
+  rankings throughout; text/CSV/JSON/HTML reports.
+- **Built differently from the plan:**
+  - Real rulesets needed more than the plan's axes: two **last-parcel** transfer methods (ERS97,
+    Tasmania, ACT), ERS97's **bulk exclusion**, a tied-ranking **policy** (reject, split,
+    truncate, skip — every real ruleset truncates rather than splits), and a
+    **minimum-preferences** formality rule (Tasmania).
+  - The §2.2 table was wrong in places: ERS97/ERS76 are last-parcel, not plain Gregory;
+    "Hare-Clark QPQ" is classic last-parcel STV, while **QPQ** is a different method
+    (Woodall's), built as its own engine; and **Cambridge, MA** moves whole ballots by the
+    Cincinnati method, also its own engine (`cambridge`) rather than a fractional ruleset.
+  - **Meek** runs in droop's fixed-point arithmetic, not exact fractions, so every figure
+    reproduces droop's exactly; **Warren's method** came with it.
+  - Engines live in their own packages (`stv`, `stv/meek`, `cambridge`, `qpq`, `cpostv`,
+    `schulze`, `borda`) and share `StvResult`/`RoundRecord` where they can, instead of the
+    planned single sealed `RoundEvent` model and `condorcet` package.
+  - Not built: round-half-up rounding and whole-vote random transfer (no ruleset needed them;
+    Cambridge's is the deterministic Cincinnati method); a JSON ballot parser.
+- **Open:** Schulze-STV (needs an optimisation solver, and nothing to check it against);
+  replaying an official Cambridge count (no public ballot data); validating `ers76` and
+  `hare-clark-qpq` (no data).
+
+What follows is the plan as first written.
+
 ## 1. Scope
 
 Build a Java library + CLI that:

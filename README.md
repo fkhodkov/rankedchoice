@@ -1,489 +1,142 @@
 # Ranked Choice Voting Calculator
 
-A Java library and CLI for tabulating ranked-choice elections: Single Transferable Vote (STV,
-plus Meek's and Warren's methods, and Cambridge, MA's whole-ballot "Cincinnati method"),
-Schulze, Borda, CPO-STV, and QPQ are implemented; Schulze-STV is deferred (see below). See
-[PLAN.md](PLAN.md) for the full design and roadmap; this file covers what's built and how to
-use it today.
+A Java library and command-line tool for counting ranked-choice elections, under the rules
+real elections use. It counts the Single Transferable Vote in its legislated variants (Scottish,
+ERS97, Tasmanian and ACT Hare-Clark, Cambridge MA), Meek's and Warren's methods, Schulze,
+Borda, CPO-STV and QPQ, and reports every round in text, CSV, JSON or HTML.
 
-## Status
+Every method is checked against something independent of this code: official counts of real
+elections, independent implementations of the same method, or hand-worked cases. See
+[VALIDATION.md](VALIDATION.md) for what was checked and how; [PLAN.md](PLAN.md) is the
+original design.
 
-Currently implemented (Phase 1–3 of the plan, in progress):
+## Methods
 
-- Ballot model with built-in support for tied rankings — consumed by Schulze, Borda, and the
-  classic STV counter under a configurable tied-ranking policy (see below)
-- `.blt` and CSV ballot parsers, both streamed line-by-line rather than loaded into memory
-- STV counting engine, pluggable per axis:
-  - Quotas: Droop, Hare, Hagenbach-Bischoff, Imperiali, and a Droop-rounded-to-N-decimal-
-    places variant (`droop-rounded:N`) used by ERS97
-  - Transfer methods: fractional/inclusive Gregory, the Weighted Inclusive Gregory Method
-    (WIGM), and two last-parcel-only variants (only a candidate's single most-recently-arrived
-    batch of ballots is examined for a surplus — everything they held before that stays with
-    them, unchanged, for good). Both last-parcel variants divide the transfer ratio by only
-    the parcel's ballot papers that have a further preference — papers with none carry their
-    existing value forward into non-transferability unscaled, rather than being counted in
-    the denominator the way WIGM/fractional's inclusive denominator (every vote the candidate
-    holds) does. They differ in *where* rounding is applied: `last-parcel` rounds the shared
-    ratio itself once (ERS97/76, Tasmania's Hare-Clark), while `last-parcel-deferred-rounding`
-    keeps the ratio exact and rounds only each destination candidate's own resulting gain (the
-    ACT Legislative Assembly's Hare-Clark variant). Fractional and WIGM agree exactly until a
-    candidate holds ballots that arrived at more than one distinct value, which is where
-    WIGM's per-parcel rounding diverges from the simpler method's single rounded ratio;
-    last-parcel methods can leave a just-elected candidate with more or less than exactly
-    quota, unlike the two inclusive methods — a known, documented trade-off of that approach.
-    Both last-parcel variants also transfer an eliminated candidate's ballots one value-group
-    at a time (largest value first, per ERS97's "exclusion by value"), and a candidate who
-    crosses quota partway through is frozen immediately and stops receiving that elimination's
-    remaining, lower-valued groups — rather than deciding who's elected and running every
-    transfer the instant a candidate qualifies, these rulesets defer each surplus transfer,
-    processing the single largest still-pending one before ever considering an elimination
-  - Rounding rules: exact (no rounding), truncate to N decimal places — real STV rulesets
-    consistently round down rather than to nearest, so that's the only rounding rule kept
-    here for now
-  - Tie-break rules: fixed declared order, previous-round votes, first-preference count
-    (each with a configurable fallback), seeded random
-  - Tied-ranking policy (`tiedRankings` / `--tied-rankings`) for ballots ranking several
-    candidates equally: `reject`, `split`, `truncate`, or `skip`. `truncate` stops the ballot
-    at its first tied rank, so a tie at the very first preference leaves nothing and the
-    ballot is void (it doesn't even count toward the quota) — exactly the Scottish statute's
-    rule 43(1)(c) that a paper with "1" against more than one candidate is void, and rule
-    48's transfer only ever to a single "next available preference". That's why the bundled
-    `scottish` preset uses it, rather than any splitting: the one real ruleset built on WIGM
-    explicitly forbids splitting a tied ballot. `skip` drops each tied rank and continues with
-    the rest. Both are ballot preprocessing (applied once, before the count), so they work
-    with every transfer method, and both were cross-checked against OpenSTV's own overvote
-    cleaning run through its `ScottishSTV` method — `truncate` against "San Francisco",
-    `skip` against "Cambridge" — on four synthetic ballot sets with hundreds of tied
-    rankings between them, matching quota, winners, and every round's tallies exactly
-    (`TiedRankingPolicyTest`, plus a hand-derived `StvCounterTest` case where the two
-    policies elect different winners). Without an explicit policy, fractional transfer
-    defaults to `split` and every other transfer method to `reject`. Every bundled preset
-    sets `truncate`, each from its own rulebook's text: ERS97 glossary 6.8–6.12 (a "1"
-    against two candidates is no first preference; a later "uncertain" preference leaves no
-    next available preference), the ACT Electoral Act 1992's Schedule 4 clause 2(2) ("those
-    numbers and any greater number shall be disregarded") with s.180(2)(c), and ERS76 by
-    inheritance from ERS97 (unverified, like the rest of that preset)
-  - Minimum-preferences formality rule (`minimumPreferences` / `--minimum-preferences`): after tied
-    rankings are dealt with, a ballot ranking fewer candidates than this is informal — not
-    counted, and not part of the valid vote the quota is based on — capped at one fewer
-    than the number of candidates. Needed for Tasmania, whose Electoral Act 2004 makes an
-    Assembly ballot informal unless it numbers 1–7 "without omission or duplication"
-    (s.102(1), s.103(1)(c)), while a duplicate *above* 7 just ends the ballot there
-    (s.103(2)): `truncate` plus a minimum of 7 reproduces both, and the cap reproduces the
-    council rule's smaller minimums for 2 or 3 candidates (s.102(2)). The
-    `hare-clark-qpq` preset sets both, which also means it now rejects *untied* ballots with
-    fewer than 7 preferences, as the real count does
-  - `split` (fractional transfer only): a ballot's holder is really a *group* — every
-    still-continuing candidate sharing its front-most remaining rank — and its pooled value
-    splits evenly across the
-    group every round, recomputed fresh rather than fragmented into independent sub-ballots
-    at the moment of the tie. Verified against a real, actively maintained implementation of
-    genuine equal-preference STV, CRAN's [`vote` package](https://cran.r-project.org/package=vote)
-    (Sevcikova, Silverman, Raftery) — read directly rather than just its documentation, since
-    the mechanics turned out more subtle than expected: when one of several tied candidates
-    is elected, only their own share is scaled by the surplus ratio and the others fold back
-    in unscaled; when one is eliminated instead, the ballot's value is untouched and whoever
-    remains at that rank inherits the *entire* pool next round, not just their own prior
-    share — the hand-derived fixture this project added specifically exercises that
-    non-obvious inheritance case (`StvCounterTest`). Not defined under WIGM or either
-    last-parcel variant: no real ruleset using them splits tied ballots, and WIGM's
-    per-parcel rounding would need an invented convention for shares like 1/3
-  - The same tied-ranking policy and minimum-preferences rule also apply to Meek's method,
-    CPO-STV, and QPQ (`BallotFormality`, shared by all four engines). `truncate` and `skip`
-    work everywhere. `split` is Meek's default: a tied rank shares whatever reaches it evenly
-    between its standing candidates, each keeping its share by its keep factor and passing
-    the rest on separately — the equal-preference distribution in droop's Meek rule. CPO-STV
-    and QPQ have no defined rule for splitting a tied rank, so they default to `reject` and
-    refuse `split`. Cross-checked on the same four synthetic tied-ballot elections: Meek
-    `truncate`/`skip` against droop's Meek on independently cleaned ballots, matching every
-    round exactly (see the Meek bullet below), with winners also matching OpenSTV's `MeekSTV`
-    (whose round-by-round figures aren't comparable: it batch-eliminates and reports single
-    keep-factor iterations as rounds); QPQ `truncate`/`skip` against both droop's QPQ and
-    OpenSTV's `QPQ` with its native overvote cleaning, matching every stage to 9 decimal
-    places. Meek `split` deliberately differs from droop in one place: droop sends any ballot
-    containing a tie through a separate path that stops dead at the first rank with no
-    standing candidate — tied or not — losing the rest of the ballot, where its untied path
-    carries on. That accounts for every difference: against a copy of droop with just that
-    path patched to carry on, `split` matches every round of all four elections, and of 60
-    random tied-ballot elections, exactly (`MeekCounterTest` pins the case)
-- A CLI that runs a count from a ballot file and prints a round-by-round report. Rules
-  come from a bundled ruleset preset (`--ruleset`), a YAML config file (`--config`),
-  individual override flags (`--quota`/`--transfer`/`--rounding`/`--tiebreak`), or defaults
-  (Droop quota, fractional transfer, exact rounding, declared-order tie-break) — in that
-  order of precedence, flag over config over default
-- Four report formats — text, CSV, JSON, and a self-contained HTML page — selectable via
-  `--report-format`, a config file's `reportFormat` field, or inferred from `--output`'s file
-  extension. All four render the exact same figures (the same `RoundingRule`-formatted decimal
-  strings), just reshaped per format; JSON also exposes the underlying structured tree
-  (`StvJsonReport.toReport`) for callers that want objects rather than a serialized string. Ballots
-  set aside before the count — blank as cast, emptied by the tied-ranking policy, or short of
-  `minimumPreferences` — are reported too: a leading "Informal ballots: 7 (tied rankings: 2,
-  too few preferences: 5)" line in text and HTML (omitted when there are none, as are the
-  equivalent lines in the QPQ and CPO-STV text reports), an `informalBallots` object with the
-  same breakdown in JSON, and an `informal_ballots` column in CSV repeating the total on every
-  row the way `exhausted_votes` does
-- A second counting method, Meek's method (`--method meek`), selectable alongside classic
-  quota-based STV (`--method stv`, the default) — structurally different from every quota/
-  transfer combination above: instead of moving discrete "parcels" of ballots, every ballot's
-  value is recomputed from scratch each round by walking its full ranking against every
-  candidate's current keep factor, and the quota itself is recalculated every iteration rather
-  than fixed once at the start. Meek's method converges keep factors iteratively, so there is
-  no exact rational answer to compute; instead the count follows droop's Meek rule
-  ([jklundell/droop](https://github.com/jklundell/droop), `meek arithmetic=fixed
-  defeat_batch=none`) step for step, in the same fixed-point decimal arithmetic — 9 decimal
-  places by default — rounding down when a candidate keeps part of a ballot and up when a keep
-  factor is updated, a quota one smallest step above `votes / (seats + 1)`, and iteration
-  until the total surplus is at most 10^-6 (10^-(2/3 of the precision), as droop sets it) or
-  stops shrinking — so every figure is reproducible exactly rather than to within a tolerance.
-  `--precision` (or a config file's `precision`) changes the decimal places; checked against
-  droop's own `precision=` option at 6, 12, and 13 places as well, with every election that
-  fits matching exactly. An election whose total vote wouldn't fit at the chosen precision —
-  about 4.6 billion votes at 9 places, 4.6 million at 12 — is refused with an error naming
-  the highest precision that would.
-  Checked against droop's own reports on MapLibre's real election below and on 143 synthetic
-  ones (including exclusions decided by tie-break, iteration stopped by a stalled surplus, and
-  counts ending by electing the remaining hopefuls outright; tied-ballot ones against the
-  patched droop described above): every round's tallies, residual, and surplus match to the
-  last decimal place; three of those reports are checked in, and `MeekDroopReferenceTest` replays them.
-  `MeekCounter` produces the same `StvResult`/`RoundRecord` shape classic STV does, so all four
-  report formats above work for a Meek count unchanged. Only `roundingRule` (for reporting)
-  and `tiebreak` are configurable for Meek — quota and transfer method are fixed by the method
-  itself, so `--quota`/`--transfer` are rejected alongside `--method meek`. Based on the
-  original algorithm (Hill, Wichmann & Woodall, "Algorithm 123: Single Transferable Vote by
-  Meek's Method", *The Computer Journal* 30(3), 1987), with hand-derived fixtures
-  (`MeekCounterTest`, whose figures droop also reproduces), and
-  validated against a real election: MapLibre's 2025 Governing Board election (6 candidates,
-  5 seats, 92 ballots, run on OpaVote) — real ballot data plus OpaVote's own published
-  per-round keep factors, both mirrored on GitHub by MapLibre itself
-  (`testdata/meek/maplibre-governing-board-2025.blt`, `MeekMapLibreGoverningBoard2025FixtureTest`).
-  This real fixture caught a genuine bug during development: the first implementation fully
-  converged the currently-elected candidates' keep factors to tight tolerance before ever
-  checking whether a hopeful had crossed quota, which happened to give the same eventual
-  winners but produced visibly wrong intermediate keep-factor figures, caught by comparing this
-  project's own iteration trace directly against OpaVote's published per-round numbers. Fixed
-  by checking for newly-qualifying hopefuls on every convergence iteration instead of gating it
-  behind full convergence — which droop's rule does too. The final keep factors (under the
-  earlier floating-point engine) agreed with OpaVote's published figures to 5-6 significant
-  digits; OpaVote's own arithmetic isn't published, so that comparison stays approximate
-- Warren's method (`--method warren`), the same count with one change: an elected candidate's
-  keep factor is a flat amount charged to every ballot reaching them (or all that's left of
-  the ballot, if less) rather than a fraction of what reaches them (C. H. E. Warren, "Counting
-  in STV Elections", *Voting matters* 1, 1994). droop counts both with the same code, and so
-  does this project (`KeepRule`). The two agree until a ballot reaches a second elected
-  candidate with part of its weight already spent. Checked the same way as Meek against
-  droop's `warren` rule, on the same 144 elections (MapLibre plus the 143 synthetic ones):
-  every round matches exactly, while Warren's own figures differ from Meek's in 73 of the 120
-  random ones and its winners in 7 (`MeekDroopReferenceTest` replays two droop Warren
-  reports, one a count the two methods decide differently; `MeekCounterTest` pins a small one)
-- Five bundled ruleset presets, shipped as YAML resources rather than hardcoded — `scottish`,
-  `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark` — each a named combination of the
-  building blocks above, with sourced rules and links under
-  [Bundled rulesets](#bundled-rulesets) below
-- Validated against **nine real elections**, not just hand-derived or adapted fixtures: the
-  2012 Shetland South, 2012 Orkney North Isles, 2017 Shetland North, and 2022 Orkney Kirkwall
-  East council elections (ballot-level data from
-  [MGGG's `scot-elex` archive](https://github.com/mggg/scot-elex)),
-  the larger 2022 Badenoch and Strathspey (Highland Council) election, converted directly
-  from that council's own official raw preference-profile record, and the 2020 ACT
-  Legislative Assembly election's Kurrajong electorate (28 candidates, 5 seats, 50,600
-  ballots), converted from Elections ACT's own official ballot-paper preference data. Run
-  through their respective rulesets, each reproduces its actual result exactly — quota,
-  first-preference tallies, and who was elected — independently cross-checked against each
-  election's published or officially declared result, not derived from our own engine
-  (`src/test/resources/testdata/scottish/`, `src/test/resources/testdata/act/`). Badenoch and
-  Strathspey goes further: its full 8-round count is replayed and checked stage-by-stage
-  against Highland Council's official "Candidate Votes Per Stage Report", to 5-decimal
-  precision, with the expected figures stored as a resource file rather than hardcoded into
-  the test (`BadenochAndStrathspeyFullReplayTest`,
-  `highland-2022-badenoch-and-strathspey.expected.txt`); Kurrajong's round 2 is checked
-  against the official "Final Distribution of Preferences" report to the full 6 decimal
-  places the ACT Electoral Act specifies; North Isles (Orkney, 2012) is the one case where
-  the final seat is settled by elimination rather than any surplus transfer, and reproduces
-  that too. When multiple candidates meet quota in the same tally snapshot, they're declared
-  elected as a simultaneous batch (largest surplus transferred first), matching official STV
-  rules and each real election's published stage-by-stage figures exactly
-- The remaining three of those nine are a different kind of real-election validation: three
-  constituencies from **Ireland's 2002 general election** (Dublin North, Dublin West, Meath —
-  137,861 real ballots total), from
-  [PrefLib's "Irish Election Data"](https://www.preflib.org/dataset/00001) (originally donated
-  by OpenSTV's Jeffrey O'Neill). Unlike the six elections above, this isn't a replay of each
-  constituency's own official count — real Irish Dáil counts historically transfer surplus
-  votes by physically resampling a random subset of the surplus parcel at full value, not by
-  any deterministic ratio, so no reproducible official round-by-round record exists at ballot
-  level. What's independently verifiable, and checked here: every first-preference tally
-  matches each constituency's published Wikipedia result exactly; the final elected set
-  matches the TDs actually returned exactly (9 seats across the three); and running the
-  bundled `scottish` ruleset (the closest widely-used deterministic equivalent) against the
-  real ballot data reproduces, stage by stage, the exact same figures as an independent
-  implementation of that same method (`jklundell/droop`), matched to droop's own
-  5-decimal-place precision at every stage (`Irish2002GeneralElectionFixtureTest`,
-  `src/test/resources/testdata/irish/`)
-- Also validated against the Electoral Reform Society's own worked "model election" from the
-  ERS97 rulebook (11 candidates, 6 seats, 753 votes) — not a real election, but not
-  self-generated either: the ballot data and expected figures come from an independent,
-  third-party STV implementation's own correctness test
-  ([pyRCV2](https://yingtongli.me/git/pyRCV2)), not derived from our own engine
-  (`src/test/resources/testdata/ers97/`, `Ers97ModelElectionFixtureTest`). This is what
-  surfaced the value-group elimination behavior described above: a naive single-shot
-  elimination credited a candidate with 108.89 votes at the point they crossed quota
-  mid-elimination, where the rulebook's own count sheet shows 108.68. It also caught a second,
-  independent bug, this time in which candidate(s) get excluded: ERS97 rule 5.2.5 allows
-  excluding several of the lowest continuing candidates together in the same stage ("bulk
-  exclusion") whenever their combined votes, plus any deferred surplus, still couldn't reach
-  the candidate above them, rather than always eliminating just one at a time. The original
-  implementation only ever excluded one candidate per stage; cross-checking against a real,
-  independent implementation ([OpenSTV](http://www.openstv.org/)) reproducing this exact model
-  election showed it batches two candidates (Wright and Glazier) together at the
-  corresponding stage — and that eliminating them one at a time instead, as this project
-  originally did, changes the final winner from the rulebook's own Vicar to a wrong Baron.
-  Fixed by adding a `batchExclusion` ruleset flag (`StvRuleset`) that grows the excluded batch
-  upward from the lowest continuing candidate while enough candidates remain to fill the
-  remaining seats and the batch's combined tally, plus deferred surplus, doesn't exceed the
-  tally of the next candidate above it, and by generalizing the existing value-group
-  elimination machinery to pool every excluded candidate's held ballots together rather than
-  just one's (`StvCounter#selectCandidatesToExclude`, `#eliminateByValueGroup`). Enabled only
-  for the bundled `ers97`/`ers76` presets — confirmed unneeded for Scottish/WIGM (the statute,
-  [SSI 2007/42 rule 50](https://www.legislation.gov.uk/ssi/2007/42), only ever excludes one
-  candidate) and left unresolved for Hare-Clark/QPQ (no accessible primary source document one
-  way or the other)
-- Two structurally different, non-STV methods: **Schulze** (`--method schulze`) and **Borda**
-  (`--method borda`). Both are Condorcet/positional methods, not quota-based, so they don't use
-  `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all, and — since a
-  pairwise comparison or a positional score has no transfer ratio that would need one — both
-  are the first methods in this project to actually consume the `Ballot` model's built-in tied-
-  ranking support (`info.fkhodkov.rankedchoice.schulze`/`.borda`, `SchulzeMethod`/
-  `BordaMethod`). Schulze computes the pairwise preference matrix and the Floyd-Warshall-style
-  strongest-path ("beatpath") closure over it (the "winning votes" variant, matching Schulze's
-  own paper and the Debian project's devotee implementation), ranking candidates by how many
-  others they beat this way; Borda supports classic scoring (`n-1, n-2, ..., 0`) and the
-  Dowdall/Nauru system (`1, 1/2, 1/3, ...`, selected via `--borda-scoring dowdall`), with tied
-  ranks on a ballot averaging the scores their span would otherwise be worth. Schulze is
-  validated against Wikipedia's worked 5-candidate example, a hand-derived genuine pairwise
-  cycle (A beats B beats C beats A in direct comparisons, resolved cleanly to A>B>C by
-  strongest path), a hand-derived perfect dead-heat (a genuine, unresolvable tie for the win),
-  a tied-ranking ballot, an unranked-candidate case, and a real Debian General Resolution's own
-  published pairwise tally (`SchulzeMethodTest`, `SchulzeDebianGr2004002FixtureTest`) — ballot-
-  level Debian data isn't public (GR ballots are secret), so that fixture checks the
-  strongest-path/ranking computation directly against the real matrix rather than a full
-  ballot replay. A real *cycle* specifically — where beatpath routing actually changes the
-  outcome versus a plain Condorcet winner — appears to be very rare in practice: an analysis of
-  Debian's own election history found all 7 of its early leader elections had a clean
-  Condorcet winner, and no other documented real election with a published genuine cycle was
-  found either, so the cycle case above is hand-derived rather than sourced from a real
-  election. Borda is validated against two independent constituencies from the real 2019
-  Nauruan parliamentary election, Anabar and Boe (`BordaNauru2019AnabarFixtureTest`,
-  `BordaNauru2019BoeFixtureTest`), plus hand-derived cases for `ModifiedBorda`, a partial
-  ballot mixed with full ones, a three-way tie, a single-candidate election, and a blank
-  ballot (`BordaMethodTest`) — real per-voter ballots aren't public for Nauru either, but
-  Dowdall scoring is linear in each candidate's own (rank, count) marginal alone, so a
-  synthetic ballot set reconstructed to match each real published marginal table is
-  mathematically guaranteed to reproduce the same official scores, which it does, exactly, for
-  both constituencies. Only a text report exists for either method so far — `--report-format
-  csv/json/html` isn't supported yet for `--method schulze`/`borda`
-- **CPO-STV** (`--method cpo-stv`, Nicolaus Tideman's Comparison of Pairs of Outcomes by STV) —
-  a fundamentally different shape again: instead of one count with a single sequence of
-  elections/eliminations, it exhaustively enumerates every possible `seats`-sized candidate
-  subset ("outcome"), scores every pair of them against each other via a small notional
-  STV-style count (excluding candidates in neither outcome, transferring the surplus only of
-  candidates *shared* by both, largest first, two equal surpluses in declared candidate order
-  — a candidate unique to just one outcome keeps whatever they end up with), and picks whichever outcome beats every other — falling back to the same
-  beatpath-completion idea `SchulzeMethod` uses (reimplemented locally over `Fraction`-valued
-  outcome scores rather than `SchulzeMethod`'s `BigInteger` vote counts) if no outcome wins
-  outright. Reuses the existing `Quota`/`TransferMethod`/`RoundingRule` building blocks for the
-  notional count (`--quota`/`--transfer`/`--rounding` all apply; `--tiebreak` doesn't, since
-  there's no elimination to break a tie for). The number of outcomes is `C(candidates, seats)`,
-  and comparisons scale quadratically in that, so `CpoStvCounter.MAX_OUTCOMES` caps it at 500
-  outcomes (at most 124,750 comparisons) rather than letting a larger election silently hang.
-  Each comparison only depends on how ballots order that pair's own candidates, so it counts
-  ballots reduced to that order and merged, in index arrays, with comparisons run in parallel
-  — identical results to counting every ballot one by one (checked against the previous
-  implementation on 400 random elections across every quota, transfer, and rounding rule, every
-  pairwise score equal), but 10 candidates / 3 seats / 100,000 voters now takes about 9 s
-  rather than 262 s, and 12 / 4 / 10,000 about 34 s rather than over 10 minutes —
-  there's no real-world precedent to size this against, since CPO-STV sees virtually no
-  practical use for exactly this reason — as of a 2021 analysis, CPO-STV has never actually been
-  used for a public election, so there's no real-world data to validate against; every fixture
-  here is hand-derived (some with the help of a small independent Python re-implementation of
-  this exact algorithm, used to search for and verify tricky cases before transcribing them into
-  Java) rather than sourced from a real count. Validated against the CPO-STV Wikipedia article's
-  own worked example (5 candidates, 3 seats); a case where WIGM and fractional transfer agree
-  (confirming `CpoStvRuleset`'s transfer method is genuinely threaded through the notional
-  count); ballots with no continuing preference becoming exhausted rather than miscounted; a
-  genuine tie between four different outcomes; a genuine three-outcome cycle in *direct*
-  pairwise comparison that the beatpath completion still resolves to a full strict ranking; and
-  the `seats = candidates - 1` boundary case, where no outcome pair ever excludes anyone from
-  standing and a shared candidate's transferred surplus can itself push a second shared
-  candidate over quota, cascading a further transfer (`CpoStvCounterTest`). Beyond those, one
-  realistic-size count is checked against an independent implementation
-  (`tools/reference/cpo_stv.py`, written from the method's rules alone): a synthetic 52/48 race
-  with 8 candidates, 4 seats and 10,000 voters from the VoteKit tool below, where all 4,830
-  pairwise scores match exactly and an independent Schulze computation over them picks the same
-  committee (`CpoStvNearTieCycleFixtureTest`). It's also a case where CPO-STV genuinely parts
-  company with STV: committees differing by one equally popular candidate form a cycle, and the
-  beatpath completion elects a committee that loses head to head to the one every classic STV
-  variant elects. Only a text report
-  exists so far (`CpoStvTextReport`), and it doesn't print the full pairwise score matrix (grows
-  quadratically, usually too large to read) — just the winning outcome and the full ranking.
-- **Cambridge STV** (`--method cambridge`) — the rules Cambridge, Massachusetts uses for its City
-  Council and School Committee (Massachusetts General Laws ch. 54A, surpluses by the
-  "Cincinnati method"), following OpenSTV's `CambridgeSTV` step for step (`CambridgeCounter`).
-  Every ballot counts whole for one candidate at a time, and which ballots move depends on
-  their *order* (a BLT line with count k is k consecutive identical ballots, as Cambridge
-  numbers them in counting order): a fixed whole-vote Droop quota; everyone elected once the
-  first count is done (Cambridge's result pages: "elected immediately (after the 1st count)");
-  each surplus, largest first, moved by taking every n-th of the candidate's ballots from the
-  n-th (n = total ÷ surplus, rounded), then every n-th from the (n+1)-th, and so on, skipping
-  ballots with no continuing next choice and closing to any candidate who reaches quota; the
-  first exclusion takes everyone under 50 votes at once; ties broken by looking back through
-  earlier rounds, then by `--tiebreak` (`declared`, the default, is OpenSTV's `-t index`).
-  Checked round by round against OpenSTV on 60 generated elections (114 surplus transfers,
-  batch exclusions in all of them, 19 tie-breaks): every stage's counts, non-transferable
-  total, and winners match exactly, and two deliberate rule mistakes (starting the every-n-th
-  run one ballot late; not closing a candidate who reaches quota mid-transfer) each fail most
-  of them (`CambridgeOpenStvReferenceTest` replays one stored OpenSTV count; `CambridgeCounterTest`
-  has a hand-worked case where the Cincinnati method gives a whole surplus to one candidate that
-  fractional STV would split). Not yet replayed against an official Cambridge count: the
-  city doesn't currently publish ballot-level data, counting order matters, and its settings
-  say "Random, every nth ballot", which may mean a random starting point where OpenSTV always
-  starts at the n-th. Ties in rankings: `reject` by default, `truncate`/`skip` available,
-  `split` refused (whole ballots can't be split). Because ballot order decides which ballots
-  move, the same votes counted in another order can elect different people;
-  `tools/order-sensitivity` measures it. At 10,000 voters, 200 random orders of each of 30
-  generated elections never changed the result; in small electorates with many seats it
-  sometimes does, and when the quota is close to the 50-vote cutoff (1,000 ballots for 9 seats)
-  it can even decide whether every seat is filled, since the first exclusion can then remove
-  too many candidates at once — OpenSTV counts those the same way, and real Cambridge quotas
-  (around 2,500) are far from it.
-- **QPQ** (`--method qpq`, Douglas Woodall's Quota Preferential by Quotient — see his paper
-  "QPQ, a quota-preferential STV-like election rule", *Voting matters* Issue 17, 2003) — not to
-  be confused with the bundled `hare-clark-qpq` *ruleset* above, an unrelated classic-STV preset
-  that happens to share the same three letters in its name. Structurally unlike every
-  parcel-based method here: a ballot's vote is never split or devalued, it always counts as one
-  full vote for whichever hopeful candidate currently tops its ranking. What changes instead is
-  a per-ballot bookkeeping number, its *elected-credit* — how many candidates, fractionally, it
-  has "helped elect" so far — used only to compute each hopeful candidate's quotient
-  (`votes / (1 + elected-credit)`) and the quota (`active votes / (1 + seats - exhausted
-  ballots' banked credit)`), both recalculated every stage rather than fixed once. If the
-  highest quotient beats quota, that candidate is elected and every ballot currently topping
-  them has its credit *overwritten* with `1/quotient`; otherwise the lowest-quotient candidate
-  is permanently excluded and — this is the rule's distinctive, easy-to-miss feature — **the
-  whole count restarts**: every previously-elected candidate returns to hopeful, every ballot's
-  credit resets to zero, and counting resumes from scratch with one fewer candidate in the
-  running. This makes QPQ structurally closer to `MeekCounter`'s whole-count iteration than to
-  classic STV's incremental transfers, but simpler than Meek's method in one respect: since it's
-  exact quotient arithmetic rather than a converging keep-factor, there's no numeric-tolerance
-  loop needed anywhere, just a bounded, finite sequence of exact `Fraction` stages. Only
-  `--tiebreak` applies (`--quota`/`--transfer`/`--rounding` don't — both are derived formulas,
-  not pluggable). Validated with hand-derived cases (`QpqCounterTest`) — including one
-  specifically constructed to exercise the restart-and-re-election mechanic, which caught a
-  real bug during development (a naive "elect every remaining hopeful once the loop ends"
-  cleanup step didn't check whether every seat was already filled by explicit elections,
-  wrongly adding an extra winner) — and cross-checked against **two independent, genuine
-  open-source implementations of this exact algorithm**: `jklundell/droop`'s `qpq.py` and
-  OpenSTV's `QPQ.py`, both confirmed to implement Woodall's rule directly (unlike the false
-  leads chased for `hare-clark-qpq` below, where neither tool turned out to implement Tasmania's
-  actual rules). Six synthetic ballot sets plus one purpose-built restart-and-re-election case
-  matched both reference implementations' quota and every candidate's quotient, stage by stage,
-  to 9 decimal places — OpenSTV's own transcript even independently labels the exact stage this
-  project's `restarted` flag marks as "Restart count."
-- The two least-common quotas, `HareQuota` and `ImperialiQuota`, were previously only
-  unit-tested in isolation (`QuotaTest`), never run end-to-end through `StvCounter`. Neither
-  droop nor OpenSTV could validate either: droop's WIGM rule only ever computes Droop, and
-  while OpenSTV's abstract `STV.py` base class has Hare-quota code, no shipped method plugin
-  actually selects it and its own CLI has no option to switch quotas at all — tracing that
-  dead code also showed it silently adds a "+1" that isn't part of the textbook Hare quota
-  (plain `votes / seats`) this project implements. `ImperialiQuota` is closed with a
-  hand-derived, self-consistency-only fixture — it also exercises a real edge case Imperiali
-  is uniquely prone to among the bundled quotas: its smaller quota doesn't mathematically
-  guarantee no more candidates can reach it than there are seats, so the fixture has three
-  candidates meet quota in the same round for only two seats, with the existing
-  batch-election machinery correctly dropping the third. `HareQuota`, though, turned out to
-  have a genuine, actively-maintained independent implementation after all: the CRAN package
-  [`STV`](https://cran.r-project.org/package=STV) (Emerson et al., Yale) implements the exact
-  same unrounded `votes / seats` formula (`quotaMethod = "Hare", quotaFloor = FALSE`) with a
-  matching `Fractional` surplus option — two fixtures (an exact-quota match with zero surplus,
-  and a genuine fractional surplus transfer) both reproduce that package's round-by-round
-  output exactly (`StvCounterTest`).
+| Method | `--method` | What it is | Checked against |
+|---|---|---|---|
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | 9 real elections (Scottish councils, ACT Kurrajong 2020, Irish Dáil 2002), the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
+| Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
+| Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
+| Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
+| QPQ | `qpq` | Woodall's Quota Preferential by Quotient: whole votes, quotients, a restart after each exclusion | droop and OpenSTV, to 9 decimal places |
+| CPO-STV | `cpo-stv` | Tideman's: every possible committee compared with every other | hand-worked cases; an independent implementation (4,830 scores) |
+| Schulze | `schulze` | Condorcet beatpath ranking (winning votes) | Wikipedia's example, a Debian vote's published tally |
+| Borda | `borda` | Positional scoring: classic, or Dowdall (Nauru) via `--borda-scoring`; tied ranks share their positions' points | Nauru 2019, two constituencies |
 
-Not yet implemented: Schulze-STV (the other multi-winner Condorcet-STV extension, alongside CPO-STV above — deferred
-specifically because its "proportional completion" step requires solving a genuine optimization
-problem per pairwise outcome comparison, i.e. an LP-style solver, which is a real dependency
-this project doesn't currently have and which the plan's own tooling section explicitly avoided
-pulling in). Tied ballot rankings are counted natively by Schulze and Borda, and by every
-other method under its tied-ranking policy (see above).
+IRV is STV with one seat. Schulze-STV isn't implemented (see [Limitations](#limitations)).
 
-Two rulesets are validated only at the arithmetic/config level, not against a real or model
-election, and after a real search, likely can't be: ERS76 (see the `ers76` ruleset note
-above — no surviving copy of the 1976 rulebook itself, or any election published under it
-specifically, was found) and `hare-clark-qpq` (the Tasmanian Electoral Commission publishes
-genuine, detailed official round-by-round scrutiny reports per election, but — unlike the
-AEC or Elections ACT — never ballot-level preference data itself, so there's nothing to feed
-the engine and check it reproduces those reports from). Cambridge STV is checked against
-OpenSTV but not yet against an official Cambridge count (see its entry above).
+## Quick start
 
-One known, documented gap versus official reporting: when a candidate's surplus transfer
-causes a rounding truncation loss (e.g. a transfer ratio truncated from 0.1359375 to 0.13593),
-official reports track that tiny loss as its own "non-transferable votes due to rounding"
-line so their running total always reconciles exactly to the total valid vote count. This
-engine doesn't track that loss as a separate bucket — it isn't attributed to any candidate or
-to "exhausted" — so summing a round's candidate tallies plus its exhausted-vote count will be
-a hair short of the true total by the rounding loss accumulated so far. This doesn't affect
-who gets elected or any individual candidate's tally, which always match official figures
-exactly; it only affects a full grand-total reconciliation, which this engine doesn't attempt.
+Requires Java 25 and Maven.
 
-Another known gap, specific to the last-parcel-family rulesets' surplus transfers: real ERS97
-counting may put off a surplus and exclude first, when a vote-gap check shows that
-transferring it couldn't change who is excluded. This engine never does — it transfers every
-pending surplus, one per round and largest first, before it considers any exclusion. (Bulk
-exclusion, ERS97 rule 5.2.5's other exclusion shortcut, *is* implemented: see
-`batchExclusion` above.) Confirmed against both the ERS97 model election and the real 2020
-Kurrajong election: every individual tally, once transferred, and the final elected set,
-still match exactly — only *when* a surplus gets transferred (and so the exact round/stage
-numbering beyond that point) can differ from an official count.
-
-## Requirements
-
-- Java 25
-- Maven
-
-## Building
-
-```
+```sh
 mvn package
+java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input examples/wikipedia-andrea-brad-carter-delilah.blt
+java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input election.blt --ruleset scottish
+java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input election.blt --method meek --report-format html --output result.html
 ```
 
-This produces an executable jar at `target/rankedchoice-<version>.jar`.
+`mvn test` runs the test suite, including the real-election fixtures.
 
-## Running
+## STV building blocks
 
-```
-java -jar target/rankedchoice-<version>.jar --input path/to/election.blt
-```
+A classic STV ruleset is a combination of independent choices:
+
+- **Quota** (`--quota`): `droop` (whole votes, `floor(votes / (seats+1)) + 1`), `hare`
+  (`votes / seats`), `hagenbach-bischoff` (`votes / (seats+1)`), `imperiali`, and
+  `droop-rounded:N` (Droop rounded up to N decimal places, as ERS97 uses).
+- **Transfer method** (`--transfer`):
+  - `fractional` — inclusive Gregory: a surplus moves as one ratio across everything the
+    candidate holds.
+  - `wigm` — the Weighted Inclusive Gregory Method (Scottish local elections): the same, but
+    rounded per parcel of ballots received at the same value.
+  - `last-parcel` — only the candidate's most recently received parcel moves (ERS97, Tasmania),
+    the ratio taken over ballots that have a next preference, then rounded.
+  - `last-parcel-deferred-rounding` — the same, but each recipient's gain is rounded instead of
+    the ratio (ACT).
+
+  Under the two last-parcel methods an excluded candidate's ballots move one value group at a
+  time, largest first, and surpluses wait until they're the largest pending, as in ERS97.
+- **Rounding** (`--rounding`): `exact`, or `truncate:N` (round down to N decimal places, as real
+  rulesets do).
+- **Tie-break** (`--tiebreak`): a fallback chain of `declared` (candidate order),
+  `previous-round`, `first-preference` and `seeded-random:SEED`, e.g. `previous-round,declared`.
+- **Batch exclusion** (config `batchExclusion`): ERS97 rule 5.2.5 — exclude several of the
+  lowest candidates at once when together they still couldn't overtake the next.
+
+### Tied rankings and short ballots
+
+These apply to every method that transfers votes (`stv`, `meek`, `warren`, `cambridge`, `qpq`,
+`cpo-stv`); Schulze and Borda count tied rankings natively.
+
+- **`--tied-rankings`** — what to do with a ballot ranking several candidates equally:
+  - `reject` refuses to count the election;
+  - `split` shares the ballot evenly among the tied candidates still standing — defined for
+    fractional-transfer STV, Meek and Warren, which use it by default;
+  - `truncate` ends the ballot at the tie, so a tie at the first preference voids it (the
+    Scottish rule; every bundled preset uses this);
+  - `skip` drops the tied rank and carries on.
+  
+  Everything else defaults to `reject`.
+- **`--minimum-preferences N`** — a ballot ranking fewer than N candidates (after tied rankings
+  are dealt with) is informal: not counted and not part of the valid vote. Capped at one fewer
+  than the number of candidates. Tasmania's 7-preference rule is the use case.
+
+Ballots set aside this way, and blank ones, are reported as informal ballots, with the reason.
+
+## Bundled rulesets
+
+`--ruleset NAME` loads a preset; any flag still overrides its fields
+(`--ruleset scottish --transfer fractional` is legal).
+
+| Name | Rules | Used for | Source |
+|---|---|---|---|
+| `scottish` | Droop + WIGM + truncate:5, tied rankings truncated | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rules 43(1)(c) and 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
+| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
+| `ers76` | Same settings as `ers97` | ERS97's predecessor | No technical spec or election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule difference (quota rounded to 0dp above 100, not implemented here); treat as "believed similar", not verified |
+| `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections: add `--minimum-preferences 3`) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
+| `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
+
+Each preset's tied-ranking rule comes from its rulebook: the Scottish order's rule 43(1)(c) (a
+"1" against more than one candidate voids the paper), ERS97 glossary 6.8–6.12, the ACT Act's
+Schedule 4 clause 2(2) with s.180(2)(c), and the Tasmanian Act's ss.102–103 (a duplicate above
+the 7th preference ends the ballot there). `hare-clark-qpq` and `act-hare-clark` share the
+"Hare-Clark" name but differ: Tasmania rounds the shared transfer ratio to 2 places, the ACT
+each recipient's gain to 6. Despite its name, `hare-clark-qpq` is classic STV, unrelated to the
+QPQ method.
+
+## Command line
 
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-m, --method` | Counting method: `stv\|meek\|warren\|cambridge\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. `--quota`/`--transfer` don't apply to `meek`/`warren`, nor `--rounding` to `cambridge` (whole ballots, a fixed quota); `schulze`/`borda` don't use `--seats`, `--quota`, `--transfer`, `--rounding`, or `--tiebreak` at all; `cpo-stv` uses `--seats`/`--quota`/`--transfer`/`--rounding` but not `--tiebreak`; `qpq` uses `--seats`/`--tiebreak` but not `--quota`/`--transfer`/`--rounding` (both are derived formulas, not configurable). |
-| `-f, --format` | Input format: `blt` or `csv`. Inferred from the file extension if omitted. Can also come from `--config`'s `format` field. |
-| `-s, --seats` | Seats to fill. Required for CSV input under `stv`/`meek`/`warren`/`cpo-stv`/`qpq` (can also come from `--config`'s `seats` field); for BLT input, overrides the file's own seat count if given. Unused by `schulze`/`borda`. |
+| `-m, --method` | `stv\|meek\|warren\|cambridge\|schulze\|borda\|cpo-stv\|qpq`. Defaults to `stv`. |
+| `-f, --format` | Input format, `blt` or `csv`; inferred from the file extension if omitted. |
+| `-s, --seats` | Seats to fill. Required for CSV input; for BLT, overrides the file's seat count. Not used by `schulze`/`borda`. |
 | `-o, --output` | Output file. Defaults to standard output. |
-| `--report-format` | Report output format: `text\|csv\|json\|html` for `stv`/`meek`/`warren`/`cambridge`; only `text` exists so far for `schulze`/`borda`/`cpo-stv`/`qpq`. Defaults to `text`; inferred from `--output`'s extension (`.csv`/`.json`/`.html`/`.htm`) if that's given and this isn't. Can also come from `--config`'s `reportFormat` field. |
-| `-c, --config` | YAML config file (see below). Mutually exclusive with `--ruleset`. |
-| `-r, --ruleset` | A bundled ruleset preset by name: `scottish`, `ers97`, `ers76`, `hare-clark-qpq`, `act-hare-clark`. Mutually exclusive with `--config`. |
-| `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N`. Overrides `--config`/`--ruleset`. |
-| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding`. Overrides `--config`/`--ruleset`. |
-| `--rounding` | `exact\|truncate:N`. Defaults to `exact`, which can grow very slow on large counts with long rankings and many seats — exact transfer ratios compound into ever-larger fractions as ballots pass through elected candidates (300 candidates / 33 seats / 40 preferences each took over 20 minutes even at 20,000 voters). A warning is printed on stderr as soon as that starts; `truncate:9` keeps figures bounded (43 s for the same count at 1M voters). Every bundled preset already rounds. Overrides `--config`/`--ruleset`. |
-| `--tiebreak` | A comma-separated fallback chain: `declared\|previous-round\|first-preference\|seeded-random:SEED`, e.g. `previous-round,declared`. Overrides `--config`/`--ruleset`. |
-| `--tied-rankings` | What to do with a ballot ranking several candidates equally: `reject\|split\|truncate\|skip`. Defaults to `split` for `meek`/`warren` and for `stv` under fractional transfer, `reject` otherwise; every bundled preset sets `truncate`. `split` is only available for `meek`/`warren` and fractional-transfer `stv`. Applies to `stv`, `meek`, `warren`, `cambridge`, `cpo-stv`, and `qpq` (`schulze`/`borda` count ties natively). Overrides `--config`/`--ruleset`. |
-| `--minimum-preferences` | Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as informal, capped at one fewer than the number of candidates. Defaults to none; the `hare-clark-qpq` preset sets 7. Applies to `stv`, `meek`, `warren`, `cambridge`, `cpo-stv`, and `qpq`. Overrides `--config`/`--ruleset`. |
-| `--precision` | Decimal places a `meek`/`warren` count works to. Defaults to 9 (droop's default for fixed-point Meek). Only shapes the count itself — `--rounding` still controls how figures are reported. `meek`/`warren` only. Overrides `--config`. |
-| `--borda-scoring` | `classic\|dowdall`. Only applies to `--method borda`; defaults to `classic`. `dowdall` is the Nauru system (`1, 1/2, 1/3, ...`). |
+| `--report-format` | `text\|csv\|json\|html` (for `stv`, `meek`, `warren`, `cambridge`; the others have `text` only). Defaults to `text`, or inferred from `--output`'s extension. |
+| `-c, --config` | YAML config file (below). Not with `--ruleset`. |
+| `-r, --ruleset` | A [bundled ruleset](#bundled-rulesets). Not with `--config`. |
+| `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N` — `stv` and `cpo-stv`. |
+| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding` — `stv` and `cpo-stv`. |
+| `--rounding` | `exact\|truncate:N`. Defaults to `exact` — but see [Limitations](#limitations) for large counts. Not used by `cambridge`, `qpq`, `schulze`, `borda`; for `meek`/`warren` it only shapes the report. |
+| `--tiebreak` | Fallback chain, e.g. `previous-round,declared`. Not used by `cpo-stv`, `schulze`, `borda`. |
+| `--tied-rankings` | `reject\|split\|truncate\|skip` — see [above](#tied-rankings-and-short-ballots). |
+| `--minimum-preferences` | Minimum preferences for a ballot to count — see [above](#tied-rankings-and-short-ballots). |
+| `--precision` | Decimal places a `meek`/`warren` count works to; default 9 (droop's default). Changes the count itself, not just the report. An electorate too large for the chosen precision (about 4.6 billion votes at 9 places, 4.6 million at 12) is refused, naming the highest precision that fits. |
+| `--borda-scoring` | `classic\|dowdall` for `--method borda`; default `classic`. |
 
-### Rules and config
+Every flag overrides the config file or ruleset, field by field. `meek`, `warren`, `cambridge`
+and `qpq` refuse `--quota`/`--transfer` (and `cambridge`/`qpq` `--rounding` too), since those
+are part of the method; `--tied-rankings`, `--minimum-preferences` and `--precision` are
+refused by methods that don't use them. `schulze` and `borda` ignore the STV options, and
+`cpo-stv` ignores `--tiebreak`.
 
-A YAML config file can set any combination of `quota`, `transfer`, `rounding`, `tiebreak`,
-`seats`, `format`, `reportFormat`, `batchExclusion`, `tiedRankings`, `minimumPreferences`,
-and `precision` — all optional:
+### Config file
+
+A YAML file (`--config`) can set any of `quota`, `transfer`, `rounding`, `tiebreak`, `seats`,
+`format`, `reportFormat`, `batchExclusion`, `tiedRankings`, `minimumPreferences` and
+`precision`:
 
 ```yaml
 quota: hare
@@ -493,65 +146,21 @@ tiebreak: previous-round,declared
 reportFormat: json
 ```
 
-`batchExclusion` (`true`/`false`, default `false`) enables ERS97 rule 5.2.5's "exclude as many
-candidates together as possible" provision — see [Bundled rulesets](#bundled-rulesets) below.
-There's no `--batch-exclusion` CLI flag: unlike quota/transfer/rounding/tiebreak, it's treated
-as an intrinsic ruleset characteristic rather than something to override per run.
+Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
+always flag, then config or ruleset, then built-in default. `batchExclusion` has no flag: it's
+treated as a fixed property of a ruleset.
 
-`tiedRankings` (`reject`/`split`/`truncate`/`skip`) says what to do with a ballot ranking
-several candidates equally — see the STV engine section above. Unlike `batchExclusion` it
-does have a CLI override, `--tied-rankings`, since for a generic election it's a genuine
-per-count choice rather than a fixed property of a jurisdiction's rules.
+## Reports
 
-`minimumPreferences` (a whole number, default none) makes a ballot ranking fewer candidates
-than this informal — see the STV engine section above. It has a CLI override,
-`--minimum-preferences`, mainly so a preset can be adjusted without copying it: Tasmanian
-council elections are `--ruleset hare-clark-qpq --minimum-preferences 3`.
-
-`precision` (a whole number, 1–15, default 9) sets the decimal places a `meek` or `warren`
-count works to; `--precision` overrides it. Like `--rounding` it's per-count, but unlike
-`--rounding` it changes the count itself, not just how its figures are shown.
-
-`--ruleset <name>` is exactly the same mechanism, pointed at a bundled config shipped as a
-classpath resource (`src/main/resources/rulesets/<name>.yaml`) instead of a file you supply.
-Precedence when combining sources is always **CLI override flag > config/ruleset file >
-built-in default**, resolved independently per field — so `--ruleset scottish --transfer
-fractional` is legal and just swaps out the transfer method on top of the Scottish preset.
-Passing an unrecognized name (e.g. `--ruleset scotish`) lists all the ones below.
-
-#### Bundled rulesets
-
-| Name | Rules | Used for | Source |
-|---|---|---|---|
-| `scottish` | Droop + WIGM + truncate:5, tied rankings truncated | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rules 43(1)(c) and 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
-| `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
-| `ers76` | Same settings as `ers97` | ERS97's predecessor | No dedicated technical spec or real-election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule delta (quota rounds to 0dp above 100, not implemented here) but that's a third-party reimplementation, not the rulebook itself; treat as "believed similar," not verified-accurate |
-| `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections: add `--minimum-preferences 3`) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
-| `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
-
-`hare-clark-qpq` and `act-hare-clark` share the "Hare-Clark" name but aren't the same rules —
-Tasmania rounds the shared transfer ratio to 2 decimal places, while the ACT rounds each
-destination candidate's own resulting gain to 6 decimal places instead (see
-`LastParcelDeferredRoundingTransfer`'s javadoc). See [Status](#status) above for which of
-these have been checked against real election data, and to what precision.
-
-A tie-break value is a fallback chain, evaluated left to right: `previous-round,declared`
-tries `previous-round` first and only falls back to `declared` if the tied candidates were
-tied in every prior round too (or there's no history yet, e.g. a tie in round 1 itself).
-`declared` always resolves on its own and needs no fallback.
-
-### Try it
-
-A sample ballot file is included at `examples/wikipedia-andrea-brad-carter-delilah.blt`
-(adapted from Wikipedia's "Counting single transferable votes" worked example):
-
-```
-java -jar target/rankedchoice-<version>.jar --input examples/wikipedia-andrea-brad-carter-delilah.blt
-```
+Text, CSV, JSON and a self-contained HTML page, with the same figures in each: every round's
+tallies, the action (elected with its surplus, or excluded), and exhausted votes. Informal
+ballots are reported with their reasons — a leading line in text and HTML, an `informalBallots`
+object in JSON, an `informal_ballots` column in CSV. JSON's structure is also available as
+objects (`StvJsonReport.toReport`).
 
 ## Ballot formats
 
-**`.blt`** — the de facto format used by tools like OpenSTV:
+**BLT** — the format OpenSTV and most STV tools use:
 
 ```
 <num candidates> <num seats>
@@ -565,9 +174,10 @@ java -jar target/rankedchoice-<version>.jar --input examples/wikipedia-andrea-br
 ["Election title"]
 ```
 
-Blank lines and lines starting with `#` are ignored anywhere in the file.
+Blank lines and lines starting with `#` are ignored. Ballot order is kept, which matters for
+`cambridge`: a line with count k is k consecutive identical ballots.
 
-**CSV** — a header row starting with `count`, followed by one column per preference rank:
+**CSV** — a header starting with `count`, then one column per preference:
 
 ```
 count,rank1,rank2,rank3
@@ -575,21 +185,35 @@ count,rank1,rank2,rank3
 7,Bob,Alice=Carol,
 ```
 
-A blank cell ends that ballot's ranking. Tied candidates within a rank are written as
-`A=B`. Cells may be double-quoted (RFC4180-style, `""` as an escaped quote) to contain a
-literal comma.
+A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
 
-## Testing
+## Limitations
 
-```
-mvn test
-```
+- **Schulze-STV isn't implemented.** Its "proportional completion" step needs an optimisation
+  solver per pair of outcomes, and no implementation exists to check one against.
+- **Exact arithmetic can be slow.** With `--rounding exact` (the default), fractional transfers
+  compound into ever larger fractions when ballots pass through many elected candidates — 300
+  candidates, 33 seats and 40 preferences per ballot stalls even at 20,000 voters. The count
+  warns on stderr when this starts; `--rounding truncate:9` keeps it bounded, and every bundled
+  preset rounds anyway.
+- **Rounding loss isn't reported separately.** Official reports list votes lost to truncation
+  as their own line so totals reconcile; here a round's tallies plus exhausted votes fall short
+  of the total by that loss. Individual tallies and winners are unaffected.
+- **ERS97 surplus deferral.** Real ERS97 counts may put off a surplus and exclude first when it
+  can't change who is excluded; this engine always transfers pending surpluses first. Tallies
+  and winners still match the ERS97 model election and Kurrajong; only stage numbering can differ.
+- **Not validated:** `ers76` and `hare-clark-qpq` (no data to check against); Cambridge STV
+  against official Cambridge counts (no public ballot data; ballot order matters). See
+  [VALIDATION.md](VALIDATION.md#not-validated).
+- **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`).
+- **Cambridge STV depends on ballot order**: rarely at realistic sizes, but in small
+  electorates with many seats another order can elect different people
+  (`tools/order-sensitivity` measures it).
 
 ## Performance
 
-Measured end to end through the CLI (JVM startup and file parsing included) on a 14-core
-machine, on synthetic elections where every voter casts a distinct ballot (the worst case for
-engines that work per distinct ballot), ranking about 5 candidates on average:
+End to end through the command line (JVM startup and parsing included) on a 14-core machine,
+with every voter casting a distinct ballot ranking about 5 candidates:
 
 | Method | 20 candidates, 5 seats, 100k voters | 20 / 5, 1M voters | 100 / 20, 100k voters |
 |---|---|---|---|
@@ -602,18 +226,19 @@ engines that work per distinct ballot), ranking about 5 candidates on average:
 | Cambridge STV | 1.3 s | 3.7 s | — |
 | Meek / Warren | 1.6 / 1.7 s | 4.8 / 5.7 s | 6.4 / 7.2 s |
 
-Reading a 1M-ballot file takes about 1 s. Memory isn't a practical limit: every method counts
-1M ballots within a 256 MB heap (all but Meek within 192 MB; parsing alone needs under 128 MB),
-so the default heap is plenty — the JVM will still take more when it's available, which is why
-a run's resident size can look much larger than it needs to be.
-CPO-STV scales with the number of outcome pairs rather than voters: 10 candidates / 3 seats
-(120 outcomes) takes about 9 s at 100k voters, 12 / 4 (495 outcomes) about 34 s at 10k.
+At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 3.8 s
+(27 s), Schulze 1.7 s (11 s), `scottish` 6.9 s (16 s), `ers97` 8.9 s (26 s), QPQ 37 s (68 s), Meek
+63 s (135 s), Warren 75 s (193 s). CPO-STV grows with the number of committee pairs instead:
+10 candidates / 3 seats takes about 9 s at 100k voters, 12 / 4 about 34 s at 10k. Every method
+counts 1M ballots within a 256 MB heap.
 
-At 300 candidates, 33 seats and 1M voters, with voters ranking about 5 (or about 40)
-candidates: Borda 3.8 s (27 s), Schulze 1.7 s (11 s), WIGM STV (`scottish`) 6.9 s (16 s),
-last-parcel STV (`ers97`) 8.9 s (26 s), QPQ 37 s (68 s), Meek 63 s (135 s), Warren 75 s
-(193 s). Exact-arithmetic STV managed 17 s with short rankings but not the long ones (see
-`--rounding`); CPO-STV can't run at all (C(300, 33) outcomes).
+## Tools
+
+- [`tools/votekit`](tools/votekit/README.md) — generate realistic mock elections with
+  [VoteKit](https://github.com/mggg/VoteKit) and compare how every method fills the seats.
+- [`tools/order-sensitivity`](tools/order-sensitivity/README.md) — measure how much ballot
+  order changes a Cambridge STV count.
+- `tools/reference/cpo_stv.py` — an independent CPO-STV scorer used to check this one.
 
 ## Project layout
 
@@ -628,30 +253,24 @@ src/main/java/info/fkhodkov/rankedchoice/
 │   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota,
 │   │              RoundedUpQuota
 │   ├── transfer/  TransferMethod, FractionalTransfer, WigmTransfer, LastParcelTransfer,
-│   │              LastParcelDeferredRoundingTransfer, HeldParcel (the parcel abstraction
-│   │              transfer methods operate on)
+│   │              LastParcelDeferredRoundingTransfer, HeldParcel
 │   ├── rounding/  RoundingRule, Exact, TruncateDecimal
 │   ├── tiebreak/  TieBreakRule, DeclaredOrderTieBreak, PreviousRoundVotesTieBreak,
 │   │              FirstPreferenceCountTieBreak, SeededRandomTieBreak
-│   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak string DSL)
+│   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak strings)
 │   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
-│   ├── meek/      MeekCounter, MeekRuleset, KeepRule, FixedPoint -- Meek's and Warren's
-│   │              methods in droop's fixed-point arithmetic, producing the same StvResult
+│   ├── meek/      MeekCounter, MeekRuleset, KeepRule, FixedPoint (Meek and Warren)
 │   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy,
-│       BallotFormality, InformalBallots (tie policy + minimum preferences, shared by every
-│       ranked engine, and the count of ballots they set aside)
+│       BallotFormality, InformalBallots (tied rankings and short ballots, for every engine)
+├── cambridge/     CambridgeCounter, CambridgeRuleset
+├── qpq/           QpqCounter, QpqRuleset, QpqResult, QpqRoundRecord, QpqAction, QpqTextReport
+├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport
-├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport
-├── cambridge/     CambridgeCounter, CambridgeRuleset -- Cambridge, MA STV (Cincinnati method)
-├── qpq/           QpqCounter, QpqRuleset, QpqResult, QpqRoundRecord, QpqAction, QpqTextReport
-└── cli/
-    └── Main
+└── cli/           Main
 
-src/main/resources/rulesets/   bundled ruleset presets (scottish.yaml, ers97.yaml, ...)
+src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)
+src/test/resources/testdata/   real and reference elections (see VALIDATION.md)
+tools/                         VoteKit mock elections, order sensitivity, reference scorer
 ```
-
-## Roadmap
-
-See [PLAN.md](PLAN.md).
