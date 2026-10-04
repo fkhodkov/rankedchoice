@@ -15,8 +15,10 @@ as ordinary Python. Presets, each matched to one of this project's rulesets:
   official count sheet confirms this project follows, so expect differences in the 5th place.
 
 - senate (--ruleset senate): unweighted inclusive Gregory as pyRCV2's own AEC test configures
-  it (whole votes, surpluses in order of election, value-group and bulk exclusion), in exact
-  rational arithmetic rather than its floating point.
+  it (whole votes, surpluses in order of election, value-group exclusion), in exact rational
+  arithmetic rather than its floating point, but excluding one candidate at a time, as the AEC
+  does (its test bulk-excludes). pyRCV2 has no s273(17)/(18) end of count, so its last stages
+  can go on where this project's stop.
 
 Ties are broken backwards through earlier stages, then by declared order, as this project's
 rulesets break them. Two fixes to pyRCV2 are applied here: it stores each stage's result
@@ -50,9 +52,9 @@ PRESETS = {  # counter, number class, decimal places (counting, printing), optio
     "scottish": (WIGSTVCounter, "Rational", None, {**_INCLUSIVE, 'round_tvs': 5}),
     # The Australian Senate, as pyRCV2's own test (tests/test_aec.py) counts it, but in exact
     # rational arithmetic rather than floating point, where rounding down to whole votes could
-    # slip at exact boundaries.
+    # slip at exact boundaries, and without bulk exclusion, which the AEC's counts don't do.
     "senate": (UIGSTVCounter, "Rational", None, {
-        'surplus_order': 'order', 'exclusion': 'by_value', 'bulk_exclude': True,
+        'surplus_order': 'order', 'exclusion': 'by_value', 'bulk_exclude': False,
         'round_quota': 0, 'round_votes': 0}),
 }
 

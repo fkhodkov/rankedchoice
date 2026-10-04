@@ -68,23 +68,24 @@ public final class StvRulesetParser {
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, List<Candidate> declaredOrder) {
         return parse(quota, transfer, rounding, tiebreak, batchExclusion, tiedRankings, minimumPreferences, null, null,
-                null, declaredOrder);
+                null, null, declaredOrder);
     }
 
     /**
      * As above, plus ERS97's surplus deferral and votes required for election, and the order
-     * surpluses go in ({@code size}, the default, or {@code election}) — see {@link StvRuleset}.
+     * surpluses go in ({@code size}, the default, or {@code election}), and the Senate's
+     * end of count — see {@link StvRuleset}.
      */
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, Boolean deferSurpluses,
-            Boolean votesRequired, String surplusOrder, List<Candidate> declaredOrder) {
+            Boolean votesRequired, String surplusOrder, Boolean electAsTheyStand, List<Candidate> declaredOrder) {
         TransferMethod transferMethod = parseTransfer(transfer);
         return new StvRuleset(
                 parseQuota(quota), transferMethod, parseRounding(rounding),
                 parseTieBreak(tiebreak, declaredOrder), batchExclusion != null && batchExclusion,
                 parseTiedRankings(tiedRankings, transferMethod), minimumPreferences == null ? 0 : minimumPreferences,
                 deferSurpluses != null && deferSurpluses, votesRequired != null && votesRequired,
-                parseSurplusOrder(surplusOrder));
+                parseSurplusOrder(surplusOrder), electAsTheyStand != null && electAsTheyStand);
     }
 
     /** {@code size} (largest surplus first, the default) or {@code election} (in order of election). */
@@ -101,7 +102,7 @@ public final class StvRulesetParser {
     public static StvRuleset parse(ElectionConfig config, List<Candidate> declaredOrder) {
         return parse(config.quota(), config.transfer(), config.rounding(), config.tiebreak(), config.batchExclusion(),
                 config.tiedRankings(), config.minimumPreferences(), config.deferSurpluses(), config.votesRequired(),
-                config.surplusOrder(), declaredOrder);
+                config.surplusOrder(), config.electAsTheyStand(), declaredOrder);
     }
 
     /**

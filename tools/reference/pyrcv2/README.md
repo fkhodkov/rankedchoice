@@ -29,6 +29,6 @@ python3 tools/reference/pyrcv2/compare.py ours.json pyrcv2.json
 | `ers97` | `--ruleset ers97` | (no flags) | 99 |
 | `gregory` | `--quota droop --transfer fractional --rounding exact --tiebreak previous-round,declared` | `--exact` | 100 |
 | `scottish` | `--ruleset scottish` | `--combined` | 64; 100 within `--tolerance 0.01` |
-| `senate` | `--ruleset senate` | (no flags) | 191 of 200; the rest differ only in loss by fraction, or crash pyRCV2 |
+| `senate` | `--ruleset senate` | (no flags) | 189 of 200; the rest differ only in loss by fraction, or crash pyRCV2 |
 
 See [VALIDATION.md](../../../VALIDATION.md#the-ers97-model-election) for what the rest are.

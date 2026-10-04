@@ -5,8 +5,12 @@
 # each candidate gains from a transfer are rounded down to a whole number, the rest being "loss
 # by fraction". Surpluses go in the order their candidates were elected. An excluded candidate's
 # papers go one transfer value at a time, highest first, a candidate who reaches quota partway
-# through stopping there; and several of the lowest candidates are excluded together when that
-# can't change the order of exclusion (bulk exclusion).
+# through stopping there. Candidates are excluded one at a time: the Act's bulk exclusion
+# (s 273(13A)) is narrower than the usual rule, and the AEC's counts exclude singly where the
+# usual rule would exclude several together (ACT 2019, counts 9 and 11). The last candidates
+# are elected on their votes as they stand: when an exclusion leaves as many continuing
+# candidates as seats, without transferring the excluded candidate's papers (s 273(17)); and
+# when one seat is left between two, the one with more votes (s 273(18)).
 #
 # Checked against the AEC's official distribution of preferences for Tasmania in 2019 (election
 # 24310), with ballots from the AEC's formal preference data, as pyRCV2 counts them.
@@ -17,5 +21,6 @@ quota: droop
 transfer: unweighted-inclusive
 rounding: truncate:0
 tiebreak: previous-round,declared
-batchExclusion: true
+batchExclusion: false
 surplusOrder: election
+electAsTheyStand: true

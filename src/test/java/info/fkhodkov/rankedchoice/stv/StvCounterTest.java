@@ -1065,6 +1065,41 @@ class StvCounterTest {
         assertThat(small).isEmpty();
     }
 
+    /**
+     * The Senate's last two (s273(18)): one seat left, A on 5 and B on 4, both short of the quota
+     * of 7 once C's 3 votes exhaust. A is elected there and then, on 5; B is never excluded.
+     */
+    @Test
+    void senateElectsTheHigherOfTheLastTwo() {
+        List<Candidate> candidates = List.of(A, B, C);
+        StvRuleset senate = StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/senate.yaml"), candidates);
+
+        StvResult result = StvCounter.count(candidates, List.of(ballot(5, A), ballot(4, B), ballot(3, C)), 1, senate);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(7));
+        assertThat(result.rounds()).extracting(RoundRecord::action).containsExactly(
+                new RoundAction.Eliminated(C), new RoundAction.Elected(A, Fraction.ZERO));
+        assertThat(result.rounds().getLast().tallies()).isEqualTo(Map.of(A, Fraction.of(5), B, Fraction.of(4)));
+    }
+
+    /**
+     * And s273(17): two seats, quota 5, D's 2 votes exhaust, then excluding C leaves A and B for
+     * the two seats. They're elected on 4 each, tied, so A first by declared order; C's 3 papers
+     * never reach B, who would have been elected first on 7 had they moved.
+     */
+    @Test
+    void senateElectsTheLastCandidatesAsTheyStand() {
+        List<Candidate> candidates = List.of(A, B, C, D);
+        StvRuleset senate = StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/senate.yaml"), candidates);
+
+        StvResult result = StvCounter.count(candidates,
+                List.of(ballot(4, A), ballot(4, B), ballot(3, C, B), ballot(2, D)), 2, senate);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(5));
+        assertThat(result.electedInOrder()).containsExactly(A, B);
+        assertThat(result.rounds().getLast().tallies()).isEqualTo(Map.of(A, Fraction.of(4), B, Fraction.of(4)));
+    }
+
     private static StvRuleset fractional(info.fkhodkov.rankedchoice.stv.rounding.RoundingRule rounding,
             List<Candidate> candidates) {
         return new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, rounding,

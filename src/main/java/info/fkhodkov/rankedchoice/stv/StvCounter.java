@@ -175,6 +175,16 @@ public final class StvCounter {
             for (Fraction tally : tallies.values()) {
                 activeVotes = activeVotes.add(tally);
             }
+            if (ruleset.electAsTheyStand() && remainingSeats == 1 && continuing.size() == 2 && pendingSurplus.isEmpty()) {
+                // s273(18): the last seat goes to the higher of the last two, quota or not.
+                Candidate higher = pickHighest(new ArrayList<>(continuing), tallies, ruleset.tieBreak(), priorRounds);
+                elected.add(higher);
+                continuing.remove(higher);
+                credits.settle(higher, tallies.get(higher));
+                rounds.add(new RoundRecord(
+                        roundNumber, tallies, new RoundAction.Elected(higher, Fraction.ZERO), exhausted, loss));
+                break;
+            }
             Fraction required = votesRequired(ruleset, activeVotes, remainingSeats);
             List<Candidate> meetingQuota = continuing.stream()
                     .filter(candidate -> elects(tallies.get(candidate), quota, required))
@@ -303,7 +313,9 @@ public final class StvCounter {
             for (Candidate candidate : toExclude) {
                 continuing.remove(candidate);
             }
-            if (defers) {
+            if (ruleset.electAsTheyStand() && continuing.size() <= seats - elected.size()) {
+                // s273(17): the rest are elected as they stand; the excluded candidate's papers stay put.
+            } else if (defers) {
                 nextParcelId = eliminateByValueGroup(states, running, toExclude, continuing, elected, pendingSurplus,
                         quota, seats, ruleset, priorRounds, nextParcelId);
             } else {

@@ -47,11 +47,20 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * <p>{@code surplusesInElectionOrder} transfers pending surpluses in the order their
  * candidates were elected rather than largest first, as the Australian Senate does; it only
  * matters where surpluses wait (the last-parcel and Senate transfer methods).
+ *
+ * <p>{@code electAsTheyStand} elects the last candidates on their votes as they stand, as the
+ * AEC counts the Senate (Commonwealth Electoral Act 1918 s273(17) and (18)): when an exclusion
+ * leaves as many continuing candidates as seats, they're elected without the excluded
+ * candidate's papers being transferred; and when one seat is left between two continuing
+ * candidates with no surplus waiting, the one with more votes is elected, below quota if need
+ * be, without excluding the other. Otherwise the last exclusion is transferred, as Ireland's
+ * and Scotland's count sheets show.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
         boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
-        boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder) {
+        boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder,
+        boolean electAsTheyStand) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
@@ -62,7 +71,7 @@ public record StvRuleset(
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
         this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
-                false, false);
+                false, false, false);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

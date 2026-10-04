@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, Tasmania's 2019 Senate count, Irish Dáil 2002, the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count of 2019 and 2022, Irish Dáil 2002, the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
@@ -74,6 +74,9 @@ A classic STV ruleset is a combination of independent choices:
   lost.
 - **Surplus order** (config `surplusOrder`): `size` (largest first, the default) or `election`
   (in order of election, as the Australian Senate does).
+- **Elect as they stand** (config `electAsTheyStand`): the Australian Senate's end of count —
+  when an exclusion leaves as many candidates as seats, they're elected without its papers
+  being transferred, and the last seat between two candidates goes to the one ahead.
 
 ### Tied rankings and short ballots
 
@@ -107,7 +110,7 @@ Ballots set aside this way, and blank ones, are reported as informal ballots, wi
 | `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, surplus deferral and votes required for election, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No technical spec or election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule difference (quota rounded to 0dp above 100, not implemented here); treat as "believed similar", not verified |
 | `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections: add `--minimum-preferences 3`) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
-| `senate` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, bulk exclusion | Australian Senate elections | [Commonwealth Electoral Act 1918, s.273](https://www.legislation.gov.au/C1918A00027/latest/text) |
+| `senate` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, last candidates elected as they stand | Australian Senate elections | [Commonwealth Electoral Act 1918, s.273](https://www.legislation.gov.au/C1918A00027/latest/text) |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
 Each preset's tied-ranking rule comes from its rulebook: the Scottish order's rule 43(1)(c) (a
@@ -150,7 +153,7 @@ carry fields a method doesn't use.
 
 A YAML file (`--config`) can set any of `quota`, `transfer`, `rounding`, `tiebreak`, `seats`,
 `format`, `reportFormat`, `batchExclusion`, `deferSurpluses`, `votesRequired`, `surplusOrder`,
-`tiedRankings`, `minimumPreferences` and `precision`:
+`electAsTheyStand`, `tiedRankings`, `minimumPreferences` and `precision`:
 
 ```yaml
 quota: hare
@@ -162,7 +165,7 @@ reportFormat: json
 
 Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
 always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`,
-`votesRequired` and `surplusOrder` have no flags: they're treated as fixed properties of a
+`votesRequired`, `surplusOrder` and `electAsTheyStand` have no flags: they're treated as fixed properties of a
 ruleset.
 
 ## Reports
@@ -274,10 +277,13 @@ about 45 s, 16 / 8 about a minute.
 - `tools/reference/cpo_stv.py` — an independent CPO-STV scorer used to check this one.
 - [`tools/reference/schulze_stv`](tools/reference/schulze_stv/README.md) — check Schulze STV
   against Schulze's own program and published figures, and against an independent count.
+- [`tools/reference/aec`](tools/reference/aec/README.md) — count every state's Senate election
+  of 2019 and 2022 from the AEC's ballot data and check each round against the official
+  distribution of preferences.
 - [`tools/reference/act`](tools/reference/act/README.md) — convert Elections ACT's ballot data
   and official distributions of preferences into the ACT test fixtures.
 - [`tools/reference/pyrcv2`](tools/reference/pyrcv2/README.md) — count an election with pyRCV2
-  (ERS97, exact Gregory or Scottish) and compare it with this one, round by round.
+  (ERS97, exact Gregory, Scottish or Senate) and compare it with this one, round by round.
 - [`tools/reference/scotland`](tools/reference/scotland/README.md) — count every Scottish council
   election in scot-elex and compare the winners with the declared ones.
 

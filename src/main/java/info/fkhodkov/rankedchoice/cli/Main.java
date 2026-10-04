@@ -76,7 +76,7 @@ import picocli.CommandLine.Option;
 public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG =
-            new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+            new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -295,6 +295,7 @@ public final class Main implements Callable<Integer> {
                         fileConfig.deferSurpluses(),
                         fileConfig.votesRequired(),
                         fileConfig.surplusOrder(),
+                        fileConfig.electAsTheyStand(),
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset,
                         warning -> System.err.println("Warning: " + warning + " -- e.g. --rounding truncate:9"));

@@ -33,11 +33,10 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  * every candidate's votes, the exhausted votes and the loss by fraction, to the vote; and the
  * same six senators are elected.
  *
- * <p>That election never transfers two surpluses that differ in order of election and size, or
- * excludes several candidates at once, so two synthetic elections counted by pyRCV2 cover
- * those: in s219 surpluses go in order of election rather than largest first, and in e1 bulk
- * exclusion changes the count. (See tools/reference/pyrcv2 for the 200 random elections they
- * come from.)
+ * <p>That election never transfers two surpluses that differ in order of election and size, so
+ * a synthetic election counted by pyRCV2 covers that: in s219 surpluses go in order of election
+ * rather than largest first. (See tools/reference/pyrcv2 for the 200 random elections it comes
+ * from, and tools/reference/aec for every state's count in 2019 and 2022.)
  */
 class AecSenateFixtureTest {
 
@@ -76,7 +75,7 @@ class AecSenateFixtureTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"s219", "e1"})
+    @ValueSource(strings = {"s219"})
     void everyRoundMatchesPyRcv2(String name) throws IOException {
         ParsedElection election = BltParser.parse(DIRECTORY.resolve("pyrcv2/" + name + ".blt"));
         StvResult count = StvCounter.count(election.candidates(), election.ballots(), election.seats(),

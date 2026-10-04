@@ -8,8 +8,8 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 
 ## Real elections
 
-Every Scottish council election with published ballots, all five ACT electorates in 2020, the
-Tasmanian Senate count of 2019, and three Irish constituencies, run through their own rulesets,
+Every Scottish council election with published ballots, all five ACT electorates in 2020, every
+state's and territory's Senate count in 2019 and 2022, and three Irish constituencies, run through their own rulesets,
 reproduce their actual results:
 
 | Election | Ruleset | Checked | Source of ballots |
@@ -18,7 +18,7 @@ reproduce their actual results:
 | Shetland South 2012, Orkney North Isles 2012, Shetland North 2017, Orkney Kirkwall East 2022, Coatbridge South 2017 | `scottish` | quota, first preferences, winners, and key stages | [MGGG `scot-elex`](https://github.com/mggg/scot-elex) |
 | Badenoch and Strathspey 2022 (Highland Council) | `scottish` | every stage of the 8-round count, to 5 decimal places, against the council's "Candidate Votes Per Stage Report" | the council's official raw preference profile |
 | All five electorates of the ACT Legislative Assembly 2020 (Brindabella, Ginninderra, Kurrajong, Murrumbidgee, Yerrabi; 23–32 candidates, 5 seats each, 269,251 ballots) | `act-hare-clark` | every round's tallies, votes exhausted and loss by fraction, exactly to the 6 decimal places the Act specifies, and the winners, against the official "Final Distribution of Preferences" | Elections ACT's official ballot-paper data |
-| Australian Senate 2019, Tasmania (44 candidates, 6 seats, 351,988 ballots) | `senate` | every round's tallies, exhausted votes and loss by fraction against the AEC's official distribution of preferences (42 of its 139 counts, each where a step begins), and the six senators | the AEC's formal preference data, as converted for pyRCV2's tests |
+| Australian Senate 2019 and 2022, all 16 state and territory counts (29,645,583 ballots; NSW alone 4.8 million) | `senate` | every round's tallies, exhausted votes and loss by fraction, to the vote, against the AEC's official distribution of preferences, and the senators in order of election; see below | the AEC's formal preference data |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
 
 Every one is cross-checked against the election's published or officially declared result,
@@ -163,16 +163,33 @@ Gregory counter:
   at stage 2, Orkney Kirkwall East 2022 likewise), so now this engine does too, under every
   ruleset: once the last seat is filled, no further surplus moves.
 
-**The Australian Senate** (`senate`): Tasmania's 2019 count (`AecSenateFixtureTest`) matches
-the AEC's official figures at every round, to the vote. That election never needs surpluses in
-order of election rather than size, or a bulk exclusion, so pyRCV2's Senate counter (as its own
-AEC test configures it, in exact arithmetic) checked 200 random elections too. Every candidate's
-votes and the exhausted votes match in all 198 it can count (it crashes in its exclusion code on
-the other 2), and the loss by fraction in 191. In the other 7 pyRCV2's value-group exclusion
-leaves the excluded candidate with fractional or even negative votes, which this engine doesn't,
-so the loss it reports is off by those. Two of the random elections are fixtures
-(`testdata/aec/pyrcv2`): one where the surplus order decides the count, one where bulk exclusion
-does.
+**The Australian Senate** (`senate`): every state and territory in 2019 and 2022, 16 counts in
+all (`tools/reference/aec`), matches the AEC's official distribution of preferences at every
+round: 847 rounds, each one an official count, every candidate's votes, the exhausted votes and
+the loss by fraction to the vote, with the same senators elected in the same order. NSW's 4.8
+million ballots count in about 15 seconds. Tasmania 2019 is a test fixture
+(`AecSenateFixtureTest`).
+
+Getting there took two corrections, both from the official counts:
+- No bulk exclusion. The Act allows it (s273(13A)) only on narrower terms than the usual rule,
+  and the AEC excluded one candidate at a time where the usual rule (pyRCV2's, adopted at first)
+  would exclude several together: ACT 2019 excludes Cowton at count 9 and Angel at count 11. One
+  at a time, ACT, SA and QLD 2019 all matched.
+- The end of the count (`electAsTheyStand`). When an exclusion leaves as many continuing
+  candidates as seats, they're elected on their votes as they stand, without the excluded
+  candidate's papers moving (s273(17); NSW 2019 count 429, Davey and Faruqi); and the last seat
+  between two continuing candidates goes to the one ahead, without excluding the other
+  (s273(18); QLD 2019 count 288, Waters over Ketter). Neither changed who was elected, only the
+  final figures, and here possibly the order of election. Ireland's and Scotland's official
+  counts transfer the last exclusion, so this is a Senate setting only.
+
+pyRCV2's Senate counter (as its own AEC test configures it, in exact arithmetic, but without
+bulk exclusion) checked 200 random elections too. Every candidate's votes and the exhausted votes
+match in all 191 it can count (it crashes in its exclusion code on the other 9), and the loss by
+fraction in 189. In the other 2 pyRCV2's value-group exclusion leaves the excluded candidate with
+fractional or even negative votes, which this engine doesn't, so the loss it reports is off by
+those. One of them is a fixture (`testdata/aec/pyrcv2/s219`), where surpluses go in order of
+election rather than largest first.
 
 ## Classic STV building blocks
 
