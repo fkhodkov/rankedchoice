@@ -18,6 +18,7 @@ public record ElectionConfig(
         Integer minimumPreferences,
         Integer precision,
         Boolean deferSurpluses,
-        Boolean votesRequired
+        Boolean votesRequired,
+        String surplusOrder
 ) {
 }

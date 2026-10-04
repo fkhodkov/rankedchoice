@@ -6,8 +6,8 @@ election stage by stage (its own test). pyRCV2 is written for Transcrypt, but it
 runs as ordinary Python.
 
 - `count.py` counts a BLT election with pyRCV2, under a preset matched to one of this
-  project's rulesets: `ers97`, `gregory` (exact weighted inclusive Gregory, the default `stv`)
-  or `scottish`. It fixes two pyRCV2 bugs on the way (stage results stored without copying, so
+  project's rulesets: `ers97`, `gregory` (exact weighted inclusive Gregory, the default `stv`),
+  `scottish` or `senate`. It fixes two pyRCV2 bugs on the way (stage results stored without copying, so
   its "backwards" tie-break never saw an earlier stage's votes) and prints every stage as JSON,
   or with `--sheet` as the count-sheet files `Ers97ModelElectionFixtureTest` reads
   (`src/test/resources/testdata/ers97/pyrcv2`).
@@ -29,5 +29,6 @@ python3 tools/reference/pyrcv2/compare.py ours.json pyrcv2.json
 | `ers97` | `--ruleset ers97` | (no flags) | 99 |
 | `gregory` | `--quota droop --transfer fractional --rounding exact --tiebreak previous-round,declared` | `--exact` | 100 |
 | `scottish` | `--ruleset scottish` | `--combined` | 64; 100 within `--tolerance 0.01` |
+| `senate` | `--ruleset senate` | (no flags) | 191 of 200; the rest differ only in loss by fraction, or crash pyRCV2 |
 
 See [VALIDATION.md](../../../VALIDATION.md#the-ers97-model-election) for what the rest are.

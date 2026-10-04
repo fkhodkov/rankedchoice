@@ -14,6 +14,10 @@ as ordinary Python. Presets, each matched to one of this project's rulesets:
   surplus from ballots of different values differently from the statute, which Highland's
   official count sheet confirms this project follows, so expect differences in the 5th place.
 
+- senate (--ruleset senate): unweighted inclusive Gregory as pyRCV2's own AEC test configures
+  it (whole votes, surpluses in order of election, value-group and bulk exclusion), in exact
+  rational arithmetic rather than its floating point.
+
 Ties are broken backwards through earlier stages, then by declared order, as this project's
 rulesets break them. Two fixes to pyRCV2 are applied here: it stores each stage's result
 without copying it, so looking back for a tie only ever sees the current votes (and
@@ -32,7 +36,7 @@ import pyRCV2.blt  # noqa: E402
 import pyRCV2.method.base_stv  # noqa: E402
 import pyRCV2.numbers  # noqa: E402
 import pyRCV2.ties  # noqa: E402
-from pyRCV2.method.gregory import EGSTVCounter, WIGSTVCounter  # noqa: E402
+from pyRCV2.method.gregory import EGSTVCounter, UIGSTVCounter, WIGSTVCounter  # noqa: E402
 
 _INCLUSIVE = {'quota': 'droop', 'quota_criterion': 'geq', 'quota_mode': 'static', 'bulk_elect': True,
               'bulk_exclude': False, 'defer_surpluses': False, 'round_quota': 0, 'surplus_order': 'size',
@@ -44,6 +48,12 @@ PRESETS = {  # counter, number class, decimal places (counting, printing), optio
         'papers': 'transferable', 'exclusion': 'by_value'}),
     "gregory": (WIGSTVCounter, "Rational", None, _INCLUSIVE),
     "scottish": (WIGSTVCounter, "Rational", None, {**_INCLUSIVE, 'round_tvs': 5}),
+    # The Australian Senate, as pyRCV2's own test (tests/test_aec.py) counts it, but in exact
+    # rational arithmetic rather than floating point, where rounding down to whole votes could
+    # slip at exact boundaries.
+    "senate": (UIGSTVCounter, "Rational", None, {
+        'surplus_order': 'order', 'exclusion': 'by_value', 'bulk_exclude': True,
+        'round_quota': 0, 'round_votes': 0}),
 }
 
 _make_result = pyRCV2.method.base_stv.BaseSTVCounter.make_result
@@ -106,8 +116,8 @@ def count(path, preset):
         result = counter.step()
 
 
-def sheet(stages, source):
-    lines = [f"# {source}, counted by pyRCV2's ERS97 counter (tools/reference/pyrcv2/count.py).",
+def sheet(stages, source, preset):
+    lines = [f"# {source}, counted by pyRCV2 with the {preset} preset (tools/reference/pyrcv2/count.py).",
              "# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss",
              "# by fraction).", ""]
     for number, stage in enumerate(stages, 1):
@@ -122,4 +132,5 @@ def sheet(stages, source):
 if __name__ == "__main__":
     preset = sys.argv[sys.argv.index("--preset") + 1] if "--preset" in sys.argv else "ers97"
     stages = count(sys.argv[2], preset)
-    print(sheet(stages, sys.argv[2].split("/")[-1]) if "--sheet" in sys.argv else json.dumps(stages, indent=1))
+    print(sheet(stages, sys.argv[2].split("/")[-1], preset) if "--sheet" in sys.argv
+          else json.dumps(stages, indent=1))

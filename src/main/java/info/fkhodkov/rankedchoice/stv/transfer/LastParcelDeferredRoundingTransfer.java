@@ -56,4 +56,9 @@ public record LastParcelDeferredRoundingTransfer() implements TransferMethod {
         }
         return result;
     }
+
+    @Override
+    public boolean roundsGainsPerStep() {
+        return true;
+    }
 }

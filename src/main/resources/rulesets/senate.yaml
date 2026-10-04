@@ -1,0 +1,21 @@
+# The Australian Senate, per the Commonwealth Electoral Act 1918, s 273. Quota is Droop,
+# disregarding any fraction, plus one. A surplus is transferred by unweighted inclusive Gregory:
+# the transfer value is the surplus divided by the number of ballot papers the elected candidate
+# holds, every one of them, and each paper moves at that value whatever it arrived at; the votes
+# each candidate gains from a transfer are rounded down to a whole number, the rest being "loss
+# by fraction". Surpluses go in the order their candidates were elected. An excluded candidate's
+# papers go one transfer value at a time, highest first, a candidate who reaches quota partway
+# through stopping there; and several of the lowest candidates are excluded together when that
+# can't change the order of exclusion (bulk exclusion).
+#
+# Checked against the AEC's official distribution of preferences for Tasmania in 2019 (election
+# 24310), with ballots from the AEC's formal preference data, as pyRCV2 counts them.
+#
+# Ties: the Act breaks a tie on the candidates' votes at the last count at which they differed,
+# then by lot; the declared order stands in for the lot.
+quota: droop
+transfer: unweighted-inclusive
+rounding: truncate:0
+tiebreak: previous-round,declared
+batchExclusion: true
+surplusOrder: election

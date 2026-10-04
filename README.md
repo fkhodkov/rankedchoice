@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, Irish Dáil 2002, the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, Tasmania's 2019 Senate count, Irish Dáil 2002, the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
@@ -55,9 +55,12 @@ A classic STV ruleset is a combination of independent choices:
     the ratio taken over ballots that have a next preference, then rounded.
   - `last-parcel-deferred-rounding` — the same, but each recipient's gain is rounded instead of
     the ratio (ACT).
+  - `unweighted-inclusive` — every paper the candidate holds moves at surplus ÷ papers,
+    whatever value it arrived at; each recipient's gain is rounded (Australian Senate).
 
-  Under the two last-parcel methods an excluded candidate's ballots move one value group at a
-  time, largest first, and surpluses wait until they're the largest pending, as in ERS97.
+  Under the last-parcel and unweighted-inclusive methods an excluded candidate's ballots move
+  one value group at a time, largest first, and surpluses wait until they're the largest
+  pending, as in ERS97 (or the earliest elected, with `surplusOrder: election`).
 - **Rounding** (`--rounding`): `exact`, or `truncate:N` (round down to N decimal places, as real
   rulesets do).
 - **Tie-break** (`--tiebreak`): a fallback chain of `declared` (candidate order),
@@ -69,6 +72,8 @@ A classic STV ruleset is a combination of independent choices:
 - **Votes required** (config `votesRequired`): ERS97 — also elect a candidate on reaching the total
   active vote divided by one more than the seats left, which falls below the quota as votes are
   lost.
+- **Surplus order** (config `surplusOrder`): `size` (largest first, the default) or `election`
+  (in order of election, as the Australian Senate does).
 
 ### Tied rankings and short ballots
 
@@ -102,6 +107,7 @@ Ballots set aside this way, and blank ones, are reported as informal ballots, wi
 | `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, surplus deferral and votes required for election, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No technical spec or election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule difference (quota rounded to 0dp above 100, not implemented here); treat as "believed similar", not verified |
 | `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections: add `--minimum-preferences 3`) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
+| `senate` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, bulk exclusion | Australian Senate elections | [Commonwealth Electoral Act 1918, s.273](https://www.legislation.gov.au/C1918A00027/latest/text) |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
 Each preset's tied-ranking rule comes from its rulebook: the Scottish order's rule 43(1)(c) (a
@@ -125,7 +131,7 @@ QPQ method.
 | `-c, --config` | YAML config file (below). Not with `--ruleset`. |
 | `-r, --ruleset` | A [bundled ruleset](#bundled-rulesets). Not with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N` — `stv` and `cpo-stv`. |
-| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding` — `stv` and `cpo-stv`. |
+| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding\|unweighted-inclusive` — `stv` and `cpo-stv`. |
 | `--rounding` | `exact\|truncate:N`. Defaults to `exact` — but see [Limitations](#limitations) for large counts. Not used by `cambridge`, `qpq`, `schulze`, `borda`; for `meek`/`warren` it only shapes the report. |
 | `--tiebreak` | Fallback chain, e.g. `previous-round,declared`. Not used by `cpo-stv`, `schulze`, `borda`. |
 | `--tied-rankings` | `reject\|split\|truncate\|skip` — see [above](#tied-rankings-and-short-ballots). |
@@ -143,8 +149,8 @@ carry fields a method doesn't use.
 ### Config file
 
 A YAML file (`--config`) can set any of `quota`, `transfer`, `rounding`, `tiebreak`, `seats`,
-`format`, `reportFormat`, `batchExclusion`, `deferSurpluses`, `votesRequired`, `tiedRankings`,
-`minimumPreferences` and `precision`:
+`format`, `reportFormat`, `batchExclusion`, `deferSurpluses`, `votesRequired`, `surplusOrder`,
+`tiedRankings`, `minimumPreferences` and `precision`:
 
 ```yaml
 quota: hare
@@ -155,8 +161,9 @@ reportFormat: json
 ```
 
 Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
-always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`
-and `votesRequired` have no flags: they're treated as fixed properties of a ruleset.
+always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`,
+`votesRequired` and `surplusOrder` have no flags: they're treated as fixed properties of a
+ruleset.
 
 ## Reports
 

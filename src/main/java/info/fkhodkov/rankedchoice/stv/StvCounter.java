@@ -22,6 +22,7 @@ import info.fkhodkov.rankedchoice.stv.transfer.HeldParcel;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
+import info.fkhodkov.rankedchoice.stv.transfer.UnweightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
 /**
@@ -122,7 +123,7 @@ public final class StvCounter {
         boolean defers = defersSurplusTransfers(ruleset.transferMethod());
         // The ACT rounds each candidate's gain from each transfer step, not their running total.
         RunningTallies running = RunningTallies.of(states,
-                ruleset.transferMethod() instanceof LastParcelDeferredRoundingTransfer ? ruleset.roundingRule() : null);
+                ruleset.transferMethod().roundsGainsPerStep() ? ruleset.roundingRule() : null);
 
         List<Candidate> elected = new ArrayList<>();
         List<RoundRecord> rounds = new ArrayList<>();
@@ -272,8 +273,11 @@ public final class StvCounter {
                     && canDeferSurpluses(continuing, tallies, pendingSurplus, quota, seats - elected.size(),
                             ruleset.batchExclusion());
             if (defers && !pendingSurplus.isEmpty() && !deferred) {
-                Candidate candidate = pickHighest(
-                        new ArrayList<>(pendingSurplus.keySet()), pendingSurplus, ruleset.tieBreak(), priorRounds);
+                // pendingSurplus keeps election order, so its first is the earliest elected.
+                Candidate candidate = ruleset.surplusesInElectionOrder()
+                        ? pendingSurplus.keySet().iterator().next()
+                        : pickHighest(new ArrayList<>(pendingSurplus.keySet()), pendingSurplus, ruleset.tieBreak(),
+                                priorRounds);
                 Fraction frozenTally = pendingSurplus.remove(candidate);
                 // Elected on ERS97's votes required, below quota, there's no surplus.
                 Fraction surplus = max(frozenTally.subtract(quota), Fraction.ZERO);
@@ -371,7 +375,7 @@ public final class StvCounter {
      */
     private static boolean defersSurplusTransfers(TransferMethod transferMethod) {
         return switch (transferMethod) {
-            case LastParcelTransfer _, LastParcelDeferredRoundingTransfer _ -> true;
+            case LastParcelTransfer _, LastParcelDeferredRoundingTransfer _, UnweightedInclusiveTransfer _ -> true;
             case FractionalTransfer _, WigmTransfer _ -> false;
         };
     }

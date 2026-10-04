@@ -1,0 +1,935 @@
+# s219.blt, counted by pyRCV2 with the senate preset (tools/reference/pyrcv2/count.py).
+# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss
+# by fraction).
+
+stage 1
+comment: First preferences
+C1: 75
+C2: 24
+C3: 4
+C4: 61
+C5: 11
+C6: 15
+C7: 18
+C8: 136
+C9: 2
+C10: 4
+C11: 85
+C12: 26
+C13: 11
+C14: 6
+C15: 5
+non-transferable: 0.00
+
+stage 2
+comment: Surplus of C8
+C1: 87
+C2: 26
+C3: 5
+C4: 74
+C5: 11
+C6: 17
+C7: 22
+C8: 81
+C9: 2
+C10: 4
+C11: 85
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 14.00
+
+stage 3
+comment: Surplus of C11
+C1: 87
+C2: 26
+C3: 5
+C4: 74
+C5: 11
+C6: 17
+C7: 22
+C8: 81
+C9: 2
+C10: 4
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 18.00
+
+stage 4
+comment: Surplus of C1
+C1: 81
+C2: 26
+C3: 5
+C4: 75
+C5: 11
+C6: 17
+C7: 22
+C8: 81
+C9: 2
+C10: 4
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 23.00
+
+stage 5
+comment: Exclusion of C9
+C1: 81
+C2: 26
+C3: 5
+C4: 75
+C5: 11
+C6: 17
+C7: 23
+C8: 81
+C9: 0
+C10: 4
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 24.00
+
+stage 6
+comment: Exclusion of C9
+C1: 81
+C2: 26
+C3: 5
+C4: 75
+C5: 11
+C6: 17
+C7: 23
+C8: 81
+C9: -55/136
+C10: 4
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 24.40
+
+stage 7
+comment: Exclusion of C9
+C1: 81
+C2: 26
+C3: 5
+C4: 75
+C5: 11
+C6: 17
+C7: 23
+C8: 81
+C9: 0
+C10: 4
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 24.00
+
+stage 8
+comment: Exclusion of C10
+C1: 81
+C2: 26
+C3: 5
+C4: 75
+C5: 11
+C6: 19
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 26.00
+
+stage 9
+comment: Exclusion of C10
+C1: 81
+C2: 26
+C3: 5
+C4: 75
+C5: 11
+C6: 19
+C7: 23
+C8: 81
+C9: 0
+C10: -55/136
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 26.40
+
+stage 10
+comment: Exclusion of C10
+C1: 81
+C2: 26
+C3: 5
+C4: 75
+C5: 11
+C6: 19
+C7: 23
+C8: 81
+C9: 0
+C10: -10781/14552
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 26.74
+
+stage 11
+comment: Exclusion of C10
+C1: 81
+C2: 26
+C3: 5
+C4: 75
+C5: 11
+C6: 19
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 31
+C13: 12
+C14: 6
+C15: 6
+non-transferable: 26.00
+
+stage 12
+comment: Exclusion of C3
+C1: 81
+C2: 27
+C3: 1
+C4: 76
+C5: 11
+C6: 19
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 31
+C13: 13
+C14: 7
+C15: 6
+non-transferable: 26.00
+
+stage 13
+comment: Exclusion of C3
+C1: 81
+C2: 27
+C3: -21/34
+C4: 76
+C5: 11
+C6: 19
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 31
+C13: 13
+C14: 7
+C15: 6
+non-transferable: 27.62
+
+stage 14
+comment: Exclusion of C3
+C1: 81
+C2: 27
+C3: -2859/3638
+C4: 76
+C5: 11
+C6: 19
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 31
+C13: 13
+C14: 7
+C15: 6
+non-transferable: 27.79
+
+stage 15
+comment: Exclusion of C3
+C1: 81
+C2: 27
+C3: 0
+C4: 76
+C5: 11
+C6: 19
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 31
+C13: 13
+C14: 7
+C15: 6
+non-transferable: 27.00
+
+stage 16
+comment: Exclusion of C15
+C1: 81
+C2: 27
+C3: 0
+C4: 77
+C5: 11
+C6: 20
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 32
+C13: 13
+C14: 7
+C15: 1
+non-transferable: 29.00
+
+stage 17
+comment: Exclusion of C15
+C1: 81
+C2: 27
+C3: 0
+C4: 77
+C5: 11
+C6: 20
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 32
+C13: 13
+C14: 7
+C15: -29/136
+non-transferable: 30.21
+
+stage 18
+comment: Exclusion of C15
+C1: 81
+C2: 27
+C3: 0
+C4: 77
+C5: 11
+C6: 20
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 32
+C13: 13
+C14: 7
+C15: -4735/14552
+non-transferable: 30.33
+
+stage 19
+comment: Exclusion of C15
+C1: 81
+C2: 27
+C3: 0
+C4: 77
+C5: 11
+C6: 20
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 32
+C13: 13
+C14: 7
+C15: 0
+non-transferable: 30.00
+
+stage 20
+comment: Exclusion of C14
+C1: 81
+C2: 29
+C3: 0
+C4: 79
+C5: 11
+C6: 20
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: 0
+C15: 0
+non-transferable: 32.00
+
+stage 21
+comment: Exclusion of C14
+C1: 81
+C2: 29
+C3: 0
+C4: 80
+C5: 11
+C6: 20
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: -55/34
+C15: 0
+non-transferable: 32.62
+
+stage 22
+comment: Exclusion of C14
+C1: 81
+C2: 29
+C3: 0
+C4: 80
+C5: 11
+C6: 20
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: -6293/3638
+C15: 0
+non-transferable: 32.73
+
+stage 23
+comment: Exclusion of C14
+C1: 81
+C2: 29
+C3: 0
+C4: 80
+C5: 11
+C6: 20
+C7: 23
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: 0
+C15: 0
+non-transferable: 31.00
+
+stage 24
+comment: Exclusion of C5
+C1: 81
+C2: 29
+C3: 0
+C4: 83
+C5: 0
+C6: 23
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: 0
+C15: 0
+non-transferable: 35.00
+
+stage 25
+comment: Exclusion of C5
+C1: 81
+C2: 29
+C3: 0
+C4: 83
+C5: -55/136
+C6: 23
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: 0
+C15: 0
+non-transferable: 35.40
+
+stage 26
+comment: Exclusion of C5
+C1: 81
+C2: 29
+C3: 0
+C4: 83
+C5: -6701/14552
+C6: 23
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: 0
+C15: 0
+non-transferable: 35.46
+
+stage 27
+comment: Exclusion of C5
+C1: 81
+C2: 29
+C3: 0
+C4: 83
+C5: 0
+C6: 23
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: 0
+C15: 0
+non-transferable: 35.00
+
+stage 28
+comment: Surplus of C4
+C1: 81
+C2: 29
+C3: 0
+C4: 81
+C5: 0
+C6: 23
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 33
+C13: 13
+C14: 0
+C15: 0
+non-transferable: 37.00
+
+stage 29
+comment: Exclusion of C13
+C1: 81
+C2: 31
+C3: 0
+C4: 81
+C5: 0
+C6: 24
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 35
+C13: 1
+C14: 0
+C15: 0
+non-transferable: 44.00
+
+stage 30
+comment: Exclusion of C13
+C1: 81
+C2: 31
+C3: 0
+C4: 81
+C5: 0
+C6: 24
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 35
+C13: -29/136
+C14: 0
+C15: 0
+non-transferable: 45.21
+
+stage 31
+comment: Exclusion of C13
+C1: 81
+C2: 31
+C3: 0
+C4: 81
+C5: 0
+C6: 24
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 35
+C13: -7183/14552
+C14: 0
+C15: 0
+non-transferable: 45.49
+
+stage 32
+comment: Exclusion of C13
+C1: 81
+C2: 31
+C3: 0
+C4: 81
+C5: 0
+C6: 24
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 35
+C13: -46187/72760
+C14: 0
+C15: 0
+non-transferable: 45.63
+
+stage 33
+comment: Exclusion of C13
+C1: 81
+C2: 31
+C3: 0
+C4: 81
+C5: 0
+C6: 24
+C7: 24
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 35
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 45.00
+
+stage 34
+comment: Exclusion of C6
+C1: 81
+C2: 34
+C3: 0
+C4: 81
+C5: 0
+C6: 2
+C7: 28
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 38
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 57.00
+
+stage 35
+comment: Exclusion of C6
+C1: 81
+C2: 35
+C3: 0
+C4: 81
+C5: 0
+C6: -29/68
+C7: 28
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 38
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 58.43
+
+stage 36
+comment: Exclusion of C6
+C1: 81
+C2: 35
+C3: 0
+C4: 81
+C5: 0
+C6: -6775/7276
+C7: 28
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 38
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 58.93
+
+stage 37
+comment: Exclusion of C6
+C1: 81
+C2: 35
+C3: 0
+C4: 81
+C5: 0
+C6: -8487/7276
+C7: 28
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 38
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 59.17
+
+stage 38
+comment: Exclusion of C6
+C1: 81
+C2: 35
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 28
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 38
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 58.00
+
+stage 39
+comment: Exclusion of C7
+C1: 81
+C2: 39
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 4
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 43
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 73.00
+
+stage 40
+comment: Exclusion of C7
+C1: 81
+C2: 39
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: -171/136
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 45
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 76.26
+
+stage 41
+comment: Exclusion of C7
+C1: 81
+C2: 39
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: -28089/14552
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 45
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 76.93
+
+stage 42
+comment: Exclusion of C7
+C1: 81
+C2: 39
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: -10477/4280
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 45
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 77.45
+
+stage 43
+comment: Exclusion of C7
+C1: 81
+C2: 39
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 0
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 45
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 75.00
+
+stage 44
+comment: Exclusion of C2
+C1: 81
+C2: 3
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 0
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 52
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 104.00
+
+stage 45
+comment: Exclusion of C2
+C1: 81
+C2: -71/68
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 0
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 52
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 108.04
+
+stage 46
+comment: Exclusion of C2
+C1: 81
+C2: -15349/7276
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 0
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 52
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 109.11
+
+stage 47
+comment: Exclusion of C2
+C1: 81
+C2: -100713/36380
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 0
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 52
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 109.77
+
+stage 48
+comment: Exclusion of C2
+C1: 81
+C2: 0
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 0
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 52
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 107.00
+
+stage 49
+comment: Bulk election
+C1: 81
+C2: 0
+C3: 0
+C4: 81
+C5: 0
+C6: 0
+C7: 0
+C8: 81
+C9: 0
+C10: 0
+C11: 81
+C12: 52
+C13: 0
+C14: 0
+C15: 0
+non-transferable: 107.00
+

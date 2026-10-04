@@ -43,11 +43,15 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * fill, rounded up, which drops below the quota as votes are lost. Both as pyRCV2 counts ERS97
  * ("defer surpluses", and the "static with ERS97 rules" quota mode); the rulebook's own model
  * election count sheet shows both, its votes-required row included.
+ *
+ * <p>{@code surplusesInElectionOrder} transfers pending surpluses in the order their
+ * candidates were elected rather than largest first, as the Australian Senate does; it only
+ * matters where surpluses wait (the last-parcel and Senate transfer methods).
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
         boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
-        boolean deferSurpluses, boolean votesRequired) {
+        boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
@@ -58,7 +62,7 @@ public record StvRuleset(
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
         this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
-                false);
+                false, false);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

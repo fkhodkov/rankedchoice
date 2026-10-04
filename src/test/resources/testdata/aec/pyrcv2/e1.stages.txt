@@ -1,0 +1,59 @@
+# e1.blt, counted by pyRCV2 with the senate preset (tools/reference/pyrcv2/count.py).
+# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss
+# by fraction).
+
+stage 1
+comment: First preferences
+C1: 5
+C2: 72
+C3: 60
+C4: 7
+C5: 37
+C6: 27
+C7: 29
+non-transferable: 0.00
+
+stage 2
+comment: Exclusion of C1, C4
+C1: 0
+C2: 78
+C3: 62
+C4: 0
+C5: 37
+C6: 29
+C7: 31
+non-transferable: 0.00
+
+stage 3
+comment: Exclusion of C6
+C1: 0
+C2: 85
+C3: 71
+C4: 0
+C5: 41
+C6: 0
+C7: 35
+non-transferable: 5.00
+
+stage 4
+comment: Surplus of C2
+C1: 0
+C2: 80
+C3: 73
+C4: 0
+C5: 41
+C6: 0
+C7: 36
+non-transferable: 7.00
+
+stage 5
+comment: Exclusion of C7
+C1: 0
+C2: 80
+C3: 87
+C4: 0
+C5: 51
+C6: 0
+C7: 1
+non-transferable: 18.00
+

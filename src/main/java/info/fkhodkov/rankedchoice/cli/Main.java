@@ -76,7 +76,7 @@ import picocli.CommandLine.Option;
 public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG =
-            new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null);
+            new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -96,7 +96,10 @@ public final class Main implements Callable<Integer> {
                             + "ballots need 7 preferences"),
             new BundledRuleset("act-hare-clark",
                     "ACT Legislative Assembly's Hare-Clark -- Droop, last-parcel with deferred, "
-                            + "per-candidate rounding, truncate to 6dp"));
+                            + "per-candidate rounding, truncate to 6dp"),
+            new BundledRuleset("senate",
+                    "Australian Senate -- Droop, unweighted inclusive Gregory, whole votes, surpluses "
+                            + "in order of election, bulk exclusion"));
 
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
@@ -291,6 +294,7 @@ public final class Main implements Callable<Integer> {
                         configuredMinimumPreferences,
                         fileConfig.deferSurpluses(),
                         fileConfig.votesRequired(),
+                        fileConfig.surplusOrder(),
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset,
                         warning -> System.err.println("Warning: " + warning + " -- e.g. --rounding truncate:9"));

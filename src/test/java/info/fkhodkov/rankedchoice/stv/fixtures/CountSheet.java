@@ -87,7 +87,12 @@ record CountSheet(List<Stage> stages) {
         return round.exhaustedVotes().add(round.roundingLoss()).equals(stage.nonTransferable());
     }
 
+    /** A decimal, or an exact fraction "n/d" (pyRCV2's exact counts print them). */
     private static Fraction decimal(String text) {
+        int slash = text.indexOf('/');
+        if (slash > 0) {
+            return Fraction.of(new BigInteger(text.substring(0, slash)), new BigInteger(text.substring(slash + 1)));
+        }
         BigDecimal value = new BigDecimal(text);
         return value.scale() <= 0 ? Fraction.of(value.toBigIntegerExact())
                 : Fraction.of(value.unscaledValue(), BigInteger.TEN.pow(value.scale()));
