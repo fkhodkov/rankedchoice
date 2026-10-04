@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | 13 real elections (Scottish councils, all five ACT electorates in 2020 to the last decimal, Irish Dáil 2002), the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, Irish Dáil 2002, the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
@@ -275,6 +275,8 @@ about 45 s, 16 / 8 about a minute.
   and official distributions of preferences into the ACT test fixtures.
 - [`tools/reference/ers97`](tools/reference/ers97/README.md) — count an election with pyRCV2's
   ERS97 counter and compare it with this one, round by round.
+- [`tools/reference/scotland`](tools/reference/scotland/README.md) — count every Scottish council
+  election in scot-elex and compare the winners with the declared ones.
 
 ## Project layout
 

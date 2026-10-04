@@ -31,17 +31,12 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  *
  * <p>The Shetland North and Orkney Kirkwall East tests below also spot-check a couple of
  * intermediate rounds against each ward's official "Candidate Votes Per Stage Report" (see
- * their fixture files for the source PDFs). Unlike
- * {@link BadenochAndStrathspeyFullReplayTest}, this isn't a full stage-by-stage replay: both
- * of these elections have more than one candidate meeting quota in the very same tally
- * snapshot (round 1), and the official eCount system re-checks for newly-qualifying
- * candidates immediately after each individual surplus transfer — sometimes electing one
- * within the very same stage that transferred another's surplus. Our engine only re-runs that
- * check at the start of the next full round, so a candidate who becomes eligible as a side
- * effect of someone else's transfer is elected one round later than the official stage
- * numbering would suggest. The tallies and final winners still agree exactly; only the
- * round/stage chunking differs, so a strict round-count-for-round-count comparison (as
- * Badenoch supports) isn't meaningful here.
+ * their fixture files for the source PDFs). Both have more than one candidate meeting quota in
+ * round 1, and in both a candidate reaches quota as the first of those surpluses moves: the
+ * official count elects them there and then, so the next surplus passes them by, and their
+ * final figure is the one they reached. (This engine used to wait for the next round, and so
+ * credited them with later transfers too; Coatbridge South in 2017, where that changed the
+ * winner, is how it came to light.)
  */
 class ScottishRealElectionFixtureTest {
 
@@ -78,22 +73,19 @@ class ScottishRealElectionFixtureTest {
                 .containsEntry(johnson, Fraction.of(48));
         assertThat(fixture.result.electedInOrder()).containsExactlyInAnyOrder(cooper, manson, macdonald);
 
-        // Round 2 (Manson elected first, largest surplus 210): matches the official Stage 2
-        // table exactly, including Cooper's tally staying frozen at his round-1 figure of 395
-        // rather than being inflated by Manson's transfer — the batch-election fix this test
-        // suite exists to guard against regressing.
+        // Round 2 (after Manson's surplus of 210): Cooper still on his 395, Johnson on the
+        // official stage 2 figure; Manson's transfer took Macdonald to quota, so she's elected.
         RoundRecord round2 = fixture.result.rounds().get(1);
         assertThat(round2.tallies())
                 .containsEntry(cooper, Fraction.of(395))
-                .containsEntry(macdonald, Fraction.of(37903609, 100000))
                 .containsEntry(johnson, Fraction.of(3513939, 50000));
         assertThat(round2.action()).isEqualTo(new RoundAction.Elected(cooper, Fraction.of(96)));
 
-        // Round 3: Macdonald's final tally, after both Manson's and Cooper's surpluses have
-        // been transferred, matches the official report's final figure for her (433.23178).
+        // Macdonald stays on the 379.03609 she was elected with, the official report's final
+        // figure for her: Cooper's surplus doesn't reach her.
         RoundRecord round3 = fixture.result.rounds().get(2);
-        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(macdonald, Fraction.of(6711589, 50000)));
-        assertThat(round3.tallies()).containsEntry(macdonald, Fraction.of(21661589, 50000));
+        assertThat(round3.tallies()).containsEntry(macdonald, Fraction.of(37903609, 100000));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(macdonald, Fraction.of(8003609, 100000)));
     }
 
     @Test
@@ -114,23 +106,49 @@ class ScottishRealElectionFixtureTest {
                 .containsEntry(shearer, Fraction.of(413));
         assertThat(fixture.result.electedInOrder()).containsExactlyInAnyOrder(dawson, heddle, scott, shearer);
 
-        // Round 2 (Scott elected first, largest surplus 137): matches the official Stage 2
-        // table exactly, including Dawson's 340.54733 and Macdonald's 134.02026, and Heddle's
-        // tally staying frozen at his round-1 figure of 428 rather than being inflated by
-        // Scott's transfer — the batch-election fix this test suite exists to guard against
-        // regressing (Heddle and Shearer also met quota in round 1's snapshot, alongside
-        // Scott).
+        // Round 2 (after Scott's surplus of 137, the largest): Heddle still on his 428 and
+        // Macdonald on the official stage 2 figure of 134.02026. Scott's transfer took Dawson to
+        // 340.54733, over quota, so he's elected at stage 2, as the official declaration says.
         RoundRecord round2 = fixture.result.rounds().get(1);
         assertThat(round2.tallies())
                 .containsEntry(heddle, Fraction.of(428))
-                .containsEntry(dawson, Fraction.of(34054733, 100000))
                 .containsEntry(macdonald, Fraction.of(6701013, 50000));
         assertThat(round2.action()).isEqualTo(new RoundAction.Elected(heddle, Fraction.of(89)));
 
-        // Round 4: Dawson's final election, after Scott's, Heddle's, and Shearer's surpluses
-        // have all been transferred, with a surplus of 10227569/100000 (10.22757).
+        // Dawson stays on 340.54733: Heddle's and Shearer's surpluses pass him by.
         RoundRecord round4 = fixture.result.rounds().get(3);
-        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(dawson, Fraction.of(10227569, 100000)));
+        assertThat(round4.tallies()).containsEntry(dawson, Fraction.of(34054733, 100000));
+        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(dawson, Fraction.of(154733, 100000)));
+    }
+
+    /**
+     * Coatbridge South, 2017: the one ward of 1,070 Scottish council elections where electing a
+     * candidate as soon as a surplus transfer takes them to quota changes the winner. MacGregor
+     * reaches quota on Carragher's surplus and is elected before Castles's moves, so it passes
+     * him by; held back a round, he'd take 2.15 of it, and Brooks would beat Encinias by 0.58 at
+     * stage 6 instead of losing by 0.12 (see the fixture file for the official result).
+     */
+    @Test
+    void reproducesThe2017CoatbridgeSouthResult() {
+        FixtureResult fixture = run("/testdata/scottish/north-lanarkshire-2017-ward11-coatbridge-south.blt");
+        Candidate macgregor = fixture.candidateNamed("Fergus MACGREGOR");
+        Candidate encinias = fixture.candidateNamed("Gordon ENCINIAS");
+        Candidate brooks = fixture.candidateNamed("James BROOKS");
+
+        assertThat(fixture.result.quota()).isEqualTo(Fraction.of(930));
+        assertThat(fixture.result.electedInOrder()).containsExactlyInAnyOrder(
+                fixture.candidateNamed("Tracy CARRAGHER"), fixture.candidateNamed("Tom CASTLES"), macgregor, encinias);
+
+        // MacGregor is elected on the 966.37625 Carragher's surplus gave him: Castles's doesn't add to it.
+        RoundRecord macgregorElected = fixture.result.rounds().stream()
+                .filter(round -> round.action().candidate().equals(macgregor)).findFirst().orElseThrow();
+        assertThat(macgregorElected.tallies().get(macgregor)).isEqualTo(Fraction.of(3865505, 4000));
+
+        // Stage 6, as in Mollison's recount: Encinias 517.25, Brooks 517.13, and Brooks goes.
+        RoundRecord brooksOut = fixture.result.rounds().stream()
+                .filter(round -> round.action().equals(new RoundAction.Eliminated(brooks))).findFirst().orElseThrow();
+        assertThat(brooksOut.tallies().get(encinias).toDecimalString(2)).isEqualTo("517.25");
+        assertThat(brooksOut.tallies().get(brooks).toDecimalString(2)).isEqualTo("517.13");
     }
 
     private record FixtureResult(StvResult result, List<Candidate> candidates) {

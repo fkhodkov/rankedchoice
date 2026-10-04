@@ -8,11 +8,13 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 
 ## Real elections
 
-Thirteen real elections, run through their own rulesets, reproduce their actual results:
+Every Scottish council election with published ballots, all five ACT electorates in 2020, and
+three Irish constituencies, run through their own rulesets, reproduce their actual results:
 
 | Election | Ruleset | Checked | Source of ballots |
 |---|---|---|---|
-| Shetland South 2012, Orkney North Isles 2012, Shetland North 2017, Orkney Kirkwall East 2022 | `scottish` | quota, first preferences, winners | [MGGG `scot-elex`](https://github.com/mggg/scot-elex) |
+| All 1,070 Scottish council ward elections with published ballots (Glasgow 2007; every council 2012, 2017, 2022) | `scottish` | the winners, against the declared results (the Electoral Management Board's returns for 2022, each council's election article for the rest); see below | [MGGG `scot-elex`](https://github.com/mggg/scot-elex) |
+| Shetland South 2012, Orkney North Isles 2012, Shetland North 2017, Orkney Kirkwall East 2022, Coatbridge South 2017 | `scottish` | quota, first preferences, winners, and key stages | [MGGG `scot-elex`](https://github.com/mggg/scot-elex) |
 | Badenoch and Strathspey 2022 (Highland Council) | `scottish` | every stage of the 8-round count, to 5 decimal places, against the council's "Candidate Votes Per Stage Report" | the council's official raw preference profile |
 | All five electorates of the ACT Legislative Assembly 2020 (Brindabella, Ginninderra, Kurrajong, Murrumbidgee, Yerrabi; 23–32 candidates, 5 seats each, 269,251 ballots) | `act-hare-clark` | every round's tallies, votes exhausted and loss by fraction, exactly to the 6 decimal places the Act specifies, and the winners, against the official "Final Distribution of Preferences" | Elections ACT's official ballot-paper data |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
@@ -25,6 +27,19 @@ in `highland-2022-badenoch-and-strathspey.expected.txt`, `ActOfficialDistributio
 by elimination rather than a surplus transfer. When several candidates reach quota in the same
 round they're elected together, the largest surplus transferred first, as each official count
 does.
+
+**Every Scottish council ward** (`tools/reference/scotland`): all 1,070 regular ward elections
+with ballots in scot-elex elect the declared councillors, 1,068 matched automatically and two
+by hand (a ballot file that truncates surnames, and a ward where Wikipedia's result box is wrong
+and Denis Mollison's recount of the ballots confirms ours). That took one fix. When a surplus
+transfer takes a candidate to quota, the official count elects them there and then, and the
+next surplus passes them by; this engine used to wait until the next round, still crediting
+them with the next transfer. In North Lanarkshire's Coatbridge South in 2017 that was decisive:
+Fergus MacGregor took 2.15 votes of Tom Castles's surplus he never had, and Jim Brooks finished
+0.58 ahead of Gordon Encinias at stage 6 instead of 0.12 behind, electing the wrong councillor.
+It also corrected two fixture tests that had recorded the old behaviour as official (Shetland
+North 2017, Orkney Kirkwall East 2022): their official results elect Emma Macdonald on 379.04 and
+David Dawson on 340.55, the figures they reached when elected.
 
 The Irish elections are a different kind of check. Dáil counts transfer surpluses by physically
 drawing a random sample of the last parcel at full value, so there is no reproducible official

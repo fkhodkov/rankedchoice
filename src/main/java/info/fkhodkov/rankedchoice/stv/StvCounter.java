@@ -205,27 +205,53 @@ public final class StvCounter {
                 if (!defers) {
                     // Surpluses are applied immediately, one at a time, largest first —
                     // confirmed correct for WIGM/fractional against real Scottish election data.
-                    for (int i = 0; i < electedThisStage.size(); i++) {
-                        Candidate candidate = electedThisStage.get(i);
+                    // A transfer that takes someone to quota elects them there and then, before
+                    // the next surplus moves, so its ballots pass them by (SSI 2007/42 rules 46
+                    // and 48; North Lanarkshire's Coatbridge South count in 2017 turns on it).
+                    List<Candidate> queue = new ArrayList<>(electedThisStage);
+                    boolean firstOfStage = true;
+                    while (!queue.isEmpty()) {
+                        Candidate candidate = queue.removeFirst();
                         Fraction candidateVotes = frozenVotes.get(candidate);
                         Fraction surplus = candidateVotes.subtract(quota);
                         Map<Candidate, Fraction> roundTallies = tallies;
                         Fraction roundExhausted = exhausted;
                         Fraction roundLoss = loss;
-                        if (i > 0) {
+                        if (!firstOfStage) {
                             roundTallies = running.tallies(continuing, ruleset.roundingRule());
                             roundTallies.put(candidate, candidateVotes);
                             roundExhausted = running.exhausted();
                             roundLoss = credits.roundingLoss(roundTallies, roundExhausted);
                         }
+                        firstOfStage = false;
                         if (surplus.signum() > 0 && !continuing.isEmpty()) {
                             transferSurplus(states, running, candidate, surplus, ruleset.transferMethod(),
                                     ruleset.roundingRule(), continuing, nextParcelId++);
                             credits.settle(candidate, quota);
+                            if (elected.size() < seats) {
+                                Map<Candidate, Fraction> fresh = running.tallies(continuing, ruleset.roundingRule());
+                                List<Candidate> reached = continuing.stream()
+                                        .filter(other -> fresh.get(other).compareTo(quota) >= 0)
+                                        .toList();
+                                if (!reached.isEmpty()) {
+                                    List<Candidate> newly = sortedByTallyDescending(
+                                            new LinkedHashSet<>(reached), fresh, ruleset.tieBreak(), priorRounds);
+                                    newly = newly.subList(0, Math.min(newly.size(), seats - elected.size()));
+                                    for (Candidate other : newly) {
+                                        frozenVotes.put(other, fresh.get(other));
+                                        elected.add(other);
+                                        continuing.remove(other);
+                                        credits.settle(other, fresh.get(other));
+                                    }
+                                    queue.addAll(newly);
+                                    queue = new ArrayList<>(sortedByTallyDescending(
+                                            new LinkedHashSet<>(queue), frozenVotes, ruleset.tieBreak(), priorRounds));
+                                }
+                            }
                         }
                         rounds.add(new RoundRecord(roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus),
                                 roundExhausted, roundLoss));
-                        if (i < electedThisStage.size() - 1) {
+                        if (!queue.isEmpty()) {
                             roundNumber++;
                         }
                     }
