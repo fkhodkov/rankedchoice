@@ -33,7 +33,7 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  * the {@code senate} ruleset against the AEC's official distributions of preferences (see the
  * fixtures' README): every round of each count is one of the official counts, every candidate's
  * votes, the exhausted votes and the loss by fraction, to the vote; and the same senators are
- * elected in the same order. 2016 elected 12 (a double dissolution) and ends on s273(18): with
+ * elected in the same order. 2016 elected 12 (a double dissolution) and ends on s273(17): with
  * one seat left between McKim and McCulloch, McKim is elected on 21,247 votes against 21,106,
  * below the quota, without McCulloch being excluded.
  *

@@ -16,12 +16,14 @@ import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
+import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.HeldParcel;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
+import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
@@ -176,7 +178,7 @@ public final class StvCounter {
                 activeVotes = activeVotes.add(tally);
             }
             if (ruleset.electAsTheyStand() && remainingSeats == 1 && continuing.size() == 2 && pendingSurplus.isEmpty()) {
-                // s273(18): the last seat goes to the higher of the last two, quota or not.
+                // s273(17): the last seat goes to the higher of the last two, quota or not.
                 Candidate higher = pickHighest(new ArrayList<>(continuing), tallies, ruleset.tieBreak(), priorRounds);
                 elected.add(higher);
                 continuing.remove(higher);
@@ -314,7 +316,7 @@ public final class StvCounter {
                 continuing.remove(candidate);
             }
             if (ruleset.electAsTheyStand() && continuing.size() <= seats - elected.size()) {
-                // s273(17): the rest are elected as they stand; the excluded candidate's papers stay put.
+                // s273(18): the rest are elected as they stand; the excluded candidate's papers stay put.
             } else if (defers) {
                 nextParcelId = eliminateByValueGroup(states, running, toExclude, continuing, elected, pendingSurplus,
                         quota, seats, ruleset, priorRounds, nextParcelId);
@@ -387,7 +389,8 @@ public final class StvCounter {
      */
     private static boolean defersSurplusTransfers(TransferMethod transferMethod) {
         return switch (transferMethod) {
-            case LastParcelTransfer _, LastParcelDeferredRoundingTransfer _, UnweightedInclusiveTransfer _ -> true;
+            case LastParcelTransfer _, LastParcelDeferredRoundingTransfer _, UnweightedInclusiveTransfer _,
+                 UnweightedExclusiveTransfer _ -> true;
             case FractionalTransfer _, WigmTransfer _ -> false;
         };
     }
@@ -621,7 +624,15 @@ public final class StvCounter {
             return null;
         }
         Fraction share = activeVotes.divide(Fraction.of(remainingSeats + 1));
-        return ruleset.roundingRule().apply(share.negate()).negate(); // rounded up
+        // Rounded up. (Truncating the negated share would round towards zero, so down.)
+        return switch (ruleset.roundingRule()) {
+            case Exact _ -> share;
+            case TruncateDecimal truncate -> {
+                Fraction down = truncate.apply(share);
+                yield down.equals(share) ? share
+                        : down.add(Fraction.of(BigInteger.ONE, BigInteger.TEN.pow(truncate.decimalPlaces())));
+            }
+        };
     }
 
     /**

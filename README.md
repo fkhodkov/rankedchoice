@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, Irish Dáil 2002, the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
@@ -51,14 +51,17 @@ A classic STV ruleset is a combination of independent choices:
     candidate holds.
   - `wigm` — the Weighted Inclusive Gregory Method (Scottish local elections): the same, but
     rounded per parcel of ballots received at the same value.
-  - `last-parcel` — only the candidate's most recently received parcel moves (ERS97, Tasmania),
-    the ratio taken over ballots that have a next preference, then rounded.
+  - `last-parcel` — only the candidate's most recently received parcel moves (ERS97), the ratio
+    taken over ballots that have a next preference, then rounded.
   - `last-parcel-deferred-rounding` — the same, but each recipient's gain is rounded instead of
     the ratio (ACT).
   - `unweighted-inclusive` — every paper the candidate holds moves at surplus ÷ papers,
     whatever value it arrived at; each recipient's gain is rounded (Australian Senate).
+  - `unweighted-exclusive:N` — the papers of the last parcel move at surplus ÷ papers, those
+    with no next preference counted too, truncated to N places; each recipient's gain is
+    rounded (Tasmania, `:6`).
 
-  Under the last-parcel and unweighted-inclusive methods an excluded candidate's ballots move
+  Under the last-parcel and unweighted methods an excluded candidate's ballots move
   one value group at a time, largest first, and surpluses wait until they're the largest
   pending, as in ERS97 (or the earliest elected, with `surplusOrder: election`).
 - **Rounding** (`--rounding`): `exact`, or `truncate:N` (round down to N decimal places, as real
@@ -73,7 +76,7 @@ A classic STV ruleset is a combination of independent choices:
   active vote divided by one more than the seats left, which falls below the quota as votes are
   lost.
 - **Surplus order** (config `surplusOrder`): `size` (largest first, the default) or `election`
-  (in order of election, as the Australian Senate does).
+  (in order of election, as the Australian Senate, the ACT and Tasmania do).
 - **Elect as they stand** (config `electAsTheyStand`): the Australian Senate's end of count —
   when an exclusion leaves as many candidates as seats, they're elected without its papers
   being transferred, and the last seat between two candidates goes to the one ahead.
@@ -109,16 +112,17 @@ Ballots set aside this way, and blank ones, are reported as informal ballots, wi
 | `scottish` | Droop + WIGM + truncate:5, tied rankings truncated | Scottish local government elections | [The Scottish Local Government Elections Order 2007, rules 43(1)(c) and 48(3)](https://www.legislation.gov.uk/ssi/2007/42) |
 | `ers97` | Droop rounded up to 2dp + last-parcel + truncate:2 + batch exclusion, surplus deferral and votes required for election, tied rankings truncated | Many UK organisations' internal elections | [opavote's citation of ERS97 rules 5.2.5, 5.3.7, and glossary 6.8–6.12](https://opavote.com/methods/ers97-stv-rules) (*How to Conduct an Election by the Single Transferable Vote*, 3rd ed., Electoral Reform Society, 1997) |
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No technical spec or election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule difference (quota rounded to 0dp above 100, not implemented here); treat as "believed similar", not verified |
-| `hare-clark-qpq` | Droop + last-parcel + truncate:2, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections (council elections: add `--minimum-preferences 3`) | [Tasmanian Electoral Commission, "Hare-Clark Electoral System in Tasmania"](https://www.tec.tas.gov.au/info/Publications/HareClark.html); formality from the [Electoral Act 2004 (Tas), ss.102–103](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051) |
+| `hare-clark-qpq` | Droop + unweighted-exclusive:6 + truncate:0 (whole votes), surpluses in order of election, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections | [Electoral Act 2004 (Tas), Schedule 4, and ss.102–103 for formality](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051); the transfer value's 6 places from the [Tasmanian Electoral Commission](https://www.tec.tas.gov.au/info/Publications/HareClark.html) |
 | `senate` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, last candidates elected as they stand | Australian Senate elections | [Commonwealth Electoral Act 1918, s.273](https://www.legislation.gov.au/C1918A00027/latest/text) |
-| `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
+| `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, surpluses in order of election, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
 Each preset's tied-ranking rule comes from its rulebook: the Scottish order's rule 43(1)(c) (a
 "1" against more than one candidate voids the paper), ERS97 glossary 6.8–6.12, the ACT Act's
 Schedule 4 clause 2(2) with s.180(2)(c), and the Tasmanian Act's ss.102–103 (a duplicate above
 the 7th preference ends the ballot there). `hare-clark-qpq` and `act-hare-clark` share the
-"Hare-Clark" name but differ: Tasmania rounds the shared transfer ratio to 2 places, the ACT
-each recipient's gain to 6. Despite its name, `hare-clark-qpq` is classic STV, unrelated to the
+"Hare-Clark" name but differ: Tasmania divides a surplus over every paper of the last parcel,
+truncates that value to 6 places and counts whole votes; the ACT divides it over the papers with
+a next preference, keeps the value exact, and rounds each recipient's gain to 6 places. Despite its name, `hare-clark-qpq` is classic STV, unrelated to the
 QPQ method.
 
 ## Command line
@@ -134,7 +138,7 @@ QPQ method.
 | `-c, --config` | YAML config file (below). Not with `--ruleset`. |
 | `-r, --ruleset` | A [bundled ruleset](#bundled-rulesets). Not with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N` — `stv` and `cpo-stv`. |
-| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding\|unweighted-inclusive` — `stv` and `cpo-stv`. |
+| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding\|unweighted-inclusive\|unweighted-exclusive:N` — `stv` and `cpo-stv`. |
 | `--rounding` | `exact\|truncate:N`. Defaults to `exact` — but see [Limitations](#limitations) for large counts. Not used by `cambridge`, `qpq`, `schulze`, `borda`; for `meek`/`warren` it only shapes the report. |
 | `--tiebreak` | Fallback chain, e.g. `previous-round,declared`. Not used by `cpo-stv`, `schulze`, `borda`. |
 | `--tied-rankings` | `reject\|split\|truncate\|skip` — see [above](#tied-rankings-and-short-ballots). |
@@ -227,7 +231,8 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   candidates, 33 seats and 40 preferences per ballot stalls even at 20,000 voters. The count
   warns on stderr when this starts; `--rounding truncate:9` keeps it bounded, and every bundled
   preset rounds anyway.
-- **Not validated:** `ers76` and `hare-clark-qpq` (no data to check against); Cambridge STV
+- **Not validated:** `ers76` (no data to check against), `hare-clark-qpq` against real counts
+  (no ballot data; it's checked against OpenTally instead); Cambridge STV
   against official Cambridge counts (no public ballot data; ballot order matters). See
   [VALIDATION.md](VALIDATION.md#not-validated).
 - **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at
@@ -282,6 +287,8 @@ about 45 s, 16 / 8 about a minute.
   distribution of preferences.
 - [`tools/reference/act`](tools/reference/act/README.md) — convert Elections ACT's ballot data
   and official distributions of preferences into the ACT test fixtures.
+- [`tools/reference/opentally`](tools/reference/opentally/README.md) — count random elections with
+  OpenTally under each matching preset and compare every round with this project's.
 - [`tools/reference/pyrcv2`](tools/reference/pyrcv2/README.md) — count an election with pyRCV2
   (ERS97, exact Gregory, Scottish or Senate) and compare it with this one, round by round.
 - [`tools/reference/scotland`](tools/reference/scotland/README.md) — count every Scottish council

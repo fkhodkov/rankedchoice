@@ -1066,7 +1066,7 @@ class StvCounterTest {
     }
 
     /**
-     * The Senate's last two (s273(18)): one seat left, A on 5 and B on 4, both short of the quota
+     * The Senate's last two (s273(17)): one seat left, A on 5 and B on 4, both short of the quota
      * of 7 once C's 3 votes exhaust. A is elected there and then, on 5; B is never excluded.
      */
     @Test
@@ -1083,7 +1083,7 @@ class StvCounterTest {
     }
 
     /**
-     * And s273(17): two seats, quota 5, D's 2 votes exhaust, then excluding C leaves A and B for
+     * And s273(18): two seats, quota 5, D's 2 votes exhaust, then excluding C leaves A and B for
      * the two seats. They're elected on 4 each, tied, so A first by declared order; C's 3 papers
      * never reach B, who would have been elected first on 7 had they moved.
      */
@@ -1098,6 +1098,32 @@ class StvCounterTest {
         assertThat(result.quota()).isEqualTo(Fraction.of(5));
         assertThat(result.electedInOrder()).containsExactly(A, B);
         assertThat(result.rounds().getLast().tallies()).isEqualTo(Map.of(A, Fraction.of(4), B, Fraction.of(4)));
+    }
+
+    /**
+     * Tasmania's House of Assembly transfer (hare-clark-qpq's, less its 7-preference formality),
+     * worked by hand: 34 votes for 2 seats, quota 12. A's 17 first preferences carry a surplus of
+     * 5, divided over all 17 papers, the 2 with no further preference included: 0.294117 each,
+     * truncated to 6 places. B's 10 papers give floor(2.94117) = 2, C's 5 floor(1.47058) = 1,
+     * and the 2 exhausted floor(0.58823) = 0; the other 2 votes are loss by fraction. (ERS97's
+     * last-parcel method would divide by the 15 transferable papers instead: 1/3 each.)
+     */
+    @Test
+    void tasmaniaDividesTheSurplusOverEveryPaperAndCountsWholeVotes() {
+        List<Candidate> candidates = List.of(A, B, C, D);
+        StvRuleset tasmania = new StvRuleset(DroopQuota.INSTANCE,
+                new info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer(6), new TruncateDecimal(0),
+                new PreviousRoundVotesTieBreak(new DeclaredOrderTieBreak(candidates)), false, TiedRankingPolicy.REJECT);
+
+        StvResult result = StvCounter.count(candidates, List.of(
+                ballot(10, A, B), ballot(5, A, C), ballot(2, A), ballot(6, B), ballot(7, C), ballot(4, D, C)), 2, tasmania);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(12));
+        RoundRecord second = result.rounds().get(1);
+        assertThat(second.tallies()).isEqualTo(Map.of(B, Fraction.of(8), C, Fraction.of(8), D, Fraction.of(4)));
+        assertThat(second.exhaustedVotes()).isEqualTo(Fraction.ZERO);
+        assertThat(second.roundingLoss()).isEqualTo(Fraction.of(2));
+        assertThat(result.electedInOrder()).containsExactly(A, C);
     }
 
     private static StvRuleset fractional(info.fkhodkov.rankedchoice.stv.rounding.RoundingRule rounding,

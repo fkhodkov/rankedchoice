@@ -1,13 +1,25 @@
-# The Hare-Clark "quota preferential" system used for Tasmanian House of Assembly and local
-# government elections specifically (see act-hare-clark.yaml for the ACT Legislative Assembly
-# variant, which is legislatively distinct despite sharing the "Hare-Clark" name). Standard
-# Droop quota; surplus transfer is last-parcel-only (explicitly confirmed: "under Hare-Clark,
-# [a previously elected candidate's] first preferences were not examined as part of the
-# surplus", unlike an inclusive method); transfer values calculated to 2 decimal places, per
-# the Tasmanian Electoral Commission's own description ("all votes ... are calculated to 2
-# decimal places to reduce the loss of votes by fraction"). Tie-break isn't documented in the
-# sources used here, so this falls back to the same previous-round/declared-order chain as our
-# other presets rather than guessing at Tasmania-specific procedure.
+# The Hare-Clark "quota preferential" system for Tasmanian House of Assembly elections, per
+# Schedule 4 of the Electoral Act 2004 (Tas) (see act-hare-clark.yaml for the ACT's Hare-Clark,
+# which is legislatively distinct despite the shared name):
+#
+# - Quota: Droop, disregarding any remainder, plus one (clause 3).
+# - Surplus: only the papers of the last transfer to the elected candidate are re-examined, or
+#   all of their first preferences if elected on those; the transfer value is the surplus divided
+#   by the number of those papers, every one of them (clauses 6(b) and 8(4)(b)), truncated to 6
+#   decimal places as the Tasmanian Electoral Commission describes ("Hare-Clark Electoral
+#   System in Tasmania"; its 2 places are for council elections only); and each candidate's
+#   share is "the resulting number, disregarding any fractional remainder" (clauses 6(d) and
+#   8(4)(d)): whole votes, the rest loss by fraction.
+# - Surplus order: the largest first, but a surplus arising at an earlier count or transfer
+#   before a later one (clause 7(1)), i.e. in order of election.
+# - Exclusion: the excluded candidate's papers go in groups by the transfer value they arrived
+#   at, highest first, each a separate transfer (clause 9); a candidate reaching quota partway is
+#   elected, the transfer is completed, and nothing more goes to them (clauses 8 and 10).
+# - Ties: the candidate behind at the last count at which they differed, then "an approved
+#   method" (clauses 7(2) and 12); the declared order stands in for that.
+#
+# Checked against OpenTally (tools/reference/opentally), whose options express each of these;
+# there is no published ballot data to replay an official count.
 #
 # Formality, per the Electoral Act 2004 (Tas): an Assembly elector "must mark the ballot paper
 # by placing, without omission or duplication, the numbers 1, 2, 3, 4, 5, 6 and 7" (s.102(1)),
@@ -16,11 +28,13 @@
 # treated as being formal" (s.103(2)). That's truncating at the first tied rank, then treating
 # anything left with fewer than 7 preferences as informal. Council elections need only 3
 # (fewer with 2 or 3 candidates, s.102(2) -- reproduced by minimumPreferences' built-in cap at
-# candidates - 1); for those, use a --config file with this file's settings but
-# minimumPreferences: 3.
+# candidates - 1), and the TEC says their votes are worked to 2 decimal places, so a --config
+# file with transfer: unweighted-exclusive:2, rounding: truncate:2 and minimumPreferences: 3
+# would be the place to start; that hasn't been checked against anything.
 quota: droop
-transfer: last-parcel
-rounding: truncate:2
+transfer: unweighted-exclusive:6
+rounding: truncate:0
 tiebreak: previous-round,declared
 tiedRankings: truncate
 minimumPreferences: 7
+surplusOrder: election

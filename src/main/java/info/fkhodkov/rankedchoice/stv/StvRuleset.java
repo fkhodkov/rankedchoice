@@ -49,7 +49,7 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * matters where surpluses wait (the last-parcel and Senate transfer methods).
  *
  * <p>{@code electAsTheyStand} elects the last candidates on their votes as they stand, as the
- * AEC counts the Senate (Commonwealth Electoral Act 1918 s273(17) and (18)): when an exclusion
+ * AEC counts the Senate (Commonwealth Electoral Act 1918 s273(18) and (17)): when an exclusion
  * leaves as many continuing candidates as seats, they're elected without the excluded
  * candidate's papers being transferred; and when one seat is left between two continuing
  * candidates with no surplus waiting, the one with more votes is elected, below quota if need

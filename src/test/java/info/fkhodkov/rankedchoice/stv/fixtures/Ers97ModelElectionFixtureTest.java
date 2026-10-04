@@ -66,13 +66,15 @@ class Ers97ModelElectionFixtureTest {
     }
 
     /**
-     * Three synthetic elections counted by pyRCV2's ERS97 counter (see the files' headers),
+     * Four synthetic elections counted by pyRCV2's ERS97 counter (see the files' headers),
      * picked for what they exercise: r148 elects two candidates in one step as the votes
      * required falls with each election; r127 fills its last seats with a surplus still to
-     * transfer, which ends the count; r134 defers surpluses and bulk-excludes over 12 rounds.
+     * transfer, which ends the count; r134 defers surpluses and bulk-excludes over 12 rounds;
+     * ot11 (one of tools/reference/opentally's random elections) needs the votes required rounded
+     * up, 29.59 / 3 to 9.87, so that C4 on 9.86 waits for C9's surplus.
      */
     @ParameterizedTest
-    @ValueSource(strings = {"r127", "r134", "r148"})
+    @ValueSource(strings = {"r127", "r134", "r148", "ot11"})
     void everyRoundMatchesPyRcv2(String name) throws IOException {
         ParsedElection election = BltParser.parse(DIRECTORY.resolve("pyrcv2/" + name + ".blt"));
         StvResult count = StvCounter.count(election.candidates(), election.ballots(), election.seats(),

@@ -1,0 +1,244 @@
+# ot11.blt, counted by pyRCV2 with the ers97 preset (tools/reference/pyrcv2/count.py).
+# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss
+# by fraction).
+
+stage 1
+comment: First preferences
+C1: 19.00
+C2: 6.00
+C3: 5.00
+C4: 7.00
+C5: 11.00
+C6: 3.00
+C7: 2.00
+C8: 1.00
+C9: 8.00
+C10: 2.00
+C11: 5.00
+C12: 3.00
+non-transferable: 0.00
+
+stage 2
+comment: Surplus of C1
+C1: 12.00
+C2: 7.29
+C3: 5.86
+C4: 7.00
+C5: 11.86
+C6: 3.43
+C7: 2.00
+C8: 2.72
+C9: 8.43
+C10: 2.43
+C11: 5.43
+C12: 3.43
+non-transferable: 0.12
+
+stage 3
+comment: Exclusion of C7
+C1: 12.00
+C2: 7.29
+C3: 6.86
+C4: 7.00
+C5: 11.86
+C6: 4.43
+C7: 0.00
+C8: 2.72
+C9: 8.43
+C10: 2.43
+C11: 5.43
+C12: 3.43
+non-transferable: 0.12
+
+stage 4
+comment: Exclusion of C10
+C1: 12.00
+C2: 7.29
+C3: 6.86
+C4: 7.00
+C5: 12.86
+C6: 4.43
+C7: 0.00
+C8: 2.72
+C9: 8.43
+C10: 0.43
+C11: 5.43
+C12: 3.43
+non-transferable: 1.12
+
+stage 5
+comment: Exclusion of C10
+C1: 12.00
+C2: 7.29
+C3: 6.86
+C4: 7.00
+C5: 12.86
+C6: 4.86
+C7: 0.00
+C8: 2.72
+C9: 8.43
+C10: 0.00
+C11: 5.43
+C12: 3.43
+non-transferable: 1.12
+
+stage 6
+comment: Surplus of C5
+C1: 12.00
+C2: 7.29
+C3: 7.72
+C4: 7.00
+C5: 12.00
+C6: 4.86
+C7: 0.00
+C8: 2.72
+C9: 8.43
+C10: 0.00
+C11: 5.43
+C12: 3.43
+non-transferable: 1.12
+
+stage 7
+comment: Exclusion of C8
+C1: 12.00
+C2: 7.29
+C3: 7.72
+C4: 7.00
+C5: 12.00
+C6: 4.86
+C7: 0.00
+C8: 1.72
+C9: 8.43
+C10: 0.00
+C11: 6.43
+C12: 3.43
+non-transferable: 1.12
+
+stage 8
+comment: Exclusion of C8
+C1: 12.00
+C2: 7.72
+C3: 8.15
+C4: 7.00
+C5: 12.00
+C6: 4.86
+C7: 0.00
+C8: 0.00
+C9: 8.86
+C10: 0.00
+C11: 6.86
+C12: 3.43
+non-transferable: 1.12
+
+stage 9
+comment: Exclusion of C12
+C1: 12.00
+C2: 7.72
+C3: 8.15
+C4: 8.00
+C5: 12.00
+C6: 4.86
+C7: 0.00
+C8: 0.00
+C9: 8.86
+C10: 0.00
+C11: 7.86
+C12: 0.43
+non-transferable: 2.12
+
+stage 10
+comment: Exclusion of C12
+C1: 12.00
+C2: 7.72
+C3: 8.58
+C4: 8.00
+C5: 12.00
+C6: 4.86
+C7: 0.00
+C8: 0.00
+C9: 8.86
+C10: 0.00
+C11: 7.86
+C12: 0.00
+non-transferable: 2.12
+
+stage 11
+comment: Exclusion of C6
+C1: 12.00
+C2: 7.72
+C3: 8.58
+C4: 9.00
+C5: 12.00
+C6: 0.86
+C7: 0.00
+C8: 0.00
+C9: 10.86
+C10: 0.00
+C11: 7.86
+C12: 0.00
+non-transferable: 3.12
+
+stage 12
+comment: Exclusion of C6
+C1: 12.00
+C2: 7.72
+C3: 8.58
+C4: 9.43
+C5: 12.00
+C6: 0.00
+C7: 0.00
+C8: 0.00
+C9: 10.86
+C10: 0.00
+C11: 7.86
+C12: 0.00
+non-transferable: 3.55
+
+stage 13
+comment: Exclusion of C2
+C1: 12.00
+C2: 1.72
+C3: 9.58
+C4: 9.43
+C5: 12.00
+C6: 0.00
+C7: 0.00
+C8: 0.00
+C9: 12.86
+C10: 0.00
+C11: 8.86
+C12: 0.00
+non-transferable: 5.55
+
+stage 14
+comment: Exclusion of C2
+C1: 12.00
+C2: 0.00
+C3: 9.58
+C4: 9.86
+C5: 12.00
+C6: 0.00
+C7: 0.00
+C8: 0.00
+C9: 12.86
+C10: 0.00
+C11: 9.29
+C12: 0.00
+non-transferable: 6.41
+
+stage 15
+comment: Surplus of C9
+C1: 12.00
+C2: 0.00
+C3: 9.58
+C4: 10.29
+C5: 12.00
+C6: 0.00
+C7: 0.00
+C8: 0.00
+C9: 12.00
+C10: 0.00
+C11: 9.72
+C12: 0.00
+non-transferable: 6.41
+

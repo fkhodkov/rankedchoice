@@ -15,15 +15,15 @@ import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
  * — only the most recently arrived parcel does).
  */
 public sealed interface TransferMethod permits FractionalTransfer, WigmTransfer, LastParcelTransfer,
-        LastParcelDeferredRoundingTransfer, UnweightedInclusiveTransfer {
+        LastParcelDeferredRoundingTransfer, UnweightedInclusiveTransfer, UnweightedExclusiveTransfer {
 
     Map<Integer, Fraction> computeTransferValues(Fraction surplus, List<HeldParcel> parcels, RoundingRule roundingRule);
 
     /**
      * Whether the ruleset's rounding applies to each candidate's gain from each transfer step
      * (a surplus, or one value group of an exclusion), tallies and exhausted votes being sums
-     * of rounded gains, rather than to their running totals. The ACT and the Australian Senate
-     * count this way.
+     * of rounded gains, rather than to their running totals. The ACT, the Australian Senate and
+     * Tasmania count this way.
      */
     default boolean roundsGainsPerStep() {
         return false;

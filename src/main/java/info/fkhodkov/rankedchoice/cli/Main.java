@@ -142,7 +142,8 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"--quota"}, description = "droop|hare|hagenbach-bischoff|imperiali. Overrides --config/--ruleset.")
     private String quota;
 
-    @Option(names = {"--transfer"}, description = "fractional|wigm. Overrides --config/--ruleset.")
+    @Option(names = {"--transfer"}, description = "fractional|wigm|last-parcel|last-parcel-deferred-rounding|unweighted-inclusive|"
+            + "unweighted-exclusive:N. Overrides --config/--ruleset.")
     private String transfer;
 
     @Option(names = {"--rounding"}, description = "exact|truncate:N. Defaults to exact, which can grow very slow on "

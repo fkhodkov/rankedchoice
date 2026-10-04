@@ -22,6 +22,7 @@ import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
+import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 import java.util.List;
@@ -144,7 +145,16 @@ public final class StvRulesetParser {
     }
 
     public static TransferMethod parseTransfer(String value) {
-        return switch (normalize(value, "fractional")) {
+        String normalized = normalize(value, "fractional");
+        if (normalized.startsWith("unweighted-exclusive")) {
+            String places = normalized.substring("unweighted-exclusive".length());
+            if (!places.matches(":\\d+")) {
+                throw new IllegalArgumentException("Transfer method 'unweighted-exclusive' needs the transfer value's "
+                        + "decimal places, e.g. 'unweighted-exclusive:6'; got: '" + value + "'");
+            }
+            return new UnweightedExclusiveTransfer(Integer.parseInt(places.substring(1)));
+        }
+        return switch (normalized) {
             case "fractional" -> FractionalTransfer.INSTANCE;
             case "wigm" -> WigmTransfer.INSTANCE;
             case "last-parcel" -> LastParcelTransfer.INSTANCE;

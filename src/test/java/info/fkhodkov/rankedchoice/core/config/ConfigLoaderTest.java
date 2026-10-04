@@ -81,8 +81,9 @@ class ConfigLoaderTest {
         ElectionConfig config = ConfigLoader.loadResource("/rulesets/hare-clark-qpq.yaml");
 
         assertThat(config.quota()).isEqualTo("droop");
-        assertThat(config.transfer()).isEqualTo("last-parcel");
-        assertThat(config.rounding()).isEqualTo("truncate:2");
+        assertThat(config.transfer()).isEqualTo("unweighted-exclusive:6");
+        assertThat(config.rounding()).isEqualTo("truncate:0");
+        assertThat(config.surplusOrder()).isEqualTo("election");
     }
 
     @Test

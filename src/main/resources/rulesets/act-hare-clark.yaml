@@ -12,10 +12,14 @@
 # exact; the "rounded down to 6 decimal places" requirement (clause 1A(2)) applies to each
 # destination candidate's own resulting gain (ballot papers received x transfer value), not
 # to the shared ratio -- confirmed against real 2020 Kurrajong election data, where rounding
-# the ratio first (as Tasmania's Hare-Clark count does -- see hare-clark-qpq.yaml, which
-# rounds to 2 decimal places, not 6, despite the shared "Hare-Clark" name) does not reproduce
-# the official per-candidate figures, but rounding the per-destination product does, exactly.
+# the ratio first (as Tasmania's Hare-Clark count does, over every paper of the parcel -- see
+# hare-clark-qpq.yaml) does not reproduce the official per-candidate figures, but rounding the
+# per-destination product does, exactly.
 # See LastParcelDeferredRoundingTransfer's javadoc for the mechanics.
+#
+# Surpluses go in order of election (clause 7): the surplus of whoever reached a quota at the
+# earliest count first, the largest of several from the same count. OpenTally's ACT preset found
+# this: none of the 2020 counts had a later, larger surplus waiting behind an earlier one.
 #
 # Tie-break isn't spelled out in the source used here, so this falls back to the same
 # previous-round/declared-order chain as our other presets rather than guessing at
@@ -31,3 +35,4 @@ transfer: last-parcel-deferred-rounding
 rounding: truncate:6
 tiebreak: previous-round,declared
 tiedRankings: truncate
+surplusOrder: election

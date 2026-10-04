@@ -21,6 +21,7 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.PreviousRoundVotesTieBreak;
 import info.fkhodkov.rankedchoice.stv.tiebreak.SeededRandomTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -63,6 +64,15 @@ class StvRulesetParserTest {
         assertThat(StvRulesetParser.parseTransfer("WIGM")).isEqualTo(WigmTransfer.INSTANCE);
         assertThat(StvRulesetParser.parseTransfer("last-parcel")).isEqualTo(LastParcelTransfer.INSTANCE);
         assertThat(StvRulesetParser.parseTransfer(null)).isEqualTo(FractionalTransfer.INSTANCE);
+        assertThat(StvRulesetParser.parseTransfer("unweighted-exclusive:6"))
+                .isEqualTo(new UnweightedExclusiveTransfer(6));
+    }
+
+    @Test
+    void unweightedExclusiveNeedsItsTransferValuePlaces() {
+        assertThatThrownBy(() -> StvRulesetParser.parseTransfer("unweighted-exclusive"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("unweighted-exclusive:6");
     }
 
     @Test

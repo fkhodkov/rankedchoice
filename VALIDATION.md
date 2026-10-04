@@ -169,7 +169,7 @@ at every round: 1,771 rounds, each one an official count, every candidate's vote
 exhausted votes and the loss by fraction to the vote, with the same senators elected in the
 same order. 2016 was a double dissolution, 12 senators per state; NSW's count that year, 151
 rounds over 4.5 million ballots, takes about 17 seconds. Tasmania 2016 and 2019 are test
-fixtures (`AecSenateFixtureTest`); 2016 ends on s273(18), below.
+fixtures (`AecSenateFixtureTest`); 2016 ends on s273(17), below.
 
 Getting there took two corrections, both from the official counts:
 - No bulk exclusion. The Act allows it (s273(13A)) only on narrower terms than the usual rule,
@@ -178,9 +178,9 @@ Getting there took two corrections, both from the official counts:
   at a time, ACT, SA and QLD 2019 all matched.
 - The end of the count (`electAsTheyStand`). When an exclusion leaves as many continuing
   candidates as seats, they're elected on their votes as they stand, without the excluded
-  candidate's papers moving (s273(17); NSW 2019 count 429, Davey and Faruqi); and the last seat
+  candidate's papers moving (s273(18); NSW 2019 count 429, Davey and Faruqi); and the last seat
   between two continuing candidates goes to the one ahead, without excluding the other
-  (s273(18); QLD 2019 count 288, Waters over Ketter; also Tasmania and SA in 2016, SA and WA in
+  (s273(17); QLD 2019 count 288, Waters over Ketter; also Tasmania and SA in 2016, SA and WA in
   2022). Neither changed who was elected, only the
   final figures, and here possibly the order of election. Ireland's and Scotland's official
   counts transfer the last exclusion, so this is a Senate setting only.
@@ -192,6 +192,67 @@ fraction in 189. In the other 2 pyRCV2's value-group exclusion leaves the exclud
 fractional or even negative votes, which this engine doesn't, so the loss it reports is off by
 those. One of them is a fixture (`testdata/aec/pyrcv2/s219`), where surpluses go in order of
 election rather than largest first.
+
+## OpenTally
+
+[OpenTally](https://yingtongli.me/git/OpenTally) is an independent STV counter with presets for
+many real rule sets, each option documented against its legislation. `tools/reference/opentally`
+counts the same 200 seeded random elections (5–12 candidates, 1–5 seats, 30–600 voters) with
+OpenTally and with this project, preset by preset, and matches every round to an OpenTally
+stage: every candidate's votes, and the votes set aside (exhausted plus lost) to within 10⁻⁹.
+OpenTally breaks a tie it can't settle backwards at random, where this project uses declared
+order, so elections that differ after such a tie are counted apart.
+
+| This project | OpenTally | Every round matches | After a random tie | Otherwise |
+|---|---|---|---|---|
+| default `stv` (exact Gregory) | weighted inclusive Gregory, rational | 192 | 8 | 0 |
+| `scottish` | "Scottish STV" | 173 | 8 | 19, all within 0.001 |
+| `act-hare-clark` | "Australian Capital Territory STV" | 188 | 9 | 3, set-aside only |
+| `senate` (less `electAsTheyStand`) | "Australian Senate STV", without early election | 179 | 13 | 8, set-aside only |
+| `hare-clark-qpq` (10× the voters) | Tasmania's Schedule 4, from OpenTally's options | 189 | 1 | 10, set-aside only |
+| `ers97` | "ERS97" | 163 | 11 | 26, OpenTally's own exceptions |
+| `meek` | "Meek STV (2006)" and "(New Zealand)" | the same winners in all 200 | | |
+
+The differences that remain are understood:
+
+- **Set-aside only** (`act-hare-clark`, `senate`, `hare-clark-qpq`): every candidate's votes
+  match in every round. OpenTally's exclusion by transfer value leaves the excluded candidate
+  holding fractional or even negative votes (C5 on −1.08 in one Senate election), as pyRCV2's
+  does, so the totals it sets aside differ by those; and it doesn't round exhausted votes to the
+  ACT's 6 places, which the official ACT counts do. This engine matches the AEC's and Elections
+  ACT's official counts on both.
+- **`scottish`**: fifth-decimal rounding of a surplus from ballots of different values, as with
+  pyRCV2 above; Highland's official count sheet confirms this engine's.
+- **`ers97`**: pyRCV2 agrees with this engine on all 26. OpenTally documents these as its own
+  departures from ERS97: it doesn't defer a surplus exactly equal to the gap between the two
+  lowest candidates ([E8]), and it defers for bulk exclusion differently ([E9]).
+- **Meek**: OpenTally's Meek presets stop iterating as soon as the surplus left can't change an
+  exclusion, and stop at their own tolerance, so the figures between exclusions aren't
+  comparable; the winners are.
+- **The Senate's end of count**: OpenTally also elects candidates who can no longer be
+  overtaken, which the Act doesn't provide for (ConcreteSTV's reading of s273 agrees); with that
+  off on both sides the counts are compared up to the end, which the AEC's 32 official counts
+  check above.
+
+It found three bugs, each now fixed:
+
+- **ACT surplus order.** Schedule 4 clause 7 of the ACT's Act deals with the surplus of whoever
+  reached quota at the earliest count first, the largest of several from the same count; this
+  engine took the largest pending surplus. None of the 2020 counts had a larger surplus waiting
+  behind an earlier one. `act-hare-clark` now has `surplusOrder: election`.
+- **ERS97's votes required** was rounded down, not up: "rounding up" truncated the negated
+  share, and truncation goes towards zero. With 29.59 active votes for 2 seats the votes required
+  is 9.87, not 9.86, so a candidate on 9.86 must wait for the next surplus. The 100 random
+  elections against pyRCV2 never hit it; `testdata/ers97/pyrcv2/ot11` is the one that did.
+- **`hare-clark-qpq` didn't follow Tasmania's Act.** It divided a surplus over the papers with
+  a next preference and truncated the transfer value to 2 places. Schedule 4 of the Electoral
+  Act 2004 (Tas) divides it over every paper of the last parcel and counts each candidate's
+  share in whole votes, and the Tasmanian Electoral Commission truncates the value to 6 places
+  (its 2 places are for council elections); surpluses go in order of election. A new transfer
+  method, `unweighted-exclusive:6`, does that.
+
+OpenTally's CSV report can't show Meek's stages, so the tool reads its text report. It crashes
+on some single-seat elections in a log message, which the tool reports apart.
 
 ## Classic STV building blocks
 
@@ -249,6 +310,8 @@ election rather than largest first.
   published figures. Checking for new winners on every iteration, as droop also does, fixed it.
   OpaVote's own arithmetic isn't published, so its keep factors agree only to 5–6 significant
   digits.
+- **OpenTally's Meek presets** ("Meek STV (2006)" and "(New Zealand)") elect the same candidates
+  in all 200 of its random elections (see [OpenTally](#opentally)).
 - **OpenSTV's `MeekSTV`** agrees on winners, but its round-by-round figures aren't comparable:
   it batch-eliminates and reports single keep-factor iterations as rounds.
 
@@ -380,7 +443,8 @@ pairs, 10 fresh JVM runs each) found the CPO-STV bug above and nothing else.
 
 - **ERS76** — no surviving copy of the 1976 rulebook or any election published under it was
   found; the preset is ERS97's settings ("believed similar", not verified).
-- **`hare-clark-qpq`** — the Tasmanian Electoral Commission publishes detailed round-by-round
-  scrutiny reports but never ballot-level data, so there's nothing to replay.
+- **`hare-clark-qpq`** against official counts — the Tasmanian Electoral Commission publishes
+  detailed round-by-round scrutiny reports but never ballot-level data, so there's nothing to
+  replay. It's checked against the Act's Schedule 4 through OpenTally instead (see above).
 - **Imperiali quota** — hand-derived only (see above).
 - **Cambridge STV against official counts** — see above.
