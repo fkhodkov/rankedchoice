@@ -17,7 +17,7 @@ original design.
 | STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, Minneapolis's multi-seat contests 2017–2025, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
-| Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
+| Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | every count of Cambridge's 16 elections of 2001–2017 and the winners of 21 of its 22 of 2001–2023; OpenSTV, exactly, on 60 elections |
 | QPQ | `qpq` | Woodall's Quota Preferential by Quotient: whole votes, quotients, a restart after each exclusion | droop and OpenSTV, to 9 decimal places |
 | CPO-STV | `cpo-stv` | Tideman's: every possible committee compared with every other | hand-worked cases; an independent implementation (4,830 scores) |
 | Schulze STV | `schulze-stv` | Schulze's: committees one swap apart compared by how well each could split the voters into separate quotas, then a beatpath | Schulze's own program and published figures on Tideman's 65 elections; the paper's worked example |
@@ -270,8 +270,8 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   warns on stderr when this starts; `--rounding truncate:9` keeps it bounded, and every bundled
   preset rounds anyway.
 - **Not validated:** `ers76` (no data to check against); `hare-clark-qpq`, `vic-lc` and `wa-lc`
-  against real counts (no ballot data is published; they're checked against OpenTally instead); Cambridge STV
-  against official Cambridge counts (ballot order matters; FairVote's collection has the ballots, not yet checked). See
+  against real counts (no ballot data is published; they're checked against OpenTally instead); Cambridge STV's
+  rounds for 2019–2023 (those years' ballot records don't mark overvotes). See
   [VALIDATION.md](VALIDATION.md#not-validated).
 - **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at
   50,000 committees and 20 seats; near that cap it needs about 320 MB of heap.
@@ -332,6 +332,9 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/minneapolis`](tools/reference/minneapolis/README.md) — convert the City of
   Minneapolis's cast vote records for its multi-seat contests of 2017–2025 and check each round
   against the City's summary statements.
+- [`tools/reference/cambridge`](tools/reference/cambridge/README.md) — convert Cambridge's
+  ballots from FairVote's collection, in the City's order, and check each election from 2001 to
+  2023 against the official count sheets.
 - [`tools/reference/albany`](tools/reference/albany/README.md) — convert Alameda County's cast
   vote records for Albany's 2022 and 2024 contests (from FairVote's collection) and check each
   round against the County's RCV Detailed Reports.

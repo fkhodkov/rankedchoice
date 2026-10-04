@@ -11,7 +11,8 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 Every Scottish council election with published ballots, all five ACT electorates in 2020, every
 state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024,
 Portland's four City Council districts of 2024, Minneapolis's six multi-seat contests of 2017–2025,
-Albany, California's four of 2022 and 2024, and three Irish constituencies, run through their
+Albany, California's four of 2022 and 2024, Cambridge's sixteen of 2001–2017, and three Irish
+constituencies, run through their
 own rulesets, reproduce their actual results:
 
 | Election | Ruleset | Checked | Source of ballots |
@@ -25,6 +26,7 @@ own rulesets, reproduce their actual results:
 | Portland, Oregon City Council 2024, all four districts (17–31 candidates, 3 seats each; 281,260 votes in the first round) | `portland` | every official round's tallies, to 4 decimal places, against Multnomah County's round-by-round results, the threshold, and the councillors elected; see below | the County's cast vote records |
 | Minneapolis Park Board at large (3 seats) and Board of Estimate and Taxation (2 seats), 2017, 2021 and 2025 (4–11 candidates; 576,346 votes in the first round) | `minneapolis` | every official round's tallies, to 4 decimal places, against the City's summary statements, the threshold, and the candidates elected; see below | the City's cast vote records |
 | Albany, California City Council and Board of Education, 2022 and 2024 (4–5 candidates, 2–3 seats; 28,782 votes in the first round) | `albany` (2024), the County's 2022 settings | every official round's tallies, to the report's 4 or 6 decimal places, against Alameda County's RCV Detailed Reports, the first threshold, and the candidates elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
+| Cambridge, MA City Council (9 seats) and School Committee (6 seats), every election of 2001–2017 (16; 273,661 valid ballots) | `--method cambridge` | every official count's votes, to the vote, the quota, and the candidates elected, against the official count sheets; see [Cambridge STV](#cambridge-stv) | the City's ballots, in the City's order, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
 
 Every one is cross-checked against the election's published or officially declared result,
@@ -268,8 +270,7 @@ The reports name their settings, and the counts confirm them:
   and unqualified write-ins are passed over. So every candidate's first round matches to the
   vote; one ballot the County calls blank is an overvote here, which counts for nobody either way.
 
-Cambridge's ballots, 2001–2023, are in FairVote's collection too, but not yet checked (see
-[Cambridge STV](#cambridge-stv)). Minneapolis's 2009 and 2013 contests, published as spreadsheets
+Minneapolis's 2009 and 2013 contests, published as spreadsheets
 of a different shape (2009 lists every write-in by name), aren't checked.
 
 ## The ERS97 model election
@@ -578,11 +579,28 @@ hopeful" step didn't check whether the seats were already filled.
   (`testdata/cambridge/README.md` says how it was made); `CambridgeCounterTest` has a
   hand-worked case, confirmed by OpenSTV, where the Cincinnati method gives a whole surplus of
   29 to one candidate that fractional STV would split evenly.
-- **Official counts**: not checked yet. Cambridge doesn't publish ballot-level data itself, but
-  FairVote's collection of proportional RCV records (https://doi.org/10.7910/DVN/STVUET) has its
-  City Council and School Committee ballots for 2001–2023. Counting order matters, though, and
-  the city's settings say "Random, every nth ballot", which may mean a random starting point
-  where OpenSTV always starts at the n-th.
+- **Official counts** (`tools/reference/cambridge`): FairVote's collection of proportional RCV
+  records (https://doi.org/10.7910/DVN/STVUET) has the ballots of all 22 City Council and School
+  Committee elections from 2001 to 2023, in the order the City counted them. Against the
+  official count sheets the Cambridge Civic Journal keeps of each:
+  - **2001–2017, all 16 elections**: every one of the 204 official counts is a round of this
+    count, every candidate's votes to the vote, at the official quota, with the same winners.
+    Which ballots a surplus moves depends on their order, so this checks the Cincinnati
+    transfer, starting at the n-th ballot, against the real counts: the same ballots in reverse
+    order fail from the first surplus on. The City passes over an overvoted ranking; ending the
+    ballot there instead leaves the quota short of the City's in every election. Two are
+    fixtures (`CambridgeOfficialCountTest`: the 2017 Council's 19 counts, the 2013 School
+    Committee's 8).
+  - **2019–2023, 6 elections**: the winners only. These records don't mark overvotes (each is a
+    plain "skipped"), so the first counts are a few votes a candidate off the City's, the 2023
+    Council's quota 2,345 to the City's 2,334, and no count can match. Five elect the City's
+    winners. The 2023 School Committee doesn't: the City's last exclusion was King's, 8 votes
+    behind Harding (2,624 to 2,632), and here it's Harding, 12 behind King, within what the
+    missing overvotes move.
+  - The records' write-ins aren't always the City's (2019 and 2023 lump them as one); every
+    write-in is under 50 votes and goes in the first exclusion either way. The 2023 School
+    Committee record names its last two rankings by code ("C06[10]"); the converter works out
+    which candidate each stands for from the ballots that use it.
 - **Ballot order** (`tools/order-sensitivity`): at 10,000 voters, 200 random orders of each of
   30 generated elections never changed the result. In smaller electorates with many seats it
   sometimes does, and at 1,000 ballots for 9 seats — a quota near the 50-vote cutoff — it can
@@ -612,4 +630,5 @@ pairs, 10 fresh JVM runs each) found the CPO-STV bug above and nothing else.
 - **`vic-lc` and `wa-lc`** against official counts — no ballot papers are published; checked
   against OpenTally (see above).
 - **Imperiali quota** — hand-derived only (see above).
-- **Cambridge STV against official counts** — see above.
+- **Cambridge STV's rounds for 2019–2023** — the ballot records don't mark overvotes; the
+  winners are checked (see above).

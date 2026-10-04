@@ -1,0 +1,346 @@
+{
+ "council-2001": {
+  "seats": 9,
+  "quota": 1713,
+  "dataverseFile": 11620384,
+  "sheet": "http://www.rwinters.com/elections/council2001.pdf",
+  "elected": [
+   "Galluccio, Anthony D.",
+   "Murphy, Brian",
+   "Davis, Henrietta",
+   "Sullivan, Michael A.",
+   "Decker, Marjorie C.",
+   "Toomey, Timothy J.",
+   "Simmons, E. Denise",
+   "Reeves, Kenneth E.",
+   "Maher, David P."
+  ]
+ },
+ "council-2003": {
+  "seats": 9,
+  "quota": 2009,
+  "dataverseFile": 11620387,
+  "sheet": "http://www.rwinters.com/elections/council2003.pdf",
+  "elected": [
+   "Anthony Galluccio",
+   "Henrietta Davis",
+   "Michael A. Sullivan",
+   "Tim Toomey",
+   "Kenneth E. Reeves",
+   "Marjorie Decker",
+   "Brian Murphy",
+   "David Maher",
+   "Denise Simmons"
+  ]
+ },
+ "school-2003": {
+  "seats": 6,
+  "quota": 2672,
+  "dataverseFile": 11620413,
+  "sheet": "http://www.rwinters.com/elections/school2003.pdf",
+  "elected": [
+   "Nancy Walser",
+   "Fred Fantini",
+   "Marc McGovern",
+   "Ben Lummis",
+   "Richard Harding",
+   "Joseph Grassi"
+  ]
+ },
+ "council-2005": {
+  "seats": 9,
+  "quota": 1608,
+  "dataverseFile": 11620401,
+  "sheet": "http://www.rwinters.com/elections/council2005.pdf",
+  "elected": [
+   "Galluccio, Anthony",
+   "Decker, Marjorie",
+   "Sullivan, Michael",
+   "Davis, Henrietta",
+   "Toomey, Tim",
+   "Simmons, Denise",
+   "Murphy, Brian",
+   "Reeves, Ken",
+   "Kelley, Craig"
+  ]
+ },
+ "school-2005": {
+  "seats": 6,
+  "quota": 2211,
+  "dataverseFile": 11620415,
+  "sheet": "http://www.rwinters.com/elections/school2005.pdf",
+  "elected": [
+   "Nolan, Patty",
+   "Fantini, Fred",
+   "Walser, Nancy",
+   "Grassi, Joe",
+   "Schuster, Luc",
+   "Harding, Richard"
+  ]
+ },
+ "council-2007": {
+  "seats": 9,
+  "quota": 1364,
+  "dataverseFile": 11620391,
+  "sheet": "http://www.rwinters.com/elections/council2007.pdf",
+  "elected": [
+   "Davis, Henrietta",
+   "Toomey, Tim",
+   "Maher, David",
+   "Reeves, Ken",
+   "Murphy, Brian",
+   "Kelley, Craig",
+   "Decker, Marjorie",
+   "Seidel, Sam",
+   "Simmons, Denise"
+  ]
+ },
+ "school-2007": {
+  "seats": 6,
+  "quota": 1897,
+  "dataverseFile": 11620378,
+  "sheet": "http://www.rwinters.com/elections/school2007.pdf",
+  "elected": [
+   "McGovern, Marc",
+   "Fantini, Fred",
+   "Schuster, Luc",
+   "Nolan, Patty",
+   "Grassi, Joe",
+   "Tauber, Nancy"
+  ]
+ },
+ "council-2009": {
+  "seats": 9,
+  "quota": 1596,
+  "dataverseFile": 11620392,
+  "sheet": "http://www.rwinters.com/elections/council2009.pdf",
+  "elected": [
+   "Davis, Henrietta",
+   "Simmons, Denise",
+   "Toomey, Tim",
+   "Maher, David",
+   "Decker, Marjorie",
+   "Kelley, Craig",
+   "Reeves, Kenneth",
+   "Seidel, Sam",
+   "Cheung, Leland"
+  ]
+ },
+ "council-2011": {
+  "seats": 9,
+  "quota": 1585,
+  "dataverseFile": 11620393,
+  "sheet": "http://www.rwinters.com/elections/council2011.pdf",
+  "elected": [
+   "Cheung, Leland",
+   "Toomey, Tim",
+   "Maher, David",
+   "Davis, Henrietta",
+   "Simmons, Denise",
+   "Decker, Marjorie",
+   "Kelley, Craig",
+   "vanBeuzekom, Minka",
+   "Reeves, Kenneth"
+  ]
+ },
+ "school-2011": {
+  "seats": 6,
+  "quota": 2185,
+  "dataverseFile": 11620383,
+  "sheet": "http://www.rwinters.com/elections/school2011.pdf",
+  "elected": [
+   "Fantini, Fred",
+   "Nolan, Patty",
+   "Turkel, Alice",
+   "Osborne, Mervan",
+   "Harding, Richard",
+   "McGovern, Marc"
+  ]
+ },
+ "council-2013": {
+  "seats": 9,
+  "quota": 1775,
+  "dataverseFile": 11620412,
+  "sheet": "http://www.rwinters.com/elections/council2013.pdf",
+  "elected": [
+   "Cheung, Leland",
+   "Maher, David",
+   "Toomey, Tim",
+   "Benzan, Dennis",
+   "McGovern, Marc",
+   "Simmons, Denise",
+   "Carlone, Dennis",
+   "Kelley, Craig",
+   "Mazen, Nadeem"
+  ]
+ },
+ "school-2013": {
+  "seats": 6,
+  "quota": 2371,
+  "dataverseFile": 11620394,
+  "sheet": "http://www.rwinters.com/elections/school2013.pdf",
+  "elected": [
+   "Nolan, Patricia",
+   "Fantini, Fred",
+   "Harding, Richard",
+   "Kelly, Kathleen",
+   "Cronin, Fran",
+   "Osborne, Mervan"
+  ]
+ },
+ "council-2015": {
+  "seats": 9,
+  "quota": 1786,
+  "dataverseFile": 11620410,
+  "sheet": "http://www.rwinters.com/elections/council2015.pdf",
+  "elected": [
+   "Mazen, Nadeem",
+   "Simmons, Denise",
+   "Maher, David",
+   "Kelley, Craig",
+   "Toomey, Tim",
+   "Devereux, Jan",
+   "McGovern, Marc",
+   "Cheung, Leland",
+   "Carlone, Dennis"
+  ]
+ },
+ "school-2015": {
+  "seats": 6,
+  "quota": 2400,
+  "dataverseFile": 11620402,
+  "sheet": "http://www.rwinters.com/elections/school2015.pdf",
+  "elected": [
+   "Nolan, Patricia M.",
+   "Fantini, Alfred B.",
+   "Harding, Jr., Richard",
+   "Kelly, Kathleen M.",
+   "Bowman, Manikka L.",
+   "Dexter, Emily R."
+  ]
+ },
+ "council-2017": {
+  "seats": 9,
+  "quota": 2253,
+  "dataverseFile": 11620406,
+  "sheet": "http://www.rwinters.com/elections/council2017.pdf",
+  "elected": [
+   "Simmons, Denise",
+   "Siddiqui, Sumbul",
+   "McGovern, Marc",
+   "Devereux, Jan",
+   "Toomey, Tim",
+   "Zondervan, Quinton",
+   "Mallon, Alanna",
+   "Carlone, Dennis",
+   "Kelley, Craig"
+  ]
+ },
+ "school-2017": {
+  "seats": 6,
+  "quota": 2959,
+  "dataverseFile": 11620411,
+  "sheet": "http://www.rwinters.com/elections/school2017.pdf",
+  "elected": [
+   "Nolan, Patricia M.",
+   "Bowman, Manikka L.",
+   "Fantini, Alfred B.",
+   "Dexter, Emily R.",
+   "Kelly, Kathleen M.",
+   "Kimbrough, Laurance V."
+  ]
+ },
+ "council-2019": {
+  "seats": 9,
+  "quota": 2124,
+  "dataverseFile": 11620381,
+  "sheet": "http://www.rwinters.com/elections/council2019.pdf",
+  "elected": [
+   "Siddiqui, Sumbul",
+   "Simmons, Denise",
+   "Toomey, Tim",
+   "Nolan, Patty",
+   "McGovern, Marc",
+   "Carlone, Dennis",
+   "Zondervan, Quinton",
+   "Sobrinho-Wheeler, Jivan C.",
+   "Mallon, Alanna"
+  ]
+ },
+ "school-2019": {
+  "seats": 6,
+  "quota": 2776,
+  "dataverseFile": 11620385,
+  "sheet": "http://www.rwinters.com/elections/school2019.pdf",
+  "elected": [
+   "Bowman, Mannika L.",
+   "Dexter, Emily R.",
+   "Wilson, Ayesha",
+   "Fantini, Alfred B.",
+   "Weinstein, Rachel",
+   "Rojas Villarreal, Jose Luis"
+  ]
+ },
+ "council-2021": {
+  "seats": 9,
+  "quota": 2182,
+  "dataverseFile": 11620386,
+  "sheet": "http://www.rwinters.com/elections/council2021.pdf",
+  "elected": [
+   "Siddiqui, Sumbul",
+   "Nolan, Patty",
+   "Simmons, Denise",
+   "Toner, Paul F.",
+   "McGovern, Marc",
+   "Carlone, Dennis",
+   "Azeem, Burhan",
+   "Zondervan, Quinton",
+   "Mallon, Alanna"
+  ]
+ },
+ "school-2021": {
+  "seats": 6,
+  "quota": 2860,
+  "dataverseFile": 11620414,
+  "sheet": "http://www.rwinters.com/elections/school2021.pdf",
+  "elected": [
+   "Wilson, Ayesha",
+   "Fantini, Alfred B.",
+   "Bhambi, Akriti",
+   "Weinstein, Rachel",
+   "Weinstein, David J.",
+   "Rojas Villarreal, Jose Luis"
+  ]
+ },
+ "council-2023": {
+  "seats": 9,
+  "quota": 2334,
+  "dataverseFile": 11620380,
+  "sheet": "http://www.rwinters.com/elections/council2023.pdf",
+  "elected": [
+   "Siddiqui, Sumbul",
+   "Azeem, Burhan",
+   "Nolan, Patricia M.",
+   "McGovern, Marc C.",
+   "Toner, Paul F.",
+   "Sobrinho-Wheeler, Jivan",
+   "Simmons, E. Denise",
+   "Wilson, Ayesha",
+   "Pickett, Joan"
+  ]
+ },
+ "school-2023": {
+  "seats": 6,
+  "quota": 3037,
+  "dataverseFile": 11620405,
+  "sheet": "http://www.rwinters.com/elections/school2023.pdf",
+  "elected": [
+   "Weinstein, Rachel B.",
+   "Hudson, Elizabeth",
+   "Hunter, Caroline M.",
+   "Weinstein, David J.",
+   "Rojas Villarreal, José Luis",
+   "Harding, Richard"
+  ]
+ }
+}

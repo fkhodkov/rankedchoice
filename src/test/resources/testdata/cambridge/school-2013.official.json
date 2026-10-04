@@ -1,0 +1,107 @@
+{
+ "sheet": "http://www.rwinters.com/elections/school2013.pdf",
+ "dataverseFile": 11620394,
+ "seats": 6,
+ "quota": 2371,
+ "elected": [
+  "Nolan, Patricia M.",
+  "Fantini, Alfred B.",
+  "Harding, Jr., Richard",
+  "Kelly, Kathleen M.",
+  "Cronin, Fran Albin",
+  "Osborne, Mervan F."
+ ],
+ "counts": {
+  "Harding, Jr., Richard": [
+   2359,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371
+  ],
+  "Nolan, Patricia M.": [
+   3921,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371
+  ],
+  "Osborne, Mervan F.": [
+   1238,
+   1739,
+   1906,
+   1906,
+   1910,
+   2065,
+   2198,
+   2371
+  ],
+  "Cronin, Fran Albin": [
+   1832,
+   2104,
+   2195,
+   2195,
+   2202,
+   2310,
+   2371,
+   2371
+  ],
+  "Kadete, Elechi M.": [
+   494,
+   582,
+   613,
+   613,
+   615,
+   0,
+   0,
+   0
+  ],
+  "Fantini, Alfred B.": [
+   2859,
+   2859,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371
+  ],
+  "Holland, John J.": [
+   589,
+   680,
+   798,
+   798,
+   800,
+   859,
+   0,
+   0
+  ],
+  "Kelly, Kathleen M.": [
+   2102,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371,
+   2371
+  ],
+  "Gerber, Joyce C.": [
+   1126,
+   1434,
+   1513,
+   1513,
+   1516,
+   1595,
+   1801,
+   0
+  ]
+ },
+ "note": "counts: each candidate's votes after every official count, from the sheet, under the ballot file's spelling of their name; write-ins left out"
+}
