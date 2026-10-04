@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, Minneapolis's multi-seat contests 2017–2025, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, Minneapolis's multi-seat contests 2017–2025, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
@@ -104,6 +104,10 @@ A classic STV ruleset is a combination of independent choices:
   are less than the next candidate's, and anyone ranked on too few ballots still in play to reach
   the last of the seats left. Otherwise the largest surplus moves, one a round, its candidate
   receiving ballots until it does.
+- **Quota each round** (config `quotaEachRound`, for the methods that move a surplus at once): the
+  quota is recomputed before every round and every surplus on the whole votes the candidates then
+  hold, so it falls as ballots exhaust (Alameda County's Dominion count of Albany in 2022). The
+  report shows the first quota.
 - **Elect sure winners** (config `electSureWinners`): NSW councils' end of count — the leaders
   for the seats left are elected as soon as the others together, with any surplus still to
   transfer, can't overtake the last of them.
@@ -145,6 +149,7 @@ Ballots set aside this way, and blank ones, are reported as informal ballots, wi
 | `vic-lc` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, exclusions first preferences first, last candidates elected as they stand | Victorian Legislative Council | [Electoral Act 2002 (Vic), s114A](https://content.legislation.vic.gov.au/sites/default/files/2022-06/02-23aa064%20authorised.pdf); checked against OpenTally only |
 | `wa-lc` | Droop + weighted-inclusive + truncate:0 (whole votes per parcel), surpluses in order of election, exclusions parcel by parcel, last candidates elected as they stand | Western Australian Legislative Council | Electoral Act 1907 (WA), Schedule 1; checked against OpenTally only |
 | `portland` | Droop + fractional-truncated + truncate:4, surpluses transferred together, overvotes skipped | Portland, Oregon City Council | [Portland City Code 2.08.030](https://www.portland.gov/code/2/08/030) |
+| `albany` | Droop + fractional-truncated + truncate:4, overvotes end the ballot | Albany, California City Council and Board of Education | Alameda County's Dominion settings, as its RCV Detailed Reports give them; checked against the County's 2022 and 2024 counts |
 | `minneapolis` | Droop + fractional-truncated + truncate:4, mathematical elimination, overvotes skipped | Minneapolis Park Board at large and Board of Estimate and Taxation | Code of Ordinances 167.70 as enacted in 2006 ([FairVote's copy](https://archive.fairvote.org/media/implementation/Minneapolis%20IRV_Ordinance.pdf)); the rankings test and the surplus handling inferred from the City's 2017–2025 counts |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, surpluses in order of election, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
@@ -190,7 +195,7 @@ carry fields a method doesn't use.
 A YAML file (`--config`) can set any of `quota`, `transfer`, `rounding`, `tiebreak`, `seats`,
 `format`, `reportFormat`, `batchExclusion`, `deferSurpluses`, `votesRequired`, `surplusOrder`,
 `electAsTheyStand`, `electSureWinners`, `exclusionOrder`, `simultaneousSurpluses`, `mathematicalElimination`,
-`tiedRankings`, `minimumPreferences` and `precision`:
+`quotaEachRound`, `tiedRankings`, `minimumPreferences` and `precision`:
 
 ```yaml
 quota: hare
@@ -203,7 +208,7 @@ reportFormat: json
 Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
 always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`,
 `votesRequired`, `surplusOrder`, `electAsTheyStand`, `electSureWinners`, `exclusionOrder`,
-`simultaneousSurpluses` and `mathematicalElimination` have no flags: they're treated as fixed properties of a ruleset.
+`simultaneousSurpluses`, `mathematicalElimination` and `quotaEachRound` have no flags: they're treated as fixed properties of a ruleset.
 
 ## Reports
 
@@ -266,7 +271,7 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   preset rounds anyway.
 - **Not validated:** `ers76` (no data to check against); `hare-clark-qpq`, `vic-lc` and `wa-lc`
   against real counts (no ballot data is published; they're checked against OpenTally instead); Cambridge STV
-  against official Cambridge counts (no public ballot data; ballot order matters). See
+  against official Cambridge counts (ballot order matters; FairVote's collection has the ballots, not yet checked). See
   [VALIDATION.md](VALIDATION.md#not-validated).
 - **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at
   50,000 committees and 20 seats; near that cap it needs about 320 MB of heap.
@@ -327,6 +332,9 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/minneapolis`](tools/reference/minneapolis/README.md) — convert the City of
   Minneapolis's cast vote records for its multi-seat contests of 2017–2025 and check each round
   against the City's summary statements.
+- [`tools/reference/albany`](tools/reference/albany/README.md) — convert Alameda County's cast
+  vote records for Albany's 2022 and 2024 contests (from FairVote's collection) and check each
+  round against the County's RCV Detailed Reports.
 - [`tools/reference/act`](tools/reference/act/README.md) — convert Elections ACT's ballot data
   and official distributions of preferences into the ACT test fixtures.
 - [`tools/reference/opentally`](tools/reference/opentally/README.md) — count random elections with

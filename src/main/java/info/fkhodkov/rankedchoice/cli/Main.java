@@ -77,7 +77,7 @@ public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG =
             new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                    null, null, null, null, null);
+                    null, null, null, null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -115,7 +115,10 @@ public final class Main implements Callable<Integer> {
                             + "surpluses transferred together, overvotes skipped"),
             new BundledRuleset("minneapolis",
                     "Minneapolis multi-seat contests -- Droop, fractional transfer truncated twice to 4dp, "
-                            + "hopeless candidates defeated before each surplus, overvotes skipped"));
+                            + "hopeless candidates defeated before each surplus, overvotes skipped"),
+            new BundledRuleset("albany",
+                    "Albany, California -- Droop, fractional transfer truncated twice to 4dp, surpluses largest "
+                            + "first, as Alameda County's Dominion count"));
 
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
@@ -157,7 +160,7 @@ public final class Main implements Callable<Integer> {
     private Path config;
 
     @Option(names = {"-r", "--ruleset"}, description = "A bundled ruleset preset: scottish|ers97|ers76|"
-            + "hare-clark-qpq|act-hare-clark|senate|nsw-lg|vic-lc|wa-lc|portland|minneapolis. Mutually "
+            + "hare-clark-qpq|act-hare-clark|senate|nsw-lg|vic-lc|wa-lc|portland|minneapolis|albany. Mutually "
             + "exclusive with --config.")
     private String rulesetName;
 
@@ -327,6 +330,7 @@ public final class Main implements Callable<Integer> {
                         fileConfig.exclusionOrder(),
                         fileConfig.simultaneousSurpluses(),
                         fileConfig.mathematicalElimination(),
+                        fileConfig.quotaEachRound(),
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset,
                         warning -> System.err.println("Warning: " + warning + " -- e.g. --rounding truncate:9"));

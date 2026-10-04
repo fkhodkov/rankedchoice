@@ -1183,11 +1183,33 @@ class StvCounterTest {
                 .isEqualTo(Map.of(A, Fraction.of(40), B, Fraction.of(32), C, Fraction.of(18)));
     }
 
+    /**
+     * A quota recomputed each round, by hand: 2 seats, 27 ballots, first quota 10. C's 5 ballots
+     * exhaust when C is excluded, so the second round's quota is floor(22 / 3) + 1 = 8, and A, on 9,
+     * is elected with a surplus of 1. On the first quota A would still be short, and D excluded.
+     */
+    @Test
+    void aQuotaRecomputedEachRoundFallsAsBallotsExhaust() {
+        List<Candidate> candidates = List.of(A, B, C, D);
+        List<Ballot> ballots = List.of(ballot(9, A, B), ballot(7, B), ballot(5, C), ballot(4, D), ballot(2, D, A));
+        StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(candidates), false, TiedRankingPolicy.defaultFor(FractionalTransfer.INSTANCE),
+                0, false, false, false, false, false, ExclusionOrder.VALUE, false, false, true);
+
+        StvResult result = StvCounter.count(candidates, ballots, 2, ruleset);
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(10));
+        assertThat(result.rounds()).extracting(RoundRecord::action).startsWith(
+                new RoundAction.Eliminated(C), new RoundAction.Elected(A, Fraction.ONE));
+        assertThat(StvCounter.count(candidates, ballots, 2, ruleset(A, B, C, D)).rounds().get(1).action())
+                .isEqualTo(new RoundAction.Eliminated(D));
+    }
+
     @Test
     void mathematicalEliminationNeedsSurplusesMovedAtOnce() {
         StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, LastParcelTransfer.INSTANCE, Exact.INSTANCE,
                 new DeclaredOrderTieBreak(List.of(A, B, C)), false, TiedRankingPolicy.REJECT, 0, false, false,
-                false, false, false, ExclusionOrder.VALUE, false, true);
+                false, false, false, ExclusionOrder.VALUE, false, true, false);
 
         assertThatThrownBy(() -> StvCounter.count(List.of(A, B, C), List.of(ballot(3, A), ballot(1, B)), 1, ruleset))
                 .isInstanceOf(IllegalArgumentException.class)

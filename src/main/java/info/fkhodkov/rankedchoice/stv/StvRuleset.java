@@ -80,13 +80,19 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * Only when nobody is defeated so does a surplus move, the largest one, one a round; until it
  * does, its candidate keeps receiving ballots. Only for the transfer methods that move a surplus
  * at once.
+ *
+ * <p>{@code quotaEachRound} recomputes the quota before every round and every surplus, on the
+ * whole votes the candidates then hold, elected or not, as Alameda County's Dominion count did
+ * Albany's in 2022 ("continuing ballots per round"): as ballots exhaust it falls, and a surplus
+ * is what's above it then. A candidate already elected keeps what they were left with. Only for
+ * the transfer methods that move a surplus at once; the result reports the first quota.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
         boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
         boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder,
         boolean electAsTheyStand, boolean electSureWinners, ExclusionOrder exclusionOrder,
-        boolean simultaneousSurpluses, boolean mathematicalElimination) {
+        boolean simultaneousSurpluses, boolean mathematicalElimination, boolean quotaEachRound) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
@@ -97,7 +103,7 @@ public record StvRuleset(
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
         this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
-                false, false, false, false, ExclusionOrder.VALUE, false, false);
+                false, false, false, false, ExclusionOrder.VALUE, false, false, false);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

@@ -1,0 +1,9 @@
+# Alameda County's settings for Albany's 2022 contests, as its RCV Detailed Reports give them: the
+# albany ruleset, but the threshold recomputed every round ("continuing ballots per round") on
+# the votes the candidates then hold, and 6 decimal places, not 4.
+quota: droop
+transfer: fractional-truncated
+rounding: truncate:6
+tiebreak: declared
+tiedRankings: skip
+quotaEachRound: true

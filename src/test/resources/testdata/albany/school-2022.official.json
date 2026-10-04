@@ -1,0 +1,27 @@
+{
+ "source": "https://alamedacountyca.gov/rovresults/rcv/248/Albany/002-BoardOfEducation/RcvDetailedReport.xml",
+ "seats": 3,
+ "thresholds": [
+  "1618.000000",
+  "1548.000000"
+ ],
+ "elected": [
+  "RON ROSENBAUM",
+  "SADIA KHAN",
+  "BECKY HOPWOOD"
+ ],
+ "rounds": [
+  {
+   "RON ROSENBAUM": "3223.00000000000",
+   "SADIA KHAN": "1754.00000000000",
+   "LUCY BAIRD": "171.00000000000",
+   "BECKY HOPWOOD": "1322.00000000000"
+  },
+  {
+   "RON ROSENBAUM": "1618.00000000000",
+   "SADIA KHAN": "1754.00000000000",
+   "LUCY BAIRD": "534.02960700000",
+   "BECKY HOPWOOD": "2285.09912200000"
+  }
+ ]
+}

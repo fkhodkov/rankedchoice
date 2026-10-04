@@ -1,0 +1,33 @@
+{
+ "source": "https://alamedacountyca.gov/rovresults/rcv/252/Albany/002-BoardOfEducation/RcvDetailedReport.xml",
+ "seats": 2,
+ "thresholds": [
+  "2383.0000",
+  "2383.0000",
+  "2383.0000"
+ ],
+ "elected": [
+  "VERONICA DAVIDSON",
+  "DAYNA INKELES"
+ ],
+ "rounds": [
+  {
+   "JOLENE GAZMEN": "1651.00000000000",
+   "DAYNA INKELES": "1981.00000000000",
+   "BRIAN L. DOSS": "721.00000000000",
+   "VERONICA DAVIDSON": "2793.00000000000"
+  },
+  {
+   "JOLENE GAZMEN": "1774.66810000000",
+   "DAYNA INKELES": "2142.51670000000",
+   "BRIAN L. DOSS": "799.63120000000",
+   "VERONICA DAVIDSON": "2383.00000000000"
+  },
+  {
+   "JOLENE GAZMEN": "1997.53860000000",
+   "DAYNA INKELES": "2569.00840000000",
+   "BRIAN L. DOSS": "0.00000000000",
+   "VERONICA DAVIDSON": "2383.00000000000"
+  }
+ ]
+}

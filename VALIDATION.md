@@ -11,7 +11,7 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 Every Scottish council election with published ballots, all five ACT electorates in 2020, every
 state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024,
 Portland's four City Council districts of 2024, Minneapolis's six multi-seat contests of 2017–2025,
-and three Irish constituencies, run through their
+Albany, California's four of 2022 and 2024, and three Irish constituencies, run through their
 own rulesets, reproduce their actual results:
 
 | Election | Ruleset | Checked | Source of ballots |
@@ -24,6 +24,7 @@ own rulesets, reproduce their actual results:
 | NSW local government elections 2024, all 227 councillor counts with published figures (118 councils; 3–73 candidates, 2–15 seats; 4,051,337 ballots) | `nsw-lg` | every round's tallies and votes lost, to the vote, against the NSW Electoral Commission's full distribution of preferences, and the councillors elected; see below | the Commission's ballot-paper data |
 | Portland, Oregon City Council 2024, all four districts (17–31 candidates, 3 seats each; 281,260 votes in the first round) | `portland` | every official round's tallies, to 4 decimal places, against Multnomah County's round-by-round results, the threshold, and the councillors elected; see below | the County's cast vote records |
 | Minneapolis Park Board at large (3 seats) and Board of Estimate and Taxation (2 seats), 2017, 2021 and 2025 (4–11 candidates; 576,346 votes in the first round) | `minneapolis` | every official round's tallies, to 4 decimal places, against the City's summary statements, the threshold, and the candidates elected; see below | the City's cast vote records |
+| Albany, California City Council and Board of Education, 2022 and 2024 (4–5 candidates, 2–3 seats; 28,782 votes in the first round) | `albany` (2024), the County's 2022 settings | every official round's tallies, to the report's 4 or 6 decimal places, against Alameda County's RCV Detailed Reports, the first threshold, and the candidates elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
 
 Every one is cross-checked against the election's published or officially declared result,
@@ -246,7 +247,28 @@ found; the current Code of Ordinances wasn't reachable. What the counts show:
 - **One surplus a round, the largest**, as the 2006 text's steps repeat; no count had two
   waiting at once, so that part is untested.
 
-Cambridge, the other American city counting multi-seat STV, publishes no ballot data (see
+**Albany, California** (`albany`): the City Council and Board of Education contests of 2022 and
+2024 (`tools/reference/albany`), from Alameda County's cast vote records as FairVote's collection
+has them, against the County's Dominion "RCV Detailed Reports": every official round of all four
+is one of this count's rounds, every candidate to the report's decimal places, at the official
+first threshold, and the same candidates are elected. All four are fixtures (`AlbanyFixtureTest`).
+
+The reports name their settings, and the counts confirm them:
+
+- **2024**: a threshold fixed on the first round's continuing ballots, 4 decimal places, the
+  surplus fraction and each ballot's new value truncated (`fractional-truncated`, as Portland's),
+  surpluses largest first (McQuaid's 158 before Hansen-Romero's 78), and the truncation
+  remainder set aside, the elected candidate left on exactly the threshold.
+- **2022**: the threshold recomputed every round on the votes the candidates then hold
+  (`quotaEachRound`), and 6 places. The Council count turns on it: Miki's surplus is 521, over a
+  threshold fallen from 2,387 to 2,355, not 489. That it's recomputed between two surpluses of
+  one round, too, as the report has it for the Board of Education, no count shows: that count
+  ends before the second moves.
+- **Overvotes end the ballot** (Dominion's "skip overvoted rankings" is off); skipped rankings
+  and unqualified write-ins are passed over. So every candidate's first round matches to the
+  vote; one ballot the County calls blank is an overvote here, which counts for nobody either way.
+
+Cambridge's ballots, 2001–2023, are in FairVote's collection too, but not yet checked (see
 [Cambridge STV](#cambridge-stv)). Minneapolis's 2009 and 2013 contests, published as spreadsheets
 of a different shape (2009 lists every write-in by name), aren't checked.
 
@@ -556,10 +578,11 @@ hopeful" step didn't check whether the seats were already filled.
   (`testdata/cambridge/README.md` says how it was made); `CambridgeCounterTest` has a
   hand-worked case, confirmed by OpenSTV, where the Cincinnati method gives a whole surplus of
   29 to one candidate that fractional STV would split evenly.
-- **Official counts**: not checked. Cambridge doesn't currently publish ballot-level data
-  (DemoChoice once hosted 1997–2013; FairVote analysed a 2023 cast vote record), counting order
-  matters, and the city's settings say "Random, every nth ballot", which may mean a random
-  starting point where OpenSTV always starts at the n-th.
+- **Official counts**: not checked yet. Cambridge doesn't publish ballot-level data itself, but
+  FairVote's collection of proportional RCV records (https://doi.org/10.7910/DVN/STVUET) has its
+  City Council and School Committee ballots for 2001–2023. Counting order matters, though, and
+  the city's settings say "Random, every nth ballot", which may mean a random starting point
+  where OpenSTV always starts at the n-th.
 - **Ballot order** (`tools/order-sensitivity`): at 10,000 voters, 200 random orders of each of
   30 generated elections never changed the result. In smaller electorates with many seats it
   sometimes does, and at 1,000 ballots for 9 seats — a quota near the 50-vote cutoff — it can

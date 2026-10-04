@@ -1,0 +1,23 @@
+# Albany, California's multi-seat City Council and Board of Education contests, as Alameda County
+# counts them with Dominion's Democracy Suite (its "RCV Detailed Report" settings since 2024: STV,
+# threshold on the first round's continuing ballots, 4 decimal places). Threshold: the votes
+# counted for candidates in the first round, divided by one more than the seats, plus one,
+# disregarding fractions (Droop). Everyone over the threshold is elected together and their
+# surpluses move one at a time, largest first. The surplus fraction, the surplus over the candidate's votes, is
+# truncated to 4 decimal places, and each ballot's new value is its value times that, truncated
+# again; the remainder is set aside, not counted. Otherwise the candidate with the fewest votes is
+# defeated and their ballots move at their current values.
+#
+# Ballots: an overvote ends the ballot there (Dominion's "skip overvoted rankings" is off); a
+# skipped ranking or an unqualified write-in is passed over. Ties are decided by lot; the
+# declared order stands in for it.
+#
+# Checked against the County's official round-by-round reports for Albany's four contests of 2022
+# and 2024, from FairVote's collection of the County's cast vote records (tools/reference/albany).
+# In 2022 the County recomputed the threshold every round and worked to 6 places; that count is
+# testdata/albany/albany-2022.yaml.
+quota: droop
+transfer: fractional-truncated
+rounding: truncate:4
+tiebreak: declared
+tiedRankings: skip

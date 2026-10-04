@@ -131,11 +131,15 @@ public final class StvCounter {
             states.add(state);
         }
 
-        Fraction quota = ruleset.quota().compute(firstPreferenceVotes, seats);
+        Fraction firstQuota = ruleset.quota().compute(firstPreferenceVotes, seats);
+        Fraction quota = firstQuota;
         boolean defers = defersSurplusTransfers(ruleset.transferMethod());
         if (defers && ruleset.mathematicalElimination()) {
             throw new IllegalArgumentException(
                     "mathematicalElimination needs a transfer method that moves a surplus at once");
+        }
+        if (defers && ruleset.quotaEachRound()) {
+            throw new IllegalArgumentException("quotaEachRound needs a transfer method that moves a surplus at once");
         }
         // The ACT rounds each candidate's gain from each transfer step, not their running total.
         RunningTallies running = RunningTallies.of(states,
@@ -195,6 +199,10 @@ public final class StvCounter {
             Map<Candidate, Fraction> tallies = running.tallies(continuing, ruleset.roundingRule());
             Fraction exhausted = running.exhausted();
             Fraction loss = credits.roundingLoss(tallies, exhausted);
+            if (ruleset.quotaEachRound()) {
+                quota = quotaOnVotesHeld(ruleset, totalValidVotes, exhausted, loss, seats);
+            }
+            Fraction roundQuota = quota;
             List<RoundRecord> priorRounds = List.copyOf(history);
             Fraction activeVotes = positiveSurplusTotal(pendingSurplus, quota);
             for (Fraction tally : tallies.values()) {
@@ -217,7 +225,7 @@ public final class StvCounter {
                     : List.of();
             Fraction required = votesRequired(ruleset, activeVotes, remainingSeats);
             List<Candidate> meetingQuota = continuing.stream()
-                    .filter(candidate -> elects(tallies.get(candidate), quota, required))
+                    .filter(candidate -> elects(tallies.get(candidate), roundQuota, required))
                     .toList();
 
             List<Candidate> sure = ruleset.electSureWinners() && meetingQuota.isEmpty() && hopeless.isEmpty()
@@ -297,6 +305,11 @@ public final class StvCounter {
                             roundTallies.put(candidate, candidateVotes);
                             roundExhausted = running.exhausted();
                             roundLoss = credits.roundingLoss(roundTallies, roundExhausted);
+                            if (ruleset.quotaEachRound()) {
+                                // Each surplus is a round of its own, on the quota as it then stands.
+                                quota = quotaOnVotesHeld(ruleset, totalValidVotes, roundExhausted, roundLoss, seats);
+                                surplus = elected.size() < seats ? candidateVotes.subtract(quota) : Fraction.ZERO;
+                            }
                         }
                         firstOfStage = false;
                         // Ties among those this transfer elects look back from the votes just before it.
@@ -312,8 +325,9 @@ public final class StvCounter {
                             if (elected.size() < seats && !ruleset.simultaneousSurpluses()
                                     && !ruleset.mathematicalElimination()) {
                                 Map<Candidate, Fraction> fresh = running.tallies(continuing, ruleset.roundingRule());
+                                Fraction reaching = quota;
                                 List<Candidate> reached = continuing.stream()
-                                        .filter(other -> fresh.get(other).compareTo(quota) >= 0)
+                                        .filter(other -> fresh.get(other).compareTo(reaching) >= 0)
                                         .toList();
                                 if (!reached.isEmpty()) {
                                     List<Candidate> newly = sortedByTallyDescending(
@@ -410,7 +424,7 @@ public final class StvCounter {
 
         drainPendingSurplus(running, continuing, pendingSurplus, credits, ruleset.roundingRule(), rounds, roundNumber);
 
-        return new StvResult(elected, rounds, quota, formal.informal());
+        return new StvResult(elected, rounds, firstQuota, formal.informal());
     }
 
     /**
@@ -740,6 +754,16 @@ public final class StvCounter {
             }
         }
         return reachable;
+    }
+
+    /**
+     * The quota on the whole votes the candidates hold, elected or not: every valid vote but
+     * those exhausted and those lost to rounding.
+     */
+    private static Fraction quotaOnVotesHeld(StvRuleset ruleset, BigInteger totalValidVotes, Fraction exhausted,
+            Fraction loss, int seats) {
+        Fraction held = Fraction.of(totalValidVotes).subtract(exhausted).subtract(loss);
+        return ruleset.quota().compute(held.toBigDecimal(0, java.math.RoundingMode.FLOOR).toBigInteger(), seats);
     }
 
     /** The surpluses of candidates elected but not yet transferred: what's above quota. */
