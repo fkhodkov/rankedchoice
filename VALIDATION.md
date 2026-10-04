@@ -9,8 +9,8 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 ## Real elections
 
 Every Scottish council election with published ballots, all five ACT electorates in 2020, every
-state's and territory's Senate count from 2016 to 2025, and three Irish constituencies, run through their own rulesets,
-reproduce their actual results:
+state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024, and
+three Irish constituencies, run through their own rulesets, reproduce their actual results:
 
 | Election | Ruleset | Checked | Source of ballots |
 |---|---|---|---|
@@ -19,6 +19,7 @@ reproduce their actual results:
 | Badenoch and Strathspey 2022 (Highland Council) | `scottish` | every stage of the 8-round count, to 5 decimal places, against the council's "Candidate Votes Per Stage Report" | the council's official raw preference profile |
 | All five electorates of the ACT Legislative Assembly 2020 (Brindabella, Ginninderra, Kurrajong, Murrumbidgee, Yerrabi; 23–32 candidates, 5 seats each, 269,251 ballots) | `act-hare-clark` | every round's tallies, votes exhausted and loss by fraction, exactly to the 6 decimal places the Act specifies, and the winners, against the official "Final Distribution of Preferences" | Elections ACT's official ballot-paper data |
 | Australian Senate 2016, 2019, 2022 and 2025, all 32 state and territory counts (59,355,672 ballots; NSW alone up to 5.0 million) | `senate` | every round's tallies, exhausted votes and loss by fraction, to the vote, against the AEC's official distribution of preferences, and the senators in order of election; see below | the AEC's formal preference data |
+| NSW local government elections 2024, all 227 councillor counts with published figures (118 councils; 3–73 candidates, 2–15 seats; 4,051,337 ballots) | `nsw-lg` | every round's tallies and votes lost, to the vote, against the NSW Electoral Commission's full distribution of preferences, and the councillors elected; see below | the Commission's ballot-paper data |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
 
 Every one is cross-checked against the election's published or officially declared result,
@@ -101,6 +102,72 @@ the official loss by fraction.
 On those 40 random elections, no ruleset ever reports a negative loss, which would mean votes
 created.
 
+**The Australian Senate** (`senate`): every state and territory in 2016, 2019, 2022 and 2025,
+32 counts in all (`tools/reference/aec`), matches the AEC's official distribution of preferences
+at every round: 1,771 rounds, each one an official count, every candidate's votes, the
+exhausted votes and the loss by fraction to the vote, with the same senators elected in the
+same order. 2016 was a double dissolution, 12 senators per state; NSW's count that year, 151
+rounds over 4.5 million ballots, takes about 17 seconds. Tasmania 2016 and 2019 are test
+fixtures (`AecSenateFixtureTest`); 2016 ends on s273(17), below.
+
+Getting there took two corrections, both from the official counts:
+- No bulk exclusion. The Act allows it (s273(13A)) only on narrower terms than the usual rule,
+  and the AEC excluded one candidate at a time where the usual rule (pyRCV2's, adopted at first)
+  would exclude several together: ACT 2019 excludes Cowton at count 9 and Angel at count 11. One
+  at a time, ACT, SA and QLD 2019 all matched.
+- The end of the count (`electAsTheyStand`). When an exclusion leaves as many continuing
+  candidates as seats, they're elected on their votes as they stand, without the excluded
+  candidate's papers moving (s273(18); NSW 2019 count 429, Davey and Faruqi); and the last seat
+  between two continuing candidates goes to the one ahead, without excluding the other
+  (s273(17); QLD 2019 count 288, Waters over Ketter; also Tasmania and SA in 2016, SA and WA in
+  2022). Neither changed who was elected, only the
+  final figures, and here possibly the order of election. Ireland's and Scotland's official
+  counts transfer the last exclusion, so this is a Senate setting only.
+
+pyRCV2's Senate counter (as its own AEC test configures it, in exact arithmetic, but without
+bulk exclusion) checked 200 random elections too. Every candidate's votes and the exhausted votes
+match in all 191 it can count (it crashes in its exclusion code on the other 9), and the loss by
+fraction in 189. In the other 2 pyRCV2's value-group exclusion leaves the excluded candidate with
+fractional or even negative votes, which this engine doesn't, so the loss it reports is off by
+those. One of them is a fixture (`testdata/aec/pyrcv2/s219`), where surpluses go in order of
+election rather than largest first.
+
+**NSW councils** (`nsw-lg`): every councillor count of the 2024 NSW local government elections
+the NSW Electoral Commission published figures for, 227 in all (`tools/reference/nsw`). 212
+match its full distribution of preferences at every round: every candidate's votes and the
+votes lost (exhausted plus loss by fraction, which it reports together), to the vote. The other
+15 reach a tie for exclusion that no earlier count settles, which the Regulation leaves to lot;
+the Commission's draw and this project's declared order part ways there. All 227 elect the
+councillors the Commission declared. (Balranald's published distribution has no counts in it.)
+Six are test fixtures (`NswLocalGovernmentFixtureTest`).
+
+The Commission's distributions show each parcel's sub-count, and the rules came from them:
+
+- **The surplus fraction** is the surplus over the transferable votes: the candidate's votes
+  less the value of the papers with no further preference, which stay with them (Newcastle ward
+  4: 4,172 over 10,397). Each paper moves at its value times that fraction.
+- **Each candidate's gain from each parcel**, the papers received in one transfer at one value,
+  is rounded down to whole votes; an excluded candidate's parcels all move in one count, each
+  rounded on its own. A new transfer method, `weighted-transferable`, does both.
+- **Surpluses go in order of election**, two elected on equal votes in one transfer in the
+  order the count before set (Upper Lachlan: Searl ahead of Reynolds). That last part was a bug
+  for every ruleset: the tie-break looked back from the start of the stage, not from the
+  transfer that elected them.
+- **The count ends once the leaders can't be overtaken** (`electSureWinners`): the leading
+  candidates for the seats left are elected as soon as the rest together, with any surplus
+  still to transfer, have fewer votes than the last of them (Blayney: Dorsett on 568, under the
+  quota of 569, against 554). A surplus that could still change it is transferred first (Ballina
+  B: Bailey's 440 lets Ramsey overtake Broadley).
+- **A candidate elected mayor** leaves the councillor count: their papers go to the next
+  preference, and those ranking no one else don't count towards the quota (Coffs Harbour, quota
+  5,021 rather than 5,022). The quota is now on the votes the first count gives a candidate,
+  which changes nothing where no candidate has withdrawn.
+
+OpenTally's NSW preset counts the same way (below), short of one shortcut: where an exclusion
+would leave as many candidates as seats, it elects them without transferring the excluded
+candidate's papers. No 2024 count reached that point without the leaders already being sure of
+their seats.
+
 ## The ERS97 model election
 
 The Electoral Reform Society's worked "model election" from the ERS97 rulebook (11 candidates,
@@ -163,36 +230,6 @@ Gregory counter:
   at stage 2, Orkney Kirkwall East 2022 likewise), so now this engine does too, under every
   ruleset: once the last seat is filled, no further surplus moves.
 
-**The Australian Senate** (`senate`): every state and territory in 2016, 2019, 2022 and 2025,
-32 counts in all (`tools/reference/aec`), matches the AEC's official distribution of preferences
-at every round: 1,771 rounds, each one an official count, every candidate's votes, the
-exhausted votes and the loss by fraction to the vote, with the same senators elected in the
-same order. 2016 was a double dissolution, 12 senators per state; NSW's count that year, 151
-rounds over 4.5 million ballots, takes about 17 seconds. Tasmania 2016 and 2019 are test
-fixtures (`AecSenateFixtureTest`); 2016 ends on s273(17), below.
-
-Getting there took two corrections, both from the official counts:
-- No bulk exclusion. The Act allows it (s273(13A)) only on narrower terms than the usual rule,
-  and the AEC excluded one candidate at a time where the usual rule (pyRCV2's, adopted at first)
-  would exclude several together: ACT 2019 excludes Cowton at count 9 and Angel at count 11. One
-  at a time, ACT, SA and QLD 2019 all matched.
-- The end of the count (`electAsTheyStand`). When an exclusion leaves as many continuing
-  candidates as seats, they're elected on their votes as they stand, without the excluded
-  candidate's papers moving (s273(18); NSW 2019 count 429, Davey and Faruqi); and the last seat
-  between two continuing candidates goes to the one ahead, without excluding the other
-  (s273(17); QLD 2019 count 288, Waters over Ketter; also Tasmania and SA in 2016, SA and WA in
-  2022). Neither changed who was elected, only the
-  final figures, and here possibly the order of election. Ireland's and Scotland's official
-  counts transfer the last exclusion, so this is a Senate setting only.
-
-pyRCV2's Senate counter (as its own AEC test configures it, in exact arithmetic, but without
-bulk exclusion) checked 200 random elections too. Every candidate's votes and the exhausted votes
-match in all 191 it can count (it crashes in its exclusion code on the other 9), and the loss by
-fraction in 189. In the other 2 pyRCV2's value-group exclusion leaves the excluded candidate with
-fractional or even negative votes, which this engine doesn't, so the loss it reports is off by
-those. One of them is a fixture (`testdata/aec/pyrcv2/s219`), where surpluses go in order of
-election rather than largest first.
-
 ## OpenTally
 
 [OpenTally](https://yingtongli.me/git/OpenTally) is an independent STV counter with presets for
@@ -210,6 +247,7 @@ order, so elections that differ after such a tie are counted apart.
 | `act-hare-clark` | "Australian Capital Territory STV" | 188 | 9 | 3, set-aside only |
 | `senate` (less `electAsTheyStand`) | "Australian Senate STV", without early election | 179 | 13 | 8, set-aside only |
 | `hare-clark-qpq` (10× the voters) | Tasmania's Schedule 4, from OpenTally's options | 189 | 1 | 10, set-aside only |
+| `nsw-lg` | "NSW Local Government STV" | 180 | 13 | 7, OpenTally's end-of-count shortcut |
 | `ers97` | "ERS97" | 163 | 11 | 26, OpenTally's own exceptions |
 | `meek` | "Meek STV (2006)" and "(New Zealand)" | the same winners in all 200 | | |
 
@@ -229,6 +267,9 @@ The differences that remain are understood:
 - **Meek**: OpenTally's Meek presets stop iterating as soon as the surplus left can't change an
   exclusion, and stop at their own tolerance, so the figures between exclusions aren't
   comparable; the winners are.
+- **`nsw-lg`**: in all 7, OpenTally ends on a tie for the last seat by electing the other
+  candidates without transferring the excluded one's papers; this engine transfers them first.
+  The same councillors are elected (see [NSW councils](#real-elections)).
 - **The Senate's end of count**: OpenTally also elects candidates who can no longer be
   overtaken, which the Act doesn't provide for (ConcreteSTV's reading of s273 agrees); with that
   off on both sides the counts are compared up to the end, which the AEC's 32 official counts

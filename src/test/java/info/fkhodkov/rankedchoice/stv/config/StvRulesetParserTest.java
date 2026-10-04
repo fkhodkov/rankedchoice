@@ -26,6 +26,7 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.SeededRandomTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.WeightedTransferableTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
 class StvRulesetParserTest {
@@ -66,6 +67,8 @@ class StvRulesetParserTest {
         assertThat(StvRulesetParser.parseTransfer(null)).isEqualTo(FractionalTransfer.INSTANCE);
         assertThat(StvRulesetParser.parseTransfer("unweighted-exclusive:6"))
                 .isEqualTo(new UnweightedExclusiveTransfer(6));
+        assertThat(StvRulesetParser.parseTransfer("weighted-transferable"))
+                .isEqualTo(WeightedTransferableTransfer.INSTANCE);
     }
 
     @Test

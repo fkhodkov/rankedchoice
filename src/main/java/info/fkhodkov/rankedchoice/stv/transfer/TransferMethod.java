@@ -15,9 +15,20 @@ import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
  * — only the most recently arrived parcel does).
  */
 public sealed interface TransferMethod permits FractionalTransfer, WigmTransfer, LastParcelTransfer,
-        LastParcelDeferredRoundingTransfer, UnweightedInclusiveTransfer, UnweightedExclusiveTransfer {
+        LastParcelDeferredRoundingTransfer, UnweightedInclusiveTransfer, UnweightedExclusiveTransfer,
+        WeightedTransferableTransfer {
 
     Map<Integer, Fraction> computeTransferValues(Fraction surplus, List<HeldParcel> parcels, RoundingRule roundingRule);
+
+    /**
+     * As above, given also the votes the elected candidate is recorded as holding, which can
+     * differ from their papers' total value where gains are rounded. Only a method that needs it
+     * (see {@link WeightedTransferableTransfer}) looks at it.
+     */
+    default Map<Integer, Fraction> computeTransferValues(Fraction surplus, Fraction heldVotes,
+            List<HeldParcel> parcels, RoundingRule roundingRule) {
+        return computeTransferValues(surplus, parcels, roundingRule);
+    }
 
     /**
      * Whether the ruleset's rounding applies to each candidate's gain from each transfer step
@@ -26,6 +37,15 @@ public sealed interface TransferMethod permits FractionalTransfer, WigmTransfer,
      * Tasmania count this way.
      */
     default boolean roundsGainsPerStep() {
+        return false;
+    }
+
+    /**
+     * Whether, with {@link #roundsGainsPerStep()}, the rounding applies to the gain from each
+     * parcel a step moves (the papers the transferring candidate received in one transfer, at one
+     * value), not the step as a whole, as the NSW Electoral Commission counts.
+     */
+    default boolean roundsGainsPerParcel() {
         return false;
     }
 }

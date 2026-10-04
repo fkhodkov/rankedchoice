@@ -55,12 +55,19 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * candidates with no surplus waiting, the one with more votes is elected, below quota if need
  * be, without excluding the other. Otherwise the last exclusion is transferred, as Ireland's
  * and Scotland's count sheets show.
+ *
+ * <p>{@code electSureWinners} elects the leading candidates for the seats left as soon as none of
+ * the rest can overtake them: the last of them has more votes than all the other continuing
+ * candidates together, plus any surplus still to transfer. The count then ends, those surpluses
+ * untransferred. The NSW Electoral Commission counts councillor elections this way, under quota
+ * if need be; it's also how OpenTally ends a count. An exclusion that leaves as many candidates as
+ * seats is otherwise transferred before they're elected.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
         boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
         boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder,
-        boolean electAsTheyStand) {
+        boolean electAsTheyStand, boolean electSureWinners) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
@@ -71,7 +78,7 @@ public record StvRuleset(
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
         this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
-                false, false, false);
+                false, false, false, false);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

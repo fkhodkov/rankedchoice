@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
@@ -63,6 +63,9 @@ A classic STV ruleset is a combination of independent choices:
   - `unweighted-exclusive:N` — the papers of the last parcel move at surplus ÷ papers, those
     with no next preference counted too, truncated to N places; each recipient's gain is
     rounded (Tasmania, `:6`).
+  - `weighted-transferable` — every paper with a next preference moves at its value times the
+    surplus over the transferable votes; each recipient's gain from each parcel is rounded
+    (NSW councils).
 
   Under the last-parcel and unweighted methods an excluded candidate's ballots move
   one value group at a time, largest first, and surpluses wait until they're the largest
@@ -79,10 +82,13 @@ A classic STV ruleset is a combination of independent choices:
   active vote divided by one more than the seats left, which falls below the quota as votes are
   lost.
 - **Surplus order** (config `surplusOrder`): `size` (largest first, the default) or `election`
-  (in order of election, as the Australian Senate, the ACT and Tasmania do).
+  (in order of election, as the Australian Senate, the ACT, Tasmania and NSW councils do).
 - **Elect as they stand** (config `electAsTheyStand`): the Australian Senate's end of count —
   when an exclusion leaves as many candidates as seats, they're elected without its papers
   being transferred, and the last seat between two candidates goes to the one ahead.
+- **Elect sure winners** (config `electSureWinners`): NSW councils' end of count — the leaders
+  for the seats left are elected as soon as the others together, with any surplus still to
+  transfer, can't overtake the last of them.
 
 ### Tied rankings and short ballots
 
@@ -117,6 +123,7 @@ Ballots set aside this way, and blank ones, are reported as informal ballots, wi
 | `ers76` | Same settings as `ers97` | ERS97's predecessor | No technical spec or election data found distinct from ERS97 — [OpenTally's docs](https://yingtongli.me/opentally/docs/options.html) note one rule difference (quota rounded to 0dp above 100, not implemented here); treat as "believed similar", not verified |
 | `hare-clark-qpq` | Droop + unweighted-exclusive:6 + truncate:0 (whole votes), surpluses in order of election, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections | [Electoral Act 2004 (Tas), Schedule 4, and ss.102–103 for formality](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051); the transfer value's 6 places from the [Tasmanian Electoral Commission](https://www.tec.tas.gov.au/info/Publications/HareClark.html) |
 | `senate` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, last candidates elected as they stand | Australian Senate elections | [Commonwealth Electoral Act 1918, s.273](https://www.legislation.gov.au/C1918A00027/latest/text) |
+| `nsw-lg` | Droop + weighted-transferable + truncate:0 (whole votes per parcel), surpluses in order of election, sure winners elected | NSW local government councillor elections | [Local Government (General) Regulation 2021 (NSW), Schedule 5](https://legislation.nsw.gov.au/view/html/inforce/current/sl-2021-0460#sch.5), as the NSW Electoral Commission counts |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, surpluses in order of election, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
 Each preset's tied-ranking rule comes from its rulebook: the Scottish order's rule 43(1)(c) (a
@@ -141,7 +148,7 @@ QPQ method.
 | `-c, --config` | YAML config file (below). Not with `--ruleset`. |
 | `-r, --ruleset` | A [bundled ruleset](#bundled-rulesets). Not with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N` — `stv` and `cpo-stv`. |
-| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding\|unweighted-inclusive\|unweighted-exclusive:N` — `stv` and `cpo-stv`. |
+| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding\|unweighted-inclusive\|unweighted-exclusive:N\|weighted-transferable` — `stv` and `cpo-stv`. |
 | `--rounding` | `exact\|truncate:N`. Defaults to `exact` — but see [Limitations](#limitations) for large counts. Not used by `cambridge`, `qpq`, `schulze`, `borda`; for `meek`/`warren` it only shapes the report. |
 | `--tiebreak` | Fallback chain, e.g. `previous-round,declared`. Not used by `cpo-stv`, `schulze`, `borda`. |
 | `--tied-rankings` | `reject\|split\|truncate\|skip` — see [above](#tied-rankings-and-short-ballots). |
@@ -160,7 +167,7 @@ carry fields a method doesn't use.
 
 A YAML file (`--config`) can set any of `quota`, `transfer`, `rounding`, `tiebreak`, `seats`,
 `format`, `reportFormat`, `batchExclusion`, `deferSurpluses`, `votesRequired`, `surplusOrder`,
-`electAsTheyStand`, `tiedRankings`, `minimumPreferences` and `precision`:
+`electAsTheyStand`, `electSureWinners`, `tiedRankings`, `minimumPreferences` and `precision`:
 
 ```yaml
 quota: hare
@@ -172,7 +179,7 @@ reportFormat: json
 
 Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
 always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`,
-`votesRequired`, `surplusOrder` and `electAsTheyStand` have no flags: they're treated as fixed properties of a
+`votesRequired`, `surplusOrder`, `electAsTheyStand` and `electSureWinners` have no flags: they're treated as fixed properties of a
 ruleset.
 
 ## Reports
@@ -288,6 +295,9 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/aec`](tools/reference/aec/README.md) — count every state's Senate election
   from 2016 to 2025 from the AEC's ballot data and check each round against the official
   distribution of preferences.
+- [`tools/reference/nsw`](tools/reference/nsw/README.md) — download the NSW Electoral
+  Commission's 2024 councillor counts and check each round against the official distribution
+  of preferences.
 - [`tools/reference/act`](tools/reference/act/README.md) — convert Elections ACT's ballot data
   and official distributions of preferences into the ACT test fixtures.
 - [`tools/reference/opentally`](tools/reference/opentally/README.md) — count random elections with

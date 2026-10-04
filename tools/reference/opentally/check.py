@@ -37,6 +37,7 @@ OURS = {
     "act": ["--ruleset", "act-hare-clark"],
     "senate": ["--config", "senate-core.yaml"],   # written to WORK_DIR: senate less electAsTheyStand
     "tasmania": ["--ruleset", "hare-clark-qpq"],
+    "nswlg": ["--ruleset", "nsw-lg"],
     "meek06": ["--method", "meek"],
     "meeknz": ["--method", "meek"],
 }

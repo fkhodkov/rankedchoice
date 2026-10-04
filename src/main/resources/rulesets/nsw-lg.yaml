@@ -1,0 +1,21 @@
+# NSW local government councillor elections, per the Local Government (General) Regulation 2021,
+# Schedule 5, as the NSW Electoral Commission counts them. Quota: Droop, disregarding any
+# remainder, plus one. A surplus is transferred by weighted inclusive Gregory over the
+# transferable papers: every paper the elected candidate holds with a further preference moves at
+# its value times the surplus over the transferable votes (the candidate's votes less the value of
+# the papers with no further preference, which stay with them). Each candidate's gain from each
+# parcel (the papers received in one transfer at one value) is rounded down to whole votes, the
+# rest lost. Surpluses go in order of election. An excluded candidate's papers all move in one
+# count, each parcel rounded the same way. The Commission's full distributions of preferences
+# show every parcel's sub-count.
+#
+# OpenTally notes the Regulation can't be read consistently, and that the Commission applies
+# "by parcel" rounding; its NSW preset counts the same way.
+#
+# Ties: previous counts, then the declared order standing in for the lot.
+quota: droop
+transfer: weighted-transferable
+rounding: truncate:0
+tiebreak: previous-round,declared
+surplusOrder: election
+electSureWinners: true

@@ -46,6 +46,12 @@ PRESETS = {
     "tasmania": ["-n", "rational", "-q", "droop", "-c", "geq", "--round-quota", "0", "--round-votes", "0",
                  "--round-surplus-fractions", "6", "-s", "eg", "--surplus-order", "by_order",
                  "--exclusion", "by_value", "--no-early-bulk-elect"],
+    # OpenTally's "NSW Local Government STV" preset (Local Government (General) Regulation 2021,
+    # Schedule 5), as the NSW Electoral Commission counts: weighted inclusive Gregory over the
+    # transferable papers, each candidate's gain from each parcel in whole votes.
+    "nswlg": ["-n", "rational", "-q", "droop", "-c", "geq", "--round-quota", "0", "--round-votes", "0",
+              "--round-subtransfers", "by_parcel", "-s", "wig", "--transferable-only", "--surplus-assume-total",
+              "--surplus-order", "by_order", "--exclusion", "single_stage"],
     # OpenTally's "Meek STV (2006)" and "Meek STV (New Zealand)" presets.
     "meek06": ["-n", "fixed", "--decimals", "12", "-q", "droop", "-c", "geq", "--quota-mode", "dynamic_by_total",
                "--round-quota", "9", "--round-votes", "9", "--round-surplus-fractions", "9", "--round-values", "9",

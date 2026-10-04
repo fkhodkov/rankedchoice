@@ -20,6 +20,7 @@ public record ElectionConfig(
         Boolean deferSurpluses,
         Boolean votesRequired,
         String surplusOrder,
-        Boolean electAsTheyStand
+        Boolean electAsTheyStand,
+        Boolean electSureWinners
 ) {
 }
