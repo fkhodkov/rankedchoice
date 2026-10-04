@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count of 2019 and 2022, Irish Dáil 2002, the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, Irish Dáil 2002, the ERS97 model election, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | OpenSTV, exactly, on 60 elections |
@@ -278,7 +278,7 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/schulze_stv`](tools/reference/schulze_stv/README.md) — check Schulze STV
   against Schulze's own program and published figures, and against an independent count.
 - [`tools/reference/aec`](tools/reference/aec/README.md) — count every state's Senate election
-  of 2019 and 2022 from the AEC's ballot data and check each round against the official
+  from 2016 to 2025 from the AEC's ballot data and check each round against the official
   distribution of preferences.
 - [`tools/reference/act`](tools/reference/act/README.md) — convert Elections ACT's ballot data
   and official distributions of preferences into the ACT test fixtures.

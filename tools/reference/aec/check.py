@@ -2,8 +2,8 @@
 
 usage: check.py DATA_DIR [--jar PATH] [EVENT-STATE ...]
 
-DATA_DIR holds the AEC's downloads for each Senate election (event 24310 is 2019, 27966 is
-2022): aec-senate-formalpreferences-<event>-<state>.zip and SenateDopDownload-<event>.zip. For
+DATA_DIR holds the AEC's downloads for each Senate election (event 20499 is 2016, 24310 is
+2019, 27966 is 2022, 31496 is 2025): aec-senate-formalpreferences-<event>-<state>.zip and SenateDopDownload-<event>.zip. For
 each state, converts the ballots (aec_to_blt.py), counts them with the project's `senate`
 ruleset, and matches every round to an official count, in order: every candidate's votes, the
 exhausted votes and the loss by fraction ("Gain/Loss"), to the vote. Also compares the senators
@@ -63,7 +63,8 @@ def check(data, event, state, jar):
     counts, seats, elected = official(os.path.join(data, f"SenateDopDownload-{event}.zip"), state)
     if not os.path.exists(blt):
         subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "aec_to_blt.py"),
-                        prefs, blt, "--seats", str(seats)], check=True)
+                        prefs, blt, "--seats", str(seats), "--dop", os.path.join(data, f"SenateDopDownload-{event}.zip")],
+                       check=True)
     started = time.monotonic()
     result = subprocess.run(["java", "-Xmx6g", "-jar", jar, "-i", blt, "--ruleset", "senate", "--report-format",
                              "json"], capture_output=True, text=True)

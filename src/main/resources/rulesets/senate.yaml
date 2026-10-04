@@ -12,8 +12,9 @@
 # candidates as seats, without transferring the excluded candidate's papers (s 273(17)); and
 # when one seat is left between two, the one with more votes (s 273(18)).
 #
-# Checked against the AEC's official distribution of preferences for Tasmania in 2019 (election
-# 24310), with ballots from the AEC's formal preference data, as pyRCV2 counts them.
+# Checked against the AEC's official distribution of preferences for every state and territory
+# in 2016, 2019, 2022 and 2025, round by round, with ballots from the AEC's formal preference
+# data (tools/reference/aec).
 #
 # Ties: the Act breaks a tie on the candidates' votes at the last count at which they differed,
 # then by lot; the declared order stands in for the lot.
