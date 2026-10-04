@@ -9,7 +9,8 @@ usage: official.py EMB_2022.xlsx OUT.json [CACHE_DIR]   (needs openpyxl)
   whose STV result boxes list each ward's candidates, first preferences (count1) and, in bold,
   those elected. Fetched through the Wikipedia API and cached in CACHE_DIR (default wp/).
 
-The output is a list of {year, source, ward, candidates: [{name, elected, first}]}.
+The output is a list of {year, source, ward, candidates: [{name, elected, first, counts}]}, where
+counts (Wikipedia only) is the candidate's figure at each count as written, None where blank.
 """
 import json
 import os
@@ -73,6 +74,12 @@ def number(value):
         return None
 
 
+def figure(value):
+    """A count's figure as written ("1,234.56" -> "1234.56"), or None where it's blank."""
+    text = re.sub(r"[^0-9.]", "", clean(value).replace("'''", ""))
+    return text if re.fullmatch(r"\d+(\.\d+)?", text) else None
+
+
 def stv_boxes(year, text):
     for block in re.split(r"\{\{\s*STV Election box begin", text)[1:]:
         block = re.split(r"\{\{\s*STV Election box end", block)[0]
@@ -80,6 +87,8 @@ def stv_boxes(year, text):
         flat = re.sub(r"\[\[(?:[^\]|]*\|)?([^\]]*)\]\]", r"\1", block)
         flat = re.sub(r"<ref[^>]*?/>|<ref.*?</ref>", "", flat, flags=re.S)
         title = re.search(r"\|\s*title\s*=\s*([^\n|}]*)", flat)
+        counts = re.search(r"\|\s*numcounts\s*=\s*(\d+)", flat)
+        numcounts = int(counts.group(1)) if counts else 1
         candidates = []
         for chunk in re.split(r"\{\{\s*STV Election box candidate", flat)[1:]:
             chunk = re.sub(r"\{\{[^{}]*\}\}", "", chunk)
@@ -88,7 +97,8 @@ def stv_boxes(year, text):
             raw = params.get("candidate", "")
             if raw:
                 candidates.append({"name": clean(raw).replace("'''", "").replace("}}", "").strip(),
-                                   "elected": "'''" in raw, "first": number(params.get("count1", ""))})
+                                   "elected": "'''" in raw, "first": number(params.get("count1", "")),
+                                   "counts": [figure(params.get(f"count{k}", "")) for k in range(1, numcounts + 1)]})
         if candidates:
             yield {"year": year, "source": "wikipedia", "ward": title.group(1).strip() if title else "?",
                    "candidates": candidates}

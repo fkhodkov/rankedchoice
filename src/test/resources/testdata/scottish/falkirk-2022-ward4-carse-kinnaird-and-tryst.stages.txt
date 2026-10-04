@@ -1,0 +1,74 @@
+# falkirk_2022_ward4.pdf: the council's Candidate Votes Per Stage Report, read by
+# tools/reference/scotland/stage_report.py. Each stage: every candidate's votes, then the
+# non-transferable votes (including those due to rounding).
+
+stage 1
+Margaret ANSLOW: 1762
+Gary BOUSE: 1961
+James FLYNN: 1081
+Robert KEMP: 646
+Sean Patrick MCCAY: 207
+Tom MCLAUGHLIN: 297
+Laura MURTAGH: 1224
+non-transferable: 0
+
+stage 2
+Margaret ANSLOW: 1762.00000
+Gary BOUSE: 1436.00000
+James FLYNN: 1088.49616
+Robert KEMP: 649.74808
+Sean Patrick MCCAY: 215.56704
+Tom MCLAUGHLIN: 326.44920
+Laura MURTAGH: 1670.55696
+non-transferable: 29.18256
+
+stage 3
+Margaret ANSLOW: 1436.00000
+Gary BOUSE: 1436.00000
+James FLYNN: 1143.62914
+Robert KEMP: 674.35441
+Sean Patrick MCCAY: 297.89649
+Tom MCLAUGHLIN: 370.48158
+Laura MURTAGH: 1670.55696
+non-transferable: 149.08142
+
+stage 4
+Margaret ANSLOW: 1436.00000
+Gary BOUSE: 1436.00000
+James FLYNN: 1150.23424
+Robert KEMP: 678.09199
+Sean Patrick MCCAY: 314.64073
+Tom MCLAUGHLIN: 492.89330
+Laura MURTAGH: 1436.00000
+non-transferable: 234.13974
+
+stage 5
+Margaret ANSLOW: 1436.00000
+Gary BOUSE: 1436.00000
+James FLYNN: 1197.47645
+Robert KEMP: 711.89348
+Sean Patrick MCCAY: 0.00000
+Tom MCLAUGHLIN: 610.04694
+Laura MURTAGH: 1436.00000
+non-transferable: 350.58313
+
+stage 6
+Margaret ANSLOW: 1436.00000
+Gary BOUSE: 1436.00000
+James FLYNN: 1283.00064
+Robert KEMP: 778.53270
+Sean Patrick MCCAY: 0.00000
+Tom MCLAUGHLIN: 0.00000
+Laura MURTAGH: 1436.00000
+non-transferable: 808.46666
+
+stage 7
+Margaret ANSLOW: 1436.00000
+Gary BOUSE: 1436.00000
+James FLYNN: 1950.71290
+Robert KEMP: 0.00000
+Sean Patrick MCCAY: 0.00000
+Tom MCLAUGHLIN: 0.00000
+Laura MURTAGH: 1436.00000
+non-transferable: 919.28710
+

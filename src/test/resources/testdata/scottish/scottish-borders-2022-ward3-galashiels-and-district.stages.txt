@@ -1,0 +1,100 @@
+# sc_borders_2022_ward3.pdf: the council's Candidate Votes Per Stage Report, read by
+# tools/reference/scotland/stage_report.py. Each stage: every candidate's votes, then the
+# non-transferable votes (including those due to rounding).
+
+stage 1
+Michael BANKS: 36
+James D W CLARK: 24
+Duck FRATER: 199
+Euan JARDINE: 1205
+Neil MACKINNON: 412
+Harry Redpath SCOTT: 246
+Fay SINCLAIR: 1637
+Hannah STEEL: 483
+Bill WHITE: 315
+non-transferable: 0
+
+stage 2
+Michael BANKS: 43.52896
+James D W CLARK: 30.20032
+Duck FRATER: 230.00160
+Euan JARDINE: 1205.00000
+Neil MACKINNON: 786.23360
+Harry Redpath SCOTT: 272.57280
+Fay SINCLAIR: 912.00000
+Hannah STEEL: 581.76224
+Bill WHITE: 364.60256
+non-transferable: 131.09792
+
+stage 3
+Michael BANKS: 47.90566
+James D W CLARK: 32.87497
+Duck FRATER: 252.85770
+Euan JARDINE: 912.00000
+Neil MACKINNON: 796.68905
+Harry Redpath SCOTT: 314.63775
+Fay SINCLAIR: 912.00000
+Hannah STEEL: 658.59764
+Bill WHITE: 415.90721
+non-transferable: 213.53002
+
+stage 4
+Michael BANKS: 49.83484
+James D W CLARK: 0.00000
+Duck FRATER: 257.54373
+Euan JARDINE: 912.00000
+Neil MACKINNON: 809.94687
+Harry Redpath SCOTT: 318.76666
+Fay SINCLAIR: 912.00000
+Hannah STEEL: 662.76997
+Bill WHITE: 416.15036
+non-transferable: 217.98757
+
+stage 5
+Michael BANKS: 0.00000
+James D W CLARK: 0.00000
+Duck FRATER: 272.50360
+Euan JARDINE: 912.00000
+Neil MACKINNON: 814.76181
+Harry Redpath SCOTT: 321.25296
+Fay SINCLAIR: 912.00000
+Hannah STEEL: 667.14203
+Bill WHITE: 426.60791
+non-transferable: 230.73169
+
+stage 6
+Michael BANKS: 0.00000
+James D W CLARK: 0.00000
+Duck FRATER: 0.00000
+Euan JARDINE: 912.00000
+Neil MACKINNON: 855.86450
+Harry Redpath SCOTT: 398.63354
+Fay SINCLAIR: 912.00000
+Hannah STEEL: 697.14397
+Bill WHITE: 508.96244
+non-transferable: 272.39555
+
+stage 7
+Michael BANKS: 0.00000
+James D W CLARK: 0.00000
+Duck FRATER: 0.00000
+Euan JARDINE: 912.00000
+Neil MACKINNON: 889.78154
+Harry Redpath SCOTT: 0.00000
+Fay SINCLAIR: 912.00000
+Hannah STEEL: 777.38755
+Bill WHITE: 706.27862
+non-transferable: 359.55229
+
+stage 8
+Michael BANKS: 0.00000
+James D W CLARK: 0.00000
+Duck FRATER: 0.00000
+Euan JARDINE: 912.00000
+Neil MACKINNON: 984.37112
+Harry Redpath SCOTT: 0.00000
+Fay SINCLAIR: 912.00000
+Hannah STEEL: 995.63156
+Bill WHITE: 0.00000
+non-transferable: 752.99732
+

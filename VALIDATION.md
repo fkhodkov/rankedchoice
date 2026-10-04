@@ -14,7 +14,7 @@ three Irish constituencies, run through their own rulesets, reproduce their actu
 
 | Election | Ruleset | Checked | Source of ballots |
 |---|---|---|---|
-| All 1,070 Scottish council ward elections with published ballots (Glasgow 2007; every council 2012, 2017, 2022) | `scottish` | the winners, against the declared results (the Electoral Management Board's returns for 2022, each council's election article for the rest); see below | [MGGG `scot-elex`](https://github.com/mggg/scot-elex) |
+| All 1,070 Scottish council ward elections with published ballots (Glasgow 2007; every council 2012, 2017, 2022) | `scottish` | the winners, against the declared results (the Electoral Management Board's returns for 2022, each council's election article for the rest); every stage of 40 wards against the councils' own stage reports, to 5 decimal places, and of 1,043 against Wikipedia's transcriptions; see below | [MGGG `scot-elex`](https://github.com/mggg/scot-elex) |
 | Shetland South 2012, Orkney North Isles 2012, Shetland North 2017, Orkney Kirkwall East 2022, Coatbridge South 2017 | `scottish` | quota, first preferences, winners, and key stages | [MGGG `scot-elex`](https://github.com/mggg/scot-elex) |
 | Badenoch and Strathspey 2022 (Highland Council) | `scottish` | every stage of the 8-round count, to 5 decimal places, against the council's "Candidate Votes Per Stage Report" | the council's official raw preference profile |
 | All five electorates of the ACT Legislative Assembly 2020 (Brindabella, Ginninderra, Kurrajong, Murrumbidgee, Yerrabi; 23–32 candidates, 5 seats each, 269,251 ballots) | `act-hare-clark` | every round's tallies, votes exhausted and loss by fraction, exactly to the 6 decimal places the Act specifies, and the winners, against the official "Final Distribution of Preferences" | Elections ACT's official ballot-paper data |
@@ -43,6 +43,26 @@ Fergus MacGregor took 2.15 votes of Tom Castles's surplus he never had, and Jim 
 It also corrected two fixture tests that had recorded the old behaviour as official (Shetland
 North 2017, Orkney Kirkwall East 2022): their official results elect Emma Macdonald on 379.04 and
 David Dawson on 340.55, the figures they reached when elected.
+
+**Every stage of the Scottish counts.** The winners are one thing; the stages check the count
+itself. Two sources:
+
+- **The councils' own Candidate Votes Per Stage Reports**, the counting system's report for
+  each ward in 2022, every figure to 5 decimal places: all 40 collected (Falkirk's 9 wards,
+  Scottish Borders' 11, Highland's 20) match at every stage, every candidate's votes and the
+  non-transferable votes, exactly; 2,135 figures (`tools/reference/scotland/stage_report.py`).
+  Two of them are fixtures (`ScottishStageReportFixtureTest`), beside Badenoch and Strathspey.
+- **Wikipedia's result boxes**, which give every candidate's figure at every count for 1,043 of
+  the wards (2007–2022), transcribed from the councils' declarations to whole votes or 1–2
+  places (`tools/reference/scotland/stages.py`, allowing for rounding or truncation): 874 match
+  at every count. 148 have no count with more than one figure off, the shape of a transcription
+  slip; 21 have a count with more. Where there's an official source to settle it, the slip is
+  Wikipedia's: every 2022 ward whose first preferences disagree (16 of them) has first
+  preferences in the Electoral Management Board's results file that equal this count's, and
+  Falkirk's wards 1, 4 and 8, three of the 21, match Falkirk's own reports exactly. The rest,
+  mostly from 2012 and 2017, have no official stage report online to check (in a few, such as
+  Angus's Arbroath East and Lunan in 2012, the box's later counts are a vote or so off for
+  several candidates, which may be the box or the ballot file).
 
 The Irish elections are a different kind of check. Dáil counts transfer surpluses by physically
 drawing a random sample of the last parcel at full value, so there is no reproducible official
