@@ -348,12 +348,6 @@ public final class Main implements Callable<Integer> {
     }
 
     /**
-     * Schulze and Borda don't fill seats the way STV/Meek do -- they just rank every candidate
-     * -- so neither needs {@code --seats}, and only a text report exists for either so far
-     * (see {@link SchulzeTextReport}, {@link BordaTextReport}); {@code --report-format}
-     * csv/json/html isn't supported for these two methods yet.
-     */
-    /**
      * The options each method has no use for, with why. Every method refuses an option it would
      * otherwise silently ignore, so a typo or a misremembered rule can't pass unnoticed. Only
      * flags are checked: a config file or ruleset may legitimately carry fields another method

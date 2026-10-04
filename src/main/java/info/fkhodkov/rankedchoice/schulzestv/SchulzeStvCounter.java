@@ -56,7 +56,8 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
  * <p>Cost grows with {@code C(candidates, seats + 1)} contests, each needing M+1 supports
  * over 2^M subsets, and with how many distinct orders the voters give each contest's
  * candidates. Memory grows with the number of links, about M * (candidates - M) per
- * committee, each holding an exact margin: around 1 GB of heap at the cap. {@link
+ * committee, a link and its reverse sharing one exact margin: 18 candidates for 7 seats, about
+ * the most links the cap allows (2.45 million), count in 320 MB of heap. {@link
  * #MAX_COMMITTEES} and {@link #MAX_SEATS} cap the election rather than let it run for hours.
  */
 public final class SchulzeStvCounter {
@@ -700,13 +701,25 @@ public final class SchulzeStvCounter {
 
     /**
      * The committee graph: every committee's links to the committees one swap away, with the
-     * margin of each. Every link has a reverse with the opposite margin.
+     * margin of each. Every link has a reverse with the opposite margin, both decided within one
+     * contest, so each contest's margins are made once and a link and its reverse share one: a
+     * target stored as {@code ~y} means the link's margin is the negative of the one held.
      */
     private record Graph(int[][] targets, Fraction[][] margins) {
 
         static Graph of(List<int[]> committees, Fraction[][] supports, int n, int seats, Binomials binomials) {
             int[][] targets = new int[committees.size()][];
             Fraction[][] margins = new Fraction[committees.size()][];
+            // pairMargins[s][pair(i, j)], i < j: N[contest s without i; i] - N[contest s without j; j].
+            Fraction[][] pairMargins = Arrays.stream(supports).parallel().map(support -> {
+                Fraction[] pairs = new Fraction[support.length * (support.length - 1) / 2];
+                for (int i = 0; i < support.length; i++) {
+                    for (int j = i + 1; j < support.length; j++) {
+                        pairs[pair(i, j, support.length)] = support[i].subtract(support[j]);
+                    }
+                }
+                return pairs;
+            }).toArray(Fraction[][]::new);
             IntStream.range(0, committees.size()).parallel().forEach(x -> {
                 int[] committee = committees.get(x);
                 boolean[] in = new boolean[n];
@@ -731,8 +744,14 @@ public final class SchulzeStvCounter {
                         int bAt = Arrays.binarySearch(contest, b);
                         // X = committee, Y = X - b + c: strength (N[X; c], N[Y; b]).
                         remove(contest, bAt, next);
-                        to[l] = binomials.rank(next);
-                        margin[l] = supports[s][cAt].subtract(supports[s][bAt]);
+                        int y = binomials.rank(next);
+                        if (cAt < bAt) {
+                            to[l] = y;
+                            margin[l] = pairMargins[s][pair(cAt, bAt, seats + 1)];
+                        } else {
+                            to[l] = ~y;
+                            margin[l] = pairMargins[s][pair(bAt, cAt, seats + 1)];
+                        }
                         l++;
                     }
                 }
@@ -740,6 +759,11 @@ public final class SchulzeStvCounter {
                 margins[x] = margin;
             });
             return new Graph(targets, margins);
+        }
+
+        /** The index of positions {@code i < j} among a contest of {@code size}'s pairs. */
+        private static int pair(int i, int j, int size) {
+            return i * (2 * size - i - 1) / 2 + j - i - 1;
         }
 
         /** The committees no other committee beats, found from {@code start} (see the class javadoc). */
@@ -807,12 +831,13 @@ public final class SchulzeStvCounter {
         private void relax(int x, Fraction strength, boolean reverse, Fraction[] best, boolean[] done,
                 PriorityQueue<Reach> queue) {
             for (int l = 0; l < targets[x].length; l++) {
-                int y = targets[x][l];
+                int target = targets[x][l];
+                int y = target < 0 ? ~target : target;
                 if (done[y]) {
                     continue;
                 }
                 // Reversed, the link used is y -> x, whose margin is the opposite of x -> y's.
-                Fraction margin = reverse ? margins[x][l].negate() : margins[x][l];
+                Fraction margin = (target < 0) != reverse ? margins[x][l].negate() : margins[x][l];
                 Fraction through = strength == null || margin.compareTo(strength) < 0 ? margin : strength;
                 if (best[y] == null || through.compareTo(best[y]) > 0) {
                     best[y] = through;

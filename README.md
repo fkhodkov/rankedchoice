@@ -231,7 +231,7 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   against official Cambridge counts (no public ballot data; ballot order matters). See
   [VALIDATION.md](VALIDATION.md#not-validated).
 - **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at
-  50,000 committees and 20 seats; near that cap it needs about 1 GB of heap.
+  50,000 committees and 20 seats; near that cap it needs about 320 MB of heap.
 - **Schulze STV compares links by margin**, as the paper's worked example does. Schulze's own
   program ranks them differently, and its tie-break uses an older single-winner ranking, so on 2
   of Tideman's 65 elections it elects a different committee (see
