@@ -74,18 +74,17 @@ class ScottishRealElectionFixtureTest {
         assertThat(fixture.result.electedInOrder()).containsExactlyInAnyOrder(cooper, manson, macdonald);
 
         // Round 2 (after Manson's surplus of 210): Cooper still on his 395, Johnson on the
-        // official stage 2 figure; Manson's transfer took Macdonald to quota, so she's elected.
+        // official stage 2 figure. Manson's transfer took Macdonald to quota, filling the last
+        // seat, so the count ends there, as the official one does at stage 2: Cooper's surplus
+        // isn't transferred, and Macdonald stays on 379.03609, the official final figure.
         RoundRecord round2 = fixture.result.rounds().get(1);
         assertThat(round2.tallies())
                 .containsEntry(cooper, Fraction.of(395))
                 .containsEntry(johnson, Fraction.of(3513939, 50000));
-        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(cooper, Fraction.of(96)));
-
-        // Macdonald stays on the 379.03609 she was elected with, the official report's final
-        // figure for her: Cooper's surplus doesn't reach her.
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(cooper, Fraction.ZERO));
         RoundRecord round3 = fixture.result.rounds().get(2);
         assertThat(round3.tallies()).containsEntry(macdonald, Fraction.of(37903609, 100000));
-        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(macdonald, Fraction.of(8003609, 100000)));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(macdonald, Fraction.ZERO));
     }
 
     @Test
@@ -108,17 +107,16 @@ class ScottishRealElectionFixtureTest {
 
         // Round 2 (after Scott's surplus of 137, the largest): Heddle still on his 428 and
         // Macdonald on the official stage 2 figure of 134.02026. Scott's transfer took Dawson to
-        // 340.54733, over quota, so he's elected at stage 2, as the official declaration says.
+        // 340.54733, over quota, filling the fourth seat at stage 2, as the official declaration
+        // says; the count ends there, so no other surplus moves.
         RoundRecord round2 = fixture.result.rounds().get(1);
         assertThat(round2.tallies())
                 .containsEntry(heddle, Fraction.of(428))
                 .containsEntry(macdonald, Fraction.of(6701013, 50000));
-        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(heddle, Fraction.of(89)));
-
-        // Dawson stays on 340.54733: Heddle's and Shearer's surpluses pass him by.
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(heddle, Fraction.ZERO));
         RoundRecord round4 = fixture.result.rounds().get(3);
         assertThat(round4.tallies()).containsEntry(dawson, Fraction.of(34054733, 100000));
-        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(dawson, Fraction.of(154733, 100000)));
+        assertThat(round4.action()).isEqualTo(new RoundAction.Elected(dawson, Fraction.ZERO));
     }
 
     /**

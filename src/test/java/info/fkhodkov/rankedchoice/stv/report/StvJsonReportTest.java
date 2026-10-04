@@ -55,7 +55,7 @@ class StvJsonReportTest {
                 java.util.Map.entry("X", "8"), java.util.Map.entry("Z", "3"));
         assertThat(round2.action().type()).isEqualTo("elected");
         assertThat(round2.action().candidate()).isEqualTo("X");
-        assertThat(round2.action().surplusTransferred()).isEqualTo("2");
+        assertThat(round2.action().surplusTransferred()).isEqualTo("0"); // the only seat filled: no transfer
     }
 
     @Test

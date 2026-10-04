@@ -1,4 +1,4 @@
-# r148.blt, counted by pyRCV2's ERS97 counter (tools/reference/ers97/pyrcv2_ers97.py).
+# r148.blt, counted by pyRCV2's ERS97 counter (tools/reference/pyrcv2/count.py).
 # Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss
 # by fraction).
 

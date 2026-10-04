@@ -137,11 +137,9 @@ class StvCounterTest {
      * longer continuing by the time A's surplus moves, A's ballots (ranked A,B, no further
      * preference) exhaust instead of reaching B.
      *
-     * <p>Round 1 — tallies {A:40, B:30, C:10}; A elected, surplus 13, which exhausts in full
-     *   (B unavailable, no further preference on those ballots).
-     * <p>Round 2 — B elected using its untouched frozen tally of 30 (surplus 3), which also
-     *   exhausts in full (B's own ballots have no second preference). C remains continuing
-     *   throughout but never sees a transfer, since both seats are filled by A and B.
+     * <p>Round 1 — tallies {A:40, B:30, C:10}; A and B both meet quota, filling both seats, so
+     *   the count ends there: neither surplus is transferred.
+     * <p>Round 2 — B's election recorded on its untouched tally of 30. C never sees a transfer.
      */
     @Test
     void candidatesMeetingQuotaSimultaneouslyAreElectedAsABatchBeforeAnyTransfer() {
@@ -159,15 +157,15 @@ class StvCounterTest {
         RoundRecord round1 = result.rounds().get(0);
         assertThat(round1.roundNumber()).isEqualTo(1);
         assertThat(round1.tallies()).isEqualTo(Map.of(a, Fraction.of(40), b, Fraction.of(30), c, Fraction.of(10)));
-        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(13)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.ZERO));
         assertThat(round1.exhaustedVotes()).isEqualTo(Fraction.ZERO);
 
         RoundRecord round2 = result.rounds().get(1);
         assertThat(round2.roundNumber()).isEqualTo(2);
         // B's own tally must still read 30 here — not inflated by A's just-applied surplus.
         assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(30), c, Fraction.of(10)));
-        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(3)));
-        assertThat(round2.exhaustedVotes()).isEqualTo(Fraction.of(13));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
+        assertThat(round2.exhaustedVotes()).isEqualTo(Fraction.ZERO);
     }
 
     /**
@@ -231,7 +229,8 @@ class StvCounterTest {
         assertThat(result.electedInOrder()).containsExactly(x);
         assertThat(result.rounds()).hasSize(2);
         assertThat(result.rounds().get(0).action()).isEqualTo(new RoundAction.Eliminated(y));
-        assertThat(result.rounds().get(1).action()).isEqualTo(new RoundAction.Elected(x, Fraction.of(2)));
+        // X fills the only seat, so the count ends: X's surplus isn't transferred.
+        assertThat(result.rounds().get(1).action()).isEqualTo(new RoundAction.Elected(x, Fraction.ZERO));
     }
 
     @Test
@@ -477,7 +476,7 @@ class StvCounterTest {
         assertThat(result.electedInOrder()).containsExactly(a);
         RoundRecord round1 = result.rounds().getFirst();
         assertThat(round1.tallies()).isEqualTo(Map.of(a, Fraction.of(95), b, Fraction.of(3), c, Fraction.of(2)));
-        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(44)));
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.ZERO));
     }
 
     /**
@@ -765,12 +764,13 @@ class StvCounterTest {
         RoundRecord round1 = result.rounds().get(0);
         assertThat(round1.tallies())
                 .isEqualTo(Map.of(a, Fraction.of(25), b, Fraction.of(25), c, Fraction.of(25), d, Fraction.of(15)));
-        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.of(3)));
+        // A and B fill both seats in round 1, so the count ends without moving either surplus.
+        assertThat(round1.action()).isEqualTo(new RoundAction.Elected(a, Fraction.ZERO));
 
         RoundRecord round2 = result.rounds().get(1);
         assertThat(round2.tallies())
                 .isEqualTo(Map.of(c, Fraction.of(25), d, Fraction.of(15), b, Fraction.of(25)));
-        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(3)));
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
     }
 
     /**
@@ -880,7 +880,8 @@ class StvCounterTest {
 
         RoundRecord round2 = result.rounds().get(1);
         assertThat(round2.tallies()).isEqualTo(Map.of(b, Fraction.of(72, 5), c, Fraction.of(5)));
-        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.of(2, 5)));
+        // B fills the last seat on 14.4: the count ends, B's surplus untransferred.
+        assertThat(round2.action()).isEqualTo(new RoundAction.Elected(b, Fraction.ZERO));
     }
 
     /**

@@ -43,7 +43,7 @@ class StvHtmlReportTest {
         assertThat(html).contains("<p>Y eliminated</p>");
         assertThat(html).contains("<h2>Round 2</h2>");
         assertThat(html).contains("<tr class=\"acted\"><td>X</td><td>8</td></tr>");
-        assertThat(html).contains("<p>X elected (surplus 2 transferred)</p>");
+        assertThat(html).contains("<p>X elected</p>");
         assertThat(html).contains("<p>Elected: X</p>");
         assertThat(html).endsWith("</html>\n");
     }

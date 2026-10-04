@@ -213,7 +213,8 @@ public final class StvCounter {
                     while (!queue.isEmpty()) {
                         Candidate candidate = queue.removeFirst();
                         Fraction candidateVotes = frozenVotes.get(candidate);
-                        Fraction surplus = candidateVotes.subtract(quota);
+                        // Once every seat is filled the count ends: no further surplus moves.
+                        Fraction surplus = elected.size() < seats ? candidateVotes.subtract(quota) : Fraction.ZERO;
                         Map<Candidate, Fraction> roundTallies = tallies;
                         Fraction roundExhausted = exhausted;
                         Fraction roundLoss = loss;

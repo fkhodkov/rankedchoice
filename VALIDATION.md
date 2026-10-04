@@ -134,14 +134,32 @@ again only in the `ers97`/`ers76` presets), and one change for every last-parcel
   several candidates.
 - **The count ends when the last seat is filled**, with any surplus untransferred.
 
-pyRCV2 itself runs as a Python program (`tools/reference/ers97`), so it also served as a
-reference on 100 random elections (4–13 candidates, up to 1,000 voters): 98 match it in every
-round. In one, pyRCV2 elects four candidates for three seats (two tied exactly on the votes
-required, and it elects both). In the other, two candidates tie for exclusion and the
-tie-break differs: ERS97 counts each value group of an exclusion as a stage, and pyRCV2 looks
-back through those; this engine looks back through rounds. The next round excludes the other
-of the two anyway, and the counts agree again from there. Three of the random elections are
-fixtures (`testdata/ers97/pyrcv2`), picked for what they exercise.
+pyRCV2 itself runs as a Python program (`tools/reference/pyrcv2`), so it also served as a
+reference on 100 random elections (4–13 candidates, up to 1,000 voters): 99 match it in every
+round. In the other, pyRCV2 elects four candidates for three seats (two tied exactly on the
+votes required, and it elects both). Getting there meant fixing pyRCV2 on the way: it records
+each stage without copying it, so its tie-break, which looks back to the last stage where the
+tied candidates differed, only ever saw the current votes and fell through to its last resort.
+(An earlier version of this page put one difference down to how this engine looks back for
+ties; it was that bug.) Three of the random elections are fixtures (`testdata/ers97/pyrcv2`),
+picked for what they exercise.
+
+The same 100 elections check the inclusive rulesets against pyRCV2's weighted inclusive
+Gregory counter:
+
+- **Exact fractional transfer** (the default `stv`): all 100 match in every round, to the 10
+  places this project reports exact values to.
+- **`scottish`**: all 100 match within a hundredth of a vote, 64 exactly. The rest is
+  rounding: when a surplus comes from ballots of different values, pyRCV2
+  truncates one transfer value and scales each ballot by it, where the Scottish rules give each
+  value its own truncated transfer value. Highland's official count sheet settles which is
+  right: after Muriel Cockburn's surplus it shows Bill Lobban on 978.40465, as this engine
+  counts; pyRCV2's way gives 978.40485.
+- Five of them first differed in their last round: when one stage's surpluses filled the last
+  seats, this engine still transferred the first surplus before recording the others'
+  elections. pyRCV2 stops there, and so do official Scottish counts (Shetland North 2017 ends
+  at stage 2, Orkney Kirkwall East 2022 likewise), so now this engine does too, under every
+  ruleset: once the last seat is filled, no further surplus moves.
 
 ## Classic STV building blocks
 

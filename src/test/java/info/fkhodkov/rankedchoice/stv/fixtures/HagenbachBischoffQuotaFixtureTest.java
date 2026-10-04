@@ -68,12 +68,13 @@ class HagenbachBischoffQuotaFixtureTest {
         assertThat(round2.action()).isEqualTo(new RoundAction.Eliminated(carter));
 
         // Round 3 — Carter eliminated, her 8.4 votes (all ranked ...,Carter,Brad) move to
-        // Brad in full: 12.6 + 8.4 = 21, clearing the 19-vote quota by 2, for the final seat.
+        // Brad in full: 12.6 + 8.4 = 21, clearing the 19-vote quota, for the final seat. The
+        // count ends there, so his surplus of 2 isn't transferred.
         RoundRecord round3 = result.rounds().get(2);
         assertThat(round3.tallies())
                 .containsEntry(brad, Fraction.of(21))
                 .containsEntry(delilah, Fraction.of(17));
-        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(brad, Fraction.of(2)));
+        assertThat(round3.action()).isEqualTo(new RoundAction.Elected(brad, Fraction.ZERO));
 
         assertThat(result.electedInOrder()).containsExactly(andrea, brad);
     }

@@ -40,7 +40,7 @@ class StvCsvReportTest {
                 1,X,5,,0,0,0
                 1,Y,3,eliminated,0,0,0
                 1,Z,3,,0,0,0
-                2,X,8,elected (surplus 2),0,0,0
+                2,X,8,elected,0,0,0
                 2,Z,3,,0,0,0
                 """;
 

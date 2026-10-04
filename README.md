@@ -217,10 +217,6 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   candidates, 33 seats and 40 preferences per ballot stalls even at 20,000 voters. The count
   warns on stderr when this starts; `--rounding truncate:9` keeps it bounded, and every bundled
   preset rounds anyway.
-- **ERS97 tie-breaks look back by round, not by stage.** ERS97 counts each value group of an
-  exclusion as a stage, and breaks a tie on the most recent one where the tied candidates
-  differed; this engine looks back through whole rounds. Rarely, that excludes the other of two
-  tied candidates first (once in 100 random elections, without changing the result).
 - **Not validated:** `ers76` and `hare-clark-qpq` (no data to check against); Cambridge STV
   against official Cambridge counts (no public ballot data; ballot order matters). See
   [VALIDATION.md](VALIDATION.md#not-validated).
@@ -273,8 +269,8 @@ about 45 s, 16 / 8 about a minute.
   against Schulze's own program and published figures, and against an independent count.
 - [`tools/reference/act`](tools/reference/act/README.md) — convert Elections ACT's ballot data
   and official distributions of preferences into the ACT test fixtures.
-- [`tools/reference/ers97`](tools/reference/ers97/README.md) — count an election with pyRCV2's
-  ERS97 counter and compare it with this one, round by round.
+- [`tools/reference/pyrcv2`](tools/reference/pyrcv2/README.md) — count an election with pyRCV2
+  (ERS97, exact Gregory or Scottish) and compare it with this one, round by round.
 - [`tools/reference/scotland`](tools/reference/scotland/README.md) — count every Scottish council
   election in scot-elex and compare the winners with the declared ones.
 

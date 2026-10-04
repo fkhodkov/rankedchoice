@@ -46,7 +46,7 @@ class StvTextReportTest {
                 Round 2
                   X: 8
                   Z: 3
-                  -> X elected (surplus 2 transferred)
+                  -> X elected
 
                 Elected: X
                 """;
@@ -109,7 +109,7 @@ class StvTextReportTest {
                 Round 2
                   B:  5.94
                   C:  2.00
-                  -> B elected (surplus 0.94 transferred)
+                  -> B elected
                   (lost to rounding so far: 0.06)
 
                 Elected: A, B
@@ -150,7 +150,7 @@ class StvTextReportTest {
                 Round 2
                   Ann      : 8
                   Charlotte: 3
-                  -> Ann elected (surplus 2 transferred)
+                  -> Ann elected
 
                 Elected: Ann
                 """;
