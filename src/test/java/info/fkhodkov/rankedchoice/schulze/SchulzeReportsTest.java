@@ -27,7 +27,8 @@ class SchulzeReportsTest {
                 B,2,A,2,0
                 """);
         SchulzeReports.Report report = SchulzeReports.toReport(CANDIDATES, RESULT);
-        assertThat(report.pairwise()).isEqualTo(Map.of("A", Map.of("B", BigInteger.valueOf(3)), "B", Map.of("A", BigInteger.valueOf(2))));
+        assertThat(report.pairwise()).isEqualTo(
+                Map.of("A", Map.of("B", BigInteger.valueOf(3)), "B", Map.of("A", BigInteger.valueOf(2))));
         assertThat(report.ranking()).containsExactly(List.of("A"), List.of("B"));
         assertThat(SchulzeReports.html(CANDIDATES, RESULT))
                 .contains("<li value=\"1\">A</li>")

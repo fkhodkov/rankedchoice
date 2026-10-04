@@ -27,7 +27,8 @@ public final class StvCsvReport {
 
     public static String render(StvResult result, RoundingRule roundingRule) {
         OptionalInt decimalPlaces = ReportFormatting.decimalPlacesOf(roundingRule);
-        StringBuilder csv = new StringBuilder("round,candidate,tally,action,exhausted_votes,rounding_loss,informal_ballots\n");
+        StringBuilder csv = new StringBuilder(
+                "round,candidate,tally,action,exhausted_votes,rounding_loss,informal_ballots\n");
         for (RoundRecord round : result.rounds()) {
             String exhausted = ReportFormatting.format(round.exhaustedVotes(), decimalPlaces);
             String loss = ReportFormatting.format(round.roundingLoss(), decimalPlaces);
@@ -51,7 +52,7 @@ public final class StvCsvReport {
         }
         return switch (action) {
             case RoundAction.Elected(_, var surplus) when surplus.signum() > 0 ->
-                    "elected (surplus " + ReportFormatting.format(surplus, decimalPlaces) + ")";
+                "elected (surplus " + ReportFormatting.format(surplus, decimalPlaces) + ")";
             case RoundAction.Elected _ -> "elected";
             case RoundAction.Eliminated _ -> "eliminated";
         };

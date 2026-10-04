@@ -8,6 +8,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import info.fkhodkov.rankedchoice.borda.BordaMethod;
+import info.fkhodkov.rankedchoice.borda.BordaReports;
+import info.fkhodkov.rankedchoice.borda.BordaResult;
+import info.fkhodkov.rankedchoice.borda.BordaScoringRule;
+import info.fkhodkov.rankedchoice.borda.BordaTextReport;
+import info.fkhodkov.rankedchoice.borda.ClassicBorda;
+import info.fkhodkov.rankedchoice.borda.DowdallScoring;
+import info.fkhodkov.rankedchoice.cambridge.CambridgeCounter;
+import info.fkhodkov.rankedchoice.cambridge.CambridgeRuleset;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.CsvBallotParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedBallots;
@@ -16,38 +28,29 @@ import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
-import info.fkhodkov.rankedchoice.borda.BordaMethod;
-import info.fkhodkov.rankedchoice.borda.BordaResult;
-import info.fkhodkov.rankedchoice.borda.BordaReports;
-import info.fkhodkov.rankedchoice.borda.BordaScoringRule;
-import info.fkhodkov.rankedchoice.borda.BordaTextReport;
-import info.fkhodkov.rankedchoice.borda.ClassicBorda;
-import info.fkhodkov.rankedchoice.borda.DowdallScoring;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvCounter;
-import info.fkhodkov.rankedchoice.cpostv.CpoStvResult;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvReports;
+import info.fkhodkov.rankedchoice.cpostv.CpoStvResult;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvRuleset;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvTextReport;
 import info.fkhodkov.rankedchoice.qpq.QpqCounter;
-import info.fkhodkov.rankedchoice.qpq.QpqResult;
 import info.fkhodkov.rankedchoice.qpq.QpqReports;
+import info.fkhodkov.rankedchoice.qpq.QpqResult;
 import info.fkhodkov.rankedchoice.qpq.QpqRuleset;
 import info.fkhodkov.rankedchoice.qpq.QpqTextReport;
 import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
-import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 import info.fkhodkov.rankedchoice.schulze.SchulzeReports;
+import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvCounter;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvReports;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvResult;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvTextReport;
-import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
+import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
-import info.fkhodkov.rankedchoice.cambridge.CambridgeCounter;
-import info.fkhodkov.rankedchoice.cambridge.CambridgeRuleset;
 import info.fkhodkov.rankedchoice.stv.meek.KeepRule;
 import info.fkhodkov.rankedchoice.stv.meek.MeekCounter;
 import info.fkhodkov.rankedchoice.stv.meek.MeekRuleset;
@@ -56,9 +59,6 @@ import info.fkhodkov.rankedchoice.stv.report.StvHtmlReport;
 import info.fkhodkov.rankedchoice.stv.report.StvJsonReport;
 import info.fkhodkov.rankedchoice.stv.report.StvTextReport;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 /**
  * Tabulates a ranked-choice election from a ballot file, by STV, Meek's method, CPO-STV, QPQ,
@@ -76,7 +76,8 @@ import picocli.CommandLine.Option;
 public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG =
-            new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+            new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                    null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -104,10 +105,12 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
 
-    @Option(names = {"-m", "--method"}, description = "Counting method: stv|meek|warren|cambridge|schulze|borda|cpo-stv|schulze-stv|qpq. "
+    @Option(names = {"-m", "--method"},
+            description = "Counting method: stv|meek|warren|cambridge|schulze|borda|cpo-stv|schulze-stv|qpq. "
             + "Defaults to stv. --quota/--transfer don't apply to meek or warren (their quota and transfer are fixed "
-            + "by the method itself); schulze/borda don't use --seats, --quota, --transfer, --rounding, or --tiebreak at all; "
-            + "cpo-stv uses --seats/--quota/--transfer/--rounding but not --tiebreak; schulze-stv uses only --seats; qpq (Woodall's Quota "
+            + "by the method itself); schulze/borda don't use --seats, --quota, --transfer, --rounding, or "
+            + "--tiebreak at all; cpo-stv uses --seats/--quota/--transfer/--rounding but not --tiebreak; "
+            + "schulze-stv uses only --seats; qpq (Woodall's Quota "
             + "Preferential by Quotient -- unrelated to the hare-clark-qpq *ruleset*, a different, classic-STV "
             + "preset despite the similar name) uses --seats/--tiebreak but not --quota/--transfer/--rounding, "
             + "since its quota and transfer are both derived formulas, not configurable.")
@@ -117,11 +120,13 @@ public final class Main implements Callable<Integer> {
             + "defaults to classic. 'dowdall' is the Nauru system (1, 1/2, 1/3, ...).")
     private String bordaScoring;
 
-    @Option(names = {"-f", "--format"}, description = "Input format: blt or csv. Inferred from the file extension if omitted.")
+    @Option(names = {"-f", "--format"},
+            description = "Input format: blt or csv. Inferred from the file extension if omitted.")
     private String format;
 
     @Option(names = {"-s", "--seats"},
-            description = "Seats to fill. Required for CSV input; for BLT input, overrides the file's own seat count if given.")
+            description = "Seats to fill. Required for CSV input; for BLT input, overrides the file's own seat count "
+                    + "if given.")
     private Integer seats;
 
     @Option(names = {"-o", "--output"}, description = "Output file. Defaults to standard output.")
@@ -132,18 +137,21 @@ public final class Main implements Callable<Integer> {
                     + "--output's extension if that's given and this isn't.")
     private String reportFormat;
 
-    @Option(names = {"-c", "--config"}, description = "YAML config file with quota/transfer/rounding/tiebreak/seats/format.")
+    @Option(names = {"-c", "--config"},
+            description = "YAML config file with quota/transfer/rounding/tiebreak/seats/format.")
     private Path config;
 
     @Option(names = {"-r", "--ruleset"}, description = "A bundled ruleset preset: scottish|ers97|ers76|"
-            + "hare-clark-qpq|act-hare-clark. Mutually exclusive with --config.")
+            + "hare-clark-qpq|act-hare-clark|senate. Mutually exclusive with --config.")
     private String rulesetName;
 
-    @Option(names = {"--quota"}, description = "droop|hare|hagenbach-bischoff|imperiali. Overrides --config/--ruleset.")
+    @Option(names = {"--quota"},
+            description = "droop|hare|hagenbach-bischoff|imperiali|droop-rounded:N. Overrides --config/--ruleset.")
     private String quota;
 
-    @Option(names = {"--transfer"}, description = "fractional|wigm|last-parcel|last-parcel-deferred-rounding|unweighted-inclusive|"
-            + "unweighted-exclusive:N. Overrides --config/--ruleset.")
+    @Option(names = {"--transfer"},
+            description = "fractional|wigm|last-parcel|last-parcel-deferred-rounding|unweighted-inclusive|"
+                    + "unweighted-exclusive:N. Overrides --config/--ruleset.")
     private String transfer;
 
     @Option(names = {"--rounding"}, description = "exact|truncate:N. Defaults to exact, which can grow very slow on "
@@ -158,18 +166,18 @@ public final class Main implements Callable<Integer> {
 
     @Option(names = {"--tied-rankings"},
             description = "What to do with a ballot ranking several candidates equally: reject|split|truncate|skip. "
-                    + "split divides the ballot between them (stv with fractional transfer, meek, and warren); truncate "
-                    + "stops the ballot at the tie (a tie at first preference voids it, as Scottish law requires); "
-                    + "skip drops the tied rank and continues. Defaults to split for meek, warren, and stv under "
-                    + "fractional transfer, reject otherwise. Applies to stv, meek, warren, cambridge, cpo-stv, and qpq (schulze, "
-                    + "schulze-stv and borda count ties natively). Overrides --config/--ruleset.")
+                    + "split divides the ballot between them (stv with fractional transfer, meek, and warren); "
+                    + "truncate stops the ballot at the tie (a tie at first preference voids it, as Scottish law "
+                    + "requires); skip drops the tied rank and continues. Defaults to split for meek, warren, and stv "
+                    + "under fractional transfer, reject otherwise. Applies to stv, meek, warren, cambridge, cpo-stv, "
+                    + "and qpq (schulze, schulze-stv and borda count ties natively). Overrides --config/--ruleset.")
     private String tiedRankings;
 
     @Option(names = {"--minimum-preferences"},
             description = "Treat a ballot ranking fewer candidates than this (after tied rankings are dealt with) as "
                     + "informal, capped at one fewer than the number of candidates. Defaults to none; the "
-                    + "hare-clark-qpq preset sets 7. Applies to stv, meek, warren, cambridge, cpo-stv, and qpq. Overrides "
-                    + "--config/--ruleset.")
+                    + "hare-clark-qpq preset sets 7. Applies to stv, meek, warren, cambridge, cpo-stv, and qpq. "
+                    + "Overrides --config/--ruleset.")
     private Integer minimumPreferences;
 
     @Option(names = {"--precision"},
@@ -208,7 +216,8 @@ public final class Main implements Callable<Integer> {
         String reportAs = resolveReportFormat(fileConfig);
         boolean seatsBasedMethod = !effectiveMethod.equals("schulze") && !effectiveMethod.equals("borda");
         String effectiveTiedRankings = firstNonNull(tiedRankings, fileConfig.tiedRankings());
-        Integer configuredMinimumPreferences = minimumPreferences != null ? minimumPreferences : fileConfig.minimumPreferences();
+        Integer configuredMinimumPreferences =
+                minimumPreferences != null ? minimumPreferences : fileConfig.minimumPreferences();
         int effectiveMinimumPreferences = configuredMinimumPreferences == null ? 0 : configuredMinimumPreferences;
 
         String resolvedFormat = firstNonNull(format, fileConfig.format());
@@ -309,7 +318,8 @@ public final class Main implements Callable<Integer> {
                         StvRulesetParser.parseTiedRankings(effectiveTiedRankings, TiedRankingPolicy.SPLIT),
                         effectiveMinimumPreferences,
                         precision != null ? precision
-                                : fileConfig.precision() != null ? fileConfig.precision() : MeekRuleset.DEFAULT_PRECISION,
+                                : fileConfig.precision() != null ? fileConfig.precision()
+                                : MeekRuleset.DEFAULT_PRECISION,
                         effectiveMethod.equals("warren") ? KeepRule.WARREN : KeepRule.MEEK);
                 result = MeekCounter.count(candidates, ballots, effectiveSeats, ruleset);
             }
@@ -323,7 +333,8 @@ public final class Main implements Callable<Integer> {
             }
             default -> throw new IllegalArgumentException(
                     "Unsupported method '" + effectiveMethod
-                            + "'; expected 'stv', 'meek', 'warren', 'cambridge', 'schulze', 'borda', 'cpo-stv', 'schulze-stv', or 'qpq'");
+                            + "'; expected 'stv', 'meek', 'warren', 'cambridge', 'schulze', 'borda', 'cpo-stv', "
+                            + "'schulze-stv', or 'qpq'");
         }
 
         return switch (reportAs) {
@@ -469,7 +480,10 @@ public final class Main implements Callable<Integer> {
         };
     }
 
-    /** Falls back to {@code text} when neither {@code --report-format} nor a recognized {@code --output} extension is given. */
+    /**
+     * Falls back to {@code text} when neither {@code --report-format} nor a recognized {@code --output} extension is
+     * given.
+     */
     private static String inferReportFormat(Path output) {
         if (output == null) {
             return "text";

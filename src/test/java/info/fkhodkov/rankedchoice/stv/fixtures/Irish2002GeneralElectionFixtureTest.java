@@ -129,7 +129,7 @@ class Irish2002GeneralElectionFixtureTest {
                         .isEqualTo(surplus));
             }
             case ExpectedAction.Eliminated _ ->
-                    assertThat(actual).as(context + ", action type").isInstanceOf(RoundAction.Eliminated.class);
+                assertThat(actual).as(context + ", action type").isInstanceOf(RoundAction.Eliminated.class);
         }
     }
 

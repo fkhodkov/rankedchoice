@@ -36,7 +36,8 @@ class SchulzeStvReportsTest {
     @Test
     void csvHasEverySupportThenThePotentialWinners() {
         String csv = SchulzeStvReports.csv(result());
-        assertThat(csv.lines()).hasSize(1 + 12 + 2).first().isEqualTo("committee,against,support,potential_winner,winner");
+        assertThat(csv.lines()).hasSize(1 + 12 + 2).first()
+                .isEqualTo("committee,against,support,potential_winner,winner");
         assertThat(csv.lines()).contains("\"C, D\",,,true,true", "\"B, D\",,,true,false");
     }
 

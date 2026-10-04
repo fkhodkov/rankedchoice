@@ -79,7 +79,8 @@ class QpqCounterTest {
         List<Ballot> withTie = List.of(ballot(10, A), ballot(3, B, A), ballot(2, C), ballot(1, D), tiedFirst);
 
         // Truncate: the tied-first ballot is void, so the count is exactly the base count's.
-        QpqRuleset truncating = new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.TRUNCATE, 0);
+        QpqRuleset truncating =
+                new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.TRUNCATE, 0);
         QpqResult truncated = QpqCounter.count(List.of(A, B, C, D), withTie, 2, truncating);
         QpqResult baseResult = QpqCounter.count(List.of(A, B, C, D), base, 2, ruleset(A, B, C, D));
         assertThat(truncated.rounds()).isEqualTo(baseResult.rounds());
@@ -93,7 +94,8 @@ class QpqCounterTest {
         assertThat(QpqCounter.count(List.of(A, B, C, D), withTie, 2, skipping))
                 .isEqualTo(QpqCounter.count(List.of(A, B, C, D), withBInstead, 2, ruleset(A, B, C, D)));
 
-        QpqRuleset splitting = new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.SPLIT, 0);
+        QpqRuleset splitting =
+                new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C, D)), TiedRankingPolicy.SPLIT, 0);
         assertThatThrownBy(() -> QpqCounter.count(List.of(A, B, C, D), withTie, 2, splitting))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("QPQ has no defined rule for splitting");

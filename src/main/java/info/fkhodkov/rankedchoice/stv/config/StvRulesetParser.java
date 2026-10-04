@@ -1,5 +1,7 @@
 package info.fkhodkov.rankedchoice.stv.config;
 
+import java.util.List;
+import java.util.Locale;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
@@ -25,8 +27,6 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Parses the small string DSL used to select STV building blocks from a config file or CLI
@@ -50,7 +50,10 @@ public final class StvRulesetParser {
         return parse(quota, transfer, rounding, tiebreak, null, declaredOrder);
     }
 
-    /** As {@link #parse(String, String, String, String, List)}, with ERS97 rule 5.2.5's batch-exclusion enabled or not. */
+    /**
+     * As {@link #parse(String, String, String, String, List)}, with ERS97 rule 5.2.5's batch-exclusion enabled or
+     * not.
+     */
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, List<Candidate> declaredOrder) {
         return parse(quota, transfer, rounding, tiebreak, batchExclusion, null, declaredOrder);

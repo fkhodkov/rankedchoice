@@ -37,7 +37,10 @@ java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input election.blt --ruleset 
 java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input election.blt --method meek --report-format html --output result.html
 ```
 
-`mvn test` runs the test suite, including the real-election fixtures.
+`mvn test` runs the test suite, including the real-election fixtures. Every build also runs
+Checkstyle (`checkstyle.xml`: 4-space indentation, 120 columns, imports grouped static, `java`,
+third-party, then this project's), and fails on any violation; `.editorconfig` sets the same
+for editors.
 
 ## STV building blocks
 
@@ -94,7 +97,7 @@ method's own "proportional completion").
   - `truncate` ends the ballot at the tie, so a tie at the first preference voids it (the
     Scottish rule; every bundled preset uses this);
   - `skip` drops the tied rank and carries on.
-  
+
   Everything else defaults to `reject`.
 - **`--minimum-preferences N`** — a ballot ranking fewer than N candidates (after tied rankings
   are dealt with) is informal: not counted and not part of the valid vote. Capped at one fewer

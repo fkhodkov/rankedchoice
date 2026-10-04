@@ -81,7 +81,8 @@ public record StvRuleset(
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion) {
-        this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, TiedRankingPolicy.defaultFor(transferMethod));
+        this(quota, transferMethod, roundingRule, tieBreak, batchExclusion,
+                TiedRankingPolicy.defaultFor(transferMethod));
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak) {

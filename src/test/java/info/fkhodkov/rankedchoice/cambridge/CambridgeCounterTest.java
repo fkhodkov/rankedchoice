@@ -79,7 +79,8 @@ class CambridgeCounterTest {
         assertThatThrownBy(() -> CambridgeCounter.count(CANDIDATES, List.of(ballot(99, A)), 2, ruleset()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("at least 50 ballots per seat (100 here) but there are only 99");
-        CambridgeRuleset splitting = new CambridgeRuleset(new DeclaredOrderTieBreak(CANDIDATES), TiedRankingPolicy.SPLIT, 0);
+        CambridgeRuleset splitting =
+                new CambridgeRuleset(new DeclaredOrderTieBreak(CANDIDATES), TiedRankingPolicy.SPLIT, 0);
         assertThatThrownBy(() -> CambridgeCounter.count(CANDIDATES, List.of(ballot(200, A)), 2, splitting))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessageContaining("Cambridge STV has no defined rule for splitting");

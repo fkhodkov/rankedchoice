@@ -1,8 +1,8 @@
 package info.fkhodkov.rankedchoice.core.ballot;
 
+import static info.fkhodkov.rankedchoice.core.ballot.StringUtils.makeLines;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static info.fkhodkov.rankedchoice.core.ballot.StringUtils.makeLines;
 
 import java.math.BigInteger;
 import java.util.Set;

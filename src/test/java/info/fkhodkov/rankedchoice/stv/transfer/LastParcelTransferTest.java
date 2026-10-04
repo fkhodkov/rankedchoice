@@ -118,7 +118,7 @@ class LastParcelTransferTest {
     @Test
     void zeroVoteLastParcelGivesAnEmptyResult() {
         HeldParcel zeroParcel = new HeldParcel(1, 1, Fraction.ZERO, BigInteger.ZERO, true);
-        assertThat(LastParcelTransfer.INSTANCE.computeTransferValues(Fraction.of(5), List.of(zeroParcel), Exact.INSTANCE))
-                .isEmpty();
+        assertThat(LastParcelTransfer.INSTANCE.computeTransferValues(
+                Fraction.of(5), List.of(zeroParcel), Exact.INSTANCE)).isEmpty();
     }
 }

@@ -277,7 +277,8 @@ class MainTest {
         int refused = new CommandLine(new Main())
                 .execute("--input", bltFile.toString(), "--method", "cambridge", "--rounding", "truncate:2");
         assertThat(refused).isEqualTo(1);
-        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("--rounding doesn't apply to --method cambridge");
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8))
+                .contains("--rounding doesn't apply to --method cambridge");
     }
 
     @Test
@@ -295,16 +296,16 @@ class MainTest {
 
     @ParameterizedTest
     @CsvSource({
-            "schulze, --quota, hare",
-            "schulze, --ruleset, scottish",
-            "borda, --seats, 1",
-            "borda, --tiebreak, declared",
-            "cpo-stv, --tiebreak, declared",
-            "stv, --borda-scoring, dowdall",
-            "qpq, --rounding, truncate:2",
-            "meek, --transfer, wigm",
-            "schulze-stv, --quota, hare",
-            "schulze-stv, --tied-rankings, skip"})
+        "schulze, --quota, hare",
+        "schulze, --ruleset, scottish",
+        "borda, --seats, 1",
+        "borda, --tiebreak, declared",
+        "cpo-stv, --tiebreak, declared",
+        "stv, --borda-scoring, dowdall",
+        "qpq, --rounding, truncate:2",
+        "meek, --transfer, wigm",
+        "schulze-stv, --quota, hare",
+        "schulze-stv, --tied-rankings, skip"})
     void everyMethodRefusesAnOptionItWouldIgnore(String method, String option, String value) throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, BLT);

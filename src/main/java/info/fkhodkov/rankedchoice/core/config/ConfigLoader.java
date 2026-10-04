@@ -1,12 +1,12 @@
 package info.fkhodkov.rankedchoice.core.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /** Loads an {@link ElectionConfig} from a YAML file, or from a bundled classpath resource. */
 public final class ConfigLoader {

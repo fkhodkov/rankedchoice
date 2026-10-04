@@ -1,10 +1,9 @@
 package info.fkhodkov.rankedchoice.core.ballot;
 
-import info.fkhodkov.rankedchoice.core.model.Ballot;
-import info.fkhodkov.rankedchoice.core.model.Candidate;
-
 import java.util.List;
 import java.util.Set;
+import info.fkhodkov.rankedchoice.core.model.Ballot;
+import info.fkhodkov.rankedchoice.core.model.Candidate;
 
 /**
  * The result of parsing a full election file (e.g. .blt): the candidate roster, the seat

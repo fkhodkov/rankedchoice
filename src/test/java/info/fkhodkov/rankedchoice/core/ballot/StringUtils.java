@@ -4,9 +4,9 @@ import java.util.stream.Stream;
 
 public final class StringUtils {
 
-  static Stream<String> makeLines(String content) {
-    return Stream.of(content.split("\\R"));
-  }
+    static Stream<String> makeLines(String content) {
+        return Stream.of(content.split("\\R"));
+    }
 
-  private StringUtils() {}
+    private StringUtils() {}
 }

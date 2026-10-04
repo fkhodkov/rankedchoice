@@ -335,7 +335,8 @@ public final class QpqCounter {
                     Fraction tc = heldByCredit.get(c) == null ? Fraction.ZERO : weightedTotal(heldByCredit.get(c));
                     quotients.put(candidate, Fraction.of(vc[c]).divide(Fraction.ONE.add(tc)));
                 }
-                Fraction quota = Fraction.of(va).divide(Fraction.of(seats + 1L).subtract(weightedTotal(exhaustedByCredit)));
+                Fraction quota = Fraction.of(va)
+                        .divide(Fraction.of(seats + 1L).subtract(weightedTotal(exhaustedByCredit)));
 
                 Candidate highest = pickExtreme(hopeful, quotients, true, tieBreak);
                 if (quotients.get(highest).compareTo(quota) > 0) {

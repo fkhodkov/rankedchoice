@@ -41,11 +41,11 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
  * 2.6 (has any hopeful reached quota?) on every iteration rather than gating it behind rule
  * 2.9's full convergence — as droop's Meek rule, which {@link MeekCounter} now follows exactly,
  * also does — fixed this: that engine's own final keep factors (Yuri Astrakhan 0.288123, Birk
- * Skyum 0.326209, Haowen You 0.618475, Stephanie May 0.642674, read off {@code round5}'s surplus/tallies below) now agree with the
- * PDF's final published figures (0.288123, 0.326210, 0.618476, 0.642675 respectively) to
- * 5-6 significant digits. The figures asserted below are unchanged under the current
- * fixed-point engine, and match droop's report for this election to all 9 decimal places (see
- * {@link MeekDroopReferenceTest}).
+ * Skyum 0.326209, Haowen You 0.618475, Stephanie May 0.642674, read off {@code round5}'s
+ * surplus/tallies below) now agree with the PDF's final published figures (0.288123, 0.326210,
+ * 0.618476, 0.642675 respectively) to 5-6 significant digits. The figures asserted below are
+ * unchanged under the current fixed-point engine, and match droop's report for this election to
+ * all 9 decimal places (see {@link MeekDroopReferenceTest}).
  *
  * <p>This project doesn't expose keep factors directly (only each round's tallies and, for an
  * {@code Elected} action, the surplus over quota at the moment of election), so the assertions

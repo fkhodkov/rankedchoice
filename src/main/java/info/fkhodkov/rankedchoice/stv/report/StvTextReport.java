@@ -91,7 +91,7 @@ public final class StvTextReport {
     private static String describe(RoundAction action, OptionalInt decimalPlaces) {
         return switch (action) {
             case RoundAction.Elected(var candidate, var surplus) when surplus.signum() > 0 ->
-                    candidate.name() + " elected (surplus " + format(surplus, decimalPlaces) + " transferred)";
+                candidate.name() + " elected (surplus " + format(surplus, decimalPlaces) + " transferred)";
             case RoundAction.Elected(var candidate, _) -> candidate.name() + " elected";
             case RoundAction.Eliminated(var candidate) -> candidate.name() + " eliminated";
         };

@@ -1,14 +1,14 @@
 package info.fkhodkov.rankedchoice.stv.report;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.stv.InformalBallots;
@@ -61,7 +61,8 @@ public final class StvJsonReport {
         InformalBallots informal = result.informal();
         Informal informalBallots = new Informal(
                 informal.total(), informal.blank(), informal.tiedRankings(), informal.tooFewPreferences());
-        return new Report(ReportFormatting.format(result.quota(), decimalPlaces), informalBallots, rounds, electedInOrder);
+        return new Report(ReportFormatting.format(result.quota(), decimalPlaces), informalBallots, rounds,
+                electedInOrder);
     }
 
     private static Round toRound(RoundRecord round, OptionalInt decimalPlaces) {
@@ -71,7 +72,7 @@ public final class StvJsonReport {
         }
         Action action = switch (round.action()) {
             case RoundAction.Elected(var candidate, var surplus) ->
-                    new Action("elected", candidate.name(), ReportFormatting.format(surplus, decimalPlaces));
+                new Action("elected", candidate.name(), ReportFormatting.format(surplus, decimalPlaces));
             case RoundAction.Eliminated(var candidate) -> new Action("eliminated", candidate.name(), null);
         };
         return new Round(round.roundNumber(), tallies, action,

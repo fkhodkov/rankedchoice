@@ -61,12 +61,12 @@ class MeekDroopReferenceTest {
 
     @ParameterizedTest
     @CsvSource({
-            "maplibre-governing-board-2025.blt, droop/maplibre-governing-board-2025.droop.txt, MEEK",
-            "droop/synthetic-tiebreak.blt, droop/synthetic-tiebreak.droop.txt, MEEK",
-            "droop/synthetic-stable.blt, droop/synthetic-stable.droop.txt, MEEK",
-            "droop/synthetic-warren-differs.blt, droop/synthetic-warren-differs.droop.txt, MEEK",
-            "maplibre-governing-board-2025.blt, droop/maplibre-governing-board-2025.warren.droop.txt, WARREN",
-            "droop/synthetic-warren-differs.blt, droop/synthetic-warren-differs.warren.droop.txt, WARREN"})
+        "maplibre-governing-board-2025.blt, droop/maplibre-governing-board-2025.droop.txt, MEEK",
+        "droop/synthetic-tiebreak.blt, droop/synthetic-tiebreak.droop.txt, MEEK",
+        "droop/synthetic-stable.blt, droop/synthetic-stable.droop.txt, MEEK",
+        "droop/synthetic-warren-differs.blt, droop/synthetic-warren-differs.droop.txt, MEEK",
+        "maplibre-governing-board-2025.blt, droop/maplibre-governing-board-2025.warren.droop.txt, WARREN",
+        "droop/synthetic-warren-differs.blt, droop/synthetic-warren-differs.warren.droop.txt, WARREN"})
     void matchesDroopRoundByRound(String ballots, String report, KeepRule keepRule) throws IOException {
         ParsedElection election = BltParser.parse(DIR.resolve(ballots));
         MeekRuleset ruleset = new MeekRuleset(Exact.INSTANCE, new DeclaredOrderTieBreak(election.candidates()),
@@ -95,7 +95,8 @@ class MeekDroopReferenceTest {
         }
         Set<String> electedByDroop = new LinkedHashSet<>();
         droop.stream().filter(DroopAction::elected).forEach(action -> electedByDroop.add(action.name()));
-        assertThat(result.electedInOrder()).extracting(Candidate::name).containsExactlyInAnyOrderElementsOf(electedByDroop);
+        assertThat(result.electedInOrder()).extracting(Candidate::name)
+                .containsExactlyInAnyOrderElementsOf(electedByDroop);
     }
 
     private static List<DroopAction> parse(String report) {

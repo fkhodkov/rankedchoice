@@ -162,8 +162,8 @@ public final class CambridgeCounter {
                 throw new IllegalArgumentException(total + " ballots is too many to count one by one");
             }
             if (total < (long) BATCH_CUTOFF * seats) {
-                throw new IllegalArgumentException("Cambridge STV needs at least " + BATCH_CUTOFF + " ballots per seat ("
-                        + BATCH_CUTOFF * seats + " here) but there are only " + total);
+                throw new IllegalArgumentException("Cambridge STV needs at least " + BATCH_CUTOFF
+                        + " ballots per seat (" + BATCH_CUTOFF * seats + " here) but there are only " + total);
             }
             this.rankings = distinct.toArray(int[][]::new);
             this.ballotCount = (int) total;
@@ -441,7 +441,8 @@ public final class CambridgeCounter {
                     tallies.put(candidates.get(k), Fraction.of(count[k]));
                 }
             }
-            return new RoundRecord(rounds.size() + 1, tallies, action, Fraction.of(BigInteger.valueOf(ballotCount - held)));
+            return new RoundRecord(rounds.size() + 1, tallies, action,
+                    Fraction.of(BigInteger.valueOf(ballotCount - held)));
         }
 
         private int continuingCount() {

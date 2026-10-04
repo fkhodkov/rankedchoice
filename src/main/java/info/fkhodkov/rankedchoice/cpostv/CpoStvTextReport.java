@@ -28,7 +28,8 @@ public final class CpoStvTextReport {
         text.append("\n\nFull ranking:\n");
         int place = 1;
         for (Set<Set<Candidate>> group : result.ranking()) {
-            String names = group.stream().map(CpoStvTextReport::outcomeName).sorted().collect(Collectors.joining(" = "));
+            String names = group.stream().map(CpoStvTextReport::outcomeName).sorted()
+                    .collect(Collectors.joining(" = "));
             text.append("  ").append(place).append(". ").append(names).append('\n');
             place += group.size();
         }

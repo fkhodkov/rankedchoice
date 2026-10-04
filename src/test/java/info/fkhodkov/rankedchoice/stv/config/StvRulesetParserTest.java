@@ -3,6 +3,10 @@ package info.fkhodkov.rankedchoice.stv.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
@@ -23,10 +27,6 @@ import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 class StvRulesetParserTest {
 
@@ -151,7 +151,7 @@ class StvRulesetParserTest {
      */
     @ParameterizedTest
     @CsvSource({"scottish, TRUNCATE, 0", "ers97, TRUNCATE, 0", "ers76, TRUNCATE, 0", "act-hare-clark, TRUNCATE, 0",
-            "hare-clark-qpq, TRUNCATE, 7"})
+        "hare-clark-qpq, TRUNCATE, 7"})
     void bundledPresetsCarryTheirRulebooksFormalityRules(
             String preset, TiedRankingPolicy expectedPolicy, int expectedMinimum) {
         ElectionConfig config = ConfigLoader.loadResource("/rulesets/" + preset + ".yaml");

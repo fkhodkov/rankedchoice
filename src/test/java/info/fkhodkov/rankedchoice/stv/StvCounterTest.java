@@ -87,7 +87,8 @@ class StvCounterTest {
         assertThat(result.rounds()).hasSize(4);
 
         RoundRecord round1 = result.rounds().get(0);
-        assertThat(round1.tallies()).isEqualTo(Map.of(A, Fraction.of(33), B, Fraction.of(10), C, Fraction.of(9), D, Fraction.of(8)));
+        assertThat(round1.tallies())
+                .isEqualTo(Map.of(A, Fraction.of(33), B, Fraction.of(10), C, Fraction.of(9), D, Fraction.of(8)));
         assertThat(round1.action()).isEqualTo(new RoundAction.Elected(A, Fraction.of(12)));
         assertThat(round1.exhaustedVotes()).isEqualTo(Fraction.ZERO);
 
@@ -351,7 +352,8 @@ class StvCounterTest {
         DeclaredOrderTieBreak tieBreak = new DeclaredOrderTieBreak(roster);
 
         StvResult fractional = StvCounter.count(
-                roster, ballots, 3, new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, rounding, tieBreak));
+                roster, ballots, 3,
+                new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, rounding, tieBreak));
         StvResult wigm = StvCounter.count(
                 roster, ballots, 3, new StvRuleset(DroopQuota.INSTANCE, WigmTransfer.INSTANCE, rounding, tieBreak));
 
@@ -419,7 +421,8 @@ class StvCounterTest {
 
         RoundRecord round1 = result.rounds().get(0);
         assertThat(round1.tallies()).isEqualTo(
-                Map.of(p, Fraction.of(35), q, Fraction.of(15), x, Fraction.of(15), y, Fraction.of(20), z, Fraction.of(20)));
+                Map.of(p, Fraction.of(35), q, Fraction.of(15), x, Fraction.of(15), y, Fraction.of(20),
+                        z, Fraction.of(20)));
         assertThat(round1.action()).isEqualTo(new RoundAction.Elected(p, Fraction.of(8)));
 
         RoundRecord round2 = result.rounds().get(1);
@@ -1116,7 +1119,8 @@ class StvCounterTest {
                 new PreviousRoundVotesTieBreak(new DeclaredOrderTieBreak(candidates)), false, TiedRankingPolicy.REJECT);
 
         StvResult result = StvCounter.count(candidates, List.of(
-                ballot(10, A, B), ballot(5, A, C), ballot(2, A), ballot(6, B), ballot(7, C), ballot(4, D, C)), 2, tasmania);
+                ballot(10, A, B), ballot(5, A, C), ballot(2, A), ballot(6, B), ballot(7, C), ballot(4, D, C)),
+                2, tasmania);
 
         assertThat(result.quota()).isEqualTo(Fraction.of(12));
         RoundRecord second = result.rounds().get(1);

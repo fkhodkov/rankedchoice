@@ -23,7 +23,8 @@ class QpqReportsTest {
                 new Ballot(List.of(Set.of(A)), BigInteger.valueOf(6)),
                 new Ballot(List.of(Set.of(B)), BigInteger.valueOf(4)),
                 new Ballot(List.of(Set.of(C), Set.of(A)), BigInteger.valueOf(5)));
-        return QpqCounter.count(List.of(A, B, C), ballots, 1, new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C))));
+        return QpqCounter.count(List.of(A, B, C), ballots, 1,
+                new QpqRuleset(new DeclaredOrderTieBreak(List.of(A, B, C))));
     }
 
     @Test

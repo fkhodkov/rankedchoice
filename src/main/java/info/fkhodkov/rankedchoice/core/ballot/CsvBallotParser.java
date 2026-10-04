@@ -38,7 +38,7 @@ public final class CsvBallotParser {
     }
 
     public static ParsedBallots parse(Path path) {
-        try(Stream<String> lines = Files.lines(path)) {
+        try (Stream<String> lines = Files.lines(path)) {
             return parse(lines);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read CSV file: " + path, e);
@@ -136,9 +136,9 @@ public final class CsvBallotParser {
                     ? new State(QuoteState.QUOTE_PENDING, state.current, state.cells)
                     : new State(QuoteState.QUOTED, state.current.append(c), state.cells);
                 case QUOTE_PENDING -> switch (c) {
-                  case '"' -> new State(QuoteState.QUOTED, state.current.append(c), state.cells);
-                  case ',' -> state.addCurrent();
-                  default -> new State(QuoteState.UNQUOTED, state.current.append(c), state.cells);
+                    case '"' -> new State(QuoteState.QUOTED, state.current.append(c), state.cells);
+                    case ',' -> state.addCurrent();
+                    default -> new State(QuoteState.UNQUOTED, state.current.append(c), state.cells);
                 };
             };
         }

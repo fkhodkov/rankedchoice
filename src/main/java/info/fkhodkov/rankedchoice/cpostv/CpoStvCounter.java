@@ -203,7 +203,9 @@ public final class CpoStvCounter {
                     continue;
                 }
                 // Ballots here never hold a tie (split is refused, other policies remove ties).
-                int[] ranking = ballot.ranking().stream().mapToInt(rank -> indexOf.get(rank.iterator().next())).toArray();
+                int[] ranking = ballot.ranking().stream()
+                        .mapToInt(rank -> indexOf.get(rank.iterator().next()))
+                        .toArray();
                 Integer at = seen.putIfAbsent(new RankingKey(ranking), rankings.size());
                 if (at == null) {
                     rankings.add(ranking);

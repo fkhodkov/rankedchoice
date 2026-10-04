@@ -75,8 +75,8 @@ public final class StvHtmlReport {
     private static String describe(RoundAction action, OptionalInt decimalPlaces) {
         return switch (action) {
             case RoundAction.Elected(var candidate, var surplus) when surplus.signum() > 0 ->
-                    escape(candidate.name()) + " elected (surplus "
-                            + ReportFormatting.format(surplus, decimalPlaces) + " transferred)";
+                escape(candidate.name()) + " elected (surplus "
+                        + ReportFormatting.format(surplus, decimalPlaces) + " transferred)";
             case RoundAction.Elected(var candidate, _) -> escape(candidate.name()) + " elected";
             case RoundAction.Eliminated(var candidate) -> escape(candidate.name()) + " eliminated";
         };

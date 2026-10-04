@@ -77,7 +77,8 @@ public final class CpoStvReports {
         if (result.outcomeScores().isEmpty()) {
             // A single possible outcome: no comparisons, just the winner.
             for (List<String> winner : report.winners()) {
-                csv.append(ReportMarkup.csvField(String.join(", ", winner))).append(",1,,,").append(informal).append('\n');
+                csv.append(ReportMarkup.csvField(String.join(", ", winner))).append(",1,,,").append(informal)
+                        .append('\n');
             }
         }
         return csv.toString();

@@ -310,7 +310,8 @@ public final class MeekCounter {
             } else {
                 // Each ballot's contribution is independent and every sum is an exact integer, so
                 // summing chunks on separate cores and adding them up gives the same totals.
-                int chunks = Math.min(rankings.length / (PARALLEL_THRESHOLD / 4), 4 * Runtime.getRuntime().availableProcessors());
+                int chunks = Math.min(rankings.length / (PARALLEL_THRESHOLD / 4),
+                        4 * Runtime.getRuntime().availableProcessors());
                 long[][] partial = new long[chunks][];
                 IntStream.range(0, chunks).parallel().forEach(chunk -> {
                     long[] chunkVotes = new long[candidates.size()];

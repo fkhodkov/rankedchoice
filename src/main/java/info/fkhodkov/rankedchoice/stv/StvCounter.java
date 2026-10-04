@@ -156,7 +156,8 @@ public final class StvCounter {
                 Fraction exhausted = running.exhausted();
                 Fraction loss = credits.roundingLoss(tallies, exhausted);
                 List<RoundRecord> priorRounds = List.copyOf(rounds);
-                for (Candidate candidate : sortedByTallyDescending(continuing, tallies, ruleset.tieBreak(), priorRounds)) {
+                for (Candidate candidate
+                        : sortedByTallyDescending(continuing, tallies, ruleset.tieBreak(), priorRounds)) {
                     elected.add(candidate);
                     continuing.remove(candidate);
                     credits.settle(candidate, tallies.get(candidate));
@@ -177,7 +178,8 @@ public final class StvCounter {
             for (Fraction tally : tallies.values()) {
                 activeVotes = activeVotes.add(tally);
             }
-            if (ruleset.electAsTheyStand() && remainingSeats == 1 && continuing.size() == 2 && pendingSurplus.isEmpty()) {
+            if (ruleset.electAsTheyStand() && remainingSeats == 1 && continuing.size() == 2
+                    && pendingSurplus.isEmpty()) {
                 // s273(17): the last seat goes to the higher of the last two, quota or not.
                 Candidate higher = pickHighest(new ArrayList<>(continuing), tallies, ruleset.tieBreak(), priorRounds);
                 elected.add(higher);
@@ -263,8 +265,8 @@ public final class StvCounter {
                                 }
                             }
                         }
-                        rounds.add(new RoundRecord(roundNumber, roundTallies, new RoundAction.Elected(candidate, surplus),
-                                roundExhausted, roundLoss));
+                        rounds.add(new RoundRecord(roundNumber, roundTallies,
+                                new RoundAction.Elected(candidate, surplus), roundExhausted, roundLoss));
                         if (!queue.isEmpty()) {
                             roundNumber++;
                         }
@@ -301,8 +303,8 @@ public final class StvCounter {
                 roundTallies.put(candidate, frozenTally);
                 credits.settle(candidate, frozenTally);
                 if (surplus.signum() > 0 && !continuing.isEmpty()) {
-                    transferSurplus(states, running, candidate, surplus, ruleset.transferMethod(), ruleset.roundingRule(),
-                            continuing, nextParcelId++);
+                    transferSurplus(states, running, candidate, surplus, ruleset.transferMethod(),
+                            ruleset.roundingRule(), continuing, nextParcelId++);
                     credits.settle(candidate, quota);
                 }
                 rounds.add(new RoundRecord(
@@ -438,9 +440,9 @@ public final class StvCounter {
      * stops receiving any of the remaining, lower-valued groups. Returns the next available
      * parcel id (one is consumed per value-group).
      */
-    private static int eliminateByValueGroup(List<BallotState> states, RunningTallies running, List<Candidate> from, Set<Candidate> continuing,
-            List<Candidate> elected, Map<Candidate, Fraction> pendingSurplus, Fraction quota, int seats,
-            StvRuleset ruleset, List<RoundRecord> priorRounds, int nextParcelId) {
+    private static int eliminateByValueGroup(List<BallotState> states, RunningTallies running, List<Candidate> from,
+            Set<Candidate> continuing, List<Candidate> elected, Map<Candidate, Fraction> pendingSurplus,
+            Fraction quota, int seats, StvRuleset ruleset, List<RoundRecord> priorRounds, int nextParcelId) {
         Set<Candidate> excluded = new LinkedHashSet<>(from);
         Map<Fraction, List<BallotState>> byValueDescending = new TreeMap<>(Comparator.reverseOrder());
         for (BallotState state : states) {
@@ -650,7 +652,8 @@ public final class StvCounter {
         Set<Candidate> pool = new LinkedHashSet<>(continuing);
         Fraction extra = otherActive;
         while (true) {
-            Fraction required = votesRequired(ruleset, active(pool, tallies).add(extra), remainingSeats - elected.size());
+            Fraction required =
+                    votesRequired(ruleset, active(pool, tallies).add(extra), remainingSeats - elected.size());
             List<Candidate> qualifying = qualifying(pool, tallies, quota, required);
             if (qualifying.isEmpty() || elected.size() >= remainingSeats) {
                 return elected;
@@ -696,7 +699,9 @@ public final class StvCounter {
         List<Candidate> tiedHighest = candidates.stream()
                 .filter(candidate -> tallies.get(candidate).compareTo(highest) == 0)
                 .toList();
-        return tiedHighest.size() == 1 ? tiedHighest.getFirst() : tieBreak.candidateToElectFirst(tiedHighest, priorRounds);
+        return tiedHighest.size() == 1
+                ? tiedHighest.getFirst()
+                : tieBreak.candidateToElectFirst(tiedHighest, priorRounds);
     }
 
     private static List<Candidate> sortedByTallyDescending(Set<Candidate> candidates,

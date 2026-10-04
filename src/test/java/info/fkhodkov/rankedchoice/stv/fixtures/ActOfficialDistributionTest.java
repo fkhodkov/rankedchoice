@@ -43,7 +43,8 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
 class ActOfficialDistributionTest {
 
     private static final Path DIRECTORY = Path.of("src/test/resources/testdata/act");
-    private static final Pattern ELECTED = Pattern.compile("((?:[A-Z][a-z'-]+ )+)([A-Z'-]{2,}(?: [A-Z'-]{2,})*) elected \\d");
+    private static final Pattern ELECTED =
+            Pattern.compile("((?:[A-Z][a-z'-]+ )+)([A-Z'-]{2,}(?: [A-Z'-]{2,})*) elected \\d");
 
     private record Count(int number, Map<String, Fraction> votes, Fraction exhausted, Fraction loss, String remarks) {
     }
