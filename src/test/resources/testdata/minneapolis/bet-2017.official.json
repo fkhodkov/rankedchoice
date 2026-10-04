@@ -1,0 +1,16 @@
+{
+ "source": "2017-Board-of-Estimate-and-Taxation-Results-Summary.pdf",
+ "threshold": 23232,
+ "elected": [
+  "Carol Becker",
+  "David B. Wheeler"
+ ],
+ "rounds": [
+  {
+   "Carol Becker": "48163.0000",
+   "David B. Wheeler": "19312.0000",
+   "John Edwards": "1539.0000",
+   "Undeclared Write-ins": "680.0000"
+  }
+ ]
+}

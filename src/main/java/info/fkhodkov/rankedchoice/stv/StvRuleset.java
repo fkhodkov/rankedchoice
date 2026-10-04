@@ -70,13 +70,23 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * as Portland, Oregon does (City Code 2.08.030 C.2.b(2)): a candidate one of them takes to quota is
  * elected in the next round, not there and then, so the round's other surpluses can still reach
  * them. Otherwise such a candidate is elected at once and passed by, as Scotland's rules require.
+ *
+ * <p>{@code mathematicalElimination} defeats, at the start of every round and before any surplus
+ * moves, every candidate who can no longer be elected, as Minneapolis does (Code of Ordinances
+ * 167.70 as enacted in 2006, and its counts of 2017 to 2025): the lowest candidates whose votes
+ * together, with every surplus still to move, are less than the next candidate's, and those
+ * ranked on too few ballots still in play to reach the candidate holding the last of the seats
+ * left.
+ * Only when nobody is defeated so does a surplus move, the largest one, one a round; until it
+ * does, its candidate keeps receiving ballots. Only for the transfer methods that move a surplus
+ * at once.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
         boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
         boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder,
         boolean electAsTheyStand, boolean electSureWinners, ExclusionOrder exclusionOrder,
-        boolean simultaneousSurpluses) {
+        boolean simultaneousSurpluses, boolean mathematicalElimination) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
@@ -87,7 +97,7 @@ public record StvRuleset(
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
         this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
-                false, false, false, false, ExclusionOrder.VALUE, false);
+                false, false, false, false, ExclusionOrder.VALUE, false, false);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

@@ -1158,6 +1158,42 @@ class StvCounterTest {
         assertThat(electedOn(apart, C)).isEqualTo(Fraction.of(26999, 1000));
     }
 
+    /**
+     * Minneapolis's mathematical elimination, by hand: 2 seats, 90 ballots, quota 31. A is over
+     * quota on 34, but before A's surplus moves, D (6, plus that surplus of 3, is less than E's
+     * 12) and E (on only 12 ballots, short of B's 20 for the last seat) are defeated together. D's
+     * ballots go to A, still continuing, and E's to B. Then C's 18, plus the surpluses of 9 and
+     * 1, can't reach B's 32: C is defeated, and A and B are elected, A's surplus never moved.
+     */
+    @Test
+    void minneapolisDefeatsTheHopelessBeforeAnySurplusMoves() {
+        Candidate e = Candidate.of("E");
+        List<Candidate> candidates = List.of(A, B, C, D, e);
+        List<Ballot> ballots = List.of(
+                ballot(34, A, C), ballot(20, B), ballot(18, C), ballot(6, D, A), ballot(12, e, B));
+
+        StvResult result = StvCounter.count(candidates, ballots, 2,
+                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/minneapolis.yaml"), candidates));
+
+        assertThat(result.quota()).isEqualTo(Fraction.of(31));
+        assertThat(result.rounds()).extracting(RoundRecord::action).containsExactly(
+                new RoundAction.Eliminated(D), new RoundAction.Eliminated(e), new RoundAction.Eliminated(C),
+                new RoundAction.Elected(A, Fraction.ZERO), new RoundAction.Elected(B, Fraction.ZERO));
+        assertThat(result.rounds().get(2).tallies())
+                .isEqualTo(Map.of(A, Fraction.of(40), B, Fraction.of(32), C, Fraction.of(18)));
+    }
+
+    @Test
+    void mathematicalEliminationNeedsSurplusesMovedAtOnce() {
+        StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, LastParcelTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(A, B, C)), false, TiedRankingPolicy.REJECT, 0, false, false,
+                false, false, false, ExclusionOrder.VALUE, false, true);
+
+        assertThatThrownBy(() -> StvCounter.count(List.of(A, B, C), List.of(ballot(3, A), ballot(1, B)), 1, ruleset))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("mathematicalElimination");
+    }
+
     private static Fraction electedOn(StvResult result, Candidate candidate) {
         return result.rounds().stream()
                 .filter(round -> round.action() instanceof RoundAction.Elected elected

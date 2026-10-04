@@ -133,6 +133,10 @@ public final class StvCounter {
 
         Fraction quota = ruleset.quota().compute(firstPreferenceVotes, seats);
         boolean defers = defersSurplusTransfers(ruleset.transferMethod());
+        if (defers && ruleset.mathematicalElimination()) {
+            throw new IllegalArgumentException(
+                    "mathematicalElimination needs a transfer method that moves a surplus at once");
+        }
         // The ACT rounds each candidate's gain from each transfer step, not their running total.
         RunningTallies running = RunningTallies.of(states,
                 ruleset.transferMethod().roundsGainsPerStep() ? ruleset.roundingRule() : null);
@@ -207,12 +211,16 @@ public final class StvCounter {
                         roundNumber, tallies, new RoundAction.Elected(higher, Fraction.ZERO), exhausted, loss));
                 break;
             }
+            // Minneapolis defeats everyone who can no longer win before any surplus moves.
+            List<Candidate> hopeless = ruleset.mathematicalElimination()
+                    ? mathematicallyEliminated(states, continuing, tallies, quota, remainingSeats)
+                    : List.of();
             Fraction required = votesRequired(ruleset, activeVotes, remainingSeats);
             List<Candidate> meetingQuota = continuing.stream()
                     .filter(candidate -> elects(tallies.get(candidate), quota, required))
                     .toList();
 
-            List<Candidate> sure = ruleset.electSureWinners() && meetingQuota.isEmpty()
+            List<Candidate> sure = ruleset.electSureWinners() && meetingQuota.isEmpty() && hopeless.isEmpty()
                     ? sureWinners(continuing, tallies, remainingSeats, positiveSurplusTotal(pendingSurplus, quota),
                             ruleset.tieBreak(), priorRounds)
                     : List.of();
@@ -227,7 +235,7 @@ public final class StvCounter {
                 }
                 break;
             }
-            if (!meetingQuota.isEmpty()) {
+            if (hopeless.isEmpty() && !meetingQuota.isEmpty()) {
                 // Every candidate who meets quota in the same tally snapshot is declared
                 // elected as a batch, before any of their surpluses are transferred — so none
                 // of them can still receive (and thus inflate their own eventual surplus with)
@@ -237,8 +245,10 @@ public final class StvCounter {
                                 remainingSeats, ruleset, priorRounds)
                         : sortedByTallyDescending(
                                 new LinkedHashSet<>(meetingQuota), tallies, ruleset.tieBreak(), priorRounds);
-                if (electedThisStage.size() > remainingSeats) {
-                    electedThisStage = electedThisStage.subList(0, remainingSeats);
+                // Minneapolis moves one surplus a round, the largest; the rest wait, still continuing.
+                int electing = ruleset.mathematicalElimination() ? 1 : remainingSeats;
+                if (electedThisStage.size() > electing) {
+                    electedThisStage = electedThisStage.subList(0, electing);
                 }
                 Map<Candidate, Fraction> frozenVotes = new LinkedHashMap<>();
                 for (Candidate candidate : electedThisStage) {
@@ -299,7 +309,8 @@ public final class StvCounter {
                             credits.settle(candidate, quota);
                             // Under simultaneousSurpluses a candidate this takes to quota waits for the
                             // next round to be elected, so the round's other surpluses can reach them.
-                            if (elected.size() < seats && !ruleset.simultaneousSurpluses()) {
+                            if (elected.size() < seats && !ruleset.simultaneousSurpluses()
+                                    && !ruleset.mathematicalElimination()) {
                                 Map<Candidate, Fraction> fresh = running.tallies(continuing, ruleset.roundingRule());
                                 List<Candidate> reached = continuing.stream()
                                         .filter(other -> fresh.get(other).compareTo(quota) >= 0)
@@ -370,8 +381,9 @@ public final class StvCounter {
             }
 
             List<RoundRecord> subCounts = new ArrayList<>();
-            List<Candidate> toExclude = selectCandidatesToExclude(continuing, tallies, pendingSurplus, quota,
-                    seats - elected.size(), defers && ruleset.batchExclusion(), ruleset.tieBreak(), priorRounds);
+            List<Candidate> toExclude = !hopeless.isEmpty() ? hopeless
+                    : selectCandidatesToExclude(continuing, tallies, pendingSurplus, quota, seats - elected.size(),
+                            defers && ruleset.batchExclusion(), ruleset.tieBreak(), priorRounds);
             for (Candidate candidate : toExclude) {
                 continuing.remove(candidate);
             }
@@ -381,8 +393,10 @@ public final class StvCounter {
                 parcelIds.next = eliminateByValueGroup(states, running, toExclude, continuing, elected,
                         pendingSurplus, quota, seats, ruleset, priorRounds, parcelIds.next, subCounts);
             } else {
-                transferEliminatedBallots(states, running, toExclude.getFirst(), continuing,
-                        ruleset.transferMethod().roundsGainsPerParcel(), parcelIds);
+                for (Candidate candidate : toExclude) {
+                    transferEliminatedBallots(states, running, candidate, continuing,
+                            ruleset.transferMethod().roundsGainsPerParcel(), parcelIds);
+                }
             }
             for (int i = 0; i < toExclude.size(); i++) {
                 record.accept(new RoundRecord(
@@ -665,6 +679,67 @@ public final class StvCounter {
             return ascending.subList(0, size);
         }
         return List.of();
+    }
+
+    /**
+     * Minneapolis's mathematical elimination, as its counts show it, lowest first: the largest set
+     * of the lowest candidates whose votes together, with every surplus still to move, are less
+     * than the next candidate's, leaving enough candidates for the seats (the 2006 ordinance,
+     * 167.70(a)(1)d); and with them anyone ranked on too few ballots still in play to reach the
+     * votes of the candidate holding the last of the seats left, which the 2017 and 2025 Park
+     * Board counts did, defeating candidates the first spares.
+     */
+    private static List<Candidate> mathematicallyEliminated(List<BallotState> states, Set<Candidate> continuing,
+            Map<Candidate, Fraction> tallies, Fraction quota, int remainingSeats) {
+        if (continuing.size() <= remainingSeats) {
+            return List.of();
+        }
+        List<Candidate> ascending = new ArrayList<>(continuing);
+        ascending.sort(Comparator.comparing(tallies::get));
+        Fraction total = Fraction.ZERO;
+        for (Candidate candidate : ascending) {
+            total = total.add(max(tallies.get(candidate).subtract(quota), Fraction.ZERO));
+        }
+        int lowest = 0;
+        for (int size = 1; ascending.size() - size >= remainingSeats; size++) {
+            total = total.add(tallies.get(ascending.get(size - 1)));
+            if (total.compareTo(tallies.get(ascending.get(size))) < 0) {
+                lowest = size;
+            }
+        }
+        Fraction lastSeat = tallies.get(ascending.get(ascending.size() - remainingSeats));
+        Map<Candidate, Fraction> reachable = reachableVotes(states, continuing);
+        List<Candidate> defeated = new ArrayList<>();
+        for (int i = 0; i < ascending.size(); i++) {
+            Candidate candidate = ascending.get(i);
+            if (i < lowest || reachable.getOrDefault(candidate, Fraction.ZERO).compareTo(lastSeat) < 0) {
+                defeated.add(candidate);
+            }
+        }
+        return defeated;
+    }
+
+    /**
+     * The most votes each continuing candidate could still reach: the value of every ballot in
+     * play that ranks them at or after the ranking it's at.
+     */
+    private static Map<Candidate, Fraction> reachableVotes(List<BallotState> states, Set<Candidate> continuing) {
+        Map<Candidate, Fraction> reachable = new java.util.HashMap<>();
+        for (BallotState state : states) {
+            if (state.holders.isEmpty()) {
+                continue;
+            }
+            Fraction value = state.value.multiply(Fraction.of(state.ballot.count()));
+            Set<Candidate> ranked = new LinkedHashSet<>();
+            List<Set<Candidate>> ranking = state.ballot.ranking();
+            for (int i = state.nextIndex; i < ranking.size(); i++) {
+                ranked.addAll(stillContinuing(ranking.get(i), continuing));
+            }
+            for (Candidate candidate : ranked) {
+                reachable.merge(candidate, value, Fraction::add);
+            }
+        }
+        return reachable;
     }
 
     /** The surpluses of candidates elected but not yet transferred: what's above quota. */

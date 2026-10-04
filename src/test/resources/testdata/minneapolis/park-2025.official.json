@@ -1,0 +1,66 @@
+{
+ "source": "2025-Park-At-Large-RCV-Tabulation-Summary.pdf",
+ "threshold": 28338,
+ "elected": [
+  "Amber A. Frederick",
+  "Meg Forney",
+  "Tom Olsen"
+ ],
+ "rounds": [
+  {
+   "Adam Schneider": "7083.0000",
+   "Amber A. Frederick": "17056.0000",
+   "Averi M. Turner": "6118.0000",
+   "Mary McKelvey": "12116.0000",
+   "Matthew Dowgwillo": "7112.0000",
+   "Meg Forney": "25368.0000",
+   "Michael Wilson": "15291.0000",
+   "Tom Olsen": "22796.0000",
+   "Undeclared Write-ins": "408.0000"
+  },
+  {
+   "Adam Schneider": "7494.0000",
+   "Amber A. Frederick": "18338.0000",
+   "Averi M. Turner": "0.0000",
+   "Mary McKelvey": "12914.0000",
+   "Matthew Dowgwillo": "7524.0000",
+   "Meg Forney": "26343.0000",
+   "Michael Wilson": "15833.0000",
+   "Tom Olsen": "23175.0000",
+   "Undeclared Write-ins": "0.0000"
+  },
+  {
+   "Adam Schneider": "0.0000",
+   "Amber A. Frederick": "20373.0000",
+   "Averi M. Turner": "0.0000",
+   "Mary McKelvey": "14904.0000",
+   "Matthew Dowgwillo": "0.0000",
+   "Meg Forney": "28610.0000",
+   "Michael Wilson": "18617.0000",
+   "Tom Olsen": "25347.0000",
+   "Undeclared Write-ins": "0.0000"
+  },
+  {
+   "Adam Schneider": "0.0000",
+   "Amber A. Frederick": "22261.0000",
+   "Averi M. Turner": "0.0000",
+   "Mary McKelvey": "0.0000",
+   "Matthew Dowgwillo": "0.0000",
+   "Meg Forney": "34085.0000",
+   "Michael Wilson": "19705.0000",
+   "Tom Olsen": "26655.0000",
+   "Undeclared Write-ins": "0.0000"
+  },
+  {
+   "Adam Schneider": "0.0000",
+   "Amber A. Frederick": "23187.2884",
+   "Averi M. Turner": "0.0000",
+   "Mary McKelvey": "0.0000",
+   "Matthew Dowgwillo": "0.0000",
+   "Meg Forney": "28338.2690",
+   "Michael Wilson": "19978.3006",
+   "Tom Olsen": "27487.3782",
+   "Undeclared Write-ins": "0.0000"
+  }
+ ]
+}

@@ -1,0 +1,16 @@
+{
+ "source": "2025-Board-of-Estimate-and-Taxation-RCV-Tabulation-Summary.pdf",
+ "threshold": 35561,
+ "elected": [
+  "Eric Harris Bernstein",
+  "Steve Brandt"
+ ],
+ "rounds": [
+  {
+   "Bob Fine": "27445.0000",
+   "Eric Harris Bernstein": "42829.0000",
+   "Steve Brandt": "35911.0000",
+   "Undeclared Write-ins": "497.0000"
+  }
+ ]
+}

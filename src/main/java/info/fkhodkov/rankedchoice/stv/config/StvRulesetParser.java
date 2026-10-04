@@ -76,7 +76,7 @@ public final class StvRulesetParser {
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, List<Candidate> declaredOrder) {
         return parse(quota, transfer, rounding, tiebreak, batchExclusion, tiedRankings, minimumPreferences, null, null,
-                null, null, null, null, null, declaredOrder);
+                null, null, null, null, null, null, declaredOrder);
     }
 
     /**
@@ -87,7 +87,8 @@ public final class StvRulesetParser {
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, Boolean deferSurpluses,
             Boolean votesRequired, String surplusOrder, Boolean electAsTheyStand, Boolean electSureWinners,
-            String exclusionOrder, Boolean simultaneousSurpluses, List<Candidate> declaredOrder) {
+            String exclusionOrder, Boolean simultaneousSurpluses, Boolean mathematicalElimination,
+            List<Candidate> declaredOrder) {
         TransferMethod transferMethod = parseTransfer(transfer);
         return new StvRuleset(
                 parseQuota(quota), transferMethod, parseRounding(rounding),
@@ -96,7 +97,8 @@ public final class StvRulesetParser {
                 deferSurpluses != null && deferSurpluses, votesRequired != null && votesRequired,
                 parseSurplusOrder(surplusOrder), electAsTheyStand != null && electAsTheyStand,
                 electSureWinners != null && electSureWinners, parseExclusionOrder(exclusionOrder),
-                simultaneousSurpluses != null && simultaneousSurpluses);
+                simultaneousSurpluses != null && simultaneousSurpluses,
+                mathematicalElimination != null && mathematicalElimination);
     }
 
     /** {@code size} (largest surplus first, the default) or {@code election} (in order of election). */
@@ -128,7 +130,7 @@ public final class StvRulesetParser {
         return parse(config.quota(), config.transfer(), config.rounding(), config.tiebreak(), config.batchExclusion(),
                 config.tiedRankings(), config.minimumPreferences(), config.deferSurpluses(), config.votesRequired(),
                 config.surplusOrder(), config.electAsTheyStand(), config.electSureWinners(), config.exclusionOrder(),
-                config.simultaneousSurpluses(), declaredOrder);
+                config.simultaneousSurpluses(), config.mathematicalElimination(), declaredOrder);
     }
 
     /**

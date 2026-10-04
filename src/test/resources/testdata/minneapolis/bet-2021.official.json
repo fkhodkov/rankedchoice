@@ -1,0 +1,31 @@
+{
+ "source": "2021-BET-Round-Results-Summary.pdf",
+ "threshold": 31876,
+ "elected": [
+  "Samantha \"Sam\" Pree-Stinson",
+  "Steve Brandt"
+ ],
+ "rounds": [
+  {
+   "Kevin Nikiforakis": "5815.0000",
+   "Pine Salica": "20786.0000",
+   "Samantha \"Sam\" Pree-Stinson": "25597.0000",
+   "Steve Brandt": "42672.0000",
+   "Undeclared Write-ins": "755.0000"
+  },
+  {
+   "Kevin Nikiforakis": "0.0000",
+   "Pine Salica": "21521.0000",
+   "Samantha \"Sam\" Pree-Stinson": "26791.0000",
+   "Steve Brandt": "44340.0000",
+   "Undeclared Write-ins": "0.0000"
+  },
+  {
+   "Kevin Nikiforakis": "0.0000",
+   "Pine Salica": "24137.4788",
+   "Samantha \"Sam\" Pree-Stinson": "29494.6198",
+   "Steve Brandt": "31876.0260",
+   "Undeclared Write-ins": "0.0000"
+  }
+ ]
+}

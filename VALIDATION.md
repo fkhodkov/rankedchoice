@@ -10,7 +10,8 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 
 Every Scottish council election with published ballots, all five ACT electorates in 2020, every
 state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024,
-Portland's four City Council districts of 2024, and three Irish constituencies, run through their
+Portland's four City Council districts of 2024, Minneapolis's six multi-seat contests of 2017–2025,
+and three Irish constituencies, run through their
 own rulesets, reproduce their actual results:
 
 | Election | Ruleset | Checked | Source of ballots |
@@ -22,6 +23,7 @@ own rulesets, reproduce their actual results:
 | Australian Senate 2016, 2019, 2022 and 2025, all 32 state and territory counts (59,355,672 ballots; NSW alone up to 5.0 million) | `senate` | every round's tallies, exhausted votes and loss by fraction, to the vote, against the AEC's official distribution of preferences, and the senators in order of election; see below | the AEC's formal preference data |
 | NSW local government elections 2024, all 227 councillor counts with published figures (118 councils; 3–73 candidates, 2–15 seats; 4,051,337 ballots) | `nsw-lg` | every round's tallies and votes lost, to the vote, against the NSW Electoral Commission's full distribution of preferences, and the councillors elected; see below | the Commission's ballot-paper data |
 | Portland, Oregon City Council 2024, all four districts (17–31 candidates, 3 seats each; 281,260 votes in the first round) | `portland` | every official round's tallies, to 4 decimal places, against Multnomah County's round-by-round results, the threshold, and the councillors elected; see below | the County's cast vote records |
+| Minneapolis Park Board at large (3 seats) and Board of Estimate and Taxation (2 seats), 2017, 2021 and 2025 (4–11 candidates; 576,346 votes in the first round) | `minneapolis` | every official round's tallies, to 4 decimal places, against the City's summary statements, the threshold, and the candidates elected; see below | the City's cast vote records |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
 
 Every one is cross-checked against the election's published or officially declared result,
@@ -212,6 +214,41 @@ The rules are City Code 2.08.030 C, and the ballots needed reading as the County
   round (`simultaneousSurpluses`). No 2024 count turned on it (the counts match with it off too),
   so it rests on the Code and a unit test; nor do they tell Portland's truncation from WIGM's,
   which also matches.
+
+**Minneapolis** (`minneapolis`): the City's multi-seat contests of 2017, 2021 and 2025, the Park
+and Recreation Board at large and the Board of Estimate and Taxation (`tools/reference/minneapolis`),
+from its cast vote records, against its summary statements (those of 2025 marked "unofficial"):
+at the official threshold, every official round of all six is one of this count's rounds, every
+candidate to 4 decimal places, and the same candidates are elected. All six are fixtures
+(`MinneapolisFixtureTest`).
+
+The rules are **inferred**, partly. The ordinance as enacted in 2006 (167.70) is the only text
+found; the current Code of Ordinances wasn't reachable. What the counts show:
+
+- **Mathematical elimination comes before any surplus.** Each round, every candidate who can't
+  win is defeated together, while surpluses wait: the lowest whose votes, with every surplus
+  still to move, are less than the next candidate's (the 2006 text's 167.70(a)(1)d). In 2021 the
+  undeclared write-ins go before Forney's surplus moves; in 2025 McKelvey goes while Forney is
+  over the threshold.
+- **So does a test the 2006 text doesn't have**: anyone ranked on too few ballots still in play
+  to reach the candidate holding the last of the seats left is defeated too. Without it, 2017's
+  first round keeps Honerbrink and Casserly and 2025's third keeps Dowgwillo; with it, every
+  round matches. The two tests run side by side, neither seeing the other's defeats: 2025's
+  third round defeats Schneider, whose 7,494 are less than Dowgwillo's 7,524, beside Dowgwillo,
+  though together they pass McKelvey's 12,914; and 2017's first keeps Hogan, whom the first
+  test would defeat once the second's were gone.
+- **A candidate over the threshold keeps receiving ballots until their surplus moves** (Forney
+  gains 17 in 2021's second round, 5,475 in 2025's fourth), and keeps the truncation remainder
+  after it does (26,663.2470).
+- **The transfer value is truncated twice**, to 4 places, as Portland's is (`fractional-truncated`).
+- **Overvotes and skipped rankings are passed over**, which matches every first round; a
+  candidate ranked again counts once.
+- **One surplus a round, the largest**, as the 2006 text's steps repeat; no count had two
+  waiting at once, so that part is untested.
+
+Cambridge, the other American city counting multi-seat STV, publishes no ballot data (see
+[Cambridge STV](#cambridge-stv)). Minneapolis's 2009 and 2013 contests, published as spreadsheets
+of a different shape (2009 lists every write-in by name), aren't checked.
 
 ## The ERS97 model election
 
