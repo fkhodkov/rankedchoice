@@ -16,7 +16,7 @@ import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
  */
 public sealed interface TransferMethod permits FractionalTransfer, WigmTransfer, LastParcelTransfer,
         LastParcelDeferredRoundingTransfer, UnweightedInclusiveTransfer, UnweightedExclusiveTransfer,
-        WeightedTransferableTransfer, WeightedInclusiveTransfer {
+        WeightedTransferableTransfer, WeightedInclusiveTransfer, TruncatedFractionalTransfer {
 
     Map<Integer, Fraction> computeTransferValues(Fraction surplus, List<HeldParcel> parcels, RoundingRule roundingRule);
 

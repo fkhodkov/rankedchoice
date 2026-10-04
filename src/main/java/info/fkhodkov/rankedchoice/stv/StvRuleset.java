@@ -65,12 +65,18 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  *
  * <p>{@code exclusionOrder} is the order an excluded candidate's papers move in, for the transfer
  * methods that exclude in steps: see {@link ExclusionOrder}.
+ *
+ * <p>{@code simultaneousSurpluses} transfers the surpluses of everyone elected in a round together,
+ * as Portland, Oregon does (City Code 2.08.030 C.2.b(2)): a candidate one of them takes to quota is
+ * elected in the next round, not there and then, so the round's other surpluses can still reach
+ * them. Otherwise such a candidate is elected at once and passed by, as Scotland's rules require.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
         boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
         boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder,
-        boolean electAsTheyStand, boolean electSureWinners, ExclusionOrder exclusionOrder) {
+        boolean electAsTheyStand, boolean electSureWinners, ExclusionOrder exclusionOrder,
+        boolean simultaneousSurpluses) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
@@ -81,7 +87,7 @@ public record StvRuleset(
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
         this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
-                false, false, false, false, ExclusionOrder.VALUE);
+                false, false, false, false, ExclusionOrder.VALUE, false);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

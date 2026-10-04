@@ -9,8 +9,9 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 ## Real elections
 
 Every Scottish council election with published ballots, all five ACT electorates in 2020, every
-state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024, and
-three Irish constituencies, run through their own rulesets, reproduce their actual results:
+state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024,
+Portland's four City Council districts of 2024, and three Irish constituencies, run through their
+own rulesets, reproduce their actual results:
 
 | Election | Ruleset | Checked | Source of ballots |
 |---|---|---|---|
@@ -20,6 +21,7 @@ three Irish constituencies, run through their own rulesets, reproduce their actu
 | All five electorates of the ACT Legislative Assembly 2020 (Brindabella, Ginninderra, Kurrajong, Murrumbidgee, Yerrabi; 23–32 candidates, 5 seats each, 269,251 ballots) | `act-hare-clark` | every round's tallies, votes exhausted and loss by fraction, exactly to the 6 decimal places the Act specifies, and the winners, against the official "Final Distribution of Preferences" | Elections ACT's official ballot-paper data |
 | Australian Senate 2016, 2019, 2022 and 2025, all 32 state and territory counts (59,355,672 ballots; NSW alone up to 5.0 million) | `senate` | every round's tallies, exhausted votes and loss by fraction, to the vote, against the AEC's official distribution of preferences, and the senators in order of election; see below | the AEC's formal preference data |
 | NSW local government elections 2024, all 227 councillor counts with published figures (118 councils; 3–73 candidates, 2–15 seats; 4,051,337 ballots) | `nsw-lg` | every round's tallies and votes lost, to the vote, against the NSW Electoral Commission's full distribution of preferences, and the councillors elected; see below | the Commission's ballot-paper data |
+| Portland, Oregon City Council 2024, all four districts (17–31 candidates, 3 seats each; 281,260 votes in the first round) | `portland` | every official round's tallies, to 4 decimal places, against Multnomah County's round-by-round results, the threshold, and the councillors elected; see below | the County's cast vote records |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
 
 Every one is cross-checked against the election's published or officially declared result,
@@ -187,6 +189,29 @@ OpenTally's NSW preset counts the same way (below), short of one shortcut: where
 would leave as many candidates as seats, it elects them without transferring the excluded
 candidate's papers. No 2024 count reached that point without the leaders already being sure of
 their seats.
+
+**Portland** (`portland`): the four multi-seat City Council contests of 2024, Portland's first
+(`tools/reference/portland`), from Multnomah County's cast vote records, against its official
+round-by-round results (RCTab's tabulation summaries): at the official threshold, every round of
+Districts 2 and 4 is one of this count's rounds, every candidate to 4 decimal places, and in
+Districts 1 and 3 every round but the one that follows a tie for defeat the County drew by lot
+(Linn and Owens on 1,441; Smith-Moore and Hilton on 200), where this project's declared order
+chose the other; both elect the same councillors either way. District 4 is a fixture
+(`PortlandFixtureTest`).
+
+The rules are City Code 2.08.030 C, and the ballots needed reading as the County reads them:
+
+- **The transfer value is truncated twice**, the surplus fraction and then each ballot's value
+  times it, to 4 places (`fractional-truncated`). With only the fraction truncated, District 4
+  goes wrong from round 30.
+- **Overvotes and write-in lines.** A ranking with two marks is skipped, and the numbered
+  write-in lines count as marks for that, but alone are skipped, only "Uncertified Write In"
+  being a candidate; every row of the cast vote record counts, those flagged as remade too.
+  Read so, the first round matches the County's to the vote; any other reading doesn't.
+- **Surpluses are transferred together**, a candidate they take to quota elected in the next
+  round (`simultaneousSurpluses`). No 2024 count turned on it (the counts match with it off too),
+  so it rests on the Code and a unit test; nor do they tell Portland's truncation from WIGM's,
+  which also matches.
 
 ## The ERS97 model election
 

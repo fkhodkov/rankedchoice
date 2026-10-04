@@ -1130,6 +1130,41 @@ class StvCounterTest {
         assertThat(result.electedInOrder()).containsExactly(A, C);
     }
 
+    /**
+     * Portland's simultaneous surpluses (City Code 2.08.030 C.2.b(2)), by hand: 3 seats, quota 26.
+     * A and B are elected on 30 each. A's surplus, at 0.1333 a ballot, takes C to 26.999; under
+     * Portland's rules C waits for the next round, so B's surplus reaches C too (30.998). Without
+     * them, C is elected there and then, and B's surplus passes C by, to D.
+     */
+    @Test
+    void portlandTransfersARoundsSurplusesTogether(@org.junit.jupiter.api.io.TempDir java.nio.file.Path dir)
+            throws java.io.IOException {
+        List<Candidate> candidates = List.of(A, B, C, D);
+        List<Ballot> ballots = List.of(ballot(30, A, C), ballot(30, B, C, D), ballot(23, C), ballot(17, D));
+        StvRuleset portland = StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/portland.yaml"), candidates);
+        java.nio.file.Path oneByOne = dir.resolve("one-by-one.yaml");
+        try (var in = getClass().getResourceAsStream("/rulesets/portland.yaml")) {
+            String text = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            java.nio.file.Files.writeString(oneByOne,
+                    text.replace("simultaneousSurpluses: true", "simultaneousSurpluses: false"));
+        }
+
+        StvResult together = StvCounter.count(candidates, ballots, 3, portland);
+        StvResult apart = StvCounter.count(candidates, ballots, 3,
+                StvRulesetParser.parse(ConfigLoader.load(oneByOne), candidates));
+
+        assertThat(together.quota()).isEqualTo(Fraction.of(26));
+        assertThat(electedOn(together, C)).isEqualTo(Fraction.of(30998, 1000));
+        assertThat(electedOn(apart, C)).isEqualTo(Fraction.of(26999, 1000));
+    }
+
+    private static Fraction electedOn(StvResult result, Candidate candidate) {
+        return result.rounds().stream()
+                .filter(round -> round.action() instanceof RoundAction.Elected elected
+                        && elected.candidate() == candidate)
+                .findFirst().orElseThrow().tallies().get(candidate);
+    }
+
     private static StvRuleset fractional(info.fkhodkov.rankedchoice.stv.rounding.RoundingRule rounding,
             List<Candidate> candidates) {
         return new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, rounding,

@@ -25,6 +25,7 @@ import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
+import info.fkhodkov.rankedchoice.stv.transfer.TruncatedFractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WeightedInclusiveTransfer;
@@ -75,7 +76,7 @@ public final class StvRulesetParser {
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, List<Candidate> declaredOrder) {
         return parse(quota, transfer, rounding, tiebreak, batchExclusion, tiedRankings, minimumPreferences, null, null,
-                null, null, null, null, declaredOrder);
+                null, null, null, null, null, declaredOrder);
     }
 
     /**
@@ -86,7 +87,7 @@ public final class StvRulesetParser {
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, Boolean deferSurpluses,
             Boolean votesRequired, String surplusOrder, Boolean electAsTheyStand, Boolean electSureWinners,
-            String exclusionOrder, List<Candidate> declaredOrder) {
+            String exclusionOrder, Boolean simultaneousSurpluses, List<Candidate> declaredOrder) {
         TransferMethod transferMethod = parseTransfer(transfer);
         return new StvRuleset(
                 parseQuota(quota), transferMethod, parseRounding(rounding),
@@ -94,7 +95,8 @@ public final class StvRulesetParser {
                 parseTiedRankings(tiedRankings, transferMethod), minimumPreferences == null ? 0 : minimumPreferences,
                 deferSurpluses != null && deferSurpluses, votesRequired != null && votesRequired,
                 parseSurplusOrder(surplusOrder), electAsTheyStand != null && electAsTheyStand,
-                electSureWinners != null && electSureWinners, parseExclusionOrder(exclusionOrder));
+                electSureWinners != null && electSureWinners, parseExclusionOrder(exclusionOrder),
+                simultaneousSurpluses != null && simultaneousSurpluses);
     }
 
     /** {@code size} (largest surplus first, the default) or {@code election} (in order of election). */
@@ -126,7 +128,7 @@ public final class StvRulesetParser {
         return parse(config.quota(), config.transfer(), config.rounding(), config.tiebreak(), config.batchExclusion(),
                 config.tiedRankings(), config.minimumPreferences(), config.deferSurpluses(), config.votesRequired(),
                 config.surplusOrder(), config.electAsTheyStand(), config.electSureWinners(), config.exclusionOrder(),
-                declaredOrder);
+                config.simultaneousSurpluses(), declaredOrder);
     }
 
     /**
@@ -185,6 +187,7 @@ public final class StvRulesetParser {
             case "unweighted-inclusive" -> UnweightedInclusiveTransfer.INSTANCE;
             case "weighted-transferable" -> WeightedTransferableTransfer.INSTANCE;
             case "weighted-inclusive" -> WeightedInclusiveTransfer.INSTANCE;
+            case "fractional-truncated" -> TruncatedFractionalTransfer.INSTANCE;
             default -> throw new IllegalArgumentException("Unknown transfer method: '" + value + "'");
         };
     }

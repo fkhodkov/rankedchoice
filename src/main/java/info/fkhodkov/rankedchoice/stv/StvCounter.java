@@ -23,6 +23,7 @@ import info.fkhodkov.rankedchoice.stv.transfer.HeldParcel;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelDeferredRoundingTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
+import info.fkhodkov.rankedchoice.stv.transfer.TruncatedFractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WeightedInclusiveTransfer;
@@ -296,7 +297,9 @@ public final class StvCounter {
                             transferSurplus(states, running, candidate, surplus, candidateVotes,
                                     ruleset.transferMethod(), ruleset.roundingRule(), continuing, parcelIds);
                             credits.settle(candidate, quota);
-                            if (elected.size() < seats) {
+                            // Under simultaneousSurpluses a candidate this takes to quota waits for the
+                            // next round to be elected, so the round's other surpluses can reach them.
+                            if (elected.size() < seats && !ruleset.simultaneousSurpluses()) {
                                 Map<Candidate, Fraction> fresh = running.tallies(continuing, ruleset.roundingRule());
                                 List<Candidate> reached = continuing.stream()
                                         .filter(other -> fresh.get(other).compareTo(quota) >= 0)
@@ -469,7 +472,8 @@ public final class StvCounter {
         return switch (transferMethod) {
             case LastParcelTransfer _, LastParcelDeferredRoundingTransfer _, UnweightedInclusiveTransfer _,
                  UnweightedExclusiveTransfer _, WeightedInclusiveTransfer _ -> true;
-            case FractionalTransfer _, WigmTransfer _, WeightedTransferableTransfer _ -> false;
+            case FractionalTransfer _, WigmTransfer _, WeightedTransferableTransfer _, TruncatedFractionalTransfer _ ->
+                false;
         };
     }
 

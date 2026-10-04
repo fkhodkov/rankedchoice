@@ -1,0 +1,23 @@
+# Portland, Oregon's multi-seat City Council contests, per City Code 2.08.030 C (single
+# transferable vote). Threshold: the votes counted for candidates in the first round, divided by
+# one more than the seats, plus one, disregarding fractions (Droop). The surplus fraction, the
+# surplus over the elected candidate's votes, is truncated to 4 decimal places, and each ballot's
+# new transfer value is its current value times that fraction, truncated to 4 places again
+# (C.2.b(1)). Everyone over the threshold in a round is elected together and their surpluses
+# transferred simultaneously (C.2.b(2)): a candidate those transfers take over the threshold is
+# elected in the next round. Otherwise the candidate with the fewest votes is defeated and all
+# their ballots move at their current values (C.2.c). Once the elected and active candidates are
+# no more than the seats, the active ones are elected (C.2.a).
+#
+# Ballots: an overvote (two candidates at one ranking) is skipped and the count goes on to the
+# next ranking (A.4), as are skipped rankings (A.3). Ties for defeat are decided by lot (A.6);
+# the declared order stands in for it.
+#
+# Checked against Multnomah County's official round-by-round results for the four 2024 District
+# contests, from the County's cast vote records (tools/reference/portland).
+quota: droop
+transfer: fractional-truncated
+rounding: truncate:4
+tiebreak: declared
+tiedRankings: skip
+simultaneousSurpluses: true
