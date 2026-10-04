@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.stv.ExclusionOrder;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
@@ -26,6 +27,7 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.SeededRandomTieBreak;
 import info.fkhodkov.rankedchoice.stv.transfer.FractionalTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.WeightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WeightedTransferableTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
@@ -69,6 +71,17 @@ class StvRulesetParserTest {
                 .isEqualTo(new UnweightedExclusiveTransfer(6));
         assertThat(StvRulesetParser.parseTransfer("weighted-transferable"))
                 .isEqualTo(WeightedTransferableTransfer.INSTANCE);
+        assertThat(StvRulesetParser.parseTransfer("weighted-inclusive")).isEqualTo(WeightedInclusiveTransfer.INSTANCE);
+    }
+
+    @Test
+    void parsesExclusionOrders() {
+        assertThat(StvRulesetParser.parseExclusionOrder(null)).isEqualTo(ExclusionOrder.VALUE);
+        assertThat(StvRulesetParser.parseExclusionOrder("first-preferences-then-value"))
+                .isEqualTo(ExclusionOrder.FIRST_PREFERENCES_THEN_VALUE);
+        assertThat(StvRulesetParser.parseExclusionOrder("parcel")).isEqualTo(ExclusionOrder.PARCEL);
+        assertThatThrownBy(() -> StvRulesetParser.parseExclusionOrder("size"))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

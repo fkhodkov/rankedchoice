@@ -1,11 +1,13 @@
 """Count a BLT election with OpenTally, under a preset matched to one of this project's rulesets.
 
-usage: count.py OPENTALLY ELECTION.blt --preset NAME
+usage: count.py OPENTALLY ELECTION.blt --preset NAME [--sheet]
 
 OPENTALLY is the `opentally` binary built from https://yingtongli.me/git/OpenTally (cargo build
 --release). Prints every stage of its text report as JSON in the form
 tools/reference/pyrcv2/compare.py reads: each candidate's votes, the elected, the exhausted votes
-and the loss by fraction. (Its CSV report can't show Meek's stages.)
+and the loss by fraction. (Its CSV report can't show Meek's stages.) With --sheet, prints the
+stages as a count sheet instead, the format the test fixtures read (CountSheet): every
+candidate's votes and the non-transferable votes (exhausted plus loss by fraction), exactly.
 
 Ties are broken backwards, then by OpenTally's seeded random draw, where this project falls
 back to declared order: a count that reaches such a tie can differ for that reason alone.
@@ -39,6 +41,14 @@ PRESETS = {
     # the senate ruleset less electAsTheyStand, which the AEC's own counts check.
     "senate": ["-n", "rational", "-q", "droop", "-c", "geq", "--round-quota", "0", "--round-votes", "0",
                "-s", "uig", "--surplus-order", "by_order", "--exclusion", "by_value", "--no-early-bulk-elect"],
+    # OpenTally's "Victorian Legislative Council STV" and "Western Australia STV" presets, without
+    # early election, to compare with vic-lc and wa-lc less electAsTheyStand.
+    "viclc": ["-n", "rational", "-q", "droop", "-c", "geq", "--round-quota", "0", "--round-votes", "0",
+              "-s", "uig", "--surplus-order", "by_order", "--exclusion", "first_prefs_then_by_value",
+              "--no-early-bulk-elect"],
+    "wa": ["-n", "rational", "-q", "droop", "-c", "geq", "--round-quota", "0", "--round-votes", "0",
+           "--round-subtransfers", "by_parcel", "-s", "wig", "--surplus-assume-total", "--surplus-order", "by_order",
+           "--exclusion", "parcels_by_order", "--no-early-bulk-elect"],
     # Tasmania's House of Assembly, Electoral Act 2004 Schedule 4 (OpenTally has no preset): the
     # last parcel's surplus over all its papers, transfer value truncated to 6 places (as the
     # Tasmanian Electoral Commission describes), each candidate's gain in whole votes; earlier
@@ -91,5 +101,22 @@ def count(opentally, blt, preset):
     return stages
 
 
+def exact(value):
+    return str(value.numerator) if value.denominator == 1 else f"{value.numerator}/{value.denominator}"
+
+
+def sheet(stages, source, preset):
+    lines = [f"# {source}, counted by OpenTally with the {preset} preset (tools/reference/opentally/count.py).",
+             "# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss",
+             "# by fraction).", ""]
+    for number, stage in enumerate(stages, 1):
+        lines += [f"stage {number}", f"comment: {stage['comment']}"]
+        lines += [f"{name}: {exact(Fraction(votes))}" for name, votes in stage["votes"].items()]
+        lines += [f"non-transferable: {exact(Fraction(stage['exhausted']) + Fraction(stage['loss']))}", ""]
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
-    print(json.dumps(count(sys.argv[1], sys.argv[2], sys.argv[sys.argv.index("--preset") + 1]), indent=1))
+    preset = sys.argv[sys.argv.index("--preset") + 1]
+    stages = count(sys.argv[1], sys.argv[2], preset)
+    print(sheet(stages, sys.argv[2].split("/")[-1], preset) if "--sheet" in sys.argv else json.dumps(stages, indent=1))

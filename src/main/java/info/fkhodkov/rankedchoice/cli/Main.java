@@ -77,7 +77,7 @@ public final class Main implements Callable<Integer> {
 
     private static final ElectionConfig EMPTY_CONFIG =
             new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                    null, null);
+                    null, null, null);
 
     /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
@@ -103,7 +103,13 @@ public final class Main implements Callable<Integer> {
                             + "in order of election, last candidates elected as they stand"),
             new BundledRuleset("nsw-lg",
                     "NSW local government councillor elections -- Droop, weighted inclusive Gregory over "
-                            + "transferable papers, whole votes per parcel, surpluses in order of election"));
+                            + "transferable papers, whole votes per parcel, surpluses in order of election"),
+            new BundledRuleset("vic-lc",
+                    "Victorian Legislative Council -- Droop, unweighted inclusive Gregory, whole votes, "
+                            + "exclusions first preferences first, last candidates elected as they stand"),
+            new BundledRuleset("wa-lc",
+                    "Western Australian Legislative Council -- Droop, weighted inclusive Gregory, whole votes "
+                            + "per parcel, exclusions parcel by parcel, last candidates elected as they stand"));
 
     @Option(names = {"-i", "--input"}, required = true, description = "Ballot file (.blt or .csv)")
     private Path input;
@@ -145,7 +151,7 @@ public final class Main implements Callable<Integer> {
     private Path config;
 
     @Option(names = {"-r", "--ruleset"}, description = "A bundled ruleset preset: scottish|ers97|ers76|"
-            + "hare-clark-qpq|act-hare-clark|senate|nsw-lg. Mutually exclusive with --config.")
+            + "hare-clark-qpq|act-hare-clark|senate|nsw-lg|vic-lc|wa-lc. Mutually exclusive with --config.")
     private String rulesetName;
 
     @Option(names = {"--quota"},
@@ -154,7 +160,7 @@ public final class Main implements Callable<Integer> {
 
     @Option(names = {"--transfer"},
             description = "fractional|wigm|last-parcel|last-parcel-deferred-rounding|unweighted-inclusive|"
-                    + "unweighted-exclusive:N|weighted-transferable. Overrides --config/--ruleset.")
+                    + "unweighted-exclusive:N|weighted-transferable|weighted-inclusive. Overrides --config/--ruleset.")
     private String transfer;
 
     @Option(names = {"--rounding"}, description = "exact|truncate:N. Defaults to exact, which can grow very slow on "
@@ -310,6 +316,7 @@ public final class Main implements Callable<Integer> {
                         fileConfig.surplusOrder(),
                         fileConfig.electAsTheyStand(),
                         fileConfig.electSureWinners(),
+                        fileConfig.exclusionOrder(),
                         candidates);
                 result = StvCounter.count(candidates, ballots, effectiveSeats, ruleset,
                         warning -> System.err.println("Warning: " + warning + " -- e.g. --rounding truncate:9"));

@@ -66,8 +66,11 @@ A classic STV ruleset is a combination of independent choices:
   - `weighted-transferable` — every paper with a next preference moves at its value times the
     surplus over the transferable votes; each recipient's gain from each parcel is rounded
     (NSW councils).
+  - `weighted-inclusive` — every paper moves at its value times the surplus over the votes the
+    candidate holds, those with no next preference exhausting; each recipient's gain from each
+    parcel is rounded (Western Australia's Legislative Council).
 
-  Under the last-parcel and unweighted methods an excluded candidate's ballots move
+  Under the last-parcel, unweighted and `weighted-inclusive` methods an excluded candidate's ballots move
   one value group at a time, largest first, and surpluses wait until they're the largest
   pending, as in ERS97 (or the earliest elected, with `surplusOrder: election`).
 - **Rounding** (`--rounding`): `exact`, or `truncate:N` (round down to N decimal places, as real
@@ -86,6 +89,10 @@ A classic STV ruleset is a combination of independent choices:
 - **Elect as they stand** (config `electAsTheyStand`): the Australian Senate's end of count —
   when an exclusion leaves as many candidates as seats, they're elected without its papers
   being transferred, and the last seat between two candidates goes to the one ahead.
+- **Exclusion order** (config `exclusionOrder`), for the methods that exclude in steps: `value`
+  (by transfer value, highest first, the default), `first-preferences-then-value` (first
+  preferences, then the rest by value: Victoria) or `parcel` (each parcel in the order received:
+  Western Australia). A tie for exclusion looks back through each of those steps.
 - **Elect sure winners** (config `electSureWinners`): NSW councils' end of count — the leaders
   for the seats left are elected as soon as the others together, with any surplus still to
   transfer, can't overtake the last of them.
@@ -124,6 +131,8 @@ Ballots set aside this way, and blank ones, are reported as informal ballots, wi
 | `hare-clark-qpq` | Droop + unweighted-exclusive:6 + truncate:0 (whole votes), surpluses in order of election, tied rankings truncated, minimum 7 preferences | Tasmanian House of Assembly elections | [Electoral Act 2004 (Tas), Schedule 4, and ss.102–103 for formality](https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2004-051); the transfer value's 6 places from the [Tasmanian Electoral Commission](https://www.tec.tas.gov.au/info/Publications/HareClark.html) |
 | `senate` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, last candidates elected as they stand | Australian Senate elections | [Commonwealth Electoral Act 1918, s.273](https://www.legislation.gov.au/C1918A00027/latest/text) |
 | `nsw-lg` | Droop + weighted-transferable + truncate:0 (whole votes per parcel), surpluses in order of election, sure winners elected | NSW local government councillor elections | [Local Government (General) Regulation 2021 (NSW), Schedule 5](https://legislation.nsw.gov.au/view/html/inforce/current/sl-2021-0460#sch.5), as the NSW Electoral Commission counts |
+| `vic-lc` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, exclusions first preferences first, last candidates elected as they stand | Victorian Legislative Council | [Electoral Act 2002 (Vic), s114A](https://content.legislation.vic.gov.au/sites/default/files/2022-06/02-23aa064%20authorised.pdf); checked against OpenTally only |
+| `wa-lc` | Droop + weighted-inclusive + truncate:0 (whole votes per parcel), surpluses in order of election, exclusions parcel by parcel, last candidates elected as they stand | Western Australian Legislative Council | Electoral Act 1907 (WA), Schedule 1; checked against OpenTally only |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, surpluses in order of election, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
 
 Each preset's tied-ranking rule comes from its rulebook: the Scottish order's rule 43(1)(c) (a
@@ -148,7 +157,7 @@ QPQ method.
 | `-c, --config` | YAML config file (below). Not with `--ruleset`. |
 | `-r, --ruleset` | A [bundled ruleset](#bundled-rulesets). Not with `--config`. |
 | `--quota` | `droop\|hare\|hagenbach-bischoff\|imperiali\|droop-rounded:N` — `stv` and `cpo-stv`. |
-| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding\|unweighted-inclusive\|unweighted-exclusive:N\|weighted-transferable` — `stv` and `cpo-stv`. |
+| `--transfer` | `fractional\|wigm\|last-parcel\|last-parcel-deferred-rounding\|unweighted-inclusive\|unweighted-exclusive:N\|weighted-transferable\|weighted-inclusive` — `stv` and `cpo-stv`. |
 | `--rounding` | `exact\|truncate:N`. Defaults to `exact` — but see [Limitations](#limitations) for large counts. Not used by `cambridge`, `qpq`, `schulze`, `borda`; for `meek`/`warren` it only shapes the report. |
 | `--tiebreak` | Fallback chain, e.g. `previous-round,declared`. Not used by `cpo-stv`, `schulze`, `borda`. |
 | `--tied-rankings` | `reject\|split\|truncate\|skip` — see [above](#tied-rankings-and-short-ballots). |
@@ -167,7 +176,7 @@ carry fields a method doesn't use.
 
 A YAML file (`--config`) can set any of `quota`, `transfer`, `rounding`, `tiebreak`, `seats`,
 `format`, `reportFormat`, `batchExclusion`, `deferSurpluses`, `votesRequired`, `surplusOrder`,
-`electAsTheyStand`, `electSureWinners`, `tiedRankings`, `minimumPreferences` and `precision`:
+`electAsTheyStand`, `electSureWinners`, `exclusionOrder`, `tiedRankings`, `minimumPreferences` and `precision`:
 
 ```yaml
 quota: hare
@@ -179,8 +188,8 @@ reportFormat: json
 
 Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
 always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`,
-`votesRequired`, `surplusOrder`, `electAsTheyStand` and `electSureWinners` have no flags: they're treated as fixed properties of a
-ruleset.
+`votesRequired`, `surplusOrder`, `electAsTheyStand`, `electSureWinners` and `exclusionOrder` have
+no flags: they're treated as fixed properties of a ruleset.
 
 ## Reports
 
@@ -241,8 +250,8 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   candidates, 33 seats and 40 preferences per ballot stalls even at 20,000 voters. The count
   warns on stderr when this starts; `--rounding truncate:9` keeps it bounded, and every bundled
   preset rounds anyway.
-- **Not validated:** `ers76` (no data to check against), `hare-clark-qpq` against real counts
-  (no ballot data; it's checked against OpenTally instead); Cambridge STV
+- **Not validated:** `ers76` (no data to check against); `hare-clark-qpq`, `vic-lc` and `wa-lc`
+  against real counts (no ballot data is published; they're checked against OpenTally instead); Cambridge STV
   against official Cambridge counts (no public ballot data; ballot order matters). See
   [VALIDATION.md](VALIDATION.md#not-validated).
 - **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at

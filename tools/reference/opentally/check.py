@@ -35,13 +35,19 @@ OURS = {
     "scottish": ["--ruleset", "scottish"],
     "ers97": ["--ruleset", "ers97"],
     "act": ["--ruleset", "act-hare-clark"],
-    "senate": ["--config", "senate-core.yaml"],   # written to WORK_DIR: senate less electAsTheyStand
+    # Written to WORK_DIR: these rulesets less electAsTheyStand (see CORE).
+    "senate": ["--config", "senate-core.yaml"],
+    "viclc": ["--config", "vic-lc-core.yaml"],
+    "wa": ["--config", "wa-lc-core.yaml"],
     "tasmania": ["--ruleset", "hare-clark-qpq"],
     "nswlg": ["--ruleset", "nsw-lg"],
     "meek06": ["--method", "meek"],
     "meeknz": ["--method", "meek"],
 }
 MINIMUM_PREFERENCES = {"tasmania": 7}
+# Rulesets compared without their end of count, electAsTheyStand, against OpenTally without its
+# early election, which differs from it (see count.py); the real counts check the ending.
+CORE = ["senate", "vic-lc", "wa-lc"]
 # Whole votes tie far more often in small elections, and OpenTally breaks those at random, so
 # these presets get ten times the voters.
 VOTERS = {"tasmania": 10}
@@ -123,9 +129,10 @@ def main():
     parser.add_argument("--jar", default=DEFAULT_JAR)
     args = parser.parse_args()
     os.makedirs(args.work, exist_ok=True)
-    senate = open(os.path.join(HERE, "..", "..", "..", "src", "main", "resources", "rulesets", "senate.yaml")).read()
-    open(os.path.join(args.work, "senate-core.yaml"), "w").write(
-        senate.replace("electAsTheyStand: true", "electAsTheyStand: false"))
+    for ruleset in CORE:
+        text = open(os.path.join(HERE, "..", "..", "..", "src", "main", "resources", "rulesets", ruleset + ".yaml")).read()
+        open(os.path.join(args.work, ruleset + "-core.yaml"), "w").write(
+            text.replace("electAsTheyStand: true", "electAsTheyStand: false"))
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count()) as pool:
         results = sorted(pool.map(lambda n: check(n, args), range(1, args.elections + 1)))
     ties = [n for n, why in results if why and why.startswith("TIE")]

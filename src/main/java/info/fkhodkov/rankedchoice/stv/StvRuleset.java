@@ -62,12 +62,15 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * untransferred. The NSW Electoral Commission counts councillor elections this way, under quota
  * if need be; it's also how OpenTally ends a count. An exclusion that leaves as many candidates as
  * seats is otherwise transferred before they're elected.
+ *
+ * <p>{@code exclusionOrder} is the order an excluded candidate's papers move in, for the transfer
+ * methods that exclude in steps: see {@link ExclusionOrder}.
  */
 public record StvRuleset(
         Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
         boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
         boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder,
-        boolean electAsTheyStand, boolean electSureWinners) {
+        boolean electAsTheyStand, boolean electSureWinners, ExclusionOrder exclusionOrder) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
@@ -78,7 +81,7 @@ public record StvRuleset(
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
         this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
-                false, false, false, false);
+                false, false, false, false, ExclusionOrder.VALUE);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

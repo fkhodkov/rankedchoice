@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.stv.ExclusionOrder;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
@@ -26,6 +27,7 @@ import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedInclusiveTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.WeightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WeightedTransferableTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
@@ -73,7 +75,7 @@ public final class StvRulesetParser {
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, List<Candidate> declaredOrder) {
         return parse(quota, transfer, rounding, tiebreak, batchExclusion, tiedRankings, minimumPreferences, null, null,
-                null, null, null, declaredOrder);
+                null, null, null, null, declaredOrder);
     }
 
     /**
@@ -84,7 +86,7 @@ public final class StvRulesetParser {
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, Boolean deferSurpluses,
             Boolean votesRequired, String surplusOrder, Boolean electAsTheyStand, Boolean electSureWinners,
-            List<Candidate> declaredOrder) {
+            String exclusionOrder, List<Candidate> declaredOrder) {
         TransferMethod transferMethod = parseTransfer(transfer);
         return new StvRuleset(
                 parseQuota(quota), transferMethod, parseRounding(rounding),
@@ -92,7 +94,7 @@ public final class StvRulesetParser {
                 parseTiedRankings(tiedRankings, transferMethod), minimumPreferences == null ? 0 : minimumPreferences,
                 deferSurpluses != null && deferSurpluses, votesRequired != null && votesRequired,
                 parseSurplusOrder(surplusOrder), electAsTheyStand != null && electAsTheyStand,
-                electSureWinners != null && electSureWinners);
+                electSureWinners != null && electSureWinners, parseExclusionOrder(exclusionOrder));
     }
 
     /** {@code size} (largest surplus first, the default) or {@code election} (in order of election). */
@@ -105,11 +107,26 @@ public final class StvRulesetParser {
         };
     }
 
+    /**
+     * {@code value} (by transfer value, the default), {@code first-preferences-then-value} or
+     * {@code parcel} (in the order received) — see {@link ExclusionOrder}.
+     */
+    public static ExclusionOrder parseExclusionOrder(String value) {
+        return switch (normalize(value, "value")) {
+            case "value" -> ExclusionOrder.VALUE;
+            case "first-preferences-then-value" -> ExclusionOrder.FIRST_PREFERENCES_THEN_VALUE;
+            case "parcel" -> ExclusionOrder.PARCEL;
+            default -> throw new IllegalArgumentException("Unknown exclusion order: '" + value
+                    + "'; expected 'value', 'first-preferences-then-value' or 'parcel'");
+        };
+    }
+
     /** Every STV setting a config file or bundled ruleset gives. */
     public static StvRuleset parse(ElectionConfig config, List<Candidate> declaredOrder) {
         return parse(config.quota(), config.transfer(), config.rounding(), config.tiebreak(), config.batchExclusion(),
                 config.tiedRankings(), config.minimumPreferences(), config.deferSurpluses(), config.votesRequired(),
-                config.surplusOrder(), config.electAsTheyStand(), config.electSureWinners(), declaredOrder);
+                config.surplusOrder(), config.electAsTheyStand(), config.electSureWinners(), config.exclusionOrder(),
+                declaredOrder);
     }
 
     /**
@@ -167,6 +184,7 @@ public final class StvRulesetParser {
             case "last-parcel-deferred-rounding" -> LastParcelDeferredRoundingTransfer.INSTANCE;
             case "unweighted-inclusive" -> UnweightedInclusiveTransfer.INSTANCE;
             case "weighted-transferable" -> WeightedTransferableTransfer.INSTANCE;
+            case "weighted-inclusive" -> WeightedInclusiveTransfer.INSTANCE;
             default -> throw new IllegalArgumentException("Unknown transfer method: '" + value + "'");
         };
     }

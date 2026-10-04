@@ -1,0 +1,253 @@
+# vic-lc-e11.blt, counted by OpenTally with the viclc preset (tools/reference/opentally/count.py).
+# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss
+# by fraction).
+
+stage 1
+comment: 1. First preferences
+C1: 19
+C2: 6
+C3: 5
+C4: 7
+C5: 11
+C6: 3
+C7: 2
+C8: 1
+C9: 8
+C10: 2
+C11: 5
+C12: 3
+non-transferable: 0
+
+stage 2
+comment: 2. Surplus of C1
+C1: 13
+C2: 6
+C3: 5
+C4: 7
+C5: 11
+C6: 3
+C7: 2
+C8: 2
+C9: 8
+C10: 2
+C11: 5
+C12: 3
+non-transferable: 5
+
+stage 3
+comment: 3. Exclusion of C8
+C1: 13
+C2: 6
+C3: 5
+C4: 7
+C5: 11
+C6: 3
+C7: 2
+C8: 1
+C9: 8
+C10: 2
+C11: 6
+C12: 3
+non-transferable: 5
+
+stage 4
+comment: 4. Exclusion of C8
+C1: 13
+C2: 6
+C3: 5
+C4: 7
+C5: 11
+C6: 3
+C7: 2
+C9: 8
+C10: 2
+C11: 6
+C12: 3
+non-transferable: 6
+
+stage 5
+comment: 5. Exclusion of C7
+C1: 13
+C2: 6
+C3: 6
+C4: 7
+C5: 11
+C6: 4
+C9: 8
+C10: 2
+C11: 6
+C12: 3
+non-transferable: 6
+
+stage 6
+comment: 6. Exclusion of C10
+C1: 13
+C2: 6
+C3: 6
+C4: 7
+C5: 12
+C6: 4
+C9: 8
+C11: 6
+C12: 3
+non-transferable: 7
+
+stage 7
+comment: 7. Exclusion of C10
+C1: 13
+C2: 6
+C3: 6
+C4: 7
+C5: 12
+C6: 4
+C9: 8
+C11: 6
+C12: 3
+non-transferable: 7
+
+stage 8
+comment: 8. Exclusion of C12
+C1: 13
+C2: 6
+C3: 6
+C4: 8
+C5: 12
+C6: 4
+C9: 8
+C11: 7
+non-transferable: 8
+
+stage 9
+comment: 9. Exclusion of C12
+C1: 13
+C2: 6
+C3: 6
+C4: 8
+C5: 12
+C6: 4
+C9: 8
+C11: 7
+non-transferable: 8
+
+stage 10
+comment: 10. Exclusion of C6
+C1: 13
+C2: 6
+C3: 6
+C4: 8
+C5: 12
+C6: 1
+C9: 10
+C11: 7
+non-transferable: 9
+
+stage 11
+comment: 11. Exclusion of C6
+C1: 13
+C2: 6
+C3: 6
+C4: 9
+C5: 12
+C9: 10
+C11: 7
+non-transferable: 9
+
+stage 12
+comment: 12. Exclusion of C6
+C1: 13
+C2: 6
+C3: 6
+C4: 9
+C5: 12
+C9: 10
+C11: 7
+non-transferable: 9
+
+stage 13
+comment: 13. Exclusion of C3
+C1: 13
+C2: 7
+C3: 1
+C4: 9
+C5: 14
+C9: 10
+C11: 7
+non-transferable: 11
+
+stage 14
+comment: 14. Exclusion of C3
+C1: 13
+C2: 8
+C4: 9
+C5: 14
+C9: 10
+C11: 7
+non-transferable: 11
+
+stage 15
+comment: 15. Exclusion of C3
+C1: 13
+C2: 8
+C4: 9
+C5: 14
+C9: 10
+C11: 7
+non-transferable: 11
+
+stage 16
+comment: 16. Surplus of C5
+C1: 13
+C2: 8
+C4: 9
+C5: 13
+C9: 10
+C11: 7
+non-transferable: 12
+
+stage 17
+comment: 17. Exclusion of C11
+C1: 13
+C2: 11
+C4: 11
+C5: 13
+C9: 10
+C11: 2
+non-transferable: 12
+
+stage 18
+comment: 18. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+non-transferable: 13
+
+stage 19
+comment: 19. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+C11: -947368421053/1000000000000
+non-transferable: 13947368421053/1000000000000
+
+stage 20
+comment: 20. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+non-transferable: 13
+
+stage 21
+comment: 21. Bulk election
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+non-transferable: 13
+

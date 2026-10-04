@@ -11,6 +11,7 @@ import info.fkhodkov.rankedchoice.stv.transfer.LastParcelTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedExclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.UnweightedInclusiveTransfer;
+import info.fkhodkov.rankedchoice.stv.transfer.WeightedInclusiveTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WeightedTransferableTransfer;
 import info.fkhodkov.rankedchoice.stv.transfer.WigmTransfer;
 
@@ -59,7 +60,8 @@ public enum TiedRankingPolicy {
         return switch (transferMethod) {
             case FractionalTransfer _ -> true;
             case WigmTransfer _, LastParcelTransfer _, LastParcelDeferredRoundingTransfer _,
-                 UnweightedInclusiveTransfer _, UnweightedExclusiveTransfer _, WeightedTransferableTransfer _ -> false;
+                 UnweightedInclusiveTransfer _, UnweightedExclusiveTransfer _, WeightedTransferableTransfer _,
+                 WeightedInclusiveTransfer _ -> false;
         };
     }
 

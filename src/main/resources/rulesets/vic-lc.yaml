@@ -1,0 +1,22 @@
+# Victoria's Legislative Council, per the Electoral Act 2002 (Vic), s114A. Quota: Droop,
+# disregarding any remainder, plus one. A surplus is transferred by unweighted inclusive Gregory:
+# the transfer value is the surplus over the elected candidate's papers, every one of them, the
+# papers they received on transfers counting as first preferences (s114A(7), (11)); each
+# candidate's gain is "disregarding any fraction", whole votes. Surpluses go in order of election,
+# the largest first among those from one count (s114A(20)-(23)). An excluded candidate's first
+# preferences move first, at a value of 1, then their other papers by the value they arrived at,
+# highest first, each group a separate transfer (s114A(12), (28)); a candidate who reaches quota
+# partway receives nothing more, and their surplus waits until the exclusion is done (s114A(15),
+# (17)). The last seat between two goes to the one ahead (s114A(18)), and once as many candidates
+# are left as seats they're elected (s114A(19)). Ties: the last count at which the candidates
+# differed, then by lot (s114A(24)); the declared order stands in for the lot.
+#
+# Checked against OpenTally's "Victorian Legislative Council STV" preset. The Victorian Electoral
+# Commission publishes no ballot-level data for the Council, so there are no real counts to replay.
+quota: droop
+transfer: unweighted-inclusive
+rounding: truncate:0
+tiebreak: previous-round,declared
+surplusOrder: election
+electAsTheyStand: true
+exclusionOrder: first-preferences-then-value

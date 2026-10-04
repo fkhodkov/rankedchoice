@@ -21,6 +21,7 @@ public record ElectionConfig(
         Boolean votesRequired,
         String surplusOrder,
         Boolean electAsTheyStand,
-        Boolean electSureWinners
+        Boolean electSureWinners,
+        String exclusionOrder
 ) {
 }

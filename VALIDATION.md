@@ -248,12 +248,14 @@ order, so elections that differ after such a tie are counted apart.
 | `senate` (less `electAsTheyStand`) | "Australian Senate STV", without early election | 179 | 13 | 8, set-aside only |
 | `hare-clark-qpq` (10× the voters) | Tasmania's Schedule 4, from OpenTally's options | 189 | 1 | 10, set-aside only |
 | `nsw-lg` | "NSW Local Government STV" | 180 | 13 | 7, OpenTally's end-of-count shortcut |
+| `vic-lc` (less `electAsTheyStand`) | "Victorian Legislative Council STV", without early election | 180 | 13 | 7, set-aside only |
+| `wa-lc` (less `electAsTheyStand`) | "Western Australia STV", without early election | 161 | 16 | 23, set-aside only |
 | `ers97` | "ERS97" | 163 | 11 | 26, OpenTally's own exceptions |
 | `meek` | "Meek STV (2006)" and "(New Zealand)" | the same winners in all 200 | | |
 
 The differences that remain are understood:
 
-- **Set-aside only** (`act-hare-clark`, `senate`, `hare-clark-qpq`): every candidate's votes
+- **Set-aside only** (`act-hare-clark`, `senate`, `hare-clark-qpq`, `vic-lc`, `wa-lc`): every candidate's votes
   match in every round. OpenTally's exclusion by transfer value leaves the excluded candidate
   holding fractional or even negative votes (C5 on −1.08 in one Senate election), as pyRCV2's
   does, so the totals it sets aside differ by those; and it doesn't round exhausted votes to the
@@ -275,7 +277,7 @@ The differences that remain are understood:
   off on both sides the counts are compared up to the end, which the AEC's 32 official counts
   check above.
 
-It found three bugs, each now fixed:
+It found four bugs, each now fixed:
 
 - **ACT surplus order.** Schedule 4 clause 7 of the ACT's Act deals with the surplus of whoever
   reached quota at the earliest count first, the largest of several from the same count; this
@@ -291,6 +293,21 @@ It found three bugs, each now fixed:
   share in whole votes, and the Tasmanian Electoral Commission truncates the value to 6 places
   (its 2 places are for council elections); surpluses go in order of election. A new transfer
   method, `unweighted-exclusive:6`, does that.
+- **A tie for exclusion looked back only to whole rounds.** Where an exclusion moves in groups
+  (by transfer value, or parcel by parcel), each group is a count of its own (the AEC numbers
+  them so, and Victoria's s114A(28) says so), and "the last count at which they differed" can
+  fall partway through one. In one random Victorian election C4 and C7 tie on 37; C7 had 36 to
+  C4's 37 midway through the previous exclusion, so C7 goes, as OpenTally has it, where this
+  engine took the round before (C4 30, C7 32) and excluded C4. It changes no real count checked
+  here, nor any ERS97 election against pyRCV2.
+
+`vic-lc` and `wa-lc` come from the Acts (Victoria's s114A; WA's Schedule 1) and are checked only
+against OpenTally: neither Commission publishes the Legislative Council's ballot papers (WA
+publishes every count's calculation steps). Four of the random elections are fixtures
+(`OpenTallyFixtureTest`), picked for the exclusion orders and the tie above. OpenTally lists its
+own WA preset as not validated, and WA's Schedule 1 groups an excluded candidate's papers by the
+transfer they came in, where OpenTally (and so this engine) splits them by the parcel they came
+from within it.
 
 OpenTally's CSV report can't show Meek's stages, so the tool reads its text report. It crashes
 on some single-seat elections in a log message, which the tool reports apart.
@@ -487,5 +504,7 @@ pairs, 10 fresh JVM runs each) found the CPO-STV bug above and nothing else.
 - **`hare-clark-qpq`** against official counts — the Tasmanian Electoral Commission publishes
   detailed round-by-round scrutiny reports but never ballot-level data, so there's nothing to
   replay. It's checked against the Act's Schedule 4 through OpenTally instead (see above).
+- **`vic-lc` and `wa-lc`** against official counts — no ballot papers are published; checked
+  against OpenTally (see above).
 - **Imperiali quota** — hand-derived only (see above).
 - **Cambridge STV against official counts** — see above.

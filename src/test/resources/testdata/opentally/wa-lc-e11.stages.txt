@@ -1,0 +1,330 @@
+# wa-lc-e11.blt, counted by OpenTally with the wa preset (tools/reference/opentally/count.py).
+# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss
+# by fraction).
+
+stage 1
+comment: 1. First preferences
+C1: 19
+C2: 6
+C3: 5
+C4: 7
+C5: 11
+C6: 3
+C7: 2
+C8: 1
+C9: 8
+C10: 2
+C11: 5
+C12: 3
+non-transferable: 0
+
+stage 2
+comment: 2. Surplus of C1
+C1: 13
+C2: 6
+C3: 5
+C4: 7
+C5: 11
+C6: 3
+C7: 2
+C8: 2
+C9: 8
+C10: 2
+C11: 5
+C12: 3
+non-transferable: 5
+
+stage 3
+comment: 3. Exclusion of C8
+C1: 13
+C2: 6
+C3: 5
+C4: 7
+C5: 11
+C6: 3
+C7: 2
+C8: 1
+C9: 8
+C10: 2
+C11: 6
+C12: 3
+non-transferable: 5
+
+stage 4
+comment: 4. Exclusion of C8
+C1: 13
+C2: 6
+C3: 5
+C4: 7
+C5: 11
+C6: 3
+C7: 2
+C9: 8
+C10: 2
+C11: 6
+C12: 3
+non-transferable: 6
+
+stage 5
+comment: 5. Exclusion of C7
+C1: 13
+C2: 6
+C3: 6
+C4: 7
+C5: 11
+C6: 4
+C9: 8
+C10: 2
+C11: 6
+C12: 3
+non-transferable: 6
+
+stage 6
+comment: 6. Exclusion of C10
+C1: 13
+C2: 6
+C3: 6
+C4: 7
+C5: 12
+C6: 4
+C9: 8
+C11: 6
+C12: 3
+non-transferable: 7
+
+stage 7
+comment: 7. Exclusion of C10
+C1: 13
+C2: 6
+C3: 6
+C4: 7
+C5: 12
+C6: 4
+C9: 8
+C11: 6
+C12: 3
+non-transferable: 7
+
+stage 8
+comment: 8. Exclusion of C12
+C1: 13
+C2: 6
+C3: 6
+C4: 8
+C5: 12
+C6: 4
+C9: 8
+C11: 7
+non-transferable: 8
+
+stage 9
+comment: 9. Exclusion of C12
+C1: 13
+C2: 6
+C3: 6
+C4: 8
+C5: 12
+C6: 4
+C9: 8
+C11: 7
+non-transferable: 8
+
+stage 10
+comment: 10. Exclusion of C6
+C1: 13
+C2: 6
+C3: 6
+C4: 8
+C5: 12
+C6: 1
+C9: 10
+C11: 7
+non-transferable: 9
+
+stage 11
+comment: 11. Exclusion of C6
+C1: 13
+C2: 6
+C3: 6
+C4: 8
+C5: 12
+C6: 171052631579/250000000000
+C9: 10
+C11: 7
+non-transferable: 2328947368421/250000000000
+
+stage 12
+comment: 12. Exclusion of C6
+C1: 13
+C2: 6
+C3: 6
+C4: 9
+C5: 12
+C6: -78947368421/250000000000
+C9: 10
+C11: 7
+non-transferable: 2328947368421/250000000000
+
+stage 13
+comment: 13. Exclusion of C6
+C1: 13
+C2: 6
+C3: 6
+C4: 9
+C5: 12
+C9: 10
+C11: 7
+non-transferable: 9
+
+stage 14
+comment: 14. Exclusion of C3
+C1: 13
+C2: 7
+C3: 1
+C4: 9
+C5: 14
+C9: 10
+C11: 7
+non-transferable: 11
+
+stage 15
+comment: 15. Exclusion of C3
+C1: 13
+C2: 7
+C3: 46052631579/125000000000
+C4: 9
+C5: 14
+C9: 10
+C11: 7
+non-transferable: 1453947368421/125000000000
+
+stage 16
+comment: 16. Exclusion of C3
+C1: 13
+C2: 7
+C3: 52631578947/1000000000000
+C4: 9
+C5: 14
+C9: 10
+C11: 7
+non-transferable: 11947368421053/1000000000000
+
+stage 17
+comment: 17. Exclusion of C3
+C1: 13
+C2: 8
+C3: -947368421053/1000000000000
+C4: 9
+C5: 14
+C9: 10
+C11: 7
+non-transferable: 11947368421053/1000000000000
+
+stage 18
+comment: 18. Exclusion of C3
+C1: 13
+C2: 8
+C4: 9
+C5: 14
+C9: 10
+C11: 7
+non-transferable: 11
+
+stage 19
+comment: 19. Surplus of C5
+C1: 13
+C2: 8
+C4: 9
+C5: 13
+C9: 10
+C11: 7
+non-transferable: 12
+
+stage 20
+comment: 20. Exclusion of C11
+C1: 13
+C2: 11
+C4: 11
+C5: 13
+C9: 10
+C11: 2
+non-transferable: 12
+
+stage 21
+comment: 21. Exclusion of C11
+C1: 13
+C2: 11
+C4: 11
+C5: 13
+C9: 10
+C11: 421052631579/250000000000
+non-transferable: 3078947368421/250000000000
+
+stage 22
+comment: 22. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+C11: 171052631579/250000000000
+non-transferable: 3078947368421/250000000000
+
+stage 23
+comment: 23. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+C11: 46052631579/125000000000
+non-transferable: 1578947368421/125000000000
+
+stage 24
+comment: 24. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+C11: -78947368421/125000000000
+non-transferable: 1703947368421/125000000000
+
+stage 25
+comment: 25. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+C11: -947368421053/1000000000000
+non-transferable: 13947368421053/1000000000000
+
+stage 26
+comment: 26. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+C11: -109022556391/100000000000
+non-transferable: 1409022556391/100000000000
+
+stage 27
+comment: 27. Exclusion of C11
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+non-transferable: 13
+
+stage 28
+comment: 28. Bulk election
+C1: 13
+C2: 12
+C4: 11
+C5: 13
+C9: 10
+non-transferable: 13
+

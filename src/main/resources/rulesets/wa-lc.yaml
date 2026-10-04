@@ -1,0 +1,24 @@
+# Western Australia's Legislative Council, per the Electoral Act 1907 (WA), Schedule 1. Quota:
+# Droop, disregarding any remainder, plus one. A surplus is transferred by weighted inclusive
+# Gregory: the surplus fraction is the surplus over the votes the elected candidate holds, and each
+# paper moves at that fraction times the value it arrived at, its "continued transfer value"
+# (clauses 4, 5); each candidate's gain is rounded down to whole votes, parcel by parcel, as
+# OpenTally's WA preset reads the Schedule (the Commission's own reading isn't published with
+# ballots to check it against). Surpluses go in order of election, the largest first among those
+# from one count (clauses 14-16). An excluded candidate's first preferences move first, then the
+# papers of each later transfer in the order received, each a separate transfer (clauses 8, 19); a
+# candidate who reaches quota partway receives nothing more, and their surplus waits until the
+# exclusion is done (clauses 9, 11). The last seat between two goes to the one ahead (clause 12),
+# and once as many candidates are left as seats they're elected (clause 13). Ties: the last count
+# at which the candidates differed, then by lot (clauses 15, 17); the declared order stands in.
+#
+# Checked against OpenTally's "Western Australia STV" preset (which OpenTally itself lists as not
+# validated). The WA Electoral Commission publishes each count's calculation steps but not the
+# ballot papers, so there are no real counts to replay.
+quota: droop
+transfer: weighted-inclusive
+rounding: truncate:0
+tiebreak: previous-round,declared
+surplusOrder: election
+electAsTheyStand: true
+exclusionOrder: parcel
