@@ -2,10 +2,11 @@
 
 usage: results_page.py [--out PATH]
 
-Reads results/jurisdictions.json (each jurisdiction's name, what it is checked against, the figures of those no
-checker here writes, the known differences and the US rules table) and results/<checker>.json, which each US
-checker writes with --results (`python3 tools/reference/nyc/check.py nyc-data --results
-tools/reference/results/nyc.json`), and writes results/real-elections.html, a self-contained page with
+Reads results/jurisdictions.json (each jurisdiction's name, what it is checked against, the figures of the two
+checked only by the Java tests, which of a checker's contests count, the known differences and the US rules table)
+and results/<name>.json, which each checker writes with --results (`python3 tools/reference/nyc/check.py nyc-data
+--results tools/reference/results/nyc.json`; also aec, nsw, cambridge, and Scotland's check.py as scotland,
+stage_report.py as scotland-stage-reports and stages.py as scotland-wikipedia), and writes results/real-elections.html, a self-contained page with
 results/page.css inlined. A contest that doesn't match every round, or elects differently, and that no difference
 in the jurisdictions file names is shown as unexplained, and so is reported here; a difference naming a contest
 that now matches is reported too.
@@ -14,6 +15,7 @@ import argparse
 import html
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -29,9 +31,13 @@ def number(n):
     return f"{n:,}"
 
 
-def load_checker(name):
+def load_checker(name, scope=None):
+    """A checker's results, only the contests its scope (a pattern on their ids) takes in, where it has one."""
     with open(os.path.join(RESULTS, name + ".json"), encoding="utf-8") as source:
-        return json.load(source)
+        results = json.load(source)
+    if scope:
+        results["contests"] = [c for c in results["contests"] if re.search(scope["pattern"], c["contest"])]
+    return results
 
 
 def is_exact(contest):
@@ -43,39 +49,73 @@ def is_short(contest):
     return (contest["rounds"] is not None and contest["matched"] < contest["rounds"]) or not contest["winners_same"]
 
 
-def figures(jurisdiction, checked):
-    """contests, every_round, with_rounds, winners_same and rounds_missed for a jurisdiction."""
-    if "fixed" in jurisdiction:
-        return dict(jurisdiction["fixed"], rounds_missed=None)
-    contests = checked[jurisdiction["checker"]]["contests"]
+def confirmed(data):
+    """(checker, contest) pairs whose winners a difference marks as confirmed by hand."""
+    return {(d["checker"], c) for d in data["differences"] if d.get("winners_confirmed") for c in d["contests"]}
+
+
+def checker_figures(name, checked, data):
+    """contests, every_round, with_rounds, winners_same, short and rounds_total of one checker's results."""
+    contests = checked[name]["contests"]
     with_rounds = [c for c in contests if c["rounds"] is not None]
-    return {"contests": len(contests), "every_round": sum(map(is_exact, with_rounds)), "with_rounds": len(with_rounds),
-            "winners_same": sum(c["winners_same"] for c in contests),
-            "rounds_missed": sum(c["rounds"] - c["matched"] for c in with_rounds),
-            "rounds_total": sum(c["rounds"] for c in with_rounds)}
+    by_hand = confirmed(data)
+    every = sum(map(is_exact, with_rounds))
+    return {"contests": len(contests), "every_round": every, "with_rounds": len(with_rounds),
+            "winners_same": sum(c["winners_same"] or (name, c["contest"]) in by_hand for c in contests),
+            "short": len(with_rounds) - every, "rounds_total": sum(c["rounds"] for c in with_rounds)}
 
 
-def result_cell(jurisdiction, f, single_seat):
+def figures(jurisdiction, checked, data):
+    if "fixed" in jurisdiction:
+        return dict(jurisdiction["fixed"], rounds_total=None)
+    return checker_figures(jurisdiction["checker"], checked, data)
+
+
+def fill(text, checked, data):
+    """A text with {checker.field} filled from that checker's figures, with thousands separators."""
+    return re.sub(r"\{([\w-]+)\.(\w+)\}", lambda m: number(checker_figures(m.group(1), checked, data)[m.group(2)]),
+                  text)
+
+
+def referenced(data):
+    """Every checker the page reads: those of the jurisdictions and those its texts name."""
+    names = [j["checker"] for g in data["groups"] for j in g["jurisdictions"] if "checker" in j]
+    texts = json.dumps(data)
+    for name in re.findall(r"\{([\w-]+)\.\w+\}", texts):
+        if name not in names:
+            names.append(name)
+    return names
+
+
+def result_cell(jurisdiction, f, single_seat, checked, data):
     if "chip" in jurisdiction:
-        kind = "exact" if f["winners_same"] == f["contests"] and f["every_round"] in (None, f["contests"]) else (
-            "plain" if f["every_round"] is None else "near")
-        return f'<span class="chip {kind}">{esc(jurisdiction["chip"])}</span><p>{esc(jurisdiction["text"])}</p>'
+        all_rounds = not f["with_rounds"] or f["every_round"] == f["with_rounds"]
+        kind = jurisdiction.get("kind") or ("exact" if f["winners_same"] == f["contests"] and all_rounds else "near")
+        return (f'<span class="chip {kind}">{esc(fill(jurisdiction["chip"], checked, data))}</span>'
+                f'<p>{esc(fill(jurisdiction["text"], checked, data))}</p>')
     if single_seat:
+        winners = "all " + number(f["contests"]) if f["winners_same"] == f["contests"] else number(f["winners_same"])
         share = 100 * f["every_round"] / f["contests"]
         return (f'<div class="meter"><span class="bar"><i style="width: {share:.1f}%"></i></span>'
                 f'<span class="mono">{f["every_round"]} / {f["contests"]}</span></div>'
-                f'<p>Every round in {number(f["every_round"])}; eliminations and winner in '
-                f'{"all " + number(f["contests"]) if f["winners_same"] == f["contests"] else number(f["winners_same"])}.</p>')
+                f'<p>Every round in {number(f["every_round"])}; eliminations and winner in {winners}.</p>')
     precision = jurisdiction.get("precision", "")
-    if f["rounds_missed"] is None:    # figures from VALIDATION.md, every round matched
-        return f'<span class="chip exact">Every round</span><p>{esc(precision[0].upper() + precision[1:])}.</p>'
-    if f["rounds_missed"] == 0:
-        chip = '<span class="chip exact">Every round</span>'
+    kind = "exact" if f["every_round"] == f["with_rounds"] == f["contests"] == f["winners_same"] else "near"
+    if f["every_round"] == f["with_rounds"] == f["contests"]:
+        label = "Every round"
+    elif f["every_round"] == f["with_rounds"]:
+        label = f'Every round of {number(f["with_rounds"])}'
     else:
-        chip = f'<span class="chip near">Every round but {f["rounds_missed"]}</span>'
-    text = f'{number(f["rounds_total"])} official rounds, {precision}.'
+        label = f'Every round in {number(f["every_round"])} of {number(f["with_rounds"])}'
+    chip = f'<span class="chip {kind}">{label}</span>'
+    text = (f'{number(f["rounds_total"])} rounds, {precision}.' if f["rounds_total"]
+            else precision[0].upper() + precision[1:] + ".")
     if f["with_rounds"] < f["contests"]:
         text += f' {f["contests"] - f["with_rounds"]} checked by winners only.'
+    if f["winners_same"] == f["contests"]:
+        text += " The same winners in all." if f["contests"] > 1 else ""
+    else:
+        text += f' The same winners in {number(f["winners_same"])}.'
     return chip + f"<p>{esc(text)}</p>"
 
 
@@ -84,33 +124,38 @@ def register(data, checked):
     for group in data["groups"]:
         rows.append(f'<tr class="group"><td colspan="5">{esc(group["name"])}</td></tr>')
         for j in group["jurisdictions"]:
-            f = figures(j, checked)
+            f = figures(j, checked, data)
             ruleset = f'<code>{esc(j["ruleset"])}</code>' if j["ruleset"] else "—"
             rows.append(
                 f'<tr><td class="place">{esc(j["name"])}<small>{esc(j["years"])}</small></td>'
-                f'<td class="num">{number(f["contests"])}</td><td>{ruleset}</td><td class="what">{esc(j["against"])}</td>'
-                f'<td><div class="result">{result_cell(j, f, group.get("single_seat", False))}</div></td></tr>')
+                f'<td class="num">{number(f["contests"])}</td><td>{ruleset}</td>'
+                f'<td class="what">{esc(j["against"])}</td>'
+                f'<td><div class="result">{result_cell(j, f, group.get("single_seat", False), checked, data)}'
+                '</div></td></tr>')
     return "\n".join(rows)
 
 
 def differences(data, checked):
     """The cause cards, the unexplained contests among them, and warnings for the generator's caller."""
-    named = {(d.get("checker"), c) for d in data["differences"] for c in d.get("contests", [])}
+    every = {d["checker"] for d in data["differences"] if d.get("contests") == "all"}
+    named = {(d.get("checker"), c) for d in data["differences"] if d.get("contests") != "all"
+             for c in d.get("contests", [])}
     warnings, unexplained = [], []
     for name, results in checked.items():
         by_id = {c["contest"]: c for c in results["contests"]}
         for c in results["contests"]:
-            if is_short(c) and (name, c["contest"]) not in named:
+            if is_short(c) and (name, c["contest"]) not in named and name not in every:
                 unexplained.append(f'{name} {c["contest"]}: {c["line"]}')
         for checker, contest in named:
             if checker == name and contest in by_id and not is_short(by_id[contest]) \
-                    and not any(d["cause"] == "source" for d in data["differences"] if contest in d.get("contests", [])):
+                    and not any(d["cause"] == "source" for d in data["differences"]
+                                if d.get("contests") != "all" and contest in d.get("contests", [])):
                 warnings.append(f"{name} {contest} is named as a difference but now matches every round")
             if checker == name and contest not in by_id:
                 warnings.append(f"{name} {contest} is named as a difference but isn't among the checker's contests")
     cards = []
     for cause in data["causes"]:
-        items = [d["text"] for d in data["differences"] if d["cause"] == cause["id"]]
+        items = [fill(d["text"], checked, data) for d in data["differences"] if d["cause"] == cause["id"]]
         cards.append(f'<div class="cause"><h3>{esc(cause["title"])}</h3><p class="why">{esc(cause["why"])}</p>'
                      f'<ul>{"".join(f"<li>{esc(i)}</li>" for i in items)}</ul></div>')
     if unexplained:
@@ -155,7 +200,7 @@ def rules(data):
 
 
 def build(data, checked, css, stamp):
-    totals = [figures(j, checked) for g in data["groups"] for j in g["jurisdictions"]]
+    totals = [figures(j, checked, data) for g in data["groups"] for j in g["jurisdictions"]]
     contests = sum(f["contests"] for f in totals)
     winners = sum(f["winners_same"] for f in totals)
     jurisdictions = len(totals)
@@ -246,12 +291,13 @@ def main():
         data = json.load(source)
     with open(os.path.join(RESULTS, "page.css"), encoding="utf-8") as source:
         css = source.read()
-    names = [j["checker"] for g in data["groups"] for j in g["jurisdictions"] if "checker" in j]
-    checked = {name: load_checker(name) for name in names}
+    checked = {name: load_checker(name, data.get("scope", {}).get(name)) for name in referenced(data)}
     newest = max(results["date"] for results in checked.values())
-    commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=HERE, capture_output=True, text=True).stdout.strip()
-    stamp = (f"US checks run up to {newest}" + (f", at commit {commit}" if commit else "")
-             + "; the other figures are from VALIDATION.md.")
+    commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=HERE, capture_output=True,
+                            text=True).stdout.strip()
+    fixed = [j for g in data["groups"] for j in g["jurisdictions"] if "fixed" in j]
+    stamp = (f"Checks run up to {newest}" + (f", at commit {commit}" if commit else "") + "; "
+             + "; ".join(f'{j["name"]} from {j["source"]}' for j in fixed) + ".")
     page, unexplained, warnings = build(data, checked, css, stamp)
     with open(args.out, "w", encoding="utf-8") as out:
         out.write(page)

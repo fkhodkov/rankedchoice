@@ -358,9 +358,11 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/results_page.py`](tools/reference/results_page.py) — build the results page,
   [`tools/reference/results/real-elections.html`](tools/reference/results/real-elections.html):
   every jurisdiction's official-count checks at a glance, with every known difference and its
-  cause. The US checkers write their results with `--results tools/reference/results/<checker>.json`;
-  the other figures, the causes and the rules table are in `results/jurisdictions.json`. A
-  difference no cause names shows on the page as unexplained, and the script reports it.
+  cause. Every checker it draws on (the US ones, `aec`, `nsw`, `cambridge`, and Scotland's
+  `check.py`, `stage_report.py` and `stages.py`) writes its results with `--results
+  tools/reference/results/<name>.json`; the ACT's and Ireland's figures (from the Java tests), the
+  causes and the rules table are in `results/jurisdictions.json`. A difference no cause names
+  shows on the page as unexplained, and the script reports it.
 - [`tools/reference/tests`](tools/reference/tests) — tests of those, on small made-up ballots
   and counts (every converter option; round matching with several defeated at once, repeated
   rounds and rounds out of order; the summary lines; the pass-report parser; the results page's

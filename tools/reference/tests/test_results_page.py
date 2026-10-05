@@ -50,8 +50,21 @@ class Record(unittest.TestCase):
 class Page(unittest.TestCase):
 
     def test_figures(self):
-        f = results_page.figures(DATA["groups"][0]["jurisdictions"][0], CHECKED)
-        self.assertEqual((f["contests"], f["every_round"], f["winners_same"], f["rounds_missed"]), (5, 3, 4, 2))
+        f = results_page.figures(DATA["groups"][0]["jurisdictions"][0], CHECKED, DATA)
+        self.assertEqual((f["contests"], f["every_round"], f["with_rounds"], f["winners_same"], f["short"]),
+                         (5, 3, 5, 4, 2))
+
+    def test_figures_filled_into_text(self):
+        self.assertEqual(results_page.fill("{somewhere.every_round} of {somewhere.contests}", CHECKED, DATA), "3 of 5")
+
+    def test_a_difference_covering_all_of_a_checker(self):
+        data = dict(DATA, differences=[{"cause": "record", "checker": "somewhere", "contests": "all", "text": "All."}])
+        self.assertEqual(results_page.build(data, CHECKED, "", "")[1], [])
+
+    def test_winners_confirmed_by_hand(self):
+        data = dict(DATA, differences=DATA["differences"] + [
+            {"cause": "record", "checker": "somewhere", "contests": ["e"], "winners_confirmed": True, "text": "e."}])
+        self.assertEqual(results_page.figures(data["groups"][0]["jurisdictions"][0], CHECKED, data)["winners_same"], 5)
 
     def test_unexplained_differences_shown_and_reported(self):
         page, unexplained, warnings = results_page.build(DATA, CHECKED, "", "Stamp.")

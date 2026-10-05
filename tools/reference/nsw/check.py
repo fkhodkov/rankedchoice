@@ -22,6 +22,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import nsw_to_blt  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from rcvcheck import record, write_results  # noqa: E402
 
 DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "target",
                            "rankedchoice-0.1.0-SNAPSHOT.jar")
@@ -45,6 +47,7 @@ def official(dop_path):
     return counts, elected, excluded
 
 def check(name, data, jar):
+    """(name, what's wrong or None, its result for the results page, None where there are no counts)."""
     blt = os.path.join(data, name + ".blt")
     try:
         if not os.path.exists(blt):
@@ -52,13 +55,14 @@ def check(name, data, jar):
             open(blt, "w").write(text)
         counts, elected, excluded = official(os.path.join(data, name + ".xlsx"))
     except ValueError as e:
-        return name, f"NODATA: {e}"
+        return name, f"NODATA: {e}", None
     except Exception as e:  # noqa: BLE001 -- report and carry on
-        return name, f"can't read: {e!r}"
+        return name, f"can't read: {e!r}", record(name, False, f"{name}: can't read: {e!r}", winners_same=False)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "nsw-lg", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:
-        return name, f"count failed: {result.stderr.strip()[-200:]}"
+        why = f"count failed: {result.stderr.strip()[-200:]}"
+        return name, why, record(name, False, f"{name}: {why}", winners_same=False)
     report = json.loads(result.stdout)
     start, unmatched = 0, []
     for rnd in report["rounds"]:
@@ -71,6 +75,11 @@ def check(name, data, jar):
         else:
             start = hit
     ours = set(report["electedInOrder"])
+    rounds = len(report["rounds"])
+
+    def result_of(ok, why):
+        return record(name, ok, f"{name}: {why or 'every round matches an official count; the same elected'}",
+                      matched=rounds - len(unmatched), rounds=rounds, winners_same=ours == elected)
     # A tie for exclusion that previous counts don't settle is decided by lot; this project uses
     # declared order instead, so a count that diverges there is counted apart.
     exclusions = [r for r in report["rounds"] if r["action"]["type"] == "eliminated"]
@@ -79,7 +88,8 @@ def check(name, data, jar):
         if candidate != theirs:
             tallies = ours_excluded["tallies"]
             if theirs in tallies and tallies[theirs] == tallies[candidate]:
-                return name, f"LOT: {candidate} and {theirs} tied on {tallies[candidate]} votes, officially decided by lot"
+                why = f"LOT: {candidate} and {theirs} tied on {tallies[candidate]} votes, officially decided by lot"
+                return name, why, result_of(ours == elected, why)
             break
     problems = []
     if unmatched:
@@ -87,7 +97,8 @@ def check(name, data, jar):
                         f"official count; first unmatched round {unmatched[0]}")
     if ours != elected:
         problems.append(f"elects {sorted(ours - elected)}, officially {sorted(elected - ours)}")
-    return name, "; ".join(problems) or None
+    why = "; ".join(problems) or None
+    return name, why, result_of(why is None, why)
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -95,14 +106,18 @@ def main():
     parser.add_argument("names", nargs="*")
     parser.add_argument("--jar", default=DEFAULT_JAR)
     parser.add_argument("--workers", type=int, default=os.cpu_count())
+    parser.add_argument("--results", help="write each count's result to this JSON file, for the results page")
     args = parser.parse_args()
     names = args.names or sorted(os.path.basename(p)[:-5] for p in glob.glob(os.path.join(args.data, "*.xlsx"))
                                  if os.path.exists(p[:-5] + ".zip"))
     with concurrent.futures.ThreadPoolExecutor(args.workers) as pool:
-        results = sorted(pool.map(lambda n: check(n, args.data, args.jar), names))
+        checked = sorted(pool.map(lambda n: check(n, args.data, args.jar), names), key=lambda r: r[0])
+    results = [(n, why) for n, why, _ in checked]
     lots = [(n, why) for n, why in results if why and why.startswith("LOT")]
     missing = [(n, why) for n, why in results if why and why.startswith("NODATA")]
     differ = [(n, why) for n, why in results if why and not why.startswith(("LOT", "NODATA"))]
+    if args.results:
+        write_results(args.results, "nsw", [r for _, _, r in checked if r is not None])
     for n, why in differ + lots + missing:
         print(f"{n}: {why}")
     checked = len(results) - len(missing)

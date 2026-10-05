@@ -1,0 +1,326 @@
+{
+ "checker": "scotland-stage-reports",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "falkirk_2022_ward1",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "falkirk_2022_ward1: every one of 5 stages matches"
+  },
+  {
+   "contest": "falkirk_2022_ward2",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "falkirk_2022_ward2: every one of 8 stages matches"
+  },
+  {
+   "contest": "falkirk_2022_ward3",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "falkirk_2022_ward3: every one of 7 stages matches"
+  },
+  {
+   "contest": "falkirk_2022_ward4",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "falkirk_2022_ward4: every one of 7 stages matches"
+  },
+  {
+   "contest": "falkirk_2022_ward5",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "falkirk_2022_ward5: every one of 6 stages matches"
+  },
+  {
+   "contest": "falkirk_2022_ward6",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "falkirk_2022_ward6: every one of 7 stages matches"
+  },
+  {
+   "contest": "falkirk_2022_ward7",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "falkirk_2022_ward7: every one of 5 stages matches"
+  },
+  {
+   "contest": "falkirk_2022_ward8",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "falkirk_2022_ward8: every one of 6 stages matches"
+  },
+  {
+   "contest": "falkirk_2022_ward9",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "falkirk_2022_ward9: every one of 8 stages matches"
+  },
+  {
+   "contest": "highland_2022_aird_and_loch_ness",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "highland_2022_aird_and_loch_ness: every one of 7 stages matches"
+  },
+  {
+   "contest": "highland_2022_badenoch",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "highland_2022_badenoch: every one of 8 stages matches"
+  },
+  {
+   "contest": "highland_2022_black_isle",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "highland_2022_black_isle: every one of 8 stages matches"
+  },
+  {
+   "contest": "highland_2022_cromarty_firth",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "highland_2022_cromarty_firth: every one of 9 stages matches"
+  },
+  {
+   "contest": "highland_2022_culloden",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "highland_2022_culloden: every one of 6 stages matches"
+  },
+  {
+   "contest": "highland_2022_dingwall",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "highland_2022_dingwall: every one of 7 stages matches"
+  },
+  {
+   "contest": "highland_2022_east_sutherland",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "highland_2022_east_sutherland: every one of 4 stages matches"
+  },
+  {
+   "contest": "highland_2022_eilean_a_cheo",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "highland_2022_eilean_a_cheo: every one of 9 stages matches"
+  },
+  {
+   "contest": "highland_2022_fort_william",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "highland_2022_fort_william: every one of 4 stages matches"
+  },
+  {
+   "contest": "highland_2022_inverness_central",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "highland_2022_inverness_central: every one of 10 stages matches"
+  },
+  {
+   "contest": "highland_2022_inverness_millburn",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "highland_2022_inverness_millburn: every one of 4 stages matches"
+  },
+  {
+   "contest": "highland_2022_inverness_ness_side",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "highland_2022_inverness_ness_side: every one of 7 stages matches"
+  },
+  {
+   "contest": "highland_2022_inverness_south",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "highland_2022_inverness_south: every one of 6 stages matches"
+  },
+  {
+   "contest": "highland_2022_inverness_west",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "highland_2022_inverness_west: every one of 9 stages matches"
+  },
+  {
+   "contest": "highland_2022_nairn",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "highland_2022_nairn: every one of 8 stages matches"
+  },
+  {
+   "contest": "highland_2022_northwest_and_central_sutherland",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "highland_2022_northwest_and_central_sutherland: every one of 6 stages matches"
+  },
+  {
+   "contest": "highland_2022_tain_and_easter_ross",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "highland_2022_tain_and_easter_ross: every one of 3 stages matches"
+  },
+  {
+   "contest": "highland_2022_thurso",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "highland_2022_thurso: every one of 5 stages matches"
+  },
+  {
+   "contest": "highland_2022_wester_ross_strathpeffer_and_lochalsh",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "highland_2022_wester_ross_strathpeffer_and_lochalsh: every one of 5 stages matches"
+  },
+  {
+   "contest": "highland_2022_wick_and_east_caithness",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "highland_2022_wick_and_east_caithness: every one of 5 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward1",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward1: every one of 5 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward10",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward10: every one of 6 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward11",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward11: every one of 6 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward2",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward2: every one of 5 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward3",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward3: every one of 8 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward4",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward4: every one of 4 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward5",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward5: every one of 6 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward6",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward6: every one of 7 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward7",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward7: every one of 8 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward8",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward8: every one of 7 stages matches"
+  },
+  {
+   "contest": "sc_borders_2022_ward9",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "sc_borders_2022_ward9: every one of 7 stages matches"
+  }
+ ]
+}

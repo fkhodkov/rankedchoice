@@ -26,6 +26,8 @@ from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import check  # noqa: E402
 import scot_elex  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from rcvcheck import record, write_results  # noqa: E402
 
 
 def count(path, jar, work):
@@ -96,6 +98,7 @@ def main():
     parser.add_argument("official")
     parser.add_argument("--jar", default=check.DEFAULT_JAR)
     parser.add_argument("--workers", type=int, default=os.cpu_count())
+    parser.add_argument("--results", help="write each ward's result to this JSON file, for the results page")
     args = parser.parse_args()
 
     boxes = [e for e in json.load(open(args.official))
@@ -105,7 +108,7 @@ def main():
     with tempfile.TemporaryDirectory() as work, concurrent.futures.ThreadPoolExecutor(args.workers) as pool:
         counts = dict(pool.map(lambda path: count(path, args.jar, work), files))
 
-    exact, slips, differ, unmatched = 0, [], [], 0
+    exact, slips, differ, unmatched, results = 0, [], [], 0, []
     for key, ours in sorted(counts.items()):
         if "error" in ours:
             unmatched += 1
@@ -116,6 +119,10 @@ def main():
             continue
         misses = compare(ours, entry)
         wrong = [(k + 1, n) for k, n in enumerate(misses) if n]
+        found = "every count matches" if not wrong else \
+            "figures off at count " + ", ".join(f"{k} ({n})" for k, n in wrong)
+        results.append(record(key, not wrong, f"{key} ({entry['ward']}): {found}", matched=len(misses) - len(wrong),
+                              rounds=len(misses), winners_same=True))
         if not wrong:
             exact += 1
         elif max(n for _, n in wrong) == 1:
@@ -127,6 +134,8 @@ def main():
           f"({unmatched} with no stages to compare)")
     for key, ward, wrong in differ + slips:
         print(f"  {key} ({ward}): figures off at count " + ", ".join(f"{k} ({n})" for k, n in wrong))
+    if args.results:
+        write_results(args.results, "scotland-wikipedia", results)
 
 
 if __name__ == "__main__":

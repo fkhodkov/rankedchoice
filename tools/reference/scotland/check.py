@@ -23,6 +23,8 @@ import unicodedata
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import scot_elex  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from rcvcheck import record, write_results  # noqa: E402
 
 DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "target",
                            "rankedchoice-0.1.0-SNAPSHOT.jar")
@@ -87,6 +89,7 @@ def main():
     parser.add_argument("official")
     parser.add_argument("--jar", default=DEFAULT_JAR)
     parser.add_argument("--workers", type=int, default=os.cpu_count())
+    parser.add_argument("--results", help="write each ward's result to this JSON file, for the results page")
     args = parser.parse_args()
 
     official = json.load(open(args.official))
@@ -94,24 +97,33 @@ def main():
     with tempfile.TemporaryDirectory() as work, concurrent.futures.ThreadPoolExecutor(args.workers) as pool:
         counts = dict(pool.map(lambda path: count(path, args.jar, work), files))
 
-    agree, disagree, unmatched = 0, [], []
+    agree, disagree, unmatched, results = 0, [], [], []
     for key, ours in sorted(counts.items()):
         if "error" in ours:
             unmatched.append((key, ours["error"]))
+            results.append(record(key, False, f"{key}: not compared: {ours['error']}", winners_same=False))
             continue
         entry = official_ward(ours, official, re.search(r"(20\d\d)", key).group(1))
         if isinstance(entry, str):
             unmatched.append((key, entry))
+            results.append(record(key, False, f"{key}: not compared: {entry}", winners_same=False))
             continue
         theirs = officially_elected(ours, entry)
         if len(theirs) != ours["seats"]:
             unmatched.append((key, f"{entry['ward']} ({entry['source']}) elects {len(theirs)}, "
                                    f"the ballot file has {ours['seats']} seats"))
+            results.append(record(key, False, f"{key}: not compared: {unmatched[-1][1]}", winners_same=False))
         elif theirs == set(ours["elected"]):
             agree += 1
+            results.append(record(key, True, f"{key} ({entry['ward']}, {entry['source']}): the same elected",
+                                  winners_same=True))
         else:
             disagree.append((key, entry["ward"], entry["source"], sorted(set(ours["elected"]) - theirs),
                              sorted(theirs - set(ours["elected"]))))
+            results.append(record(key, False, f"{key} ({entry['ward']}, {entry['source']}): we elect "
+                                              f"{disagree[-1][3]}, officially {disagree[-1][4]}", winners_same=False))
+    if args.results:
+        write_results(args.results, "scotland", results)
 
     print(f"{len(counts)} wards counted: {agree} elect the official winners, {len(disagree)} don't, "
           f"{len(unmatched)} not compared")

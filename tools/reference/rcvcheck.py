@@ -180,13 +180,25 @@ def threshold_line(contest, ours, official_threshold, matched, rounds, same, ele
             f"elected {'the same' if same else 'DIFFERENTLY: ' + str(elected)}")
 
 
-def record(contest, ok, line):
-    """A contest's result as data, read off its line: how many official rounds (or passes) match out of how many,
-    and whether the same candidates are elected. Contests checked by winners only have no rounds."""
-    rounds = re.search(r"[:;] (\d+) of (\d+) (?:official rounds|passes) match", line)
-    return {"contest": contest, "ok": ok,
-            "matched": int(rounds.group(1)) if rounds else None, "rounds": int(rounds.group(2)) if rounds else None,
-            "winners_same": "DIFFERENTLY" not in line and "count failed" not in line, "line": line}
+def record(contest, ok, line, matched=None, rounds=None, winners_same=None):
+    """A contest's result as data: how many official rounds (or passes, or stages) match out of how many, and whether
+    the same candidates are elected. What isn't given is read off the line; contests checked by winners only have no
+    rounds."""
+    found = re.search(r"[:;] (\d+) of (\d+) (?:official rounds|passes) match", line)
+    if rounds is None and found:
+        matched, rounds = int(found.group(1)), int(found.group(2))
+    if winners_same is None:
+        winners_same = "DIFFERENTLY" not in line and "count failed" not in line
+    return {"contest": contest, "ok": ok, "matched": matched, "rounds": rounds, "winners_same": winners_same,
+            "line": line}
+
+
+def write_results(path, checker, results):
+    """Writes a checker's results, one record() per contest, as JSON for the results page (../results_page.py)."""
+    with open(path, "w", encoding="utf-8") as out:
+        json.dump({"checker": checker, "date": time.strftime("%Y-%m-%d"), "contests": results}, out, indent=1,
+                  ensure_ascii=False)
+        out.write("\n")
 
 
 def main(description, contests, check):
@@ -209,8 +221,5 @@ def main(description, contests, check):
         print(line, flush=True)
     print(f"{len(chosen) - failed} of {len(chosen)} contests check out")
     if args.results:
-        with open(args.results, "w", encoding="utf-8") as out:
-            json.dump({"checker": os.path.basename(os.path.dirname(os.path.abspath(sys.argv[0]))),
-                       "date": time.strftime("%Y-%m-%d"), "contests": results}, out, indent=1, ensure_ascii=False)
-            out.write("\n")
+        write_results(args.results, os.path.basename(os.path.dirname(os.path.abspath(sys.argv[0]))), results)
     sys.exit(1 if failed else 0)

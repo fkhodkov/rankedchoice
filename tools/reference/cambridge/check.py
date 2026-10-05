@@ -28,6 +28,9 @@ import sys
 import unicodedata
 import urllib.request
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from rcvcheck import record, write_results  # noqa: E402
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
@@ -142,7 +145,7 @@ def check(data, contest, official, jar):
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "-m", "cambridge", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
+        return record(contest, False, f"{contest}: count failed: {result.stderr.strip()[-200:]}")
     ours = json.loads(result.stdout)
     left, missing = list(ours["electedInOrder"]), []
     for name in official["elected"]:
@@ -153,6 +156,7 @@ def check(data, contest, official, jar):
             missing.append(name)
     line = f"{contest}: quota {ours['quota']} (official {official['quota']})"
     ok = not missing
+    counts = unmatched = None
     if year <= LAST_WITH_ROUNDS:
         sheet = fetch(os.path.join(data, contest + ".pdf"), official["sheet"])
         counts, unmatched = match_counts(ours, sheet_totals(sheet))
@@ -164,7 +168,8 @@ def check(data, contest, official, jar):
         line += f"; elected {', '.join(left)} where the City elected {', '.join(missing)}"
     else:
         line += f"; the same {official['seats']} elected"
-    return ok, line
+    return record(contest, ok, line, matched=None if counts is None else counts - len(unmatched), rounds=counts,
+                  winners_same=not missing)
 
 
 def main():
@@ -172,16 +177,20 @@ def main():
     parser.add_argument("data")
     parser.add_argument("contests", nargs="*")
     parser.add_argument("--jar", default=DEFAULT_JAR)
+    parser.add_argument("--results", help="write each contest's result to this JSON file, for the results page")
     args = parser.parse_args()
     officials = json.load(open(os.path.join(HERE, "official.json"), encoding="utf-8"))
     contests = args.contests or list(officials)
     os.makedirs(args.data, exist_ok=True)
-    failed = 0
+    failed, results = 0, []
     for contest in contests:
-        ok, line = check(args.data, contest, officials[contest], args.jar)
-        failed += not ok
-        print(line, flush=True)
+        result = check(args.data, contest, officials[contest], args.jar)
+        failed += not result["ok"]
+        results.append(result)
+        print(result["line"], flush=True)
     print(f"{len(contests) - failed} of {len(contests)} contests check out")
+    if args.results:
+        write_results(args.results, "cambridge", results)
     sys.exit(1 if failed else 0)
 
 

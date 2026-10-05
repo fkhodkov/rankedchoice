@@ -1,0 +1,1822 @@
+{
+ "checker": "nsw",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "albury",
+   "ok": true,
+   "matched": 35,
+   "rounds": 35,
+   "winners_same": true,
+   "line": "albury: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "armidale",
+   "ok": true,
+   "matched": 35,
+   "rounds": 38,
+   "winners_same": true,
+   "line": "armidale: LOT: McKENZIE Deni and EDMONDS Janet tied on 6 votes, officially decided by lot"
+  },
+  {
+   "contest": "ballina_a-ward",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "ballina_a-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ballina_b-ward",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "ballina_b-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ballina_c-ward",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "ballina_c-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bathurst",
+   "ok": true,
+   "matched": 47,
+   "rounds": 50,
+   "winners_same": true,
+   "line": "bathurst: LOT: QUINN Rob and PEARSON Ingrid tied on 3 votes, officially decided by lot"
+  },
+  {
+   "contest": "bayside_ward-1",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "bayside_ward-1: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bayside_ward-2",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "bayside_ward-2: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bayside_ward-3",
+   "ok": true,
+   "matched": 18,
+   "rounds": 18,
+   "winners_same": true,
+   "line": "bayside_ward-3: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bayside_ward-4",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "bayside_ward-4: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bayside_ward-5",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "bayside_ward-5: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bega-valley",
+   "ok": true,
+   "matched": 16,
+   "rounds": 16,
+   "winners_same": true,
+   "line": "bega-valley: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bellingen",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "bellingen: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blacktown_ward-1",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "blacktown_ward-1: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blacktown_ward-2",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "blacktown_ward-2: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blacktown_ward-3",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "blacktown_ward-3: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blacktown_ward-4",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "blacktown_ward-4: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blacktown_ward-5",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "blacktown_ward-5: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bland",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "bland: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blayney",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "blayney: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blue-mountains_ward-1",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "blue-mountains_ward-1: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blue-mountains_ward-2",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "blue-mountains_ward-2: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blue-mountains_ward-3",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "blue-mountains_ward-3: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "blue-mountains_ward-4",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "blue-mountains_ward-4: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bogan",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "bogan: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "bourke",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "bourke: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "brewarrina",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "brewarrina: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "broken-hill",
+   "ok": true,
+   "matched": 16,
+   "rounds": 16,
+   "winners_same": true,
+   "line": "broken-hill: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "burwood",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "burwood: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "byron",
+   "ok": true,
+   "matched": 20,
+   "rounds": 20,
+   "winners_same": true,
+   "line": "byron: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cabonne",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "cabonne: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "camden_central-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "camden_central-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "camden_north-ward",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "camden_north-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "camden_south-ward",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "camden_south-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "campbelltown",
+   "ok": true,
+   "matched": 71,
+   "rounds": 72,
+   "winners_same": true,
+   "line": "campbelltown: LOT: HUSSAIN Faiyaz and SINGH Francis tied on 5 votes, officially decided by lot"
+  },
+  {
+   "contest": "canada-bay",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "canada-bay: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "canterbury-bankstown_bankstown-ward",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "canterbury-bankstown_bankstown-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "canterbury-bankstown_bass-hill-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "canterbury-bankstown_bass-hill-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "canterbury-bankstown_canterbury-ward",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "canterbury-bankstown_canterbury-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "canterbury-bankstown_revesby-ward",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "canterbury-bankstown_revesby-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "canterbury-bankstown_roselands-ward",
+   "ok": true,
+   "matched": 29,
+   "rounds": 29,
+   "winners_same": true,
+   "line": "canterbury-bankstown_roselands-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "carrathool_ward-a",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "carrathool_ward-a: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "carrathool_ward-b",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "carrathool_ward-b: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "central-coast_budgewoi-ward",
+   "ok": true,
+   "matched": 16,
+   "rounds": 16,
+   "winners_same": true,
+   "line": "central-coast_budgewoi-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "central-coast_gosford-east-ward",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "central-coast_gosford-east-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "central-coast_gosford-west-ward",
+   "ok": true,
+   "matched": 19,
+   "rounds": 19,
+   "winners_same": true,
+   "line": "central-coast_gosford-west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "central-coast_the-entrance-ward",
+   "ok": true,
+   "matched": 15,
+   "rounds": 15,
+   "winners_same": true,
+   "line": "central-coast_the-entrance-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "central-coast_wyong-ward",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "central-coast_wyong-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cessnock_ward-a",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "cessnock_ward-a: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cessnock_ward-b",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "cessnock_ward-b: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cessnock_ward-c",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "cessnock_ward-c: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cessnock_ward-d",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "cessnock_ward-d: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "clarence-valley",
+   "ok": true,
+   "matched": 16,
+   "rounds": 16,
+   "winners_same": true,
+   "line": "clarence-valley: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "coffs-harbour",
+   "ok": true,
+   "matched": 40,
+   "rounds": 40,
+   "winners_same": true,
+   "line": "coffs-harbour: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "coolamon",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "coolamon: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "coonamble",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "coonamble: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cootamundra-gundagai",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "cootamundra-gundagai: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cumberland_granville-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "cumberland_granville-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cumberland_greystanes-ward",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "cumberland_greystanes-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cumberland_regents-park-ward",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "cumberland_regents-park-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cumberland_south-granville-ward",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "cumberland_south-granville-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "cumberland_wentworthville-ward",
+   "ok": true,
+   "matched": 15,
+   "rounds": 15,
+   "winners_same": true,
+   "line": "cumberland_wentworthville-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "dubbo",
+   "ok": true,
+   "matched": 45,
+   "rounds": 47,
+   "winners_same": true,
+   "line": "dubbo: LOT: KING David and JANE Rachelle tied on 13 votes, officially decided by lot"
+  },
+  {
+   "contest": "dungog_a-ward",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "dungog_a-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "dungog_b-ward",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "dungog_b-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "dungog_c-ward",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "dungog_c-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "edward-river",
+   "ok": true,
+   "matched": 15,
+   "rounds": 15,
+   "winners_same": true,
+   "line": "edward-river: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "eurobodalla",
+   "ok": true,
+   "matched": 40,
+   "rounds": 40,
+   "winners_same": true,
+   "line": "eurobodalla: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "federation",
+   "ok": true,
+   "matched": 39,
+   "rounds": 39,
+   "winners_same": true,
+   "line": "federation: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "forbes",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "forbes: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "georges-river_blakehurst-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "georges-river_blakehurst-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "georges-river_hurstville-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "georges-river_hurstville-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "georges-river_kogarah-bay-ward",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "georges-river_kogarah-bay-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "georges-river_mortdale-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "georges-river_mortdale-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "georges-river_peakhurst-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "georges-river_peakhurst-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "gilgandra",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "gilgandra: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "glen-innes-severn",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "glen-innes-severn: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "goulburn-mulwaree",
+   "ok": true,
+   "matched": 21,
+   "rounds": 21,
+   "winners_same": true,
+   "line": "goulburn-mulwaree: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "greater-hume_north-ward",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "greater-hume_north-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "greater-hume_west-ward",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "greater-hume_west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "griffith",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "griffith: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "gunnedah",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "gunnedah: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "gwydir",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "gwydir: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "hawkesbury",
+   "ok": true,
+   "matched": 59,
+   "rounds": 61,
+   "winners_same": true,
+   "line": "hawkesbury: LOT: MAGUIRE John and BISMI Hanif tied on 3 votes, officially decided by lot"
+  },
+  {
+   "contest": "hay",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "hay: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "hilltops",
+   "ok": true,
+   "matched": 15,
+   "rounds": 15,
+   "winners_same": true,
+   "line": "hilltops: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "hornsby_ward-a",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "hornsby_ward-a: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "hornsby_ward-b",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "hornsby_ward-b: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "hornsby_ward-c",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "hornsby_ward-c: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "hunters-hill_north-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "hunters-hill_north-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "hunters-hill_south-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "hunters-hill_south-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "inner-west_ashfield-djarrawunang-magpie-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "inner-west_ashfield-djarrawunang-magpie-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "inner-west_balmain-baludarri-leather-jacket-ward",
+   "ok": true,
+   "matched": 12,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "inner-west_balmain-baludarri-leather-jacket-ward: LOT: HACKING Kathleen and BASSIL Dorothy tied on 19 votes, officially decided by lot"
+  },
+  {
+   "contest": "inner-west_leichhardt-gulgadya-grass-tree-ward",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "inner-west_leichhardt-gulgadya-grass-tree-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "inner-west_marrickville-midjuburi-lillypilly-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "inner-west_marrickville-midjuburi-lillypilly-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "inner-west_stanmore-damun-port-jackson-fig-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "inner-west_stanmore-damun-port-jackson-fig-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "inverell",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "inverell: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "kempsey",
+   "ok": true,
+   "matched": 23,
+   "rounds": 23,
+   "winners_same": true,
+   "line": "kempsey: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "kiama",
+   "ok": true,
+   "matched": 37,
+   "rounds": 39,
+   "winners_same": true,
+   "line": "kiama: LOT: LEDGER Harrison and HEWITT Marcus tied on 3 votes, officially decided by lot"
+  },
+  {
+   "contest": "ku-ring-gai_comenarra-ward",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "ku-ring-gai_comenarra-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ku-ring-gai_gordon-ward",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "ku-ring-gai_gordon-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ku-ring-gai_roseville-ward",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "ku-ring-gai_roseville-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ku-ring-gai_st-ives-ward",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ku-ring-gai_st-ives-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ku-ring-gai_wahroonga-ward",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "ku-ring-gai_wahroonga-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "kyogle_a-ward",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "kyogle_a-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "kyogle_b-ward",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "kyogle_b-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "kyogle_c-ward",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "kyogle_c-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lachlan_c-ward",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "lachlan_c-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lake-macquarie_east-ward",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "lake-macquarie_east-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lake-macquarie_north-ward",
+   "ok": true,
+   "matched": 18,
+   "rounds": 18,
+   "winners_same": true,
+   "line": "lake-macquarie_north-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lake-macquarie_west-ward",
+   "ok": true,
+   "matched": 28,
+   "rounds": 28,
+   "winners_same": true,
+   "line": "lake-macquarie_west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lane-cove_central-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "lane-cove_central-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lane-cove_east-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "lane-cove_east-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lane-cove_west-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "lane-cove_west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "leeton",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "leeton: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lismore",
+   "ok": true,
+   "matched": 27,
+   "rounds": 27,
+   "winners_same": true,
+   "line": "lismore: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lithgow",
+   "ok": true,
+   "matched": 44,
+   "rounds": 45,
+   "winners_same": true,
+   "line": "lithgow: LOT: MORTELL Daniel and BOUNDY Marilyn tied on 3 votes, officially decided by lot"
+  },
+  {
+   "contest": "liverpool-plains",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "liverpool-plains: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lockhart_b-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "lockhart_b-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "lockhart_c-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "lockhart_c-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "maitland_ward-1",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "maitland_ward-1: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "maitland_ward-2",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "maitland_ward-2: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "maitland_ward-3",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "maitland_ward-3: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "maitland_ward-4",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "maitland_ward-4: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "mid-coast",
+   "ok": true,
+   "matched": 57,
+   "rounds": 57,
+   "winners_same": true,
+   "line": "mid-coast: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "mid-western",
+   "ok": true,
+   "matched": 55,
+   "rounds": 62,
+   "winners_same": true,
+   "line": "mid-western: LOT: CORNISH Margaret and TRAEMER Sharon tied on 3 votes, officially decided by lot"
+  },
+  {
+   "contest": "moree-plains",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "moree-plains: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "mosman",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "mosman: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "murray-river_greater-murray-ward",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "murray-river_greater-murray-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "murray-river_moama-ward",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "murray-river_moama-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "murrumbidgee_murrumbidgee-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "murrumbidgee_murrumbidgee-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "muswellbrook",
+   "ok": true,
+   "matched": 25,
+   "rounds": 25,
+   "winners_same": true,
+   "line": "muswellbrook: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "nambucca-valley",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "nambucca-valley: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "narrabri",
+   "ok": true,
+   "matched": 37,
+   "rounds": 37,
+   "winners_same": true,
+   "line": "narrabri: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "narrandera",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "narrandera: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "narromine",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "narromine: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "newcastle_ward-1",
+   "ok": true,
+   "matched": 15,
+   "rounds": 15,
+   "winners_same": true,
+   "line": "newcastle_ward-1: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "newcastle_ward-2",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "newcastle_ward-2: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "newcastle_ward-3",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "newcastle_ward-3: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "newcastle_ward-4",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "newcastle_ward-4: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "north-sydney_cammeraygal-ward",
+   "ok": true,
+   "matched": 35,
+   "rounds": 35,
+   "winners_same": true,
+   "line": "north-sydney_cammeraygal-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "north-sydney_st-leonards-ward",
+   "ok": true,
+   "matched": 19,
+   "rounds": 19,
+   "winners_same": true,
+   "line": "north-sydney_st-leonards-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "northern-beaches_curl-curl-ward",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "northern-beaches_curl-curl-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "northern-beaches_frenchs-forest-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "northern-beaches_frenchs-forest-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "northern-beaches_manly-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "northern-beaches_manly-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "northern-beaches_narrabeen-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "northern-beaches_narrabeen-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "northern-beaches_pittwater-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "northern-beaches_pittwater-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "oberon",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "oberon: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "orange",
+   "ok": true,
+   "matched": 59,
+   "rounds": 65,
+   "winners_same": true,
+   "line": "orange: LOT: PRATTEN Jenny and GINTY Charles tied on 2 votes, officially decided by lot"
+  },
+  {
+   "contest": "parkes",
+   "ok": true,
+   "matched": 30,
+   "rounds": 31,
+   "winners_same": true,
+   "line": "parkes: LOT: SNYMAN Erik and HILL Justin tied on 8 votes, officially decided by lot"
+  },
+  {
+   "contest": "parramatta_dundas-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "parramatta_dundas-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "parramatta_epping-ward",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "parramatta_epping-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "parramatta_north-rocks-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "parramatta_north-rocks-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "parramatta_parramatta-ward",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "parramatta_parramatta-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "parramatta_rosehill-ward",
+   "ok": true,
+   "matched": 18,
+   "rounds": 18,
+   "winners_same": true,
+   "line": "parramatta_rosehill-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "penrith_north-ward",
+   "ok": true,
+   "matched": 24,
+   "rounds": 24,
+   "winners_same": true,
+   "line": "penrith_north-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "penrith_south-ward",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "penrith_south-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "port-macquarie-hastings",
+   "ok": true,
+   "matched": 26,
+   "rounds": 26,
+   "winners_same": true,
+   "line": "port-macquarie-hastings: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "port-stephens_central-ward",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "port-stephens_central-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "port-stephens_east-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "port-stephens_east-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "port-stephens_west-ward",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "port-stephens_west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "queanbeyan-palerang",
+   "ok": true,
+   "matched": 67,
+   "rounds": 69,
+   "winners_same": true,
+   "line": "queanbeyan-palerang: LOT: GARNON Darren and FAYAQ Bashir tied on 1 votes, officially decided by lot"
+  },
+  {
+   "contest": "randwick_central-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "randwick_central-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "randwick_east-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "randwick_east-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "randwick_north-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "randwick_north-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "randwick_south-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "randwick_south-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "randwick_west-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "randwick_west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "richmond-valley",
+   "ok": true,
+   "matched": 20,
+   "rounds": 20,
+   "winners_same": true,
+   "line": "richmond-valley: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ryde_central-ward",
+   "ok": true,
+   "matched": 15,
+   "rounds": 15,
+   "winners_same": true,
+   "line": "ryde_central-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ryde_east-ward",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "ryde_east-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "ryde_west-ward",
+   "ok": true,
+   "matched": 19,
+   "rounds": 19,
+   "winners_same": true,
+   "line": "ryde_west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "shellharbour_ward-a",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "shellharbour_ward-a: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "shellharbour_ward-b",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "shellharbour_ward-b: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "shellharbour_ward-c",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "shellharbour_ward-c: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "shellharbour_ward-d",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "shellharbour_ward-d: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "shoalhaven_ward-1",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "shoalhaven_ward-1: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "shoalhaven_ward-2",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "shoalhaven_ward-2: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "shoalhaven_ward-3",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "shoalhaven_ward-3: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "singleton",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "singleton: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "snowy-monaro",
+   "ok": true,
+   "matched": 56,
+   "rounds": 59,
+   "winners_same": true,
+   "line": "snowy-monaro: LOT: LUNTUNGAN Nicolaas and ROONEY Bernard tied on 3 votes, officially decided by lot"
+  },
+  {
+   "contest": "snowy-valleys",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "snowy-valleys: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "strathfield",
+   "ok": true,
+   "matched": 25,
+   "rounds": 25,
+   "winners_same": true,
+   "line": "strathfield: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "sutherland_a-ward",
+   "ok": true,
+   "matched": 17,
+   "rounds": 17,
+   "winners_same": true,
+   "line": "sutherland_a-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "sutherland_b-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "sutherland_b-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "sutherland_c-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "sutherland_c-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "sutherland_d-ward",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "sutherland_d-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "sutherland_e-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "sutherland_e-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "sydney",
+   "ok": true,
+   "matched": 47,
+   "rounds": 47,
+   "winners_same": true,
+   "line": "sydney: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "tamworth",
+   "ok": true,
+   "matched": 23,
+   "rounds": 23,
+   "winners_same": true,
+   "line": "tamworth: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "temora",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "temora: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "tenterfield_ward-a",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "tenterfield_ward-a: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "tenterfield_ward-c",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "tenterfield_ward-c: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "tenterfield_ward-d",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "tenterfield_ward-d: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "tenterfield_ward-e",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "tenterfield_ward-e: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "the-hills_central-ward",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "the-hills_central-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "the-hills_east-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "the-hills_east-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "the-hills_north-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "the-hills_north-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "the-hills_west-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "the-hills_west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "tweed",
+   "ok": true,
+   "matched": 44,
+   "rounds": 44,
+   "winners_same": true,
+   "line": "tweed: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "upper-hunter",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "upper-hunter: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "upper-lachlan",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "upper-lachlan: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "wagga-wagga",
+   "ok": true,
+   "matched": 59,
+   "rounds": 60,
+   "winners_same": true,
+   "line": "wagga-wagga: LOT: RUSH Emma and JEFFRESON Mark tied on 34 votes, officially decided by lot"
+  },
+  {
+   "contest": "walcha",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "walcha: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "walgett",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "walgett: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "warren_c-ward",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "warren_c-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "waverley_bondi-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "waverley_bondi-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "waverley_hunter-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "waverley_hunter-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "waverley_lawson-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "waverley_lawson-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "waverley_waverley-ward",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "waverley_waverley-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "weddin",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "weddin: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "wentworth",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "wentworth: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "willoughby_middle-harbour-ward",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "willoughby_middle-harbour-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "willoughby_naremburn-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "willoughby_naremburn-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "willoughby_sailors-bay-ward",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "willoughby_sailors-bay-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "willoughby_west-ward",
+   "ok": true,
+   "matched": 20,
+   "rounds": 20,
+   "winners_same": true,
+   "line": "willoughby_west-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "wingecarribee",
+   "ok": true,
+   "matched": 58,
+   "rounds": 59,
+   "winners_same": true,
+   "line": "wingecarribee: LOT: THOMAS Robert and BROUGH James tied on 4 votes, officially decided by lot"
+  },
+  {
+   "contest": "wollondilly_east-ward",
+   "ok": true,
+   "matched": 19,
+   "rounds": 19,
+   "winners_same": true,
+   "line": "wollondilly_east-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "wollondilly_north-ward",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "wollondilly_north-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "wollongong_ward-1",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "wollongong_ward-1: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "wollongong_ward-2",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "wollongong_ward-2: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "wollongong_ward-3",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "wollongong_ward-3: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "woollahra_bellevue-hill-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "woollahra_bellevue-hill-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "woollahra_cooper-ward",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "woollahra_cooper-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "woollahra_double-bay-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "woollahra_double-bay-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "woollahra_paddington-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "woollahra_paddington-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "woollahra_vaucluse-ward",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "woollahra_vaucluse-ward: every round matches an official count; the same elected"
+  },
+  {
+   "contest": "yass-valley",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "yass-valley: every round matches an official count; the same elected"
+  }
+ ]
+}

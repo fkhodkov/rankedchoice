@@ -21,6 +21,8 @@ from decimal import Decimal
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import check  # noqa: E402
 import stages  # noqa: E402
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from rcvcheck import record, write_results  # noqa: E402
 
 NUMBER = r"-?\d[\d,]*(?:\.\d+)?"
 
@@ -92,8 +94,9 @@ def main():
     parser.add_argument("scot_elex")
     parser.add_argument("reports")
     parser.add_argument("--jar", default=check.DEFAULT_JAR)
+    parser.add_argument("--results", help="write each report's result to this JSON file, for the results page")
     args = parser.parse_args()
-    agree, differ, figures = 0, [], 0
+    agree, differ, figures, results = 0, [], 0, []
     for pdf in sorted(glob.glob(os.path.join(args.reports, "*.pdf"))):
         key = os.path.basename(pdf)[:-4]
         path = next(iter(glob.glob(os.path.join(args.scot_elex, "blt_files", "*", key + ".blt"))), None)
@@ -113,12 +116,18 @@ def main():
         first = compare(ours["report"]["rounds"], official)
         if first is None:
             agree += 1
+            results.append(record(key, True, f"{key}: every one of {len(official)} stages matches",
+                                  matched=len(official), rounds=len(official), winners_same=True))
         else:
             differ.append((key, f"stage {first} of {len(official)} matches no round"))
+            results.append(record(key, False, f"{key}: {differ[-1][1]}", matched=first - 1, rounds=len(official),
+                                  winners_same=True))
     print(f"{agree + len(differ)} reports: {agree} match at every stage, to 5 decimal places; {len(differ)} don't "
           f"({figures} figures compared)")
     for key, why in differ:
         print(f"  {key}: {why}")
+    if args.results:
+        write_results(args.results, "scotland-stage-reports", results)
 
 
 if __name__ == "__main__":

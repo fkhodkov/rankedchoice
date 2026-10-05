@@ -1,0 +1,262 @@
+{
+ "checker": "aec",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "20499-ACT",
+   "ok": true,
+   "matched": 16,
+   "rounds": 16,
+   "winners_same": true,
+   "line": "20499-ACT: 16 rounds, 16 match an official count (of 29); elected the same, in order (2s to count)"
+  },
+  {
+   "contest": "20499-NSW",
+   "ok": true,
+   "matched": 151,
+   "rounds": 151,
+   "winners_same": true,
+   "line": "20499-NSW: 151 rounds, 151 match an official count (of 1065); elected the same, in order (17s to count)"
+  },
+  {
+   "contest": "20499-NT",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "20499-NT: 2 rounds, 2 match an official count (of 1); elected the same, in order (1s to count)"
+  },
+  {
+   "contest": "20499-QLD",
+   "ok": true,
+   "matched": 122,
+   "rounds": 122,
+   "winners_same": true,
+   "line": "20499-QLD: 122 rounds, 122 match an official count (of 841); elected the same, in order (19s to count)"
+  },
+  {
+   "contest": "20499-SA",
+   "ok": true,
+   "matched": 63,
+   "rounds": 63,
+   "winners_same": true,
+   "line": "20499-SA: 63 rounds, 63 match an official count (of 457); elected the same, in order (6s to count)"
+  },
+  {
+   "contest": "20499-TAS",
+   "ok": true,
+   "matched": 57,
+   "rounds": 57,
+   "winners_same": true,
+   "line": "20499-TAS: 57 rounds, 57 match an official count (of 355); elected the same, in order (3s to count)"
+  },
+  {
+   "contest": "20499-VIC",
+   "ok": true,
+   "matched": 116,
+   "rounds": 116,
+   "winners_same": true,
+   "line": "20499-VIC: 116 rounds, 116 match an official count (of 825); elected the same, in order (13s to count)"
+  },
+  {
+   "contest": "20499-WA",
+   "ok": true,
+   "matched": 79,
+   "rounds": 79,
+   "winners_same": true,
+   "line": "20499-WA: 79 rounds, 79 match an official count (of 539); elected the same, in order (9s to count)"
+  },
+  {
+   "contest": "24310-ACT",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "24310-ACT: 14 rounds, 14 match an official count (of 25); elected the same, in order (2s to count)"
+  },
+  {
+   "contest": "24310-NSW",
+   "ok": true,
+   "matched": 105,
+   "rounds": 105,
+   "winners_same": true,
+   "line": "24310-NSW: 105 rounds, 105 match an official count (of 429); elected the same, in order (16s to count)"
+  },
+  {
+   "contest": "24310-NT",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "24310-NT: 2 rounds, 2 match an official count (of 1); elected the same, in order (1s to count)"
+  },
+  {
+   "contest": "24310-QLD",
+   "ok": true,
+   "matched": 82,
+   "rounds": 82,
+   "winners_same": true,
+   "line": "24310-QLD: 82 rounds, 82 match an official count (of 288); elected the same, in order (10s to count)"
+  },
+  {
+   "contest": "24310-SA",
+   "ok": true,
+   "matched": 41,
+   "rounds": 41,
+   "winners_same": true,
+   "line": "24310-SA: 41 rounds, 41 match an official count (of 177); elected the same, in order (5s to count)"
+  },
+  {
+   "contest": "24310-TAS",
+   "ok": true,
+   "matched": 43,
+   "rounds": 43,
+   "winners_same": true,
+   "line": "24310-TAS: 43 rounds, 43 match an official count (of 139); elected the same, in order (4s to count)"
+  },
+  {
+   "contest": "24310-VIC",
+   "ok": true,
+   "matched": 81,
+   "rounds": 81,
+   "winners_same": true,
+   "line": "24310-VIC: 81 rounds, 81 match an official count (of 367); elected the same, in order (25s to count)"
+  },
+  {
+   "contest": "24310-WA",
+   "ok": true,
+   "matched": 66,
+   "rounds": 66,
+   "winners_same": true,
+   "line": "24310-WA: 66 rounds, 66 match an official count (of 231); elected the same, in order (12s to count)"
+  },
+  {
+   "contest": "27966-ACT",
+   "ok": true,
+   "matched": 22,
+   "rounds": 22,
+   "winners_same": true,
+   "line": "27966-ACT: 22 rounds, 22 match an official count (of 30); elected the same, in order (4s to count)"
+  },
+  {
+   "contest": "27966-NSW",
+   "ok": true,
+   "matched": 74,
+   "rounds": 74,
+   "winners_same": true,
+   "line": "27966-NSW: 74 rounds, 74 match an official count (of 340); elected the same, in order (36s to count)"
+  },
+  {
+   "contest": "27966-NT",
+   "ok": true,
+   "matched": 15,
+   "rounds": 15,
+   "winners_same": true,
+   "line": "27966-NT: 15 rounds, 15 match an official count (of 15); elected the same, in order (3s to count)"
+  },
+  {
+   "contest": "27966-QLD",
+   "ok": true,
+   "matched": 79,
+   "rounds": 79,
+   "winners_same": true,
+   "line": "27966-QLD: 79 rounds, 79 match an official count (of 266); elected the same, in order (25s to count)"
+  },
+  {
+   "contest": "27966-SA",
+   "ok": true,
+   "matched": 50,
+   "rounds": 50,
+   "winners_same": true,
+   "line": "27966-SA: 50 rounds, 50 match an official count (of 214); elected the same, in order (10s to count)"
+  },
+  {
+   "contest": "27966-TAS",
+   "ok": true,
+   "matched": 38,
+   "rounds": 38,
+   "winners_same": true,
+   "line": "27966-TAS: 38 rounds, 38 match an official count (of 131); elected the same, in order (7s to count)"
+  },
+  {
+   "contest": "27966-VIC",
+   "ok": true,
+   "matched": 78,
+   "rounds": 78,
+   "winners_same": true,
+   "line": "27966-VIC: 78 rounds, 78 match an official count (of 360); elected the same, in order (33s to count)"
+  },
+  {
+   "contest": "27966-WA",
+   "ok": true,
+   "matched": 57,
+   "rounds": 57,
+   "winners_same": true,
+   "line": "27966-WA: 57 rounds, 57 match an official count (of 262); elected the same, in order (20s to count)"
+  },
+  {
+   "contest": "31496-ACT",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "31496-ACT: 12 rounds, 12 match an official count (of 22); elected the same, in order (6s to count)"
+  },
+  {
+   "contest": "31496-NSW",
+   "ok": true,
+   "matched": 55,
+   "rounds": 55,
+   "winners_same": true,
+   "line": "31496-NSW: 55 rounds, 55 match an official count (of 249); elected the same, in order (40s to count)"
+  },
+  {
+   "contest": "31496-NT",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "31496-NT: 13 rounds, 13 match an official count (of 24); elected the same, in order (4s to count)"
+  },
+  {
+   "contest": "31496-QLD",
+   "ok": true,
+   "matched": 55,
+   "rounds": 55,
+   "winners_same": true,
+   "line": "31496-QLD: 55 rounds, 55 match an official count (of 243); elected the same, in order (34s to count)"
+  },
+  {
+   "contest": "31496-SA",
+   "ok": true,
+   "matched": 39,
+   "rounds": 39,
+   "winners_same": true,
+   "line": "31496-SA: 39 rounds, 39 match an official count (of 136); elected the same, in order (15s to count)"
+  },
+  {
+   "contest": "31496-TAS",
+   "ok": true,
+   "matched": 32,
+   "rounds": 32,
+   "winners_same": true,
+   "line": "31496-TAS: 32 rounds, 32 match an official count (of 127); elected the same, in order (8s to count)"
+  },
+  {
+   "contest": "31496-VIC",
+   "ok": true,
+   "matched": 64,
+   "rounds": 64,
+   "winners_same": true,
+   "line": "31496-VIC: 64 rounds, 64 match an official count (of 289); elected the same, in order (37s to count)"
+  },
+  {
+   "contest": "31496-WA",
+   "ok": true,
+   "matched": 48,
+   "rounds": 48,
+   "winners_same": true,
+   "line": "31496-WA: 48 rounds, 48 match an official count (of 169); elected the same, in order (21s to count)"
+  }
+ ]
+}

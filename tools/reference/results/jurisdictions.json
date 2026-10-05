@@ -1,134 +1,501 @@
 {
- "about": "What the results page (../results_page.py) shows besides the checkers' results files (<checker>.json, written with --results): each jurisdiction's name and what it is checked against, in page order; the figures of those no checker here writes, from VALIDATION.md; every known difference, naming its contests by the checker's ids; and the US rules table. A contest that isn't exact and that no difference names is shown as unexplained.",
+ "about": "What the results page (../results_page.py) shows besides the checkers' results files (<checker>.json, written with --results): each jurisdiction's name and what it is checked against, in page order; the figures of the two checked only by the Java tests; which of a checker's contests the page counts (scope); every known difference, naming its contests by the checker's ids; and the US rules table. A contest that isn't exact and that no difference names is shown as unexplained.",
  "groups": [
   {
    "name": "Australia",
    "jurisdictions": [
-    {"name": "ACT Legislative Assembly", "years": "2020, all five electorates", "ruleset": "act-hare-clark",
-     "against": "Elections ACT's distributions of preferences", "precision": "to 6 decimal places, with votes exhausted and lost",
-     "fixed": {"contests": 5, "every_round": 5, "with_rounds": 5, "winners_same": 5}},
-    {"name": "Australian Senate", "years": "2016–2025, every state and territory", "ruleset": "senate",
-     "against": "The AEC's distributions of preferences", "precision": "to the vote, with votes exhausted and lost",
-     "fixed": {"contests": 32, "every_round": 32, "with_rounds": 32, "winners_same": 32}},
-    {"name": "NSW councils", "years": "2024, every councillor count", "ruleset": "nsw-lg",
-     "against": "The NSW Electoral Commission's distributions", "precision": "to the vote, with votes lost",
-     "fixed": {"contests": 227, "every_round": 227, "with_rounds": 227, "winners_same": 227}}
+    {
+     "name": "ACT Legislative Assembly",
+     "years": "2020, all five electorates",
+     "ruleset": "act-hare-clark",
+     "against": "Elections ACT's distributions of preferences",
+     "precision": "to 6 decimal places, with votes exhausted and lost",
+     "fixed": {
+      "contests": 5,
+      "every_round": 5,
+      "with_rounds": 5,
+      "winners_same": 5
+     },
+     "source": "the Java tests (ActOfficialDistributionTest)"
+    },
+    {
+     "name": "Australian Senate",
+     "years": "2016–2025, every state and territory",
+     "ruleset": "senate",
+     "against": "The AEC's distributions of preferences",
+     "precision": "to the vote, with votes exhausted and lost",
+     "checker": "aec"
+    },
+    {
+     "name": "NSW councils",
+     "years": "2024, every councillor count",
+     "ruleset": "nsw-lg",
+     "against": "The NSW Electoral Commission's distributions",
+     "precision": "to the vote, with votes lost",
+     "checker": "nsw"
+    }
    ]
   },
   {
    "name": "Scotland and Ireland",
    "jurisdictions": [
-    {"name": "Scottish council wards", "years": "2007–2022, every ward with published ballots", "ruleset": "scottish",
+    {
+     "name": "Scottish council wards",
+     "years": "2007–2022, every ward with published ballots",
+     "ruleset": "scottish",
      "against": "Declared results; councils' stage reports; Wikipedia's result boxes",
-     "fixed": {"contests": 1070, "every_round": null, "with_rounds": 0, "winners_same": 1070},
      "chip": "Every winner",
-     "text": "Every stage of the 40 wards with a council stage report (Falkirk, Scottish Borders, Highland, 2022), to 5 places. Of 1,043 wards in Wikipedia's boxes, 874 match every count."},
-    {"name": "Ireland, Dáil", "years": "2002: Dublin North, Dublin West, Meath", "ruleset": null,
+     "text": "Every stage matches in {scotland-stage-reports.every_round} of the {scotland-stage-reports.contests} wards with a council stage report (Falkirk, Scottish Borders, Highland, 2022), to 5 places. Of {scotland-wikipedia.contests} wards in Wikipedia's boxes, {scotland-wikipedia.every_round} match every count.",
+     "checker": "scotland"
+    },
+    {
+     "name": "Ireland, Dáil",
+     "years": "2002: Dublin North, Dublin West, Meath",
+     "ruleset": null,
      "against": "Official first preferences and TDs returned",
-     "fixed": {"contests": 3, "every_round": null, "with_rounds": 0, "winners_same": 3},
+     "fixed": {
+      "contests": 3,
+      "every_round": null,
+      "with_rounds": 0,
+      "winners_same": 3
+     },
      "chip": "Winners and first preferences",
-     "text": "Dáil counts draw a random sample of each surplus, so no later round is reproducible."}
+     "text": "Dáil counts draw a random sample of each surplus, so no later round is reproducible.",
+     "kind": "plain",
+     "source": "the Java tests (Irish2002GeneralElectionFixtureTest)"
+    }
    ]
   },
   {
    "name": "United States, several seats",
    "jurisdictions": [
-    {"name": "Portland, Oregon", "years": "2024 City Council", "ruleset": "portland", "checker": "portland",
-     "against": "Multnomah County's RCTab summaries", "precision": "to 4 places"},
-    {"name": "Minneapolis", "years": "2009–2025: multi-seat, single-seat, and 2013's two by winners", "ruleset": "minneapolis",
-     "checker": "minneapolis", "against": "The City's summary statements", "precision": "to 4 places"},
-    {"name": "Cambridge, Massachusetts", "years": "2001–2023 City Council and School Committee", "ruleset": "--method cambridge",
+    {
+     "name": "Portland, Oregon",
+     "years": "2024 City Council",
+     "ruleset": "portland",
+     "checker": "portland",
+     "against": "Multnomah County's RCTab summaries",
+     "precision": "to 4 places"
+    },
+    {
+     "name": "Minneapolis",
+     "years": "2009–2025: multi-seat, single-seat, and 2013's two by winners",
+     "ruleset": "minneapolis",
+     "checker": "minneapolis",
+     "against": "The City's summary statements",
+     "precision": "to 4 places"
+    },
+    {
+     "name": "Cambridge, Massachusetts",
+     "years": "2001–2023 City Council and School Committee",
+     "ruleset": "--method cambridge",
      "against": "The City's official count sheets",
-     "fixed": {"contests": 22, "every_round": 16, "with_rounds": 16, "winners_same": 21},
-     "chip": "Every count of 16",
-     "text": "2001–2017 to the vote. 2019–2023: winners of 5 of 6."},
-    {"name": "Albany, California", "years": "2022 and 2024", "ruleset": "albany", "checker": "albany",
-     "against": "Alameda County's Dominion reports", "precision": "to the report's decimal places"},
-    {"name": "Eastpointe, Michigan", "years": "2019 and 2021 City Council", "ruleset": "portland", "checker": "eastpointe",
-     "against": "Macomb County's RCTab summaries", "precision": "to 4 places"}
+     "checker": "cambridge",
+     "precision": "to the vote"
+    },
+    {
+     "name": "Albany, California",
+     "years": "2022 and 2024",
+     "ruleset": "albany",
+     "checker": "albany",
+     "against": "Alameda County's Dominion reports",
+     "precision": "to the report's decimal places"
+    },
+    {
+     "name": "Eastpointe, Michigan",
+     "years": "2019 and 2021 City Council",
+     "ruleset": "portland",
+     "checker": "eastpointe",
+     "against": "Macomb County's RCTab summaries",
+     "precision": "to 4 places"
+    }
    ]
   },
   {
    "name": "United States, one seat (instant-runoff)",
    "single_seat": true,
    "jurisdictions": [
-    {"name": "Alameda County, California", "years": "Oakland, Berkeley, San Leandro, 2010–2025", "ruleset": "irv",
-     "checker": "alameda", "against": "The County's pass reports and Dominion reports"},
-    {"name": "San Francisco", "years": "2010–2024", "ruleset": "irv", "checker": "sanfrancisco",
-     "against": "Archived official results"},
-    {"name": "Alaska", "years": "2022 and 2024", "ruleset": "irv", "checker": "alaska",
-     "against": "The Division of Elections' Dominion reports, as archived"},
-    {"name": "New York City primaries", "years": "2021, 2023, 2025", "ruleset": "irv", "checker": "nyc",
-     "against": "The Board of Elections' certified rounds"},
-    {"name": "Maine", "years": "2018–2024", "ruleset": "irv", "checker": "maine",
-     "against": "The Secretary of State's RCV summary reports"}
+    {
+     "name": "Alameda County, California",
+     "years": "Oakland, Berkeley, San Leandro, 2010–2025",
+     "ruleset": "irv",
+     "checker": "alameda",
+     "against": "The County's pass reports and Dominion reports"
+    },
+    {
+     "name": "San Francisco",
+     "years": "2010–2024",
+     "ruleset": "irv",
+     "checker": "sanfrancisco",
+     "against": "Archived official results"
+    },
+    {
+     "name": "Alaska",
+     "years": "2022 and 2024",
+     "ruleset": "irv",
+     "checker": "alaska",
+     "against": "The Division of Elections' Dominion reports, as archived"
+    },
+    {
+     "name": "New York City primaries",
+     "years": "2021, 2023, 2025",
+     "ruleset": "irv",
+     "checker": "nyc",
+     "against": "The Board of Elections' certified rounds"
+    },
+    {
+     "name": "Maine",
+     "years": "2018–2024",
+     "ruleset": "irv",
+     "checker": "maine",
+     "against": "The Secretary of State's RCV summary reports"
+    }
    ]
   }
  ],
  "causes": [
-  {"id": "record", "title": "The ballot record isn't quite the ballots counted",
-   "why": "A few votes a candidate apart from the first round on, some over and some under, under every reading of the ballots tried."},
-  {"id": "provisional", "title": "The official results checked aren't the final ones",
-   "why": "Only an earlier version survives in the Internet Archive."},
-  {"id": "lot", "title": "Ties drawn by lot",
-   "why": "Portland's code decides a tie for defeat by lot; this calculator uses a declared order, which chose the other candidate. Both elect the same councillors."},
-  {"id": "source", "title": "Slips and gaps in the published sources",
-   "why": "Where the source contradicts itself or lacks what the count needs."}
+  {
+   "id": "record",
+   "title": "The ballot record isn't quite the ballots counted",
+   "why": "A few votes a candidate apart from the first round on, some over and some under, under every reading of the ballots tried."
+  },
+  {
+   "id": "provisional",
+   "title": "The official results checked aren't the final ones",
+   "why": "Only an earlier version survives in the Internet Archive."
+  },
+  {
+   "id": "lot",
+   "title": "Ties drawn by lot",
+   "why": "A tie for exclusion the rules leave to lot, where this calculator's declared order chose the other candidate. The same winners either way."
+  },
+  {
+   "id": "source",
+   "title": "Slips and gaps in the published sources",
+   "why": "Where the source contradicts itself or lacks what the count needs."
+  }
  ],
  "differences": [
-  {"cause": "record", "checker": "alameda",
-   "contests": ["oakland-2024-council-at-large", "oakland-2024-council-7", "oakland-2024-city-attorney", "oakland-2025-mayor"],
-   "text": "Alameda County: 4 Oakland contests of 2024–2025, 1–7 votes a candidate."},
-  {"cause": "record", "checker": "alaska",
-   "contests": ["2022-us-house", "2022-us-senate", "2022-house-11", "2022-house-18", "2024-us-house", "2024-house-6", "2024-house-28", "2024-house-36", "2024-senate-l"],
-   "text": "Alaska: 9 contests of 2022–2024, first rounds exact, later rounds 1–9 votes a candidate."},
-  {"cause": "record", "checker": "nyc",
-   "contests": ["2021-dem-council-9", "2021-rep-mayor", "2021-rep-borough-president-richmond", "2021-rep-council-50", "2023-rep-council-13", "2025-dem-council-35"],
-   "text": "New York City: 6 primaries, 1–33 votes a candidate."},
-  {"cause": "record", "checker": "maine", "contests": ["2018-dem-governor"],
-   "text": "Maine: the 2018 Democratic primary for governor, Janet Mills 3 votes higher in the last round."},
-  {"cause": "record", "checker": "minneapolis", "contests": ["bet-2009"],
-   "text": "Minneapolis: 2009 Board of Estimate, Becker 16,727 here against 16,728; every later round matches."},
-  {"cause": "provisional", "checker": "sanfrancisco", "contests": ["2024-city-attorney", "2024-district-attorney", "2024-sheriff"],
-   "text": "San Francisco: 2024 city attorney, district attorney and sheriff, captured 22–27 November, before certification on 3 December; 76–80 votes short."},
-  {"cause": "provisional", "checker": "alaska", "contests": ["2022-special-us-house"],
-   "text": "Alaska: the August 2022 special for US House, the unofficial report of 31 August; 54–71 votes."},
-  {"cause": "lot", "checker": "portland", "contests": ["1"],
-   "text": "District 1: David Linn and Peggy Sue Owens, tied on 1,441."},
-  {"cause": "lot", "checker": "portland", "contests": ["3"],
-   "text": "District 3: Jaclyn Smith-Moore and Patrick Hilton, tied on 200."},
-  {"cause": "source", "checker": "eastpointe", "contests": ["council-2021"],
-   "text": "Eastpointe 2021: round 4 gives Rob Baker 1,058.8175, 2 more than its own round 3 plus transfers; its round 5 builds on 1,056.8175, as here."},
-  {"cause": "source",
-   "text": "Cambridge 2019–2023: the records don't mark overvotes, so first counts are a few votes off and only winners are compared. The 2023 School Committee's last exclusion was King, 8 votes behind Harding; here it's Harding, 12 behind."},
-  {"cause": "source",
-   "text": "Scotland: of Wikipedia's 1,043 result boxes, 169 differ somewhere. Where an official source exists, the box is the one in error."}
+  {
+   "cause": "record",
+   "checker": "alameda",
+   "contests": [
+    "oakland-2024-council-at-large",
+    "oakland-2024-council-7",
+    "oakland-2024-city-attorney",
+    "oakland-2025-mayor"
+   ],
+   "text": "Alameda County: 4 Oakland contests of 2024–2025, 1–7 votes a candidate."
+  },
+  {
+   "cause": "record",
+   "checker": "alaska",
+   "contests": [
+    "2022-us-house",
+    "2022-us-senate",
+    "2022-house-11",
+    "2022-house-18",
+    "2024-us-house",
+    "2024-house-6",
+    "2024-house-28",
+    "2024-house-36",
+    "2024-senate-l"
+   ],
+   "text": "Alaska: 9 contests of 2022–2024, first rounds exact, later rounds 1–9 votes a candidate."
+  },
+  {
+   "cause": "record",
+   "checker": "nyc",
+   "contests": [
+    "2021-dem-council-9",
+    "2021-rep-mayor",
+    "2021-rep-borough-president-richmond",
+    "2021-rep-council-50",
+    "2023-rep-council-13",
+    "2025-dem-council-35"
+   ],
+   "text": "New York City: 6 primaries, 1–33 votes a candidate."
+  },
+  {
+   "cause": "record",
+   "checker": "maine",
+   "contests": [
+    "2018-dem-governor"
+   ],
+   "text": "Maine: the 2018 Democratic primary for governor, Janet Mills 3 votes higher in the last round."
+  },
+  {
+   "cause": "record",
+   "checker": "minneapolis",
+   "contests": [
+    "bet-2009"
+   ],
+   "text": "Minneapolis: 2009 Board of Estimate, Becker 16,727 here against 16,728; every later round matches."
+  },
+  {
+   "cause": "provisional",
+   "checker": "sanfrancisco",
+   "contests": [
+    "2024-city-attorney",
+    "2024-district-attorney",
+    "2024-sheriff"
+   ],
+   "text": "San Francisco: 2024 city attorney, district attorney and sheriff, captured 22–27 November, before certification on 3 December; 76–80 votes short."
+  },
+  {
+   "cause": "provisional",
+   "checker": "alaska",
+   "contests": [
+    "2022-special-us-house"
+   ],
+   "text": "Alaska: the August 2022 special for US House, the unofficial report of 31 August; 54–71 votes."
+  },
+  {
+   "cause": "lot",
+   "checker": "portland",
+   "contests": [
+    "1"
+   ],
+   "text": "District 1: David Linn and Peggy Sue Owens, tied on 1,441."
+  },
+  {
+   "cause": "lot",
+   "checker": "portland",
+   "contests": [
+    "3"
+   ],
+   "text": "District 3: Jaclyn Smith-Moore and Patrick Hilton, tied on 200."
+  },
+  {
+   "cause": "lot",
+   "checker": "nsw",
+   "contests": [
+    "armidale",
+    "bathurst",
+    "campbelltown",
+    "dubbo",
+    "hawkesbury",
+    "inner-west_balmain-baludarri-leather-jacket-ward",
+    "kiama",
+    "lithgow",
+    "mid-western",
+    "orange",
+    "parkes",
+    "queanbeyan-palerang",
+    "snowy-monaro",
+    "wagga-wagga",
+    "wingecarribee"
+   ],
+   "text": "NSW: 15 councillor counts, from Armidale to Wingecarribee; the Commission's draw and the declared order part at the tie, and the same councillors are elected."
+  },
+  {
+   "cause": "source",
+   "checker": "eastpointe",
+   "contests": [
+    "council-2021"
+   ],
+   "text": "Eastpointe 2021: round 4 gives Rob Baker 1,058.8175, 2 more than its own round 3 plus transfers; its round 5 builds on 1,056.8175, as here."
+  },
+  {
+   "cause": "source",
+   "text": "Cambridge 2019–2023: the records don't mark overvotes, so first counts are a few votes off and only winners are compared. The 2023 School Committee's last exclusion was King, 8 votes behind Harding; here it's Harding, 12 behind.",
+   "checker": "cambridge",
+   "contests": [
+    "school-2023"
+   ]
+  },
+  {
+   "cause": "source",
+   "text": "Scotland: of Wikipedia's {scotland-wikipedia.contests} result boxes, {scotland-wikipedia.short} differ somewhere. Where an official source exists, the box is the one in error.",
+   "checker": "scotland-wikipedia",
+   "contests": "all"
+  },
+  {
+   "cause": "source",
+   "checker": "scotland",
+   "contests": [
+    "midlothian_2012_ward1"
+   ],
+   "winners_confirmed": true,
+   "text": "Scotland, Midlothian 2012 ward 1: the ballot file truncates surnames, so its winners were matched to the declared ones by hand."
+  },
+  {
+   "cause": "source",
+   "checker": "scotland",
+   "contests": [
+    "east_lothian_2017_ward3"
+   ],
+   "winners_confirmed": true,
+   "text": "Scotland, East Lothian 2017 ward 3: Wikipedia's result box gives 3 seats for 4; Denis Mollison's recount of the ballots confirms this count's winners."
+  }
  ],
  "example": {
   "title": "How a batch defeat lines up",
   "intro": "Many official counts defeat several hopeless candidates at once, or stop as soon as someone has a majority. Neither changes the rounds passed through, so each official round is required to be one of this count's rounds, in order, with the same candidates still in it. New York City's 2025 Democratic mayoral primary:",
   "rounds": [
-   {"official": 1, "ours": 0, "label": "Round 1", "text": "Write-ins counted as one candidate: 1,581 votes.", "figures": "Mamdani 469,642 · Cuomo 387,137", "after": "Checked against the record's first choices."},
-   {"official": 2, "ours": 1, "label": "Round 2", "text": "The write-ins go first, ahead of two candidates with fewer votes. That is this count's round 1, write-ins passed over.", "figures": "Mamdani 469,755 · Cuomo 387,377"},
-   {"official": 3, "ours": 10, "label": "Round 3", "text": "Nine candidates defeated at once. This count defeats them one a round and reaches the same two at its round 10.", "figures": "Mamdani 573,169 · Cuomo 443,229"}
+   {
+    "official": 1,
+    "ours": 0,
+    "label": "Round 1",
+    "text": "Write-ins counted as one candidate: 1,581 votes.",
+    "figures": "Mamdani 469,642 · Cuomo 387,137",
+    "after": "Checked against the record's first choices."
+   },
+   {
+    "official": 2,
+    "ours": 1,
+    "label": "Round 2",
+    "text": "The write-ins go first, ahead of two candidates with fewer votes. That is this count's round 1, write-ins passed over.",
+    "figures": "Mamdani 469,755 · Cuomo 387,377"
+   },
+   {
+    "official": 3,
+    "ours": 10,
+    "label": "Round 3",
+    "text": "Nine candidates defeated at once. This count defeats them one a round and reaches the same two at its round 10.",
+    "figures": "Mamdani 573,169 · Cuomo 443,229"
+   }
   ],
   "our_rounds": 10
  },
  "rules": {
-  "columns": ["Counts", "Overvote", "Skipped ranking", "Candidate ranked again", "Write-ins", "Defeats", "Ends", "Converter options"],
+  "columns": [
+   "Counts",
+   "Overvote",
+   "Skipped ranking",
+   "Candidate ranked again",
+   "Write-ins",
+   "Defeats",
+   "Ends",
+   "Converter options"
+  ],
   "rows": [
-   ["Alameda 2010–2017", "ends the ballot", "passed over", "counts once", "one candidate (passed over where one qualified)", "one a round", "at a majority", "--write-in candidate"],
-   ["Alameda 2022–2025", "ends the ballot", "passed over", "counts once", "passed over", "one a round", "two left", ""],
-   ["San Francisco 2010–2014", "ends the ballot", "passed over", "counts once", "one candidate", "several at once", "at a majority", "--write-in candidate"],
-   ["San Francisco 2015–2018", "ends the ballot", "passed over", "counts once", "passed over", "several at once", "at a majority", ""],
-   ["San Francisco 2019–2024", "ends the ballot", "passed over", "counts once", "passed over", "one a round", "two left", ""],
-   ["Alaska 2022–2024", "ends the ballot", "two in a row end it", "counts once", "passed over", "one a round", "two left", "--skipped two-end"],
-   ["New York City 2021–2025", "ends the ballot", "passed over", "counts once", "one candidate, eliminated first", "several at once", "two left", ""],
-   ["Maine 2018–2024", "ends the ballot", "two in a row end it", "counts once", "one candidate", "several at once", "at a majority", "--skipped two-end --write-in candidate"],
-   ["Minneapolis 2009–2025", "skipped", "passed over", "counts once", "one candidate", "the hopeless together", "seats filled", "--overvote skip --write-in candidate"],
-   ["Portland 2024", "skipped", "passed over", "counts once", "\"Uncertified Write In\" a candidate", "STV", "seats filled", null],
-   ["Eastpointe 2019, 2021", "ends the ballot", "two in a row end it, write-ins included", "ends the ballot", "passed over, as a skip", "STV", "seats filled", "--skipped two-end --write-in skip --repeat end"],
-   ["Albany 2022, 2024", "ends the ballot", "passed over", "counts once", "passed over", "STV", "seats filled", ""]
+   [
+    "Alameda 2010–2017",
+    "ends the ballot",
+    "passed over",
+    "counts once",
+    "one candidate (passed over where one qualified)",
+    "one a round",
+    "at a majority",
+    "--write-in candidate"
+   ],
+   [
+    "Alameda 2022–2025",
+    "ends the ballot",
+    "passed over",
+    "counts once",
+    "passed over",
+    "one a round",
+    "two left",
+    ""
+   ],
+   [
+    "San Francisco 2010–2014",
+    "ends the ballot",
+    "passed over",
+    "counts once",
+    "one candidate",
+    "several at once",
+    "at a majority",
+    "--write-in candidate"
+   ],
+   [
+    "San Francisco 2015–2018",
+    "ends the ballot",
+    "passed over",
+    "counts once",
+    "passed over",
+    "several at once",
+    "at a majority",
+    ""
+   ],
+   [
+    "San Francisco 2019–2024",
+    "ends the ballot",
+    "passed over",
+    "counts once",
+    "passed over",
+    "one a round",
+    "two left",
+    ""
+   ],
+   [
+    "Alaska 2022–2024",
+    "ends the ballot",
+    "two in a row end it",
+    "counts once",
+    "passed over",
+    "one a round",
+    "two left",
+    "--skipped two-end"
+   ],
+   [
+    "New York City 2021–2025",
+    "ends the ballot",
+    "passed over",
+    "counts once",
+    "one candidate, eliminated first",
+    "several at once",
+    "two left",
+    ""
+   ],
+   [
+    "Maine 2018–2024",
+    "ends the ballot",
+    "two in a row end it",
+    "counts once",
+    "one candidate",
+    "several at once",
+    "at a majority",
+    "--skipped two-end --write-in candidate"
+   ],
+   [
+    "Minneapolis 2009–2025",
+    "skipped",
+    "passed over",
+    "counts once",
+    "one candidate",
+    "the hopeless together",
+    "seats filled",
+    "--overvote skip --write-in candidate"
+   ],
+   [
+    "Portland 2024",
+    "skipped",
+    "passed over",
+    "counts once",
+    "\"Uncertified Write In\" a candidate",
+    "STV",
+    "seats filled",
+    null
+   ],
+   [
+    "Eastpointe 2019, 2021",
+    "ends the ballot",
+    "two in a row end it, write-ins included",
+    "ends the ballot",
+    "passed over, as a skip",
+    "STV",
+    "seats filled",
+    "--skipped two-end --write-in skip --repeat end"
+   ],
+   [
+    "Albany 2022, 2024",
+    "ends the ballot",
+    "passed over",
+    "counts once",
+    "passed over",
+    "STV",
+    "seats filled",
+    ""
+   ]
   ]
+ },
+ "scope": {
+  "scotland": {
+   "pattern": "^(?!.*by_election)",
+   "why": "regular ward elections; by-elections aren't claimed"
+  }
  }
 }

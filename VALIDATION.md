@@ -35,7 +35,7 @@ official count gives them. Details are in [Real elections](#real-elections).
 | Scotland, council wards (2007–2022) | 1,070 | `scottish` | every winner; every stage of 40 against the councils' reports and of 1,043 against Wikipedia's |
 | ACT Legislative Assembly (2020) | 5 | `act-hare-clark` | every round, to 6 decimal places, with votes exhausted and lost |
 | Australian Senate (2016–2025) | 32 | `senate` | every round, to the vote, with votes exhausted and lost |
-| NSW councils (2024) | 227 | `nsw-lg` | every round, to the vote, with votes lost |
+| NSW councils (2024) | 227 | `nsw-lg` | every round in 212, to the vote, with votes lost; the other 15 part at a tie the Commission drew by lot; all 227 the winners |
 | Portland, Oregon (2024) | 4 | `portland` | every round, to 4 places, but the two that follow ties drawn by lot |
 | Minneapolis (2009–2025) | 8 multi-seat, 29 single-seat, and 2013's 2 by winners | `minneapolis`; 2009 by the 2006 ordinance's rules | every round, but one first round where the record is a vote short |
 | Cambridge, MA (2001–2023) | 22 | `--method cambridge` | every count of 2001–2017's 16; the winners of 5 of 2019–2023's 6 |

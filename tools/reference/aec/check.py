@@ -24,6 +24,8 @@ import time
 import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from rcvcheck import record, write_results  # noqa: E402
 
 DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "target",
                            "rankedchoice-0.1.0-SNAPSHOT.jar")
@@ -70,7 +72,7 @@ def check(data, event, state, jar):
                              "json"], capture_output=True, text=True)
     seconds = time.monotonic() - started
     if result.returncode:
-        return False, f"{event}-{state}: count failed: {result.stderr.strip()[-200:]}"
+        return record(f"{event}-{state}", False, f"{event}-{state}: count failed: {result.stderr.strip()[-200:]}")
     report = json.loads(result.stdout)
     start, unmatched = 0, []
     for rnd in report["rounds"]:
@@ -94,7 +96,8 @@ def check(data, event, state, jar):
     if unmatched:
         line += f"; first unmatched round {unmatched[0]}"
     line += f" ({seconds:.0f}s to count)"
-    return ok, line
+    return record(f"{event}-{state}", ok, line, matched=len(report["rounds"]) - len(unmatched),
+                  rounds=len(report["rounds"]), winners_same=ours == elected)
 
 
 def main():
@@ -102,16 +105,20 @@ def main():
     parser.add_argument("data")
     parser.add_argument("elections", nargs="*")
     parser.add_argument("--jar", default=DEFAULT_JAR)
+    parser.add_argument("--results", help="write each election's result to this JSON file, for the results page")
     args = parser.parse_args()
     elections = args.elections or sorted(
         re.search(r"(\d+-[A-Z]+)\.zip$", p).group(1)
         for p in glob.glob(os.path.join(args.data, "aec-senate-formalpreferences-*.zip")))
-    failed = 0
+    failed, results = 0, []
     for election in elections:
         event, state = election.split("-")
-        ok, line = check(args.data, event, state, args.jar)
-        failed += not ok
-        print(line, flush=True)
+        result = check(args.data, event, state, args.jar)
+        failed += not result["ok"]
+        results.append(result)
+        print(result["line"], flush=True)
+    if args.results:
+        write_results(args.results, "aec", results)
     sys.exit(1 if failed else 0)
 
 
