@@ -1,0 +1,223 @@
+<title>Real Elections Recounted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a count-sheet ledger. Summary line, then one register of jurisdictions grouped by kind of count,
+   a worked example of how official rounds line up with this count's, the exceptions by cause, and the rules. */
+:root {
+  --paper: #f5f7f9;
+  --sheet: #ffffff;
+  --ink: #18212e;
+  --muted: #5b6676;
+  --rule: #d8dde4;
+  --accent: #1d5f8a;
+  --accent-soft: #e3eef6;
+  --exact: #23704a;
+  --exact-soft: #e1f1e8;
+  --near: #8a5a12;
+  --near-soft: #f6ecd9;
+  --plain: #4d5868;
+  --plain-soft: #eceff3;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Public Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f141b; --sheet: #161d27; --ink: #e3e8ee; --muted: #9aa5b4; --rule: #2a3442;
+    --accent: #7db6dd; --accent-soft: #1b2d3c;
+    --exact: #74c79a; --exact-soft: #17301f; --near: #e0b064; --near-soft: #33280f;
+    --plain: #aab4c1; --plain-soft: #222b37;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f141b; --sheet: #161d27; --ink: #e3e8ee; --muted: #9aa5b4; --rule: #2a3442;
+  --accent: #7db6dd; --accent-soft: #1b2d3c;
+  --exact: #74c79a; --exact-soft: #17301f; --near: #e0b064; --near-soft: #33280f;
+  --plain: #aab4c1; --plain-soft: #222b37;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 400 15px/1.6 var(--body);
+  padding-inline: 16px; padding-block: 0 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.1; }
+h2 { font-size: 1.6rem; font-weight: 750; font-stretch: 85%; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 700; font-stretch: 90%; }
+p { margin: 0; max-width: 68ch; }
+.num, td.num, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.label { font-family: var(--display); font-size: 0.72rem; font-weight: 700; font-stretch: 85%;
+  letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+section { display: flex; flex-direction: column; gap: 18px; }
+section > header { display: flex; flex-direction: column; gap: 8px; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--plain-soft); padding: 0.05em 0.35em; border-radius: 3px; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Masthead */
+.masthead { padding-block: 44px 0; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 32px; align-items: end; }
+.masthead h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; font-stretch: 75%; letter-spacing: -0.02em; }
+.masthead .lede { margin-top: 14px; font-size: 1.05rem; color: var(--muted); }
+.tally { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 3px solid var(--ink); }
+.tally div { padding: 12px 0 0; display: flex; flex-direction: column; gap: 2px; }
+.tally div + div { padding-left: 18px; border-left: 1px solid var(--rule); }
+.tally strong { font-family: var(--display); font-size: 2.3rem; font-weight: 800; font-stretch: 80%; line-height: 1; font-variant-numeric: tabular-nums; }
+.tally span { font-size: 0.85rem; color: var(--muted); }
+.stamp { font-size: 0.8rem; color: var(--muted); }
+
+/* Register */
+.register { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; }
+th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--rule); }
+thead th { font-family: var(--display); font-size: 0.72rem; font-weight: 700; font-stretch: 85%; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--muted); background: var(--sheet); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+tr.group td { background: var(--plain-soft); font-family: var(--display); font-weight: 700; font-stretch: 85%;
+  font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding-block: 7px; }
+td.place { font-weight: 600; }
+td.place small { display: block; font-weight: 400; color: var(--muted); }
+td.num { text-align: right; white-space: nowrap; }
+td.what { color: var(--muted); font-size: 0.9rem; max-width: 34ch; }
+.chip { display: inline-block; font-size: 0.78rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.chip.exact { color: var(--exact); background: var(--exact-soft); }
+.chip.near { color: var(--near); background: var(--near-soft); }
+.chip.plain { color: var(--plain); background: var(--plain-soft); }
+.result { display: flex; flex-direction: column; gap: 6px; }
+.result p { font-size: 0.88rem; color: var(--muted); }
+.meter { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; }
+.meter .bar { flex: 0 0 120px; height: 7px; border-radius: 4px; background: var(--near-soft); overflow: hidden; }
+.meter .bar i { display: block; height: 100%; background: var(--exact); }
+
+/* Worked example */
+.example { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 22px; display: flex; flex-direction: column; gap: 18px; }
+.lanes { overflow-x: auto; }
+.lane-grid { display: grid; grid-template-columns: 112px repeat(11, minmax(44px, 1fr)); min-width: 640px; row-gap: 6px; align-items: center; }
+.lane-name { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+.cell { height: 34px; display: grid; place-items: center; font-family: var(--mono); font-size: 0.8rem; border-radius: 4px; }
+.ours .cell { background: var(--plain-soft); color: var(--plain); }
+.ours .cell.hit { background: var(--accent); color: var(--sheet); font-weight: 500; }
+.official .cell.on { background: var(--exact-soft); color: var(--exact); font-weight: 500; border: 1px solid var(--exact); }
+.link-row .cell { height: 14px; }
+.link-row .cell.on { border-left: 2px solid var(--exact); width: 0; justify-self: center; border-radius: 0; height: 18px; }
+.lane-grid > .ours, .lane-grid > .official, .lane-grid > .link-row { display: contents; }
+.figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.figures div { border-top: 2px solid var(--exact); padding-top: 8px; display: flex; flex-direction: column; gap: 3px; font-size: 0.88rem; }
+.figures b { font-family: var(--display); font-stretch: 85%; font-size: 0.95rem; }
+.figures .mono { font-size: 0.85rem; }
+
+/* Exceptions */
+.causes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.cause { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.cause ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 7px; font-size: 0.9rem; }
+.cause li::marker { color: var(--muted); }
+.cause .why { font-size: 0.88rem; color: var(--muted); }
+
+/* Rules table */
+.rules table { min-width: 900px; font-size: 0.86rem; }
+.rules td:first-child { font-weight: 600; white-space: nowrap; }
+.rules td.opt code { white-space: nowrap; }
+
+footer.notes { border-top: 1px solid var(--rule); padding-top: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; color: var(--muted); }
+
+@media (max-width: 760px) {
+  .masthead { grid-template-columns: 1fr; gap: 24px; padding-block-start: 28px; }
+  .causes, .figures { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .meter .bar i { transition: width 0.6s ease-out; }
+}
+.cause.unexplained { border-color: var(--near); }
+.cause.unexplained h3 { color: var(--near); }
+</style>
+<!-- Generated by tools/reference/results_page.py from tools/reference/results; edit those, not this file. -->
+<div class="wrap">
+
+<header class="masthead">
+  <div>
+    <div class="label">rankedchoice · validation against official counts</div>
+    <h1>Real elections, recounted from their ballots</h1>
+    <p class="lede">The calculator is run on the published ballots of real elections, under each jurisdiction's own rules, and every official round is compared with its count: candidate by candidate, to the precision the official count gives.</p>
+  </div>
+  <div>
+    <div class="tally">
+      <div><strong>1,710</strong><span>contests in 15 jurisdictions</span></div>
+      <div><strong>1,709</strong><span>elect the official winners</span></div>
+    </div>
+    <p class="stamp">1 contest elects differently: see Known differences. US checks run up to 2026-10-05, at commit 9cdac48; the other figures are from VALIDATION.md.</p>
+  </div>
+</header>
+
+<section aria-labelledby="register-h">
+  <header>
+    <h2 id="register-h">Jurisdictions</h2>
+    <p>"Every round" means every candidate's votes in every official round, at the official precision. Where a contest falls short, the reason is under <a href="#differences">Known differences</a>.</p>
+  </header>
+  <div class="register">
+    <table>
+      <thead>
+        <tr><th>Jurisdiction</th><th class="num">Contests</th><th>Ruleset</th><th>Checked against</th><th>Result</th></tr>
+      </thead>
+      <tbody>
+<tr class="group"><td colspan="5">Australia</td></tr>
+<tr><td class="place">ACT Legislative Assembly<small>2020, all five electorates</small></td><td class="num">5</td><td><code>act-hare-clark</code></td><td class="what">Elections ACT&#x27;s distributions of preferences</td><td><div class="result"><span class="chip exact">Every round</span><p>To 6 decimal places, with votes exhausted and lost.</p></div></td></tr>
+<tr><td class="place">Australian Senate<small>2016–2025, every state and territory</small></td><td class="num">32</td><td><code>senate</code></td><td class="what">The AEC&#x27;s distributions of preferences</td><td><div class="result"><span class="chip exact">Every round</span><p>To the vote, with votes exhausted and lost.</p></div></td></tr>
+<tr><td class="place">NSW councils<small>2024, every councillor count</small></td><td class="num">227</td><td><code>nsw-lg</code></td><td class="what">The NSW Electoral Commission&#x27;s distributions</td><td><div class="result"><span class="chip exact">Every round</span><p>To the vote, with votes lost.</p></div></td></tr>
+<tr class="group"><td colspan="5">Scotland and Ireland</td></tr>
+<tr><td class="place">Scottish council wards<small>2007–2022, every ward with published ballots</small></td><td class="num">1,070</td><td><code>scottish</code></td><td class="what">Declared results; councils&#x27; stage reports; Wikipedia&#x27;s result boxes</td><td><div class="result"><span class="chip exact">Every winner</span><p>Every stage of the 40 wards with a council stage report (Falkirk, Scottish Borders, Highland, 2022), to 5 places. Of 1,043 wards in Wikipedia&#x27;s boxes, 874 match every count.</p></div></td></tr>
+<tr><td class="place">Ireland, Dáil<small>2002: Dublin North, Dublin West, Meath</small></td><td class="num">3</td><td>—</td><td class="what">Official first preferences and TDs returned</td><td><div class="result"><span class="chip exact">Winners and first preferences</span><p>Dáil counts draw a random sample of each surplus, so no later round is reproducible.</p></div></td></tr>
+<tr class="group"><td colspan="5">United States, several seats</td></tr>
+<tr><td class="place">Portland, Oregon<small>2024 City Council</small></td><td class="num">4</td><td><code>portland</code></td><td class="what">Multnomah County&#x27;s RCTab summaries</td><td><div class="result"><span class="chip near">Every round but 2</span><p>98 official rounds, to 4 places.</p></div></td></tr>
+<tr><td class="place">Minneapolis<small>2009–2025: multi-seat, single-seat, and 2013&#x27;s two by winners</small></td><td class="num">39</td><td><code>minneapolis</code></td><td class="what">The City&#x27;s summary statements</td><td><div class="result"><span class="chip near">Every round but 1</span><p>91 official rounds, to 4 places. 2 checked by winners only.</p></div></td></tr>
+<tr><td class="place">Cambridge, Massachusetts<small>2001–2023 City Council and School Committee</small></td><td class="num">22</td><td><code>--method cambridge</code></td><td class="what">The City&#x27;s official count sheets</td><td><div class="result"><span class="chip near">Every count of 16</span><p>2001–2017 to the vote. 2019–2023: winners of 5 of 6.</p></div></td></tr>
+<tr><td class="place">Albany, California<small>2022 and 2024</small></td><td class="num">4</td><td><code>albany</code></td><td class="what">Alameda County&#x27;s Dominion reports</td><td><div class="result"><span class="chip exact">Every round</span><p>13 official rounds, to the report&#x27;s decimal places.</p></div></td></tr>
+<tr><td class="place">Eastpointe, Michigan<small>2019 and 2021 City Council</small></td><td class="num">2</td><td><code>portland</code></td><td class="what">Macomb County&#x27;s RCTab summaries</td><td><div class="result"><span class="chip exact">Every round</span><p>7 official rounds, to 4 places.</p></div></td></tr>
+<tr class="group"><td colspan="5">United States, one seat (instant-runoff)</td></tr>
+<tr><td class="place">Alameda County, California<small>Oakland, Berkeley, San Leandro, 2010–2025</small></td><td class="num">93</td><td><code>irv</code></td><td class="what">The County&#x27;s pass reports and Dominion reports</td><td><div class="result"><div class="meter"><span class="bar"><i style="width: 95.7%"></i></span><span class="mono">89 / 93</span></div><p>Every round in 89; eliminations and winner in all 93.</p></div></td></tr>
+<tr><td class="place">San Francisco<small>2010–2024</small></td><td class="num">53</td><td><code>irv</code></td><td class="what">Archived official results</td><td><div class="result"><div class="meter"><span class="bar"><i style="width: 94.3%"></i></span><span class="mono">50 / 53</span></div><p>Every round in 50; eliminations and winner in all 53.</p></div></td></tr>
+<tr><td class="place">Alaska<small>2022 and 2024</small></td><td class="num">22</td><td><code>irv</code></td><td class="what">The Division of Elections&#x27; Dominion reports, as archived</td><td><div class="result"><div class="meter"><span class="bar"><i style="width: 54.5%"></i></span><span class="mono">12 / 22</span></div><p>Every round in 12; eliminations and winner in all 22.</p></div></td></tr>
+<tr><td class="place">New York City primaries<small>2021, 2023, 2025</small></td><td class="num">123</td><td><code>irv</code></td><td class="what">The Board of Elections&#x27; certified rounds</td><td><div class="result"><div class="meter"><span class="bar"><i style="width: 95.1%"></i></span><span class="mono">117 / 123</span></div><p>Every round in 117; eliminations and winner in all 123.</p></div></td></tr>
+<tr><td class="place">Maine<small>2018–2024</small></td><td class="num">11</td><td><code>irv</code></td><td class="what">The Secretary of State&#x27;s RCV summary reports</td><td><div class="result"><div class="meter"><span class="bar"><i style="width: 90.9%"></i></span><span class="mono">10 / 11</span></div><p>Every round in 10; eliminations and winner in all 11.</p></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="example-h"><header><h2 id="example-h">How a batch defeat lines up</h2><p>Many official counts defeat several hopeless candidates at once, or stop as soon as someone has a majority. Neither changes the rounds passed through, so each official round is required to be one of this count&#x27;s rounds, in order, with the same candidates still in it. New York City&#x27;s 2025 Democratic mayoral primary:</p></header><div class="example"><div class="lanes" role="img" aria-label="Official round 1 matches the record&#x27;s first choices; official round 2 matches this count&#x27;s round 1; official round 3 matches this count&#x27;s round 10."><div class="lane-grid"><div class="official"><span class="lane-name">Official rounds</span><span class="cell on">1</span><span class="cell on">2</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell on">3</span></div><div class="link-row"><span class="lane-name"></span><span class="cell on"></span><span class="cell on"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell on"></span></div><div class="ours"><span class="lane-name">This count</span><span class="cell hit">1st</span><span class="cell hit">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell">9</span><span class="cell hit">10</span></div></div></div><div class="figures"><div><b>Round 1</b><span>Write-ins counted as one candidate: 1,581 votes.</span><span class="mono">Mamdani 469,642 · Cuomo 387,137</span><span>Checked against the record&#x27;s first choices.</span></div><div><b>Round 2</b><span>The write-ins go first, ahead of two candidates with fewer votes. That is this count&#x27;s round 1, write-ins passed over.</span><span class="mono">Mamdani 469,755 · Cuomo 387,377</span></div><div><b>Round 3</b><span>Nine candidates defeated at once. This count defeats them one a round and reaches the same two at its round 10.</span><span class="mono">Mamdani 573,169 · Cuomo 443,229</span></div></div></div></section>
+
+<section id="differences" aria-labelledby="differences-h">
+  <header>
+    <h2 id="differences-h">Known differences</h2>
+    <p>Every figure that doesn't match, by cause. In each the same candidates are eliminated, in the same order, and the same candidates win, unless it says otherwise.</p>
+  </header>
+  <div class="causes">
+<div class="cause"><h3>The ballot record isn&#x27;t quite the ballots counted</h3><p class="why">A few votes a candidate apart from the first round on, some over and some under, under every reading of the ballots tried.</p><ul><li>Alameda County: 4 Oakland contests of 2024–2025, 1–7 votes a candidate.</li><li>Alaska: 9 contests of 2022–2024, first rounds exact, later rounds 1–9 votes a candidate.</li><li>New York City: 6 primaries, 1–33 votes a candidate.</li><li>Maine: the 2018 Democratic primary for governor, Janet Mills 3 votes higher in the last round.</li><li>Minneapolis: 2009 Board of Estimate, Becker 16,727 here against 16,728; every later round matches.</li></ul></div>
+<div class="cause"><h3>The official results checked aren&#x27;t the final ones</h3><p class="why">Only an earlier version survives in the Internet Archive.</p><ul><li>San Francisco: 2024 city attorney, district attorney and sheriff, captured 22–27 November, before certification on 3 December; 76–80 votes short.</li><li>Alaska: the August 2022 special for US House, the unofficial report of 31 August; 54–71 votes.</li></ul></div>
+<div class="cause"><h3>Ties drawn by lot</h3><p class="why">Portland&#x27;s code decides a tie for defeat by lot; this calculator uses a declared order, which chose the other candidate. Both elect the same councillors.</p><ul><li>District 1: David Linn and Peggy Sue Owens, tied on 1,441.</li><li>District 3: Jaclyn Smith-Moore and Patrick Hilton, tied on 200.</li></ul></div>
+<div class="cause"><h3>Slips and gaps in the published sources</h3><p class="why">Where the source contradicts itself or lacks what the count needs.</p><ul><li>Eastpointe 2021: round 4 gives Rob Baker 1,058.8175, 2 more than its own round 3 plus transfers; its round 5 builds on 1,056.8175, as here.</li><li>Cambridge 2019–2023: the records don&#x27;t mark overvotes, so first counts are a few votes off and only winners are compared. The 2023 School Committee&#x27;s last exclusion was King, 8 votes behind Harding; here it&#x27;s Harding, 12 behind.</li><li>Scotland: of Wikipedia&#x27;s 1,043 result boxes, 169 differ somewhere. Where an official source exists, the box is the one in error.</li></ul></div>
+  </div>
+</section>
+
+<section class="rules" aria-labelledby="rules-h">
+  <header>
+    <h2 id="rules-h">How US ranked-choice counts read ballots</h2>
+    <p>The rules that differ between the US counts, each found by matching the official rounds. One converter reads them all, one option per rule; Portland's ballot record has a different shape and its own converter.</p>
+  </header>
+  <div class="register">
+    <table>
+<thead><tr><th>Counts</th><th>Overvote</th><th>Skipped ranking</th><th>Candidate ranked again</th><th>Write-ins</th><th>Defeats</th><th>Ends</th><th>Converter options</th></tr></thead><tbody><tr><td>Alameda 2010–2017</td><td>ends the ballot</td><td>passed over</td><td>counts once</td><td>one candidate (passed over where one qualified)</td><td>one a round</td><td>at a majority</td><td class="opt"><code>--write-in candidate</code></td></tr><tr><td>Alameda 2022–2025</td><td>ends the ballot</td><td>passed over</td><td>counts once</td><td>passed over</td><td>one a round</td><td>two left</td><td class="opt">defaults</td></tr><tr><td>San Francisco 2010–2014</td><td>ends the ballot</td><td>passed over</td><td>counts once</td><td>one candidate</td><td>several at once</td><td>at a majority</td><td class="opt"><code>--write-in candidate</code></td></tr><tr><td>San Francisco 2015–2018</td><td>ends the ballot</td><td>passed over</td><td>counts once</td><td>passed over</td><td>several at once</td><td>at a majority</td><td class="opt">defaults</td></tr><tr><td>San Francisco 2019–2024</td><td>ends the ballot</td><td>passed over</td><td>counts once</td><td>passed over</td><td>one a round</td><td>two left</td><td class="opt">defaults</td></tr><tr><td>Alaska 2022–2024</td><td>ends the ballot</td><td>two in a row end it</td><td>counts once</td><td>passed over</td><td>one a round</td><td>two left</td><td class="opt"><code>--skipped two-end</code></td></tr><tr><td>New York City 2021–2025</td><td>ends the ballot</td><td>passed over</td><td>counts once</td><td>one candidate, eliminated first</td><td>several at once</td><td>two left</td><td class="opt">defaults</td></tr><tr><td>Maine 2018–2024</td><td>ends the ballot</td><td>two in a row end it</td><td>counts once</td><td>one candidate</td><td>several at once</td><td>at a majority</td><td class="opt"><code>--skipped two-end --write-in candidate</code></td></tr><tr><td>Minneapolis 2009–2025</td><td>skipped</td><td>passed over</td><td>counts once</td><td>one candidate</td><td>the hopeless together</td><td>seats filled</td><td class="opt"><code>--overvote skip --write-in candidate</code></td></tr><tr><td>Portland 2024</td><td>skipped</td><td>passed over</td><td>counts once</td><td>&quot;Uncertified Write In&quot; a candidate</td><td>STV</td><td>seats filled</td><td class="opt">its own converter</td></tr><tr><td>Eastpointe 2019, 2021</td><td>ends the ballot</td><td>two in a row end it, write-ins included</td><td>ends the ballot</td><td>passed over, as a skip</td><td>STV</td><td>seats filled</td><td class="opt"><code>--skipped two-end --write-in skip --repeat end</code></td></tr><tr><td>Albany 2022, 2024</td><td>ends the ballot</td><td>passed over</td><td>counts once</td><td>passed over</td><td>STV</td><td>seats filled</td><td class="opt">defaults</td></tr></tbody>
+    </table>
+  </div>
+</section>
+
+<footer class="notes">
+  <p>Ballots come from the jurisdictions themselves, from FairVote's collections of cast vote records (Harvard Dataverse), and for Scotland from MGGG's scot-elex. Official results come from each election authority's own reports, or the Internet Archive's copies where the authority no longer publishes them.</p>
+  <p>The full evidence for every figure, and the scripts that reproduce each check, are in the project's VALIDATION.md and tools/reference.</p>
+</footer>
+
+</div>

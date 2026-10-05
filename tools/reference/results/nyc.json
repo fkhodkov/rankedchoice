@@ -1,0 +1,990 @@
+{
+ "checker": "nyc",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "2021-dem-mayor",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "2021-dem-mayor: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-public-advocate",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-public-advocate: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-comptroller",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "2021-dem-comptroller: 10 of 10 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-borough-president-bronx",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-dem-borough-president-bronx: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-borough-president-brooklyn",
+   "ok": true,
+   "matched": 11,
+   "rounds": 11,
+   "winners_same": true,
+   "line": "2021-dem-borough-president-brooklyn: 11 of 11 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-borough-president-manhattan",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2021-dem-borough-president-manhattan: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-borough-president-queens",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-dem-borough-president-queens: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-borough-president-richmond",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2021-dem-borough-president-richmond: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-1",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "2021-dem-council-1: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-2: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-3",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2021-dem-council-3: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-5",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2021-dem-council-5: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-6: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-7",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "2021-dem-council-7: 13 of 13 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-8",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-8: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-9",
+   "ok": true,
+   "matched": 0,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "2021-dem-council-9: 0 of 13 official rounds match to the vote (largest differences by round: [6, 6, 7, 7, 8, 10, 12, 13, 17, 19, 14, 15, 17]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-10",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2021-dem-council-10: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-11",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2021-dem-council-11: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-12",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-dem-council-12: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-13",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-13: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-14",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2021-dem-council-14: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-15",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2021-dem-council-15: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-16",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-16: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-17",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-17: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-18",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2021-dem-council-18: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-19",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2021-dem-council-19: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-20",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "2021-dem-council-20: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-21",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-21: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-22",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-dem-council-22: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-23",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2021-dem-council-23: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-24",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-24: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-25",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2021-dem-council-25: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-26",
+   "ok": true,
+   "matched": 15,
+   "rounds": 15,
+   "winners_same": true,
+   "line": "2021-dem-council-26: 15 of 15 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-27",
+   "ok": true,
+   "matched": 13,
+   "rounds": 13,
+   "winners_same": true,
+   "line": "2021-dem-council-27: 13 of 13 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-28",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-28: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-29",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "2021-dem-council-29: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-30",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-30: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-31",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-31: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-32",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-dem-council-32: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-33",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2021-dem-council-33: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-34",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-34: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-35",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-dem-council-35: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-36",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2021-dem-council-36: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-37",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2021-dem-council-37: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-38",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2021-dem-council-38: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-39",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2021-dem-council-39: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-40",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "2021-dem-council-40: 10 of 10 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-41",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-41: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-42",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-dem-council-42: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-45",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-dem-council-45: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-46",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2021-dem-council-46: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-47",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-dem-council-47: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-48",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2021-dem-council-48: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-dem-council-49",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "2021-dem-council-49: 9 of 9 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-con-council-19",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-con-council-19: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-rep-mayor",
+   "ok": true,
+   "matched": 0,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-rep-mayor: 0 of 1 official rounds match to the vote (largest differences by round: [2]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-rep-borough-president-richmond",
+   "ok": true,
+   "matched": 0,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2021-rep-borough-president-richmond: 0 of 3 official rounds match to the vote (largest differences by round: [2, 2, 2]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-rep-council-15",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2021-rep-council-15: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-rep-council-19",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-rep-council-19: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-rep-council-23",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-rep-council-23: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-rep-council-24",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-rep-council-24: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-rep-council-32",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2021-rep-council-32: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2021-rep-council-50",
+   "ok": true,
+   "matched": 0,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2021-rep-council-50: 0 of 5 official rounds match to the vote (largest differences by round: [6, 6, 7, 8, 7]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-1",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-1: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-2: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-9",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2023-dem-council-9: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-10",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-10: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-12",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-12: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-13",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-13: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-14",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-14: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-19",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2023-dem-council-19: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-22",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-22: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-23",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-23: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-25",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-25: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-26",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-26: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-29",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-29: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-34",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-34: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-41",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-41: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-42",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-42: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-dem-council-43",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-dem-council-43: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-con-council-13",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-con-council-13: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-rep-council-13",
+   "ok": true,
+   "matched": 0,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2023-rep-council-13: 0 of 3 official rounds match to the vote (largest differences by round: [1, 1, 1]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-rep-council-20",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-rep-council-20: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-rep-council-43",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-rep-council-43: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-rep-council-44",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-rep-council-44: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-rep-council-47",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-rep-council-47: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2023-rep-council-48",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2023-rep-council-48: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-mayor",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2025-dem-mayor: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-public-advocate",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-public-advocate: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-comptroller",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2025-dem-comptroller: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-borough-president-bronx",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-borough-president-bronx: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-borough-president-brooklyn",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-borough-president-brooklyn: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-borough-president-manhattan",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2025-dem-borough-president-manhattan: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-1",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2025-dem-council-1: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-2",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2025-dem-council-2: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-3",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-3: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-4",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2025-dem-council-4: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-5",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-5: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-7",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-7: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-8",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2025-dem-council-8: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-10",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-10: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-11",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-11: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-12",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-12: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-13",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2025-dem-council-13: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-14",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-14: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-16",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-16: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-17",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2025-dem-council-17: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-19",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-19: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-21",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2025-dem-council-21: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-25",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-25: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-28",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2025-dem-council-28: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-30",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2025-dem-council-30: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-33",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-33: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-35",
+   "ok": true,
+   "matched": 0,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-35: 0 of 1 official rounds match to the vote (largest differences by round: [33]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-36",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-36: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-38",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-38: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-39",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-39: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-41",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "2025-dem-council-41: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-46",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-46: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-47",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-47: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-dem-council-49",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-dem-council-49: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-rep-council-48",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-rep-council-48: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-rep-council-51",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-rep-council-51: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  }
+ ]
+}

@@ -15,6 +15,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import unicodedata
 import urllib.request
 from decimal import Decimal
@@ -179,20 +180,37 @@ def threshold_line(contest, ours, official_threshold, matched, rounds, same, ele
             f"elected {'the same' if same else 'DIFFERENTLY: ' + str(elected)}")
 
 
+def record(contest, ok, line):
+    """A contest's result as data, read off its line: how many official rounds (or passes) match out of how many,
+    and whether the same candidates are elected. Contests checked by winners only have no rounds."""
+    rounds = re.search(r"[:;] (\d+) of (\d+) (?:official rounds|passes) match", line)
+    return {"contest": contest, "ok": ok,
+            "matched": int(rounds.group(1)) if rounds else None, "rounds": int(rounds.group(2)) if rounds else None,
+            "winners_same": "DIFFERENTLY" not in line and "count failed" not in line, "line": line}
+
+
 def main(description, contests, check):
     """Checks the contests named on the command line (all, by default) with check(data, contest, jar), which returns
-    whether the contest checks out and its line."""
+    whether the contest checks out and its line. With --results FILE, the results are also written there as JSON,
+    for the results page (../results_page.py)."""
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("data")
     parser.add_argument("contests", nargs="*")
     parser.add_argument("--jar", default=DEFAULT_JAR)
+    parser.add_argument("--results", help="write each contest's result to this JSON file")
     args = parser.parse_args()
     os.makedirs(args.data, exist_ok=True)
     chosen = args.contests or list(contests)
-    failed = 0
+    failed, results = 0, []
     for contest in chosen:
         ok, line = check(args.data, contest, args.jar)
         failed += not ok
+        results.append(record(contest, ok, line))
         print(line, flush=True)
     print(f"{len(chosen) - failed} of {len(chosen)} contests check out")
+    if args.results:
+        with open(args.results, "w", encoding="utf-8") as out:
+            json.dump({"checker": os.path.basename(os.path.dirname(os.path.abspath(sys.argv[0]))),
+                       "date": time.strftime("%Y-%m-%d"), "contests": results}, out, indent=1, ensure_ascii=False)
+            out.write("\n")
     sys.exit(1 if failed else 0)

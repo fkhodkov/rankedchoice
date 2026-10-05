@@ -1,0 +1,38 @@
+{
+ "checker": "portland",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "1",
+   "ok": true,
+   "matched": 15,
+   "rounds": 16,
+   "winners_same": true,
+   "line": "District 1: quota 10718.0000 (official 10718); 15 of 16 official rounds match a round of this count; elected the same; official round 9 follows a draw between David Linn and Peggy Sue Owens on 1441 (decided by lot)"
+  },
+  {
+   "contest": "2",
+   "ok": true,
+   "matched": 22,
+   "rounds": 22,
+   "winners_same": true,
+   "line": "District 2: quota 19290.0000 (official 19290); 22 of 22 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "3",
+   "ok": true,
+   "matched": 28,
+   "rounds": 29,
+   "winners_same": true,
+   "line": "District 3: quota 21129.0000 (official 21129); 28 of 29 official rounds match a round of this count; elected the same; official round 5 follows a draw between Jaclyn Smith-Moore and Patrick Hilton on 200 (decided by lot)"
+  },
+  {
+   "contest": "4",
+   "ok": true,
+   "matched": 31,
+   "rounds": 31,
+   "winners_same": true,
+   "line": "District 4: quota 19180.0000 (official 19180); 31 of 31 official rounds match a round of this count; elected the same"
+  }
+ ]
+}

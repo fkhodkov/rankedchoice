@@ -1,0 +1,38 @@
+{
+ "checker": "albany",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "council-2022",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "council-2022: threshold 2387.000000 (official 2387.000000); 4 of 4 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "school-2022",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "school-2022: threshold 1618.000000 (official 1618.000000); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "council-2024",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "council-2024: threshold 2002.0000 (official 2002.0000); 4 of 4 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "school-2024",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "school-2024: threshold 2383.0000 (official 2383.0000); 3 of 3 official rounds match a round of this count; elected the same"
+  }
+ ]
+}

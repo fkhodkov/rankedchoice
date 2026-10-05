@@ -1,0 +1,430 @@
+{
+ "checker": "sanfrancisco",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "2019-supervisor-5",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2019-supervisor-5: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118"
+  },
+  {
+   "contest": "2019-district-attorney",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2019-district-attorney: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118"
+  },
+  {
+   "contest": "2019-mayor",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2019-mayor: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118"
+  },
+  {
+   "contest": "2022-supervisor-4",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2022-supervisor-4: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; results captured 20250827"
+  },
+  {
+   "contest": "2022-supervisor-6",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2022-supervisor-6: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20250826"
+  },
+  {
+   "contest": "2022-supervisor-8",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2022-supervisor-8: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; results captured 20250826"
+  },
+  {
+   "contest": "2022-supervisor-10",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2022-supervisor-10: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; results captured 20250826"
+  },
+  {
+   "contest": "2022-district-attorney",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2022-district-attorney: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20250827"
+  },
+  {
+   "contest": "2022-public-defender",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2022-public-defender: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; results captured 20250826"
+  },
+  {
+   "contest": "2024-mayor",
+   "ok": true,
+   "matched": 14,
+   "rounds": 14,
+   "winners_same": true,
+   "line": "2024-mayor: 14 of 14 official rounds match to the vote; eliminations the same; elected the same; results captured 20250324"
+  },
+  {
+   "contest": "2024-city-attorney",
+   "ok": true,
+   "matched": 0,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2024-city-attorney: 0 of 1 official rounds match to the vote (largest differences by round: [80]); eliminations the same; elected the same; results captured 20241126"
+  },
+  {
+   "contest": "2024-district-attorney",
+   "ok": true,
+   "matched": 0,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2024-district-attorney: 0 of 1 official rounds match to the vote (largest differences by round: [76]); eliminations the same; elected the same; results captured 20241122"
+  },
+  {
+   "contest": "2024-sheriff",
+   "ok": true,
+   "matched": 0,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2024-sheriff: 0 of 1 official rounds match to the vote (largest differences by round: [76]); eliminations the same; elected the same; results captured 20241127"
+  },
+  {
+   "contest": "2010-supervisor-2",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2010-supervisor-2: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20230316"
+  },
+  {
+   "contest": "2010-supervisor-6",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "2010-supervisor-6: 12 of 12 official rounds match to the vote; eliminations the same; elected the same; results captured 20250326"
+  },
+  {
+   "contest": "2010-supervisor-8",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2010-supervisor-8: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20240714"
+  },
+  {
+   "contest": "2010-supervisor-10",
+   "ok": true,
+   "matched": 20,
+   "rounds": 20,
+   "winners_same": true,
+   "line": "2010-supervisor-10: 20 of 20 official rounds match to the vote; eliminations the same; elected the same; results captured 20240518"
+  },
+  {
+   "contest": "2011-district-attorney",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2011-district-attorney: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20250819"
+  },
+  {
+   "contest": "2011-mayor",
+   "ok": true,
+   "matched": 12,
+   "rounds": 12,
+   "winners_same": true,
+   "line": "2011-mayor: 12 of 12 official rounds match to the vote; eliminations the same; elected the same; results captured 20241207"
+  },
+  {
+   "contest": "2011-sheriff",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2011-sheriff: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20240718"
+  },
+  {
+   "contest": "2012-supervisor-5",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2012-supervisor-5: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20250531"
+  },
+  {
+   "contest": "2012-supervisor-7",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2012-supervisor-7: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20221008"
+  },
+  {
+   "contest": "2014-supervisor-10",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2014-supervisor-10: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20221223"
+  },
+  {
+   "contest": "2015-supervisor-3",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2015-supervisor-3: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20220125"
+  },
+  {
+   "contest": "2015-mayor",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2015-mayor: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20250126"
+  },
+  {
+   "contest": "2015-sheriff",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2015-sheriff: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20220125"
+  },
+  {
+   "contest": "2016-supervisor-1",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "2016-supervisor-1: 10 of 10 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+  },
+  {
+   "contest": "2016-supervisor-3",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2016-supervisor-3: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20230414"
+  },
+  {
+   "contest": "2016-supervisor-5",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2016-supervisor-5: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20260701"
+  },
+  {
+   "contest": "2016-supervisor-7",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2016-supervisor-7: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+  },
+  {
+   "contest": "2016-supervisor-9",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2016-supervisor-9: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20230414"
+  },
+  {
+   "contest": "2016-supervisor-11",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2016-supervisor-11: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+  },
+  {
+   "contest": "2018-06-supervisor-8",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2018-06-supervisor-8: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230410"
+  },
+  {
+   "contest": "2018-06-mayor",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "2018-06-mayor: 9 of 9 official rounds match to the vote; eliminations the same; elected the same; results captured 20260417"
+  },
+  {
+   "contest": "2018-assessor-recorder",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2018-assessor-recorder: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20190716"
+  },
+  {
+   "contest": "2018-public-defender",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2018-public-defender: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; results captured 20190717"
+  },
+  {
+   "contest": "2018-supervisor-2",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2018-supervisor-2: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+  },
+  {
+   "contest": "2018-supervisor-4",
+   "ok": true,
+   "matched": 8,
+   "rounds": 8,
+   "winners_same": true,
+   "line": "2018-supervisor-4: 8 of 8 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+  },
+  {
+   "contest": "2018-supervisor-6",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2018-supervisor-6: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20190718"
+  },
+  {
+   "contest": "2018-supervisor-8",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2018-supervisor-8: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20230423"
+  },
+  {
+   "contest": "2018-supervisor-10",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2018-supervisor-10: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+  },
+  {
+   "contest": "2020-supervisor-1",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2020-supervisor-1: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222"
+  },
+  {
+   "contest": "2020-supervisor-3",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2020-supervisor-3: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222"
+  },
+  {
+   "contest": "2020-supervisor-5",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2020-supervisor-5: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230926"
+  },
+  {
+   "contest": "2020-supervisor-7",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2020-supervisor-7: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+  },
+  {
+   "contest": "2020-supervisor-9",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2020-supervisor-9: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; results captured 20230925"
+  },
+  {
+   "contest": "2020-supervisor-11",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2020-supervisor-11: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230926"
+  },
+  {
+   "contest": "2024-supervisor-1",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2024-supervisor-1: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20250724"
+  },
+  {
+   "contest": "2024-supervisor-3",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "2024-supervisor-3: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222"
+  },
+  {
+   "contest": "2024-supervisor-5",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2024-supervisor-5: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20251013"
+  },
+  {
+   "contest": "2024-supervisor-7",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2024-supervisor-7: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222"
+  },
+  {
+   "contest": "2024-supervisor-9",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2024-supervisor-9: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20260115"
+  },
+  {
+   "contest": "2024-supervisor-11",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "2024-supervisor-11: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20250724"
+  }
+ ]
+}

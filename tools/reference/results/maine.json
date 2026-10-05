@@ -1,0 +1,94 @@
+{
+ "checker": "maine",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "2018-dem-governor",
+   "ok": true,
+   "matched": 3,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2018-dem-governor: 3 of 4 official rounds match to the vote (largest differences by round: [0, 0, 0, 3]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2018-dem-congress-2",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2018-dem-congress-2: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2018-congress-2",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2018-congress-2: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2020-rep-congress-2",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2020-rep-congress-2: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2020-dem-senate-11",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2020-dem-senate-11: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2020-dem-house-41",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2020-dem-house-41: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2020-dem-house-47",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2020-dem-house-47: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2020-dem-house-49",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2020-dem-house-49: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2020-dem-house-90",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2020-dem-house-90: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2022-congress-2",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2022-congress-2: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2024-congress-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2024-congress-2: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; report transcribed from a scan"
+  }
+ ]
+}

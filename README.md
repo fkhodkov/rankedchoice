@@ -355,9 +355,16 @@ about 45 s, 16 / 8 about a minute.
   round with one of this count's, in order, to the vote for the single-seat ones (Alameda, San
   Francisco, Alaska, New York, Maine) and to the official decimal places for the multi-seat ones
   (Minneapolis, Portland, Eastpointe, Albany).
-- [`tools/reference/tests`](tools/reference/tests) — tests of those two, on small made-up ballots
+- [`tools/reference/results_page.py`](tools/reference/results_page.py) — build the results page,
+  [`tools/reference/results/real-elections.html`](tools/reference/results/real-elections.html):
+  every jurisdiction's official-count checks at a glance, with every known difference and its
+  cause. The US checkers write their results with `--results tools/reference/results/<checker>.json`;
+  the other figures, the causes and the rules table are in `results/jurisdictions.json`. A
+  difference no cause names shows on the page as unexplained, and the script reports it.
+- [`tools/reference/tests`](tools/reference/tests) — tests of those, on small made-up ballots
   and counts (every converter option; round matching with several defeated at once, repeated
-  rounds and rounds out of order; the summary lines; the pass-report parser), with nothing to
+  rounds and rounds out of order; the summary lines; the pass-report parser; the results page's
+  figures and its unexplained-difference check), with nothing to
   download; `mvn test` runs them, or `python3 -m unittest discover -s tools/reference/tests`.
 - [`tools/reference/portland`](tools/reference/portland/README.md) — convert Multnomah
   County's cast vote records for Portland's 2024 Council contests and check each round against

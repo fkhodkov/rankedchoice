@@ -1,0 +1,318 @@
+{
+ "checker": "minneapolis",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "park-2009",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "park-2009: threshold 9164.0000 (official 9164); 6 of 6 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "bet-2009",
+   "ok": true,
+   "matched": 4,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "bet-2009: threshold 10696.0000 (official 10696); 4 of 5 official rounds match a round of this count; elected the same; the record's first count differs from the City's: Carol Becker 16727.0000 (official 16728.0000)"
+  },
+  {
+   "contest": "park-2013",
+   "ok": true,
+   "matched": null,
+   "rounds": null,
+   "winners_same": true,
+   "line": "park-2013: winners only; by the 2006 rules, the same; by minneapolis, the same"
+  },
+  {
+   "contest": "bet-2013",
+   "ok": true,
+   "matched": null,
+   "rounds": null,
+   "winners_same": true,
+   "line": "bet-2013: winners only; by the 2006 rules, the same; by minneapolis, the same"
+  },
+  {
+   "contest": "park-2017",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "park-2017: threshold 21087.0000 (official 21087); 4 of 4 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-2021",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "park-2021: threshold 26663.0000 (official 26663); 7 of 7 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-2025",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "park-2025: threshold 28338.0000 (official 28338); 5 of 5 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "bet-2017",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "bet-2017: threshold 23232.0000 (official 23232); 1 of 1 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "bet-2021",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "bet-2021: threshold 31876.0000 (official 31876); 3 of 3 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "bet-2025",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "bet-2025: threshold 35561.0000 (official 35561); 1 of 1 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-1-2017",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-1-2017: threshold 4368.0000 (official 4368); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-11-2017",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-11-2017: threshold 4581.0000 (official 4581); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-3-2017",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "ward-3-2017: threshold 4797.0000 (official 4797); 3 of 3 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-4-2017",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-4-2017: threshold 2632.0000 (official 2632); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-5-2017",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-5-2017: threshold 2109.0000 (official 2109); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-6-2017",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "ward-6-2017: threshold 3618.0000 (official 3618); 1 of 1 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-9-2017",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-9-2017: threshold 2760.0000 (official 2760); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-1-2017",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "park-district-1-2017: threshold 7152.0000 (official 7152); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-3-2017",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "park-district-3-2017: threshold 7316.0000 (official 7316); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-6-2017",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "park-district-6-2017: threshold 9245.0000 (official 9245); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-1-2021",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-1-2021: threshold 5720.0000 (official 5720); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-10-2021",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "ward-10-2021: threshold 5330.0000 (official 5330); 3 of 3 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-2-2021",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "ward-2-2021: threshold 4764.0000 (official 4764); 3 of 3 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-3-2021",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-3-2021: threshold 6677.0000 (official 6677); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-5-2021",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "ward-5-2021: threshold 2743.0000 (official 2743); 3 of 3 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "mayor-2021",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "mayor-2021: threshold 71988.0000 (official 71988); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-2-2021",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "park-district-2-2021: threshold 5406.0000 (official 5406); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-3-2021",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "park-district-3-2021: threshold 7628.0000 (official 7628); 1 of 1 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-4-2021",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "park-district-4-2021: threshold 9674.0000 (official 9674); 1 of 1 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-5-2021",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "park-district-5-2021: threshold 10996.0000 (official 10996); 1 of 1 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-6-2021",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "park-district-6-2021: threshold 12262.0000 (official 12262); 3 of 3 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-6-2023",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-6-2023: threshold 2591.0000 (official 2591); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-7-2023",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-7-2023: threshold 3995.0000 (official 3995); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-8-2023",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "ward-8-2023: threshold 4030.0000 (official 4030); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "ward-5-2025",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "ward-5-2025: threshold 2519.0000 (official 2519); 3 of 3 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "mayor-2025",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "mayor-2025: threshold 73679.0000 (official 73679); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-1-2025",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "park-district-1-2025: threshold 8157.0000 (official 8157); 1 of 1 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-4-2025",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "park-district-4-2025: threshold 9847.0000 (official 9847); 2 of 2 official rounds match a round of this count; elected the same"
+  },
+  {
+   "contest": "park-district-5-2025",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "park-district-5-2025: threshold 13449.0000 (official 13449); 2 of 2 official rounds match a round of this count; elected the same"
+  }
+ ]
+}

@@ -1,0 +1,750 @@
+{
+ "checker": "alameda",
+ "date": "2026-10-05",
+ "contests": [
+  {
+   "contest": "berkeley-2010-auditor",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2010-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2010-council-1",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2010-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2010-council-4",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2010-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2010-council-7",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "berkeley-2010-council-7: 2 of 2 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2010-council-8",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2010-council-8: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2010-mayor",
+   "ok": true,
+   "matched": 10,
+   "rounds": 10,
+   "winners_same": true,
+   "line": "oakland-2010-mayor: 10 of 10 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2010-auditor",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2010-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2010-council-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2010-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2010-council-4",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "oakland-2010-council-4: 6 of 6 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2010-council-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2010-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2010-school-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2010-school-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2010-school-4",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2010-school-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2010-school-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2010-school-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2010-mayor",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "san-leandro-2010-mayor: 6 of 6 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2010-council-1",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2010-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2010-council-3",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2010-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2010-council-5",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2010-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2012-mayor",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2012-mayor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2012-council-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2012-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2012-council-3",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2012-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2012-council-5",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2012-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2012-council-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2012-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-city-attorney",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2012-city-attorney: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-council-at-large",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "oakland-2012-council-at-large: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-council-1",
+   "ok": true,
+   "matched": 7,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "oakland-2012-council-1: 7 of 7 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-council-3",
+   "ok": true,
+   "matched": 6,
+   "rounds": 6,
+   "winners_same": true,
+   "line": "oakland-2012-council-3: 6 of 6 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-council-5",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "oakland-2012-council-5: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-council-7",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2012-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-school-1",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2012-school-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-school-3",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "oakland-2012-school-3: 3 of 3 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-school-5",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2012-school-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2012-school-7",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2012-school-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2012-council-2",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "san-leandro-2012-council-2: 3 of 3 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2012-council-4",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "san-leandro-2012-council-4: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2012-council-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2012-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2014-auditor",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2014-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2014-council-1",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2014-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2014-council-7",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2014-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2014-council-8",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "berkeley-2014-council-8: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2014-mayor",
+   "ok": true,
+   "matched": 16,
+   "rounds": 16,
+   "winners_same": true,
+   "line": "oakland-2014-mayor: 16 of 16 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2014-auditor",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2014-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2014-council-2",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "oakland-2014-council-2: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2014-council-4",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2014-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2014-council-6",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "oakland-2014-council-6: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2014-school-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2014-school-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2014-school-4",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "oakland-2014-school-4: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2014-school-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2014-school-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2014-mayor",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "san-leandro-2014-mayor: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2014-council-1",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "san-leandro-2014-council-1: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2014-council-3",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2014-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2014-council-5",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2014-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2016-mayor",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "berkeley-2016-mayor: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2016-council-2",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "berkeley-2016-council-2: 3 of 3 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2016-council-3",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2016-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2016-council-5",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2016-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2016-council-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2016-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-city-attorney",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2016-city-attorney: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-council-at-large",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2016-council-at-large: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-council-1",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2016-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-council-5",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2016-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-council-7",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2016-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-school-1",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2016-school-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-school-3",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "oakland-2016-school-3: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-school-5",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "oakland-2016-school-5: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2016-school-7",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2016-school-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2016-council-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2016-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2016-council-4",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2016-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "san-leandro-2016-council-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "san-leandro-2016-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "berkeley-2017-council-4",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2017-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "oakland-2022-mayor",
+   "ok": true,
+   "matched": 9,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "oakland-2022-mayor: 9 of 9 official rounds match to the vote (round 1 against the record's first rankings, 810 ballots suspended); eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2022-council-4",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2022-council-4: 1 of 1 official rounds match to the vote (round 1 against the record's first rankings, 174 ballots suspended); eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2022-council-6",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "oakland-2022-council-6: 3 of 3 official rounds match to the vote (round 1 against the record's first rankings, 199 ballots suspended); eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2022-auditor",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2022-auditor: 1 of 1 official rounds match to the vote (round 1 against the record's first rankings, 2812 ballots suspended); eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2022-school-2",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "oakland-2022-school-2: 2 of 2 official rounds match to the vote (round 1 against the record's first rankings, 135 ballots suspended); eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2022-school-4",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "oakland-2022-school-4: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2022-school-6",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "oakland-2022-school-6: 2 of 2 official rounds match to the vote (round 1 against the record's first rankings, 154 ballots suspended); eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "berkeley-2024-mayor",
+   "ok": true,
+   "matched": 4,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "berkeley-2024-mayor: 4 of 4 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "berkeley-2024-council-2",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2024-council-2: 1 of 1 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "berkeley-2024-council-3",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "berkeley-2024-council-3: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "berkeley-2024-council-5",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "berkeley-2024-council-5: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "berkeley-2024-council-6",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "berkeley-2024-council-6: 1 of 1 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-council-at-large",
+   "ok": true,
+   "matched": 0,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "oakland-2024-council-at-large: 0 of 9 official rounds match to the vote; the record differs by up to 3 votes a candidate; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-council-1",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "oakland-2024-council-1: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-council-3",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "oakland-2024-council-3: 5 of 5 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-council-5",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "oakland-2024-council-5: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-council-7",
+   "ok": true,
+   "matched": 0,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "oakland-2024-council-7: 0 of 3 official rounds match to the vote; the record differs by up to 1 votes a candidate; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-city-attorney",
+   "ok": true,
+   "matched": 0,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2024-city-attorney: 0 of 1 official rounds match to the vote; the record differs by up to 5 votes a candidate; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-school-1",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2024-school-1: 1 of 1 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-school-3",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2024-school-3: 1 of 1 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-school-5",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2024-school-5: 1 of 1 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2024-school-7",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "oakland-2024-school-7: 1 of 1 official rounds match to the vote; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2025-mayor",
+   "ok": true,
+   "matched": 0,
+   "rounds": 9,
+   "winners_same": true,
+   "line": "oakland-2025-mayor: 0 of 9 official rounds match to the vote; the record differs by up to 7 votes a candidate; eliminations in the same order; elected the same"
+  },
+  {
+   "contest": "oakland-2025-council-2",
+   "ok": true,
+   "matched": 5,
+   "rounds": 5,
+   "winners_same": true,
+   "line": "oakland-2025-council-2: 5 of 5 official rounds match to the vote; eliminations in the same order; elected the same"
+  }
+ ]
+}
