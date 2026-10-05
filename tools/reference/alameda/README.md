@@ -6,11 +6,11 @@ Leandro single-seat contests that FairVote's collection of single-winner cast vo
 its earlier counting system's pass reports; for 2022, 2024 and April 2025 (24), its Dominion "RCV
 Detailed Reports". The counts of 2018 and 2020 are no longer published, and no copy was archived.
 
-- The records are converted with `../albany/cvr_to_blt.py`: an overvote ends the ballot, a
+- The records are converted with `../cvr_to_blt.py`: an overvote ends the ballot, a
   skipped ranking is passed over, a candidate ranked again counts once. From 2022 a write-in is
   passed over; up to 2017 the County counted write-ins as a candidate, Write-In
-  (`--write-in-candidate`), except where a write-in had qualified (Berkeley's 2012 mayoral race),
-  which `check.py` reads off the report.
+  (`--write-in candidate --write-in-name WRITE-IN`), except where a write-in had qualified
+  (Berkeley's 2012 mayoral race), which `check.py` reads off the report.
 - Up to 2017 the County eliminated one candidate a pass but stopped at a majority, and from 2012
   its first pass only drops the empty write-in line; `check.py` requires every pass to be one of
   this count's rounds, in order, with the same candidates continuing and the same votes.

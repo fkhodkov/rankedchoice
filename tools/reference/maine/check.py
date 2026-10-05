@@ -7,7 +7,7 @@ choice whose ballots FairVote's collection of single-winner RCV cast vote record
 (https://doi.org/10.7910/DVN/AMK8PJ) has: 11, from the 2018 Democratic primary for governor and the 2018,
 2022 and 2024 races for Congress in the 2nd District to five legislative primaries of 2020. Each record and
 the State's "RCV Summary Report" are fetched into DATA_DIR, the record converted with
-../alaska/cvr_to_blt.py --write-in-candidate (two skipped rankings in a row end the ballot, those before
+../cvr_to_blt.py --skipped two-end --write-in candidate (two skipped rankings in a row end the ballot, those before
 the first choice included; an overvote ends it; a candidate ranked again counts once; write-ins are one
 candidate, Write-in), which reproduces the reports' first rounds to the vote, exhausted ballots included,
 and counted with `irv`.
@@ -35,7 +35,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
-CONVERTER = os.path.join(HERE, "..", "alaska", "cvr_to_blt.py")
+CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 SITE = "https://www.maine.gov/sos/sites/maine.gov.sos/files/"
 # contest: (Dataverse file id, the State's summary report under SITE)
@@ -115,7 +115,8 @@ def check(data, contest, jar):
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
-        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--write-in-candidate"], check=True)
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end",
+                        "--write-in", "candidate"], check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:

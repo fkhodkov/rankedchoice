@@ -343,6 +343,11 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/nsw`](tools/reference/nsw/README.md) — download the NSW Electoral
   Commission's 2024 councillor counts and check each round against the official distribution
   of preferences.
+- [`tools/reference/cvr_to_blt.py`](tools/reference/cvr_to_blt.py) — convert a ranked-choice cast
+  vote record with a column per ranking (FairVote's collections, Minneapolis's records) to BLT,
+  reading the ballots by each jurisdiction's rules: what an overvote, a skipped or repeated
+  ranking, and a write-in do. The checkers below for Alameda, San Francisco, Alaska, New York,
+  Maine, Minneapolis, Eastpointe and Albany use it.
 - [`tools/reference/portland`](tools/reference/portland/README.md) — convert Multnomah
   County's cast vote records for Portland's 2024 Council contests and check each round against
   the County's official results.

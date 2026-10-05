@@ -5,7 +5,8 @@ each), checked by `EastpointeFixtureTest`.
 
 - `<contest>.blt`: the ballots, from Macomb County's cast vote records as FairVote's collection of
   proportional RCV records has them (https://doi.org/10.7910/DVN/STVUET), converted by
-  `tools/reference/eastpointe/cvr_to_blt.py`. Identical rankings are merged.
+  `tools/reference/cvr_to_blt.py --skipped two-end
+  --write-in skip --repeat end`. Identical rankings are merged.
 - `<contest>.official.json`: the RCTab summary of the County's count, as published on RCVis (the
   page at `source`): every round's tallies, and who was elected or defeated in it.
 

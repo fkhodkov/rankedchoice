@@ -8,7 +8,7 @@ rounds), Berkeley's 2024 mayoral race, Oakland's 2024 District 3 council race, a
 
 - `<contest>.blt.gz`: the ballots, from FairVote's collection of single-winner RCV cast vote
   records (https://doi.org/10.7910/DVN/AMK8PJ, file `dataverseFile`), converted by
-  `tools/reference/albany/cvr_to_blt.py` (an overvote ends the ballot; a skipped ranking is passed
+  `tools/reference/cvr_to_blt.py` (an overvote ends the ballot; a skipped ranking is passed
   over; a write-in is passed over from 2022, and before that is a vote for Write-In). Identical
   rankings are merged.
 - `<contest>.official.json`, 2010 and 2014: the County's pass report (the PDF at `source`): each

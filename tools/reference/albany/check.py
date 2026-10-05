@@ -7,7 +7,7 @@ California's City Council and Board of Education contests. Each one's ballots co
 collection of proportional RCV cast vote records (https://doi.org/10.7910/DVN/STVUET), its
 results from the County's Dominion "RCV Detailed Report" (published under
 https://alamedacountyca.gov/rovresults/rcv/), both fetched into DATA_DIR. The ballots are
-converted (cvr_to_blt.py) and counted, the 2024 contests with the `albany` ruleset and the 2022
+converted (../cvr_to_blt.py) and counted, the 2024 contests with the `albany` ruleset and the 2022
 ones with src/test/resources/testdata/albany/albany-2022.yaml (the County's settings then: the
 threshold recomputed each round, 6 decimal places), and every official round's tallies must be one
 of this count's rounds, in order, every candidate to the report's decimal places, at the official
@@ -27,6 +27,7 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..", "..", "..")
+CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 DEFAULT_JAR = os.path.join(ROOT, "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
 CONFIG_2022 = os.path.join(ROOT, "src", "test", "resources", "testdata", "albany", "albany-2022.yaml")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
@@ -81,8 +82,8 @@ def check(data, contest, jar):
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
-        subprocess.run([sys.executable, os.path.join(HERE, "cvr_to_blt.py"), cvr, blt, "--seats", str(seats)],
-                       check=True)
+        # An overvote ends the ballot; a skipped ranking or a write-in is passed over.
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", str(seats), "--title", "Albany"], check=True)
     rules = ["--config", CONFIG_2022] if contest.endswith("2022") else ["--ruleset", "albany"]
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--report-format", "json"] + rules,
                             capture_output=True, text=True)

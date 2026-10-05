@@ -249,22 +249,23 @@ their seats.
 of rules, each established by matching the official rounds; the sections that follow give the
 evidence, one per count named here. Single-seat counts are all `irv`: what differs is how the
 ballots are read and how far the official count goes, which the checks absorb as described under
-"Rounds".
+"Rounds". The ballots are read by one converter, `tools/reference/cvr_to_blt.py`, an option per
+rule (Portland's record, a column per candidate per ranking, has its own).
 
-| Counts | Overvote | Skipped ranking | Candidate ranked again | Write-ins | Defeats | Ends | Read with |
+| Counts | Overvote | Skipped ranking | Candidate ranked again | Write-ins | Defeats | Ends | `cvr_to_blt.py` options |
 |---|---|---|---|---|---|---|---|
-| Alameda County 2010–2017 (pass reports) | ends the ballot | passed over | counts once | one candidate (passed over where one had qualified) | one a round | at a majority | `albany/cvr_to_blt.py --write-in-candidate` |
-| Alameda County 2022–2025 (Dominion) | ends the ballot | passed over | counts once | passed over (2022: some ballots held back from round 1) | one a round | two left | `albany/cvr_to_blt.py` |
-| San Francisco 2010–2014 (pass reports) | ends the ballot | passed over | counts once | one candidate | several at once | at a majority | `albany/cvr_to_blt.py --write-in-candidate` |
-| San Francisco 2015–2018 | ends the ballot | passed over | counts once | passed over | several at once | at a majority | `albany/cvr_to_blt.py` |
-| San Francisco 2019–2024 (Dominion) | ends the ballot | passed over | counts once | passed over | one a round | two left | `albany/cvr_to_blt.py` |
-| Alaska 2022–2024 (Dominion) | ends the ballot | two in a row end it, before the first choice too | counts once | passed over | one a round | two left | `alaska/cvr_to_blt.py` |
-| New York City 2021–2025 | ends the ballot | passed over | counts once | one candidate, eliminated first whatever its number | several at once | two left | `albany/cvr_to_blt.py` (write-ins passed over) |
-| Maine 2018–2024 | ends the ballot | two in a row end it, before the first choice too | counts once | one candidate | several at once | at a majority | `alaska/cvr_to_blt.py --write-in-candidate` |
-| Minneapolis 2009–2025, `minneapolis` | skipped | passed over | counts once | one candidate, "Undeclared Write-ins" | the hopeless together, before surpluses; from 2017 also the rankings test | seats filled at the threshold | `minneapolis/cvr_to_blt.py` |
-| Portland 2024, `portland` (RCTab) | skipped (write-in lines count as marks) | passed over | counts once | "Uncertified Write In" a candidate, write-in lines alone skipped | STV | seats filled | `portland/cvr_to_blt.py` |
-| Eastpointe 2019, 2021, `portland` (RCTab) | ends the ballot | passed over, two in a row (write-ins included) end it | ends the ballot | passed over, as a skip | STV | seats filled | `eastpointe/cvr_to_blt.py` |
-| Albany 2022, 2024, `albany` (Dominion) | ends the ballot | passed over | counts once | passed over | STV | seats filled | `albany/cvr_to_blt.py` |
+| Alameda County 2010–2017 (pass reports) | ends the ballot | passed over | counts once | one candidate (passed over where one had qualified) | one a round | at a majority | `--write-in candidate` |
+| Alameda County 2022–2025 (Dominion) | ends the ballot | passed over | counts once | passed over (2022: some ballots held back from round 1) | one a round | two left | defaults |
+| San Francisco 2010–2014 (pass reports) | ends the ballot | passed over | counts once | one candidate | several at once | at a majority | `--write-in candidate` |
+| San Francisco 2015–2018 | ends the ballot | passed over | counts once | passed over | several at once | at a majority | defaults |
+| San Francisco 2019–2024 (Dominion) | ends the ballot | passed over | counts once | passed over | one a round | two left | defaults |
+| Alaska 2022–2024 (Dominion) | ends the ballot | two in a row end it, before the first choice too | counts once | passed over | one a round | two left | `--skipped two-end` |
+| New York City 2021–2025 | ends the ballot | passed over | counts once | one candidate, eliminated first whatever its number | several at once | two left | defaults (write-ins passed over) |
+| Maine 2018–2024 | ends the ballot | two in a row end it, before the first choice too | counts once | one candidate | several at once | at a majority | `--skipped two-end --write-in candidate` |
+| Minneapolis 2009–2025, `minneapolis` | skipped | passed over | counts once | one candidate, "Undeclared Write-ins" | the hopeless together, before surpluses; from 2017 also the rankings test | seats filled at the threshold | `--overvote skip --write-in candidate` |
+| Portland 2024, `portland` (RCTab) | skipped (write-in lines count as marks) | passed over | counts once | "Uncertified Write In" a candidate, write-in lines alone skipped | STV | seats filled | its own, `portland/cvr_to_blt.py` |
+| Eastpointe 2019, 2021, `portland` (RCTab) | ends the ballot | passed over, two in a row (write-ins included) end it | ends the ballot | passed over, as a skip | STV | seats filled | `--skipped two-end --write-in skip --repeat end` |
+| Albany 2022, 2024, `albany` (Dominion) | ends the ballot | passed over | counts once | passed over | STV | seats filled | defaults |
 
 - **Rounds.** Defeating several hopeless candidates at once passes through the same states as
   defeating them one at a time, and stopping at a majority doesn't change the winner; neither
@@ -377,7 +378,7 @@ archived; nor is there a pass report for Oakland's 2016 District 3 race.
   does, but stopped once a candidate had a majority. From 2012 its first pass only drops the
   write-in line, which has no votes, and repeats the state before. So every pass is required to
   be one of this count's rounds, in order, with the same candidates continuing. Write-ins count as
-  a candidate, Write-In (`cvr_to_blt.py --write-in-candidate`), but where one had qualified
+  a candidate, Write-In (`cvr_to_blt.py --write-in candidate`), but where one had qualified
   (Berkeley's 2012 mayoral race, Mark Schwartz) the report gives Write-In no votes and the
   record's write-ins are passed over. All 69 match every pass to the vote; 22 go past the first
   pass, 162 passes in all, among them the 10 of Oakland's 2010 mayoral race, which Jean Quan won
@@ -419,7 +420,7 @@ requiring every official round to be one of its rounds, in order, with the same 
 continuing (2015's mayoral race defeats nine in its first round; 2011's has 12 official rounds
 to this count's 23); since 2019 that is round for round. Up to 2014 the reports count write-ins
 of no qualified candidate as a candidate, WRITE-IN (2010's District 2 race has 18), and the
-records are read so (`cvr_to_blt.py --write-in-candidate`). In 50 contests every official round
+records are read so (`cvr_to_blt.py --write-in candidate`). In 50 contests every official round
 matches this count's to the vote: the 20 rounds of 2010's District 10 race and the 14 of 2024's
 mayoral race included. The other 3, the 2024 city attorney, district attorney and sheriff races,
 only have results captured on 22–27 November, before the count was certified on 3 December, and
@@ -457,7 +458,7 @@ record in the collection holds 5,402 ballots, mostly from Queens, of about 30,40
 citywide; and the 2025 District 44 and 51 specials, whose results are PDFs in another layout.
 
 - **Ballots**: an overvote ends the ballot, a skipped ranking is passed over, a candidate ranked
-  again counts once (`../albany/cvr_to_blt.py`); skipping overvotes instead doesn't fit 2023's
+  again counts once (`cvr_to_blt.py`); skipping overvotes instead doesn't fit 2023's
   District 13 Republican first round, where the record is a vote off.
 - **Write-ins**: the Board counts them as one candidate in round 1 and eliminates them first, in
   round 2, whatever their number (in 2025's mayoral primary, 1,581 of them, ahead of two
@@ -486,9 +487,9 @@ round.
 
 - **Ballots**: two skipped rankings in a row end the ballot, those before the first choice
   included; an overvote ends it; a candidate ranked again counts once; write-ins are one
-  candidate (`../alaska/cvr_to_blt.py --write-in-candidate`). That reproduces every report's first
-  round to the vote, the ballots exhausted by overvotes and by undervotes included; passing over
-  skips instead puts 2020's Senate District 11 candidates 1 to 3 votes off.
+  candidate (`cvr_to_blt.py --skipped two-end --write-in candidate`). That reproduces every
+  report's first round to the vote, the ballots exhausted by overvotes and by undervotes
+  included; passing over skips instead puts 2020's Senate District 11 candidates 1 to 3 votes off.
 - **Rounds**: the State defeats together the lowest candidates who couldn't overtake the next one
   up (four in the 2018 governor primary's first transfer, the write-ins among them) and stops at
   a majority, so every official round is required to be one of this count's rounds, in order,

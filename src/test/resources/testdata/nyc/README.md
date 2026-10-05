@@ -9,7 +9,7 @@ the vote, every round.
 
 - `<contest>.blt.gz`: the ballots, from FairVote's collection of single-winner RCV cast vote
   records (https://doi.org/10.7910/DVN/AMK8PJ, file `dataverseFile`), converted by
-  `tools/reference/albany/cvr_to_blt.py` (an overvote ends the ballot; a skipped ranking or a
+  `tools/reference/cvr_to_blt.py` (an overvote ends the ballot; a skipped ranking or a
   write-in is passed over; a candidate ranked again counts once). Identical rankings are merged.
 - `<contest>.official.json`: the Board of Elections' certified "Official Ranked Choice Rounds"
   page (`source`), read by `check.py`: each round's votes per candidate, and the winner. Round 1

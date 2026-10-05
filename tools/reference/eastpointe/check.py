@@ -6,7 +6,7 @@ CONTEST is council-2019 or council-2021 (both, by default): 2 seats each. The ba
 FairVote's collection of proportional RCV cast vote records (https://doi.org/10.7910/DVN/STVUET),
 the results from the RCTab summaries of Macomb County's counts published on RCVis (the
 `rawDataId` JSON on each page), both fetched into DATA_DIR. The ballots are converted
-(cvr_to_blt.py) and counted with the `portland` ruleset (both are RCTab counts at 4 decimal
+(../cvr_to_blt.py) and counted with the `portland` ruleset (both are RCTab counts at 4 decimal
 places), and every official round's tallies must be one of this count's rounds, in order,
 every candidate to the 4 decimal places of the summary, at the official threshold, with the
 same candidates elected.
@@ -27,6 +27,7 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 CONTESTS = {
     "council-2019": (11620398, "https://rcvis.com/v/2019-11-08_13-19-44_summary"),
@@ -56,7 +57,10 @@ def check(data, contest, jar):
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
-        subprocess.run([sys.executable, os.path.join(HERE, "cvr_to_blt.py"), cvr, blt, "--seats", "2"], check=True)
+        # As RCTab was set: a skipped ranking or a write-in is passed over, but two in a row end the ballot; an
+        # overvote ends it, and so does a candidate ranked again ("exhaust on duplicate candidate").
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "2", "--title", contest, "--skipped", "two-end",
+                        "--write-in", "skip", "--repeat", "end"], check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "portland", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:

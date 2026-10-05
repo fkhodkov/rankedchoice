@@ -18,7 +18,7 @@ All six match the official count to the vote, every round.
 
 - `<contest>.blt.gz`: the ballots, from FairVote's collection of single-winner RCV cast vote
   records (https://doi.org/10.7910/DVN/AMK8PJ, file `dataverseFile`), converted by
-  `tools/reference/albany/cvr_to_blt.py` (an overvote ends the ballot; a skipped ranking is passed
+  `tools/reference/cvr_to_blt.py` (an overvote ends the ballot; a skipped ranking is passed
   over, as is an unnamed write-in from 2015 on, while before that it is a vote for WRITE-IN).
   Identical rankings are merged.
 - `<contest>.official.json`: the official results file as the Internet Archive kept it (`source`;

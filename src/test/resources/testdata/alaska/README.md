@@ -5,9 +5,9 @@ ruleset by `AlaskaIrvFixtureTest`: both went to three rounds, and both match the
 Elections' count to the vote.
 
 - `<contest>.blt`: the ballots, from FairVote's collection of single-winner RCV cast vote records
-  (https://doi.org/10.7910/DVN/AMK8PJ), converted by `tools/reference/alaska/cvr_to_blt.py`: an
-  unresolved write-in is passed over, two skipped rankings in a row end the ballot, and so does
-  an overvote. Identical rankings are merged.
+  (https://doi.org/10.7910/DVN/AMK8PJ), converted by `tools/reference/cvr_to_blt.py --skipped
+  two-end`: an unresolved write-in is passed over, two skipped rankings in a row end the ballot,
+  and so does an overvote. Identical rankings are merged.
 - `<contest>.official.json`: the Division's Dominion "RCV Detailed Report" for the contest, as the
   Internet Archive kept it (`source`; elections.alaska.gov turns away scripted requests): each
   round's votes per candidate, the candidates eliminated in order, and the winner.

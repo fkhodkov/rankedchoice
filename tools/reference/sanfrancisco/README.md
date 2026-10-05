@@ -6,9 +6,10 @@ Elections' own site, sfelections.org, turns away scripted requests) and whose ba
 collection of single-winner RCV cast vote records has (https://doi.org/10.7910/DVN/AMK8PJ).
 Nothing usable was kept for 2004–2008.
 
-- The records are converted with `../albany/cvr_to_blt.py`: an overvote ends the ballot; a
+- The records are converted with `../cvr_to_blt.py`: an overvote ends the ballot; a
   skipped ranking is passed over. So is an unnamed write-in from 2015 on; before that, the
-  reports count write-ins as a candidate, WRITE-IN (`--write-in-candidate`).
+  reports count write-ins as a candidate, WRITE-IN (`--write-in candidate --write-in-name
+  WRITE-IN`).
 - `check.py` finds each contest's latest archived results file, fetches it and the record,
   converts and counts the record with `irv`, and requires every official round to be one of this
   count's rounds, in order, with the same candidates continuing, and the same winner, comparing

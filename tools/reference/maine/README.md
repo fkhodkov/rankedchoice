@@ -6,7 +6,7 @@ cast vote records (https://doi.org/10.7910/DVN/AMK8PJ) has: 11, from the 2018 De
 for governor and the 2018, 2022 and 2024 races for Congress in the 2nd District to five
 legislative primaries of 2020.
 
-- The records are converted with `../alaska/cvr_to_blt.py --write-in-candidate`: two skipped
+- The records are converted with `../cvr_to_blt.py --skipped two-end --write-in candidate`: two skipped
   rankings in a row end the ballot (those before the first choice included), an overvote ends
   it, a candidate ranked again counts once, and write-ins are one candidate. That reproduces the
   reports' first rounds to the vote, the ballots exhausted by overvotes and undervotes included.

@@ -5,7 +5,7 @@ usage: check.py DATA_DIR [--jar PATH] [CONTEST ...]
 CONTEST is one of CONTESTS below (all, by default): the contests of 2010-2024 whose final
 round-by-round results the Internet Archive kept (sfelections.org turns away scripted requests)
 and whose ballots FairVote's collection of single-winner RCV cast vote records
-(https://doi.org/10.7910/DVN/AMK8PJ) has. Each record is converted with ../albany/cvr_to_blt.py
+(https://doi.org/10.7910/DVN/AMK8PJ) has. Each record is converted with ../cvr_to_blt.py
 (an overvote ends the ballot; a skipped ranking is passed over, as is a write-in from 2015 on,
 while before that the reports count write-ins as a candidate, WRITE-IN) and counted with `irv`
 (since 2019, the Department of Elections' Dominion settings: "Declare winners by threshold:
@@ -38,7 +38,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
-CONVERTER = os.path.join(HERE, "..", "albany", "cvr_to_blt.py")
+CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 RESULTS = "sfelections.org/results/"
 # contest: (Dataverse file id, the results file under sfelections.org/results/)
@@ -238,8 +238,9 @@ def check(data, contest, jar):
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
         # Before 2015, the reports count write-ins of no qualified candidate as a candidate, WRITE-IN.
-        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "1"]
-                       + (["--write-in-candidate"] if contest < "2015" else []), check=True)
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest]
+                       + (["--write-in", "candidate", "--write-in-name", "WRITE-IN"] if contest < "2015" else []),
+                       check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:

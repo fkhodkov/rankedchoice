@@ -5,11 +5,12 @@ multi-seat ranked-choice contests of 2009 to 2025, the Park and Recreation Board
 seats) and the Board of Estimate and Taxation (2 seats), and its single-seat races of 2017 to 2025
 (mayor, City Council wards, Park Board districts) that have a round summary: 29.
 
-- `cvr_to_blt.py` converts a contest's cast vote record (a row per distinct ballot: precinct,
-  1st, 2nd and 3rd choice, count) to BLT. An undervote or an overvote is passed over, which
-  reproduces the City's first rounds; a candidate ranked again counts once; "UWI" is the
-  candidate "Undeclared Write-ins". It reads FairVote's copies of the 2009 and 2013 records too
-  (https://doi.org/10.7910/DVN/STVUET), whose write-ins are one candidate, "Write-ins".
+- The records (a row per distinct ballot: precinct, 1st, 2nd and 3rd choice, count) are
+  converted with `../cvr_to_blt.py --overvote skip --write-in candidate`: an undervote or an
+  overvote is passed over, which reproduces the City's first rounds; a candidate ranked again
+  counts once; "UWI" is the candidate "Undeclared Write-ins". FairVote's copies of the 2009 and
+  2013 records (https://doi.org/10.7910/DVN/STVUET) read the same way, their write-ins one
+  candidate, "Write-ins".
 - `check.py` fetches each contest's cast vote record and summary statement, converts and counts
   it, and matches every official round to a round of this count, every candidate to 4 decimal
   places, with the threshold and the candidates elected. 2017–2025 are counted with

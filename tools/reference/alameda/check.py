@@ -9,7 +9,7 @@ system's pass reports for 2010-2017 (under https://acvote.alamedacountyca.gov/ac
 read with pdftotext), and its Dominion "RCV Detailed Reports" for 2022, 2024 and April 2025 (under
 https://alamedacountyca.gov/rovresults/rcv/). The counts of 2018 and 2020 aren't published, and no
 copy was archived. Each record and report is fetched into DATA_DIR, the record converted
-(../albany/cvr_to_blt.py: an overvote ends the ballot; a skipped ranking is passed over; a
+(../cvr_to_blt.py: an overvote ends the ballot; a skipped ranking is passed over; a
 candidate ranked again counts once) and counted with the `irv` ruleset.
 
 Up to 2017 the County eliminated one candidate a pass, as this count does, but stopped once a
@@ -41,7 +41,7 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
-CONVERTER = os.path.join(HERE, "..", "albany", "cvr_to_blt.py")
+CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 REPORT = "https://alamedacountyca.gov/rovresults/rcv/{election}/{race}/RcvDetailedReport.xml"
 PASS_REPORT = "https://acvote.alamedacountyca.gov/acvote-assets/pdf/elections/{path}"
@@ -273,7 +273,7 @@ def check(data, contest, jar):
     cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
-        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "1"], check=True)
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest], check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:
@@ -341,8 +341,9 @@ def check_pass_report(data, contest, jar):
     if not os.path.exists(blt):
         # Write-ins are a candidate where the report gives them votes; where it doesn't (Berkeley's 2012 mayoral
         # race, with a qualified write-in), they are passed over.
-        write_ins = ["--write-in-candidate"] if totals.get(key("Write-In"), [0])[0] else []
-        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "1"] + write_ins, check=True)
+        given = totals.get(key("Write-In"), [0])[0]
+        write_ins = ["--write-in", "candidate", "--write-in-name", "WRITE-IN"] if given else []
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest] + write_ins, check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:

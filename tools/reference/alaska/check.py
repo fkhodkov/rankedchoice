@@ -7,7 +7,7 @@ election, the November 2022 general election and the November 2024 general elect
 past a first round, for which the Internet Archive kept the Division's Dominion "RCV Detailed
 Report" (its own site, elections.alaska.gov, turns away scripted requests) and FairVote's
 collection of single-winner RCV cast vote records (https://doi.org/10.7910/DVN/AMK8PJ) has the
-ballots. Each is fetched into DATA_DIR, the record converted (cvr_to_blt.py) and counted with
+ballots. Each is fetched into DATA_DIR, the record converted (../cvr_to_blt.py) and counted with
 `irv` (the reports' "Declare winners by threshold: False": the fewest votes are defeated round
 by round until one candidate is left), and every official round's votes compared with this
 count's, round for round, with the elimination order and the winner. Where the record differs
@@ -25,6 +25,7 @@ import sys
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 ARCHIVE = "https://web.archive.org/web/{stamp}id_/https://www.elections.alaska.gov/results/{path}"
@@ -113,7 +114,8 @@ def check(data, contest, jar, file_id, stamp, path):
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
-        subprocess.run([sys.executable, os.path.join(HERE, "cvr_to_blt.py"), cvr, blt], check=True)
+        # An unresolved write-in is passed over; two skipped rankings in a row end the ballot; so does an overvote.
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end"], check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:

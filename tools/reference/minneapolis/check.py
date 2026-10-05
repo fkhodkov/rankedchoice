@@ -8,7 +8,7 @@ single-seat races of 2017-2025 with a round summary (mayor-YEAR, ward-N-YEAR,
 park-district-N-YEAR; SINGLE below), counted with `minneapolis` too. All, by default.
 Each one's cast vote record and summary statement (linked from
 https://vote.minneapolismn.gov/results-data/election-results/<year>/<park-board-at-large|bet>/)
-are fetched into DATA_DIR, the record converted (cvr_to_blt.py) and counted, and the summary
+are fetched into DATA_DIR, the record converted (../cvr_to_blt.py) and counted, and the summary
 matched against it: every official round's figures must be one of this count's rounds, in
 order, every candidate to the 4 decimal places of the official figures, at the official
 threshold, and the same candidates elected. Where the City's last round elects without moving
@@ -38,6 +38,9 @@ import urllib.request
 from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
+# An overvote or a skipped ranking is passed over; write-ins are one candidate, named as the City's results do.
+READING = ["--overvote", "skip", "--write-in", "candidate"]
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
 FILES = "https://vote.minneapolismn.gov/media/-www-content-assets/documents/archive/elections/"
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
@@ -152,8 +155,8 @@ def check_older(data, contest, jar):
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(data, contest + "-fairvote.csv", DATAVERSE.format(id=file_id))
-        subprocess.run([sys.executable, os.path.join(HERE, "cvr_to_blt.py"), cvr, blt, "--seats", str(seats)],
-                       check=True)
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", str(seats), "--title", contest] + READING
+                       + ["--write-in-name", "Write-ins"], check=True)
     if isinstance(official, list):
         line = f"{contest}: winners only"
         ok = True
@@ -229,8 +232,8 @@ def check(data, contest, jar):
     seats, cvr, pdf = CONTESTS[contest]
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
-        subprocess.run([sys.executable, os.path.join(HERE, "cvr_to_blt.py"), fetch(data, cvr), blt,
-                        "--seats", str(seats)], check=True)
+        subprocess.run([sys.executable, CONVERTER, fetch(data, cvr), blt, "--seats", str(seats), "--title", contest]
+                       + READING + ["--write-in-name", "Undeclared Write-ins"], check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "minneapolis", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:

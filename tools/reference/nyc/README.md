@@ -8,7 +8,7 @@ Left out: the 2025 Republican comptroller primary, whose record in the collectio
 ballots, mostly from Queens, of about 30,400 counted citywide; and the 2025 District 44 and 51
 specials, whose results are PDFs in another layout (one link broken, the other decided in round 1).
 
-- The records are converted with `../albany/cvr_to_blt.py`: an overvote ends the ballot, a
+- The records are converted with `../cvr_to_blt.py`: an overvote ends the ballot, a
   skipped ranking or a write-in is passed over, a candidate ranked again counts once.
 - The Board counts write-ins as one candidate in round 1 and eliminates them first, in round 2,
   whatever their number (in 2025's mayoral primary, before two candidates with fewer votes). That

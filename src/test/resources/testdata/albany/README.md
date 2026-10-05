@@ -4,7 +4,7 @@ Albany's multi-seat ranked-choice contests (2 or 3 seats each), checked by `Alba
 
 - `<contest>.blt`: the ballots, from Alameda County's cast vote records as FairVote's collection of
   proportional RCV records has them (https://doi.org/10.7910/DVN/STVUET), converted by
-  `tools/reference/albany/cvr_to_blt.py`. Identical rankings are merged.
+  `tools/reference/cvr_to_blt.py`. Identical rankings are merged.
 - `<contest>.official.json`: the County's Dominion "RCV Detailed Report" for the contest (the XML
   at `source`), read by `tools/reference/albany/check.py`: each round's threshold and candidates'
   votes, and the candidates elected. Names are spelled as the report spells them, which isn't

@@ -6,7 +6,7 @@ CONTEST is one of CONTESTS below (all, by default): the 123 primaries, from mayo
 both FairVote's collection of single-winner RCV cast vote records (https://doi.org/10.7910/DVN/AMK8PJ)
 and the Board of Elections' certified round-by-round pages ("Official Ranked Choice Rounds", under
 https://www.vote.nyc/sites/default/files/pdf/election_results/) have. Each record and page is fetched
-into DATA_DIR, the record converted with ../albany/cvr_to_blt.py (an overvote ends the ballot; a skipped
+into DATA_DIR, the record converted with ../cvr_to_blt.py (an overvote ends the ballot; a skipped
 ranking or a write-in is passed over; a candidate ranked again counts once) and counted with `irv`.
 
 The Board counts write-ins as one candidate in round 1 and eliminates them first, in round 2, whatever
@@ -34,7 +34,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
-CONVERTER = os.path.join(HERE, "..", "albany", "cvr_to_blt.py")
+CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 ROUNDS = "https://www.vote.nyc/sites/default/files/pdf/election_results/{year}/{date}Primary%20Election/rcv/{page}"
 DATES = {"2021": "20210622", "2023": "20230627", "2025": "20250624"}
@@ -245,7 +245,7 @@ def check(data, contest, jar):
     blt = os.path.join(data, contest + ".blt")
     cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
     if not os.path.exists(blt):
-        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "1"], check=True)
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest], check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:
