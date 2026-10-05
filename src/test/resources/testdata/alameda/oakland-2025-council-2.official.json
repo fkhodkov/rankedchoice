@@ -1,0 +1,57 @@
+{
+ "source": "https://alamedacountyca.gov/rovresults/rcv/257/Oakland/002-CityCouncil_District_2/RcvDetailedReport.xml",
+ "dataverseFile": 11593446,
+ "suspended": 0,
+ "eliminated": [
+  "REV KENNETH ANDERSON",
+  "PAULA F.L. THOMAS",
+  "KANITHA MATOURY",
+  "HAROLD LOWE III",
+  "KARA MURRAY-BADAL"
+ ],
+ "elected": [
+  "CHARLENE WANG"
+ ],
+ "rounds": [
+  {
+   "PAULA F.L. THOMAS": "269",
+   "REV KENNETH ANDERSON": "246",
+   "KANITHA MATOURY": "559",
+   "CHARLENE WANG": "5905",
+   "KARA MURRAY-BADAL": "4223",
+   "HAROLD LOWE III": "1381"
+  },
+  {
+   "PAULA F.L. THOMAS": "303",
+   "REV KENNETH ANDERSON": "0",
+   "KANITHA MATOURY": "598",
+   "CHARLENE WANG": "5951",
+   "KARA MURRAY-BADAL": "4263",
+   "HAROLD LOWE III": "1415"
+  },
+  {
+   "PAULA F.L. THOMAS": "0",
+   "REV KENNETH ANDERSON": "0",
+   "KANITHA MATOURY": "686",
+   "CHARLENE WANG": "6022",
+   "KARA MURRAY-BADAL": "4297",
+   "HAROLD LOWE III": "1465"
+  },
+  {
+   "PAULA F.L. THOMAS": "0",
+   "REV KENNETH ANDERSON": "0",
+   "KANITHA MATOURY": "0",
+   "CHARLENE WANG": "6272",
+   "KARA MURRAY-BADAL": "4420",
+   "HAROLD LOWE III": "1617"
+  },
+  {
+   "PAULA F.L. THOMAS": "0",
+   "REV KENNETH ANDERSON": "0",
+   "KANITHA MATOURY": "0",
+   "CHARLENE WANG": "7008",
+   "KARA MURRAY-BADAL": "4782",
+   "HAROLD LOWE III": "0"
+  }
+ ]
+}

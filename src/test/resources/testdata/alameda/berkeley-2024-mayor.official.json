@@ -1,0 +1,44 @@
+{
+ "source": "https://alamedacountyca.gov/rovresults/rcv/252/Berkeley/001-Mayor/RcvDetailedReport.xml",
+ "dataverseFile": 11593220,
+ "suspended": 0,
+ "eliminated": [
+  "NAOMI D. PETE",
+  "LOGAN BOWIE",
+  "KATE HARRISON",
+  "SOPHIE HAHN"
+ ],
+ "elected": [
+  "ADENA ISHII"
+ ],
+ "rounds": [
+  {
+   "ADENA ISHII": "20034",
+   "SOPHIE HAHN": "19695",
+   "KATE HARRISON": "11893",
+   "NAOMI D. PETE": "514",
+   "LOGAN BOWIE": "555"
+  },
+  {
+   "ADENA ISHII": "20147",
+   "SOPHIE HAHN": "19794",
+   "KATE HARRISON": "11966",
+   "NAOMI D. PETE": "0",
+   "LOGAN BOWIE": "643"
+  },
+  {
+   "ADENA ISHII": "20310",
+   "SOPHIE HAHN": "19930",
+   "KATE HARRISON": "12155",
+   "NAOMI D. PETE": "0",
+   "LOGAN BOWIE": "0"
+  },
+  {
+   "ADENA ISHII": "25156",
+   "SOPHIE HAHN": "24109",
+   "KATE HARRISON": "0",
+   "NAOMI D. PETE": "0",
+   "LOGAN BOWIE": "0"
+  }
+ ]
+}

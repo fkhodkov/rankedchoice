@@ -1,0 +1,129 @@
+{
+ "source": "https://alamedacountyca.gov/rovresults/rcv/248/Oakland/001-Mayor/RcvDetailedReport.xml",
+ "dataverseFile": 11593507,
+ "suspended": 810,
+ "eliminated": [
+  "TYRON C. JORDAN",
+  "PETER Y. LIU",
+  "JOHN REIMANN",
+  "SENECA SCOTT",
+  "GREGORY HODGE",
+  "TREVA D. REID",
+  "ALLYSSA VICTORY VILLANUEVA",
+  "IGNACIO DE LA FUENTE",
+  "LOREN MANUEL TAYLOR"
+ ],
+ "elected": [
+  "SHENG THAO"
+ ],
+ "rounds": [
+  {
+   "SENECA SCOTT": "3745",
+   "GREGORY HODGE": "5798",
+   "LOREN MANUEL TAYLOR": "41510",
+   "PETER Y. LIU": "960",
+   "SHENG THAO": "39909",
+   "IGNACIO DE LA FUENTE": "12893",
+   "ALLYSSA VICTORY VILLANUEVA": "10949",
+   "JOHN REIMANN": "1268",
+   "TYRON C. JORDAN": "863",
+   "TREVA D. REID": "7627"
+  },
+  {
+   "SENECA SCOTT": "3856",
+   "GREGORY HODGE": "5933",
+   "LOREN MANUEL TAYLOR": "41777",
+   "PETER Y. LIU": "1000",
+   "SHENG THAO": "40127",
+   "IGNACIO DE LA FUENTE": "13092",
+   "ALLYSSA VICTORY VILLANUEVA": "11115",
+   "JOHN REIMANN": "1322",
+   "TYRON C. JORDAN": "0",
+   "TREVA D. REID": "7822"
+  },
+  {
+   "SENECA SCOTT": "3956",
+   "GREGORY HODGE": "5986",
+   "LOREN MANUEL TAYLOR": "41857",
+   "PETER Y. LIU": "0",
+   "SHENG THAO": "40395",
+   "IGNACIO DE LA FUENTE": "13172",
+   "ALLYSSA VICTORY VILLANUEVA": "11178",
+   "JOHN REIMANN": "1391",
+   "TYRON C. JORDAN": "0",
+   "TREVA D. REID": "7879"
+  },
+  {
+   "SENECA SCOTT": "4151",
+   "GREGORY HODGE": "6126",
+   "LOREN MANUEL TAYLOR": "41970",
+   "PETER Y. LIU": "0",
+   "SHENG THAO": "40636",
+   "IGNACIO DE LA FUENTE": "13259",
+   "ALLYSSA VICTORY VILLANUEVA": "11474",
+   "JOHN REIMANN": "0",
+   "TYRON C. JORDAN": "0",
+   "TREVA D. REID": "7974"
+  },
+  {
+   "SENECA SCOTT": "0",
+   "GREGORY HODGE": "6886",
+   "LOREN MANUEL TAYLOR": "42906",
+   "PETER Y. LIU": "0",
+   "SHENG THAO": "41079",
+   "IGNACIO DE LA FUENTE": "13930",
+   "ALLYSSA VICTORY VILLANUEVA": "11799",
+   "JOHN REIMANN": "0",
+   "TYRON C. JORDAN": "0",
+   "TREVA D. REID": "8278"
+  },
+  {
+   "SENECA SCOTT": "0",
+   "GREGORY HODGE": "0",
+   "LOREN MANUEL TAYLOR": "44645",
+   "PETER Y. LIU": "0",
+   "SHENG THAO": "42643",
+   "IGNACIO DE LA FUENTE": "14515",
+   "ALLYSSA VICTORY VILLANUEVA": "13093",
+   "JOHN REIMANN": "0",
+   "TYRON C. JORDAN": "0",
+   "TREVA D. REID": "9022"
+  },
+  {
+   "SENECA SCOTT": "0",
+   "GREGORY HODGE": "0",
+   "LOREN MANUEL TAYLOR": "48257",
+   "PETER Y. LIU": "0",
+   "SHENG THAO": "44660",
+   "IGNACIO DE LA FUENTE": "15485",
+   "ALLYSSA VICTORY VILLANUEVA": "14149",
+   "JOHN REIMANN": "0",
+   "TYRON C. JORDAN": "0",
+   "TREVA D. REID": "0"
+  },
+  {
+   "SENECA SCOTT": "0",
+   "GREGORY HODGE": "0",
+   "LOREN MANUEL TAYLOR": "50419",
+   "PETER Y. LIU": "0",
+   "SHENG THAO": "53090",
+   "IGNACIO DE LA FUENTE": "16538",
+   "ALLYSSA VICTORY VILLANUEVA": "0",
+   "JOHN REIMANN": "0",
+   "TYRON C. JORDAN": "0",
+   "TREVA D. REID": "0"
+  },
+  {
+   "SENECA SCOTT": "0",
+   "GREGORY HODGE": "0",
+   "LOREN MANUEL TAYLOR": "56529",
+   "PETER Y. LIU": "0",
+   "SHENG THAO": "57206",
+   "IGNACIO DE LA FUENTE": "0",
+   "ALLYSSA VICTORY VILLANUEVA": "0",
+   "JOHN REIMANN": "0",
+   "TYRON C. JORDAN": "0",
+   "TREVA D. REID": "0"
+  }
+ ]
+}

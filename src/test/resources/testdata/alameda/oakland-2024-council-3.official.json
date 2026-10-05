@@ -1,0 +1,57 @@
+{
+ "source": "https://alamedacountyca.gov/rovresults/rcv/252/Oakland/003-CityCouncil_District_3/RcvDetailedReport.xml",
+ "dataverseFile": 11593469,
+ "suspended": 0,
+ "eliminated": [
+  "SHAN M. HIRSCH",
+  "MERON SEMEDAR",
+  "MICHELLE D. HAILEY",
+  "BABA AFOLABI",
+  "WARREN MITCHELL LOGAN"
+ ],
+ "elected": [
+  "CARROLL FIFE"
+ ],
+ "rounds": [
+  {
+   "BABA AFOLABI": "1633",
+   "CARROLL FIFE": "9957",
+   "MICHELLE D. HAILEY": "1480",
+   "WARREN MITCHELL LOGAN": "6262",
+   "SHAN M. HIRSCH": "627",
+   "MERON SEMEDAR": "834"
+  },
+  {
+   "BABA AFOLABI": "1699",
+   "CARROLL FIFE": "10016",
+   "MICHELLE D. HAILEY": "1614",
+   "WARREN MITCHELL LOGAN": "6364",
+   "SHAN M. HIRSCH": "0",
+   "MERON SEMEDAR": "909"
+  },
+  {
+   "BABA AFOLABI": "1827",
+   "CARROLL FIFE": "10172",
+   "MICHELLE D. HAILEY": "1777",
+   "WARREN MITCHELL LOGAN": "6670",
+   "SHAN M. HIRSCH": "0",
+   "MERON SEMEDAR": "0"
+  },
+  {
+   "BABA AFOLABI": "2118",
+   "CARROLL FIFE": "10643",
+   "MICHELLE D. HAILEY": "0",
+   "WARREN MITCHELL LOGAN": "7278",
+   "SHAN M. HIRSCH": "0",
+   "MERON SEMEDAR": "0"
+  },
+  {
+   "BABA AFOLABI": "0",
+   "CARROLL FIFE": "11437",
+   "MICHELLE D. HAILEY": "0",
+   "WARREN MITCHELL LOGAN": "8069",
+   "SHAN M. HIRSCH": "0",
+   "MERON SEMEDAR": "0"
+  }
+ ]
+}

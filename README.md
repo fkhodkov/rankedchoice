@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, Minneapolis's multi-seat contests 2009–2025, Eastpointe, Michigan's 2019 and 2021 councils, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, 24 of Alameda County's single-seat contests 2022–2025 (as `irv`), Minneapolis's multi-seat contests 2009–2025, Eastpointe, Michigan's 2019 and 2021 councils, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | every count of Cambridge's 16 elections of 2001–2017 and the winners of 21 of its 22 of 2001–2023; OpenSTV, exactly, on 60 elections |
@@ -151,6 +151,7 @@ Ballots set aside this way, and blank ones, are reported as informal ballots, wi
 | `vic-lc` | Droop + unweighted-inclusive + truncate:0 (whole votes), surpluses in order of election, exclusions first preferences first, last candidates elected as they stand | Victorian Legislative Council | [Electoral Act 2002 (Vic), s114A](https://content.legislation.vic.gov.au/sites/default/files/2022-06/02-23aa064%20authorised.pdf); checked against OpenTally only |
 | `wa-lc` | Droop + weighted-inclusive + truncate:0 (whole votes per parcel), surpluses in order of election, exclusions parcel by parcel, last candidates elected as they stand | Western Australian Legislative Council | Electoral Act 1907 (WA), Schedule 1; checked against OpenTally only |
 | `portland` | Droop + fractional-truncated + truncate:4, surpluses transferred together, overvotes skipped | Portland, Oregon City Council | [Portland City Code 2.08.030](https://www.portland.gov/code/2/08/030) |
+| `irv` | Hare quota (so nobody is elected by threshold) + fractional: the fewest votes defeated round by round until one candidate is left | Single-seat instant-runoff, as Alameda County (Oakland, Berkeley) counts it | Alameda County's Dominion settings ("IRV", no winners by threshold); checked against 24 of its official counts of 2022–2025 |
 | `albany` | Droop + fractional-truncated + truncate:4, overvotes end the ballot | Albany, California City Council and Board of Education | Alameda County's Dominion settings, as its RCV Detailed Reports give them; checked against the County's 2022 and 2024 counts |
 | `minneapolis` | Droop + fractional-truncated + truncate:4, mathematical elimination, overvotes skipped | Minneapolis Park Board at large and Board of Estimate and Taxation | Code of Ordinances 167.70 as enacted in 2006 ([FairVote's copy](https://archive.fairvote.org/media/implementation/Minneapolis%20IRV_Ordinance.pdf)); the rankings test and the surplus handling inferred from the City's 2017–2025 counts |
 | `act-hare-clark` | Droop + last-parcel-deferred-rounding + truncate:6, surpluses in order of election, tied rankings truncated | ACT Legislative Assembly elections | [Electoral Act 1992 (ACT), Schedule 4 and s.180](https://www.legislation.act.gov.au/a/1992-71/current/pdf/1992-71.pdf), as reproduced in [Elections ACT's Scrutineers information handbook](https://www.elections.act.gov.au/__data/assets/pdf_file/0008/2474981/Scrutineers-information-handbook.pdf) |
@@ -345,6 +346,9 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/minneapolis`](tools/reference/minneapolis/README.md) — convert the City of
   Minneapolis's cast vote records for its multi-seat contests of 2009–2025 and check each round
   against the City's summary statements.
+- [`tools/reference/alameda`](tools/reference/alameda/README.md) — check the `irv` ruleset
+  against Alameda County's official reports for 24 Oakland and Berkeley contests of 2022–2025,
+  from FairVote's collection of single-winner cast vote records.
 - [`tools/reference/eastpointe`](tools/reference/eastpointe/README.md) — convert Macomb County's
   cast vote records for Eastpointe, Michigan's 2019 and 2021 Council elections (from FairVote's
   collection) and check each round against the County's RCTab summaries.

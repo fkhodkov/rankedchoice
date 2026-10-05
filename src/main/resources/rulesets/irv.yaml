@@ -1,0 +1,13 @@
+# Instant-runoff voting, for single-seat contests: the candidate with fewest votes is defeated and
+# their ballots move on, round by round, until one candidate is left. No threshold is checked
+# along the way (a Hare quota of every vote, which only the last candidate standing reaches), as
+# Alameda County's Dominion counts run it; the winner is the same as stopping at a majority of
+# the ballots still in play, since a candidate holding one is never the lowest. Ties for fewest
+# votes go to whoever had fewer in the round before, then the declared order (by lot, in law).
+#
+# Checked against Alameda County's official round-by-round reports for the Oakland and Berkeley
+# contests of 2022-2025 (tools/reference/alameda).
+quota: hare
+transfer: fractional
+rounding: exact
+tiebreak: previous-round,declared

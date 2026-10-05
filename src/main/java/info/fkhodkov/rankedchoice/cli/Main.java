@@ -119,6 +119,9 @@ public final class Main implements Callable<Integer> {
             new BundledRuleset("minneapolis",
                     "Minneapolis multi-seat contests -- Droop, fractional transfer truncated twice to 4dp, "
                             + "hopeless candidates defeated before each surplus, overvotes skipped"),
+            new BundledRuleset("irv",
+                    "Instant-runoff for one seat -- the fewest votes defeated round by round until one candidate "
+                            + "is left, as Alameda County counts"),
             new BundledRuleset("albany",
                     "Albany, California -- Droop, fractional transfer truncated twice to 4dp, surpluses largest "
                             + "first, as Alameda County's Dominion count"));
@@ -165,8 +168,8 @@ public final class Main implements Callable<Integer> {
     private Path config;
 
     @Option(names = {"-r", "--ruleset"}, description = "A bundled ruleset preset: scottish|ers97|ers76|"
-            + "hare-clark-qpq|act-hare-clark|senate|nsw-lg|vic-lc|wa-lc|portland|minneapolis|albany. Mutually "
-            + "exclusive with --config.")
+            + "hare-clark-qpq|act-hare-clark|senate|nsw-lg|vic-lc|wa-lc|portland|minneapolis|albany|irv. "
+            + "Mutually exclusive with --config.")
     private String rulesetName;
 
     @Option(names = {"--quota"},
