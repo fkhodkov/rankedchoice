@@ -1,0 +1,55 @@
+{
+ "source": "https://web.archive.org/web/20250321144553id_/https://www.sfelections.org/results/20201103/data/20201201/d7/20201201_d7_short.pdf",
+ "dataverseFile": 11593635,
+ "eliminated": [
+  "KEN PIPER",
+  "BEN MATRANGA",
+  "EMILY MURASE",
+  "STEPHEN W. MARTIN-PINTO",
+  "VILASKA NGUYEN"
+ ],
+ "elected": [
+  "MYRNA MELGAR"
+ ],
+ "rounds": [
+  {
+   "JOEL ENGARDIO": "9272",
+   "KEN PIPER": "969",
+   "VILASKA NGUYEN": "8263",
+   "BEN MATRANGA": "3414",
+   "STEPHEN W. MARTIN-PINTO": "4599",
+   "MYRNA MELGAR": "7881",
+   "EMILY MURASE": "4934"
+  },
+  {
+   "JOEL ENGARDIO": "9423",
+   "VILASKA NGUYEN": "8404",
+   "BEN MATRANGA": "3581",
+   "STEPHEN W. MARTIN-PINTO": "4830",
+   "MYRNA MELGAR": "7995",
+   "EMILY MURASE": "5011"
+  },
+  {
+   "JOEL ENGARDIO": "10391",
+   "VILASKA NGUYEN": "8740",
+   "STEPHEN W. MARTIN-PINTO": "5597",
+   "MYRNA MELGAR": "8667",
+   "EMILY MURASE": "5500"
+  },
+  {
+   "JOEL ENGARDIO": "11561",
+   "VILASKA NGUYEN": "9810",
+   "STEPHEN W. MARTIN-PINTO": "6147",
+   "MYRNA MELGAR": "10628"
+  },
+  {
+   "JOEL ENGARDIO": "14119",
+   "VILASKA NGUYEN": "10855",
+   "MYRNA MELGAR": "11652"
+  },
+  {
+   "JOEL ENGARDIO": "16370",
+   "MYRNA MELGAR": "18561"
+  }
+ ]
+}

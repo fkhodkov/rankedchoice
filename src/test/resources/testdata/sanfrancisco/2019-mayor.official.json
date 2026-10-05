@@ -1,0 +1,55 @@
+{
+ "source": "https://web.archive.org/web/20241118015537id_/https://www.sfelections.org/results/20191105/data/20191125/mayor/20191125_mayor_short.xlsx",
+ "dataverseFile": 11593618,
+ "eliminated": [
+  "MARC ROTH",
+  "ROBERT L. JORDAN, JR.",
+  "WILMA PANG",
+  "PAUL YBARRA ROBERTSON",
+  "JOEL VENTRESCA"
+ ],
+ "elected": [
+  "LONDON N. BREED"
+ ],
+ "rounds": [
+  {
+   "JOEL VENTRESCA": "13283",
+   "WILMA PANG": "4963",
+   "ROBERT L. JORDAN, JR.": "2458",
+   "PAUL YBARRA ROBERTSON": "7649",
+   "ELLEN LEE ZHOU": "25006",
+   "LONDON N. BREED": "126221",
+   "MARC ROTH": "7"
+  },
+  {
+   "JOEL VENTRESCA": "13286",
+   "WILMA PANG": "4964",
+   "ROBERT L. JORDAN, JR.": "2459",
+   "PAUL YBARRA ROBERTSON": "7649",
+   "ELLEN LEE ZHOU": "25006",
+   "LONDON N. BREED": "126222"
+  },
+  {
+   "JOEL VENTRESCA": "13614",
+   "WILMA PANG": "5297",
+   "PAUL YBARRA ROBERTSON": "8304",
+   "ELLEN LEE ZHOU": "25307",
+   "LONDON N. BREED": "126563"
+  },
+  {
+   "JOEL VENTRESCA": "14531",
+   "PAUL YBARRA ROBERTSON": "9312",
+   "ELLEN LEE ZHOU": "26944",
+   "LONDON N. BREED": "127243"
+  },
+  {
+   "JOEL VENTRESCA": "17425",
+   "ELLEN LEE ZHOU": "29903",
+   "LONDON N. BREED": "128741"
+  },
+  {
+   "ELLEN LEE ZHOU": "35706",
+   "LONDON N. BREED": "134345"
+  }
+ ]
+}

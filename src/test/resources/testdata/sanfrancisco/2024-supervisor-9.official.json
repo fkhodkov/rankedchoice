@@ -1,0 +1,55 @@
+{
+ "source": "https://web.archive.org/web/20260115201943id_/https://sfelections.org/results/20241105/final/round-pages/d9_short-rounds-en.html",
+ "dataverseFile": 11593579,
+ "eliminated": [
+  "H. BROWN",
+  "JULIAN BERMUDEZ",
+  "JAIME GUTIERREZ",
+  "STEPHEN JON TORRES",
+  "ROBERTO HERNANDEZ"
+ ],
+ "elected": [
+  "JACKIE FIELDER"
+ ],
+ "rounds": [
+  {
+   "JACKIE FIELDER": "13844",
+   "TREVOR CHANDLER": "9042",
+   "ROBERTO HERNANDEZ": "6606",
+   "STEPHEN JON TORRES": "1140",
+   "JAIME GUTIERREZ": "931",
+   "JULIAN BERMUDEZ": "600",
+   "H. BROWN": "568"
+  },
+  {
+   "JACKIE FIELDER": "13905",
+   "TREVOR CHANDLER": "9178",
+   "ROBERTO HERNANDEZ": "6653",
+   "STEPHEN JON TORRES": "1176",
+   "JAIME GUTIERREZ": "984",
+   "JULIAN BERMUDEZ": "690"
+  },
+  {
+   "JACKIE FIELDER": "13964",
+   "TREVOR CHANDLER": "9313",
+   "ROBERTO HERNANDEZ": "6744",
+   "STEPHEN JON TORRES": "1274",
+   "JAIME GUTIERREZ": "1080"
+  },
+  {
+   "JACKIE FIELDER": "14126",
+   "TREVOR CHANDLER": "9489",
+   "ROBERTO HERNANDEZ": "7054",
+   "STEPHEN JON TORRES": "1399"
+  },
+  {
+   "JACKIE FIELDER": "14703",
+   "TREVOR CHANDLER": "9730",
+   "ROBERTO HERNANDEZ": "7369"
+  },
+  {
+   "JACKIE FIELDER": "17546",
+   "TREVOR CHANDLER": "11863"
+  }
+ ]
+}

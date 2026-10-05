@@ -13,7 +13,7 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 | Method | Official counts of real elections | Independent implementations | Otherwise |
 |---|---|---|---|
 | Classic STV (`stv` and its presets) | Scotland, the ACT, the Australian Senate, NSW councils, Portland, Minneapolis, Albany, Eastpointe; Ireland's first preferences and winners | [OpenTally](#opentally) (9 presets, 200 elections each); pyRCV2 on [the ERS97 model election](#the-ers97-model-election); CRAN `STV` (Hare quota) | [building blocks](#classic-stv-building-blocks): hand-derived cases, Imperiali's quota only so |
-| Instant-runoff (`irv`, classic STV for one seat) | Alameda County and Alaska; Minneapolis's single-seat races (as `minneapolis`) | | |
+| Instant-runoff (`irv`, classic STV for one seat) | Alameda County, San Francisco and Alaska; Minneapolis's single-seat races (as `minneapolis`) | | |
 | [Meek and Warren](#meek-and-warren) | | droop (144 elections, every round, at several precisions); OpenTally's Meek (the winners of 200) | |
 | [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (60 elections) | ballot-order sensitivity measured |
 | [QPQ](#qpq) | | droop and OpenSTV | hand-derived cases |
@@ -39,6 +39,7 @@ official count gives them. Details are in [Real elections](#real-elections).
 | Albany, California (2022, 2024) | 4 | `albany`; 2022 by the County's settings then | every round |
 | Eastpointe, Michigan (2019, 2021) | 2 | `portland` | every round, but one figure the official summary itself has 2 votes off |
 | Alameda County, California (2022–2025) | 24 | `irv` | every round in 20; in all 24 the eliminations and the winner |
+| San Francisco (2019–2024) | 25 | `irv` | every round in 22; in the 3 whose archived results predate certification, the eliminations and the winner |
 | Alaska (2022, 2024) | 22 | `irv` | every round in 12; in all 22 the eliminations and the winner |
 | Ireland, Dáil (2002) | 3 | | first preferences and the TDs returned |
 
@@ -64,6 +65,7 @@ Real elections, run through their own rulesets, reproduce their actual results:
 | Minneapolis single-seat races, 2017–2025: mayor (2021, 2025), City Council wards and Park Board districts, the 29 with a round summary | `minneapolis` (its quota a majority, with one seat) | every official round's tallies, the threshold, and the winner; see below | the City's cast vote records |
 | Minneapolis Park Board and Board of Estimate, 2009 (68,741 votes in the first round), and the winners of 2013's two | the 2006 ordinance's rules (`minneapolis` without `rankingsElimination`) | every official round's tallies of 2009 (the Board of Estimate's first round apart, which the record has one vote short), and the candidates elected; see below | the City's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Oakland and Berkeley single-seat contests (mayor, council, city attorney, auditor, school board), 2022, 2024 and April 2025: the 24 FairVote's collection and the County's reports both have | `irv` | every official round's votes, to the vote, in 20; in the other 4 the record is 1–7 votes a candidate off the County's count from the first round on, and the eliminations and winners still match; see below | the County's cast vote records, from [FairVote's single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
+| San Francisco: mayor (2019, 2024), Board of Supervisors districts, district attorney, public defender, city attorney and sheriff, 2019–2024: the 25 whose final results the Internet Archive kept | `irv` | every official round's votes, to the vote, in 22; the other 3 (2024's city attorney, district attorney and sheriff races) only have results captured before certification, 76–80 votes short, and the eliminations and winners match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Alaska: US House (August 2022 special, 2022, 2024), US Senate (2022), and the State House and Senate contests of 2022 and 2024 that went past a first round, 22 in all | `irv` | every official round's votes, to the vote, in 12; in the other 10 the record is 1–9 votes a candidate off the Division of Elections' count (54–71 against the August 2022 special's unofficial report), and the eliminations and winners still match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Eastpointe, Michigan City Council, 2019 and 2021 (2 seats; 8,794 votes in the first round) | `portland` (both are RCTab counts) | every round's tallies, to 4 decimal places, against Macomb County's RCTab summaries, the threshold, and the councillors elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Albany, California City Council and Board of Education, 2022 and 2024 (4–5 candidates, 2–3 seats; 28,782 votes in the first round) | `albany` (2024), the County's 2022 settings | every official round's tallies, to the report's 4 or 6 decimal places, against Alameda County's RCV Detailed Reports, the first threshold, and the candidates elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
@@ -340,6 +342,22 @@ ballots, and the eliminations, in order, and the winners still match. Four are f
   rule found (it's more than the ballots with a write-in first, but in two contests fewer than
   those and the ballots skipping their first ranking for a candidate together), so it's
   reported, not checked. The 2024 and 2025 counts hold nothing back.
+
+**San Francisco** (`irv`; `tools/reference/sanfrancisco`): the contests of 2019, 2020, 2022 and
+2024 whose final round-by-round results the Internet Archive kept (sfelections.org turns away
+scripted requests) and whose ballots FairVote's single-winner collection has: 25, from the
+mayoral races of 2019 and 2024 to every Board of Supervisors contest of 2020 and 2024. The
+Department of Elections counts with Dominion, with the settings Alameda County uses ("IRV", no
+winners by threshold: one candidate eliminated a round until two are left), and the ballots read
+the same way: an overvote ends the ballot, a skipped ranking or an unnamed write-in is passed
+over (a qualified write-in, like 2019's Marc Roth, is a candidate). In 22 contests every official
+round matches this count's to the vote: the 2024 mayoral race's 14 included. The other 3, the
+2024 city attorney, district attorney and sheriff races, only have results captured on 22–27
+November, before the count was certified on 3 December, and are 76 to 80 votes short; their
+eliminations and winners match. The results come in three forms (an Excel report in 2019 and
+2022, a PDF in 2020, a web page in 2024); one of each is a fixture (`SanFranciscoIrvFixtureTest`).
+San Francisco's counts before 2019 ran on other rules, defeating several candidates at once and
+stopping at a majority (2015's mayoral race defeats four in its first round); they aren't checked.
 
 **Alaska** (`irv`; `tools/reference/alaska`): the contests of the August 2022 special election and
 the November 2022 and 2024 general elections that went past a first round, 22 in all: US House

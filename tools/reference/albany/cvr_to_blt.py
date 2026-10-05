@@ -4,7 +4,8 @@ usage: cvr_to_blt.py CVR OUT.blt --seats N
 
 FairVote's collection (https://doi.org/10.7910/DVN/STVUET) has a row per ballot (CSV in the
 original files, tab-separated in Dataverse's ingested ones), with columns
-rank1, rank2, ...: a candidate, "skipped", "overvote" or a write-in ("Write-in", "Write in").
+rank1, rank2, ...: a candidate, "skipped", "overvote" or a write-in ("Write-in", "Write in",
+"writein").
 Read as Alameda County's Dominion tabulation reads Albany's ballots, which reproduces its first
 rounds: a skipped ranking is passed over, as is a write-in (no write-in candidate qualified); an
 overvote ends the ballot there (the County doesn't skip overvoted rankings); a candidate ranked
@@ -15,7 +16,7 @@ import argparse
 import collections
 import csv
 
-SKIPPED = {"skipped", "write-in", "write in"}
+SKIPPED = {"skipped", "write-in", "write in", "writein"}
 
 
 def main():
