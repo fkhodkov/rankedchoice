@@ -1,23 +1,25 @@
-"""Check the irv ruleset against San Francisco's official ranked-choice counts, 2019-2024.
+"""Check the irv ruleset against San Francisco's official ranked-choice counts, 2010-2024.
 
 usage: check.py DATA_DIR [--jar PATH] [CONTEST ...]
 
-CONTEST is one of CONTESTS below (all, by default): the contests of 2019, 2020, 2022 and 2024
-whose final round-by-round results the Internet Archive kept (sfelections.org turns away
-scripted requests) and whose ballots FairVote's collection of single-winner RCV cast vote
-records (https://doi.org/10.7910/DVN/AMK8PJ) has. Each record is converted with
-../albany/cvr_to_blt.py (an overvote ends the ballot; a skipped ranking or a write-in is passed
-over), counted with `irv` (the Department of Elections' Dominion settings: "Declare winners by
-threshold: False", candidates eliminated one at a time until two are left), and every official
-round's votes compared with this count's, round for round, with the elimination order and the
-winner. The latest capture of each result file is used: for 2024's city attorney, district
-attorney and sheriff contests, the only captures predate certification. Where the record differs
-from the official count by a few votes, each round's largest difference is reported; such a
-contest passes on the same eliminations and winner.
+CONTEST is one of CONTESTS below (all, by default): the contests of 2010-2024 whose final
+round-by-round results the Internet Archive kept (sfelections.org turns away scripted requests)
+and whose ballots FairVote's collection of single-winner RCV cast vote records
+(https://doi.org/10.7910/DVN/AMK8PJ) has. Each record is converted with ../albany/cvr_to_blt.py
+(an overvote ends the ballot; a skipped ranking is passed over, as is a write-in from 2015 on,
+while before that the reports count write-ins as a candidate, WRITE-IN) and counted with `irv`
+(since 2019, the Department of Elections' Dominion settings: "Declare winners by threshold:
+False", candidates eliminated one at a time until two are left). Every official round must be one
+of this count's rounds, in order, with the same candidates continuing, and the same candidate
+must win; the votes are compared, and where they differ, each round's largest difference is
+reported. Before 2019 the Department defeated together the candidates who couldn't overtake the
+next one up, which is several of this count's rounds in one, and stopped at a majority. The
+latest capture of each result file is used: for 2024's city attorney, district attorney and
+sheriff contests, the only captures predate certification, and are a few dozen votes short.
 
-The results come as an Excel file (2019, 2022: read with LibreOffice's soffice), a PDF (2020:
-pdftotext) or a web page (2024), each with a row per candidate giving the votes, percentage and
-transfer of every round.
+The results come as the counting system's pass report (2010-2014, a PDF: pdftotext), a web page
+(2015-2018, 2024), an Excel file (2019, 2022: read with LibreOffice's soffice) or a PDF (2020),
+the last three with a row per candidate giving the votes, percentage and transfer of every round.
 """
 import argparse
 import csv
@@ -55,6 +57,33 @@ CONTESTS = {
     "2024-district-attorney": (11593649, "20241105/final/round-pages/da_short-rounds-en.html"),
     "2024-sheriff": (11593640, "20241105/final/round-pages/sheriff_short-rounds-en.html"),
 }
+# 2010-2014: the counting system's pass report, as a PDF.
+for contest, file_id, path in (
+        ("2010-supervisor-2", 11593519, "20101102/data/RCV-D2.pdf"),
+        ("2010-supervisor-6", 11593562, "20101102/data/RCV-D6.pdf"),
+        ("2010-supervisor-8", 11593527, "20101102/data/RCV-D8.pdf"),
+        ("2010-supervisor-10", 11593524, "20101102/data/RCV-D10.pdf"),
+        ("2011-district-attorney", 11593523, "20111108/data/RCV-DA.pdf"),
+        ("2011-mayor", 11593557, "20111108/data/RCV-Mayor.pdf"),
+        ("2011-sheriff", 11593552, "20111108/data/RCV-Sheriff.pdf"),
+        ("2012-supervisor-5", 11593531, "20121106/data/D5-PassReport.pdf"),
+        ("2012-supervisor-7", 11593532, "20121106/data/D7-PassReport.pdf"),
+        ("2014-supervisor-10", 11593528, "20141104/data/RCV_D10.pdf")):
+    CONTESTS[contest] = (file_id, path)
+# 2015-2018, a web page per contest, in the folder of the last results update.
+for year, update, ids in (
+        ("2015", "20151103/data/20151119", {"supervisor-3": (11593533, "d3"), "mayor": (11593551, "mayor"),
+                                            "sheriff": (11593541, "sheriff")}),
+        ("2016", "20161108/data/20161206", {f"supervisor-{n}": (file_id, f"d{n}") for n, file_id in (
+            (1, 11593560), (3, 11593539), (5, 11593558), (7, 11593525), (9, 11593563), (11, 11593570))}),
+        ("2018-06", "20180605/data/20180627", {"supervisor-8": (11593572, "d8"), "mayor": (11593630, "mayor")}),
+        ("2018", "20181106/data/20181127", {"assessor-recorder": (11593625, "assessor"),
+                                            "public-defender": (11593600, "defender"),
+                                            **{f"supervisor-{n}": (file_id, f"d{n}") for n, file_id in (
+                                                (2, 11593582), (4, 11593602), (6, 11593615), (8, 11593652),
+                                                (10, 11593617))}})):
+    for name, (file_id, page) in ids.items():
+        CONTESTS[f"{year}-{name}"] = (file_id, f"{update}/{page}/{update[-8:]}_{page}.html")
 for n, file_id in ((1, 11593588), (3, 11593637), (5, 11593590), (7, 11593635), (9, 11593589), (11, 11593583)):
     CONTESTS[f"2020-supervisor-{n}"] = (file_id, f"20201103/data/20201201/d{n}/20201201_d{n}_short.pdf")
 for n, file_id in ((1, 11593580), (3, 11593648), (5, 11593611), (7, 11593578), (9, 11593579), (11, 11593628)):
@@ -147,9 +176,38 @@ def rows_of(path):
                 yield [match.group(1)] + match.group(2).split()
 
 
+def pass_report(text):
+    """{candidate: [votes after pass 0, 1, ...]} from the "Final State" table of each pass: a row is the name,
+    perhaps a note ("Eliminated in pass 1.", "** WINNER **"), the votes and the percentage; a long name
+    wraps onto the next line."""
+    passes, reading = [], False
+    for line in text.splitlines():
+        cells = re.split(r"\s{2,}", line.strip())
+        if cells[0] == "Final State":
+            passes.append([])
+            reading = True
+        elif reading and "Continuing Ballots" in cells:
+            reading = False
+        elif reading and len(cells) >= 3 and PERCENT.match(cells[-1]) and NUMBER.match(cells[-2]):
+            name = re.sub(r"\s*(Eliminated in pass \d+\.|\*\* WINNER \*\*)$", "", cells[0])
+            passes[-1].append([name, int(cells[-2].replace(",", ""))])
+        elif reading and len(cells) == 1 and cells[0] and passes[-1]:
+            passes[-1][-1][0] += cells[0]
+    totals = {}
+    for rows in passes:
+        for name, votes in rows:
+            totals.setdefault(name, []).append(votes)
+    return totals
+
+
 def official_rounds(path):
     """{candidate: [votes in round 1, 2, ...]}: a candidate's row is the name, then votes,
     percentage and transfer per round (wrapped onto later pages in a PDF)."""
+    if path.endswith(".pdf"):
+        text = subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True,
+                              check=True).stdout
+        if "Pass Number" in text:
+            return pass_report(text)
     totals = {}
     for row in rows_of(path):
         cells = [c.strip() for c in row if c and c.strip()]
@@ -165,43 +223,51 @@ def official_rounds(path):
     return totals
 
 
+def key(name):
+    return re.sub(r"[^A-Z0-9]", "", name.upper())
+
+
 def check(data, contest, jar):
     file_id, path = CONTESTS[contest]
     url, stamp = latest_capture(data, contest, path)
     local = fetch(os.path.join(data, contest + os.path.splitext(path)[1]), url)
-    totals = official_rounds(local)
+    # Names compared in letters and digits only: the reports and the records quote nicknames differently.
+    totals = {key(name): votes for name, votes in official_rounds(local).items()}
     rounds = max(len(v) for v in totals.values())
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
-        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "1"], check=True)
+        # Before 2015, the reports count write-ins of no qualified candidate as a candidate, WRITE-IN.
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "1"]
+                       + (["--write-in-candidate"] if contest < "2015" else []), check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:
         return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
     ours = json.loads(result.stdout)
-    exact, gaps = 0, []
+    # Each official round is a round of this count, in order, with the same candidates continuing: before 2019,
+    # the hopeless were defeated together, and a round was printed when nothing changed.
+    exact, gaps, found, start = 0, [], 0, 0
     for k in range(rounds):
-        mine = {name: int(float(v)) for name, v in ours["rounds"][k]["tallies"].items()} \
-            if k < len(ours["rounds"]) else {}
         figures = {name: votes[k] for name, votes in totals.items() if k < len(votes) and votes[k] > 0}
-        gap = max((abs(mine.get(name, 0) - votes) for name, votes in figures.items()), default=0)
+        hit = next((i for i in range(start, len(ours["rounds"]))
+                    if {key(name) for name, v in ours["rounds"][i]["tallies"].items() if float(v) > 0} == set(figures)),
+                   None)
+        if hit is None:
+            gaps.append(None)
+            continue
+        found, start = found + 1, hit
+        mine = {key(name): int(float(v)) for name, v in ours["rounds"][hit]["tallies"].items()}
+        gap = max(abs(mine.get(name, 0) - votes) for name, votes in figures.items())
         exact += gap == 0
         gaps.append(gap)
-    # The official eliminations: who drops to nothing from one round to the next.
-    eliminated = []
-    for k in range(1, rounds):
-        gone = [name for name, votes in totals.items()
-                if len(votes) >= k and votes[k - 1] > 0 and (k >= len(votes) or votes[k] == 0)]
-        eliminated.extend(sorted(gone, key=lambda name: totals[name][k - 1]))
     winner = max(totals, key=lambda name: totals[name][-1] if len(totals[name]) == rounds else -1)
-    ours_eliminated = [r["action"]["candidate"] for r in ours["rounds"] if r["action"]["type"] == "eliminated"]
-    named = [name for name in eliminated if name.upper().startswith("WRITE-IN") is False]
-    same_order = [n for n in ours_eliminated if n in totals][:len(named)] == named
-    same = ours["electedInOrder"] == [winner]
+    same_order = found == rounds
+    same = [key(name) for name in ours["electedInOrder"]] == [winner]
     line = (f"{contest}: {exact} of {rounds} official rounds match to the vote"
             + (f" (largest differences by round: {gaps})" if any(gaps) else "")
-            + f"; eliminations in {'the same' if same_order else 'A DIFFERENT'} order"
+            + ("; eliminations the same" if same_order
+               else f"; ELIMINATIONS DIFFER from official round {gaps.index(None) + 1}")
             + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder']) + ' vs ' + winner}"
             + f"; results captured {stamp[:8]}")
     return same_order and same, line

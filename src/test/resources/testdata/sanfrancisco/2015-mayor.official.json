@@ -1,0 +1,26 @@
+{
+ "source": "https://web.archive.org/web/20250126182022id_/https://sfelections.org/results/20151103/data/20151119/mayor/20151119_mayor.html",
+ "dataverseFile": 11593551,
+ "elected": [
+  "ED LEE"
+ ],
+ "rounds": [
+  {
+   "FRANCISCO HERRERA": "28805",
+   "ED LEE": "105771",
+   "REED MARTIN": "4660",
+   "AMY FARAH WEISS": "23236",
+   "KENT GRAHAM": "8827",
+   "STUART SCHUFFMAN": "18347",
+   "WRITE-IN - JOHN E. FITCH": "5",
+   "WRITE-IN - KARLA GOTTSCHALK (a.k.a BELLE STARR)": "6",
+   "WRITE-IN - ROBERT L. JORDAN, JR.": "7",
+   "WRITE-IN - DANIEL C KAPPLER": "6",
+   "WRITE-IN - MICHAEL PETRELIS": "37"
+  },
+  {
+   "FRANCISCO HERRERA": "55041",
+   "ED LEE": "113191"
+  }
+ ]
+}

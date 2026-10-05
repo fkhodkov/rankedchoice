@@ -23,24 +23,25 @@ import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
 import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
-import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
 
 /**
- * Three of San Francisco's single-seat contests (see the fixture's README), one from each form the
- * Department of Elections published its results in, counted with the {@code irv} ruleset: every
- * official round's votes are this count's, round for round, to the vote; the candidates are
- * eliminated in the same order; and the same candidate wins.
+ * Six of San Francisco's single-seat contests (see the fixture's README), counted with the {@code irv}
+ * ruleset: every official round is one of this count's rounds, in order, with the same candidates
+ * continuing and the same votes, to the vote; and the same candidate wins. Since 2019 that is round for
+ * round; before, the Department defeated together the candidates who couldn't overtake the next one up,
+ * which is several of this count's rounds in one, and stopped at a majority.
  */
 class SanFranciscoIrvFixtureTest {
 
     private static final Path DIRECTORY = Path.of("src/test/resources/testdata/sanfrancisco");
 
     @ParameterizedTest
-    @ValueSource(strings = {"2019-mayor", "2020-supervisor-7", "2024-supervisor-9"})
+    @ValueSource(strings = {"2014-supervisor-10", "2015-mayor", "2018-supervisor-10", "2019-mayor",
+        "2020-supervisor-7", "2024-supervisor-9"})
     void everyOfficialRoundIsThisCountsRound(String contest) throws IOException {
         ParsedElection election;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -55,6 +56,7 @@ class SanFranciscoIrvFixtureTest {
 
         List<JsonNode> rounds = new ArrayList<>();
         official.path("rounds").forEach(rounds::add);
+        int start = 0;
         for (int k = 0; k < rounds.size(); k++) {
             Map<String, Fraction> tally = new LinkedHashMap<>();
             rounds.get(k).properties().forEach(entry -> {
@@ -62,19 +64,28 @@ class SanFranciscoIrvFixtureTest {
                     tally.put(key(entry.getKey()), Fraction.of(entry.getValue().asLong()));
                 }
             });
-            Map<String, Fraction> ours = new LinkedHashMap<>();
-            result.rounds().get(k).tallies().forEach((candidate, votes) -> ours.put(key(candidate.name()), votes));
-            assertThat(ours).as("official round %d", k + 1).isEqualTo(tally);
+            int i = start;
+            while (i < result.rounds().size() && !continuing(result.rounds().get(i)).keySet().equals(tally.keySet())) {
+                i++;
+            }
+            assertThat(i).as("official round %d's candidates continue in a round of this count", k + 1)
+                    .isLessThan(result.rounds().size());
+            assertThat(continuing(result.rounds().get(i))).as("official round %d", k + 1).isEqualTo(tally);
+            start = i;
         }
-        List<String> eliminated = new ArrayList<>();
-        official.path("eliminated").forEach(name -> eliminated.add(key(name.asText())));
-        assertThat(result.rounds().stream().map(RoundRecord::action)
-                .filter(action -> action instanceof RoundAction.Eliminated)
-                .map(action -> key(((RoundAction.Eliminated) action).candidate().name()))
-                .limit(eliminated.size()).toList())
-                .isEqualTo(eliminated);
         assertThat(result.electedInOrder()).extracting(candidate -> key(candidate.name()))
                 .containsExactly(key(official.path("elected").get(0).asText()));
+    }
+
+    /** The candidates with votes in a round, by {@link #key}. */
+    private static Map<String, Fraction> continuing(RoundRecord round) {
+        Map<String, Fraction> tally = new LinkedHashMap<>();
+        round.tallies().forEach((candidate, votes) -> {
+            if (votes.signum() > 0) {
+                tally.put(key(candidate.name()), votes);
+            }
+        });
+        return tally;
     }
 
     /** A name's letters, so the record's spelling and the report's meet. */

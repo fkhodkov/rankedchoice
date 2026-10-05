@@ -1,0 +1,57 @@
+{
+ "source": "https://web.archive.org/web/20250321144416id_/https://www.sfelections.org/results/20181106/data/20181127/d10/20181127_d10.html",
+ "dataverseFile": 11593617,
+ "elected": [
+  "SHAMANN WALTON"
+ ],
+ "rounds": [
+  {
+   "ASALE CHANDLER": "802",
+   "UZURI PEASE-GREENE": "1311",
+   "TONY KELLY": "5679",
+   "SHAMANN WALTON": "9585",
+   "THEO ELLINGTON": "4820",
+   "GLORIA BERRY": "966",
+   "WRITE-IN NEO VEAVEA": "31"
+  },
+  {
+   "ASALE CHANDLER": "802",
+   "UZURI PEASE-GREENE": "1311",
+   "TONY KELLY": "5679",
+   "SHAMANN WALTON": "9585",
+   "THEO ELLINGTON": "4820",
+   "GLORIA BERRY": "966",
+   "WRITE-IN NEO VEAVEA": "31"
+  },
+  {
+   "ASALE CHANDLER": "803",
+   "UZURI PEASE-GREENE": "1314",
+   "TONY KELLY": "5687",
+   "SHAMANN WALTON": "9591",
+   "THEO ELLINGTON": "4825",
+   "GLORIA BERRY": "966"
+  },
+  {
+   "UZURI PEASE-GREENE": "1416",
+   "TONY KELLY": "5819",
+   "SHAMANN WALTON": "9704",
+   "THEO ELLINGTON": "4918",
+   "GLORIA BERRY": "1184"
+  },
+  {
+   "UZURI PEASE-GREENE": "1576",
+   "TONY KELLY": "6092",
+   "SHAMANN WALTON": "9945",
+   "THEO ELLINGTON": "5143"
+  },
+  {
+   "TONY KELLY": "6540",
+   "SHAMANN WALTON": "10392",
+   "THEO ELLINGTON": "5387"
+  },
+  {
+   "TONY KELLY": "7624",
+   "SHAMANN WALTON": "13023"
+  }
+ ]
+}

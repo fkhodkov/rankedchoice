@@ -1,6 +1,6 @@
 """Convert a cast vote record from FairVote's proportional RCV collection to BLT.
 
-usage: cvr_to_blt.py CVR OUT.blt --seats N
+usage: cvr_to_blt.py CVR OUT.blt --seats N [--write-in-candidate]
 
 FairVote's collection (https://doi.org/10.7910/DVN/STVUET) has a row per ballot (CSV in the
 original files, tab-separated in Dataverse's ingested ones), with columns
@@ -10,13 +10,14 @@ Read as Alameda County's Dominion tabulation reads Albany's ballots, which repro
 rounds: a skipped ranking is passed over, as is a write-in (no write-in candidate qualified); an
 overvote ends the ballot there (the County doesn't skip overvoted rankings); a candidate ranked
 again counts only where first ranked. Ballots ranking no one are left out; identical rankings
-are merged.
+are merged. With --write-in-candidate, a write-in is a vote for a candidate named WRITE-IN instead
+(San Francisco's counts before 2015).
 """
 import argparse
 import collections
 import csv
 
-SKIPPED = {"skipped", "write-in", "write in", "writein"}
+WRITE_IN = {"write-in", "write in", "writein"}
 
 
 def main():
@@ -24,6 +25,7 @@ def main():
     parser.add_argument("cvr")
     parser.add_argument("out")
     parser.add_argument("--seats", type=int, required=True)
+    parser.add_argument("--write-in-candidate", action="store_true")
     args = parser.parse_args()
 
     source = open(args.cvr, newline="", encoding="utf-8-sig")
@@ -36,7 +38,9 @@ def main():
         ranking = []
         for column in columns:
             mark = row[column].strip()
-            if not mark or mark.lower() in SKIPPED:
+            if mark.lower() in WRITE_IN and args.write_in_candidate:
+                mark = "WRITE-IN"
+            elif not mark or mark.lower() == "skipped" or mark.lower() in WRITE_IN:
                 continue
             if mark.lower() == "overvote":
                 break

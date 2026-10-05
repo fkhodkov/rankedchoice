@@ -1,0 +1,21 @@
+{
+ "source": "https://web.archive.org/web/20221223195314id_/https://sfelections.org/results/20141104/data/RCV_D10.pdf",
+ "dataverseFile": 11593528,
+ "elected": [
+  "MALIA COHEN"
+ ],
+ "rounds": [
+  {
+   "SHAWN M. RICHARD": "995",
+   "MALIA COHEN": "7176",
+   "ED DONALDSON": "809",
+   "MARLENE TRAN": "2725",
+   "TONY KELLY": "3701"
+  },
+  {
+   "MALIA COHEN": "7719",
+   "MARLENE TRAN": "2947",
+   "TONY KELLY": "4259"
+  }
+ ]
+}
