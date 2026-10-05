@@ -11,7 +11,7 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 Every Scottish council election with published ballots, all five ACT electorates in 2020, every
 state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024,
 Portland's four City Council districts of 2024, Minneapolis's eight multi-seat contests of 2009–2025
-(and the winners of 2013's two), Eastpointe, Michigan's two of 2019 and 2021, 24 of Alameda County's single-seat contests of
+(and the winners of 2013's two) and 29 of its single-seat races of 2017–2025, Eastpointe, Michigan's two of 2019 and 2021, 24 of Alameda County's single-seat contests of
 2022–2025, Albany, California's four of 2022 and 2024, Cambridge's sixteen of 2001–2017, and three Irish
 constituencies, run through their
 own rulesets, reproduce their actual results:
@@ -26,6 +26,7 @@ own rulesets, reproduce their actual results:
 | NSW local government elections 2024, all 227 councillor counts with published figures (118 councils; 3–73 candidates, 2–15 seats; 4,051,337 ballots) | `nsw-lg` | every round's tallies and votes lost, to the vote, against the NSW Electoral Commission's full distribution of preferences, and the councillors elected; see below | the Commission's ballot-paper data |
 | Portland, Oregon City Council 2024, all four districts (17–31 candidates, 3 seats each; 281,260 votes in the first round) | `portland` | every official round's tallies, to 4 decimal places, against Multnomah County's round-by-round results, the threshold, and the councillors elected; see below | the County's cast vote records |
 | Minneapolis Park Board at large (3 seats) and Board of Estimate and Taxation (2 seats), 2017, 2021 and 2025 (4–11 candidates; 576,346 votes in the first round) | `minneapolis` | every official round's tallies, to 4 decimal places, against the City's summary statements, the threshold, and the candidates elected; see below | the City's cast vote records |
+| Minneapolis single-seat races, 2017–2025: mayor (2021, 2025), City Council wards and Park Board districts, the 29 with a round summary | `minneapolis` (its quota a majority, with one seat) | every official round's tallies, the threshold, and the winner; see below | the City's cast vote records |
 | Minneapolis Park Board and Board of Estimate, 2009 (68,741 votes in the first round), and the winners of 2013's two | the 2006 ordinance's rules (`minneapolis` without `rankingsElimination`) | every official round's tallies of 2009 (the Board of Estimate's first round apart, which the record has one vote short), and the candidates elected; see below | the City's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Oakland and Berkeley single-seat contests (mayor, council, city attorney, auditor, school board), 2022, 2024 and April 2025: the 24 FairVote's collection and the County's reports both have | `irv` | every official round's votes, to the vote, in 20; in the other 4 the record is 1–7 votes a candidate off the County's count from the first round on, and the eliminations and winners still match; see below | the County's cast vote records, from [FairVote's single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Eastpointe, Michigan City Council, 2019 and 2021 (2 seats; 8,794 votes in the first round) | `portland` (both are RCTab counts) | every round's tallies, to 4 decimal places, against Macomb County's RCTab summaries, the threshold, and the councillors elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
@@ -256,6 +257,18 @@ found; the current Code of Ordinances wasn't reachable. What the counts show:
   (167.70(a)(1)a), before anyone is defeated. The 2013 Board of Estimate count shows it: Becker
   and Wheeler both pass the threshold in the first round and are elected there. This count
   defeated the other candidates first, with the same winners, until that was fixed.
+
+**Minneapolis single-seat races** (`tools/reference/minneapolis`): the mayor, City Council and Park
+Board district races of 2017, 2021, 2023 and 2025 for which the City published both its cast
+vote record and a round summary (29; those won in the first round have no summary, and 2023's
+Ward 5 page links 2021's by mistake). Counted with `minneapolis`, whose quota with one seat is a
+majority of the first round's votes, every official round of all 29 is one of this count's
+rounds, at the official threshold, with the same winner. The same rules hold as for the
+multi-seat contests: hopeless candidates are defeated together (2023's Ward 6 defeats three at
+once, one with 1,127 votes), and the 2021 mayoral race needs the rankings test, its second round
+differing by the 2006 rules alone. Two are fixtures. One record spells a name differently from
+its summary (2017's Ward 4, "Phillipe" and "Philippe"), so names are matched by surname where
+they don't agree.
 
 **Minneapolis 2009 and 2013** (`tools/reference/minneapolis`), from FairVote's collection of the
 City's records, against the City's 2009 summary statements (Excel files): the 2009 counts follow

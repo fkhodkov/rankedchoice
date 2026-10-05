@@ -1,0 +1,23 @@
+{
+ "source": "2023-Ward-6-Summary-Sheet.pdf",
+ "threshold": 2591,
+ "elected": [
+  "Jamal Osman"
+ ],
+ "rounds": [
+  {
+   "Kayseh Magan": "1553.0000",
+   "Jamal Osman": "2317.0000",
+   "Tiger Worku": "1127.0000",
+   "Guy T Gaskin": "174.0000",
+   "Undeclared Write-ins": "9.0000"
+  },
+  {
+   "Kayseh Magan": "1797.0000",
+   "Jamal Osman": "2500.0000",
+   "Tiger Worku": "0.0000",
+   "Guy T Gaskin": "0.0000",
+   "Undeclared Write-ins": "0.0000"
+  }
+ ]
+}

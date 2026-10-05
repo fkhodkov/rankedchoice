@@ -30,7 +30,9 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  * Minneapolis's multi-seat contests of 2017, 2021 and 2025, from the City's cast vote records,
  * counted with the {@code minneapolis} ruleset, and its 2009 Park Board contest, from FairVote's
  * copy of the record, counted with the 2006 ordinance's rules alone (minneapolis-2009.yaml),
- * against the City's summary statements (see the
+ * and two single-seat races, the 2021 mayoral race (which turns on the rankings test) and Ward 6
+ * of 2023 (three candidates defeated together), with {@code minneapolis}, against the City's
+ * summary statements (see the
  * fixture's README): every official round is one of this count's rounds, every candidate's votes
  * to the 4 decimal places of the official figures, at the official threshold, and the same
  * candidates are elected.
@@ -40,7 +42,8 @@ class MinneapolisFixtureTest {
     private static final Path DIRECTORY = Path.of("src/test/resources/testdata/minneapolis");
 
     @ParameterizedTest
-    @ValueSource(strings = {"park-2009", "park-2017", "park-2021", "park-2025", "bet-2017", "bet-2021", "bet-2025"})
+    @ValueSource(strings = {"park-2009", "park-2017", "park-2021", "park-2025", "bet-2017", "bet-2021", "bet-2025",
+        "mayor-2021", "ward-6-2023"})
     void everyOfficialRoundIsARoundOfThisCount(String contest) throws IOException {
         ParsedElection election = BltParser.parse(
                 Files.readAllLines(DIRECTORY.resolve(contest + ".blt"), StandardCharsets.UTF_8).stream());

@@ -1,8 +1,9 @@
 # Minneapolis multi-seat contests
 
 Checks the `minneapolis` ruleset against the City of Minneapolis's summary statements for its
-multi-seat ranked-choice contests of 2009 to 2025: the Park and Recreation Board at large (3
-seats) and the Board of Estimate and Taxation (2 seats).
+multi-seat ranked-choice contests of 2009 to 2025, the Park and Recreation Board at large (3
+seats) and the Board of Estimate and Taxation (2 seats), and its single-seat races of 2017 to 2025
+(mayor, City Council wards, Park Board districts) that have a round summary: 29.
 
 - `cvr_to_blt.py` converts a contest's cast vote record (a row per distinct ballot: precinct,
   1st, 2nd and 3rd choice, count) to BLT. An undervote or an overvote is passed over, which

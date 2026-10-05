@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, 24 of Alameda County's single-seat contests 2022–2025 (as `irv`), Minneapolis's multi-seat contests 2009–2025, Eastpointe, Michigan's 2019 and 2021 councils, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, 24 of Alameda County's single-seat contests 2022–2025 (as `irv`), Minneapolis's multi-seat contests 2009–2025 and 29 of its single-seat races 2017–2025, Eastpointe, Michigan's 2019 and 2021 councils, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | every count of Cambridge's 16 elections of 2001–2017 and the winners of 21 of its 22 of 2001–2023; OpenSTV, exactly, on 60 elections |
@@ -344,8 +344,8 @@ about 45 s, 16 / 8 about a minute.
   County's cast vote records for Portland's 2024 Council contests and check each round against
   the County's official results.
 - [`tools/reference/minneapolis`](tools/reference/minneapolis/README.md) — convert the City of
-  Minneapolis's cast vote records for its multi-seat contests of 2009–2025 and check each round
-  against the City's summary statements.
+  Minneapolis's cast vote records for its multi-seat contests of 2009–2025 and its single-seat
+  races of 2017–2025, and check each round against the City's summary statements.
 - [`tools/reference/alameda`](tools/reference/alameda/README.md) — check the `irv` ruleset
   against Alameda County's official reports for 24 Oakland and Berkeley contests of 2022–2025,
   from FairVote's collection of single-winner cast vote records.

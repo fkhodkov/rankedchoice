@@ -2,8 +2,10 @@
 
 usage: check.py DATA_DIR [--jar PATH] [CONTEST ...]
 
-CONTEST is park-YEAR or bet-YEAR for 2009, 2013, 2017, 2021 or 2025 (all, by default): the Park
-and Recreation Board at large (3 seats) and Board of Estimate and Taxation (2 seats) contests.
+CONTEST is park-YEAR or bet-YEAR for 2009, 2013, 2017, 2021 or 2025: the Park and Recreation
+Board at large (3 seats) and Board of Estimate and Taxation (2 seats) contests; or one of the 29
+single-seat races of 2017-2025 with a round summary (mayor-YEAR, ward-N-YEAR,
+park-district-N-YEAR; SINGLE below), counted with `minneapolis` too. All, by default.
 Each one's cast vote record and summary statement (linked from
 https://vote.minneapolismn.gov/results-data/election-results/<year>/<park-board-at-large|bet>/)
 are fetched into DATA_DIR, the record converted (cvr_to_blt.py) and counted, and the summary
@@ -57,6 +59,40 @@ CONTESTS = {
     "bet-2021": (2, "2021-BET-Cast-Vote-Record.csv", "2021-BET-Round-Results-Summary.pdf"),
     "bet-2025": (2, "2025-BET-Cast-Vote-Record.csv", "2025-Board-of-Estimate-and-Taxation-RCV-Tabulation-Summary.pdf"),
 }
+# Single-seat races with both a cast vote record and a round summary: the mayor, City Council
+# wards and Park Board districts (those won in the first round have no summary).
+SINGLE = {
+    "ward-1-2017": (1, "2017-Ward-1-Ballot-Records.csv", "2017-Ward-1-Results-Summary.pdf"),
+    "ward-11-2017": (1, "2017-Ward-11-Ballot-Records.csv", "2017-Ward-11-Results-Summary.pdf"),
+    "ward-3-2017": (1, "2017-Ward-3-Ballot-Records.csv", "2017-Ward-3-Results-Summary.pdf"),
+    "ward-4-2017": (1, "2017-Ward-4-Ballot-Records.csv", "2017-Ward-4-Results-Summary.pdf"),
+    "ward-5-2017": (1, "2017-Council-Ward-5-CVR.csv", "2017-Ward-5-RCV-Tabulation-Summary.pdf"),
+    "ward-6-2017": (1, "2017-Ward-6-Ballot-Records.csv", "2017-Ward-6-Race-Results-Summary.pdf"),
+    "ward-9-2017": (1, "2017-Ward-9-Ballot-Records-.csv", "2017-Ward-9-Race-Results-Summary.pdf"),
+    "park-district-1-2017": (1, "2017-Park-Board-District-1-Ballot-Records.csv", "2017-Park-Board-District-1-Results-Summary.pdf"),
+    "park-district-3-2017": (1, "2017-Park-District-3-CVR.csv", "2017-Park-District-3-RCV-Tabulation-Summary.pdf"),
+    "park-district-6-2017": (1, "2017-Park-District-6-CVR.csv", "2017-Park-District-6-RCV-Tabulation-Summary.pdf"),
+    "ward-1-2021": (1, "2021-Ward-1-Cast-Vote-Record.csv", "2021-Council-Ward-1-Round-Results-Summary.pdf"),
+    "ward-10-2021": (1, "2021-Ward-10-Cast-Vote-Record.csv", "2021-Council-Ward-10-Round-Results-Summary.pdf"),
+    "ward-2-2021": (1, "2021-Ward-2-Cast-Vote-Record.csv", "2021-Council-Ward-2-Round-Results-Summary.pdf"),
+    "ward-3-2021": (1, "2021-Ward-3-Cast-Vote-Record.csv", "2021-Council-Ward-3-Round-Results-Summary.pdf"),
+    "ward-5-2021": (1, "2021-Ward-5-Cast-Vote-Record.csv", "2021-Council-Ward-5-Round-Results-Summary.pdf"),
+    "mayor-2021": (1, "2021-Mayor-Cast-Vote-Record.csv", "2021-Mayor-Round-Results-Summary.pdf"),
+    "park-district-2-2021": (1, "2021-Park-2-Cast-Vote-Record.csv", "2021-Park-Board-District-2-Round-Results-Summary.pdf"),
+    "park-district-3-2021": (1, "2021-Park-3-Cast-Vote-Record.csv", "2021-Park-Board-District-3-Round-Results-Summary.pdf"),
+    "park-district-4-2021": (1, "2021-Park-4-Cast-Vote-Record.csv", "2021-Park-Board-District-4-Round-Results-Summary.pdf"),
+    "park-district-5-2021": (1, "2021-Park-5-Cast-Vote-Record.csv", "2021-Park-Board-District-5-Round-Results-Summary.pdf"),
+    "park-district-6-2021": (1, "2021-Park-6-Cast-Vote-Record.csv", "2021-Park-Board-District-6-Round-Results-Summary.pdf"),
+    "ward-6-2023": (1, "2023-Ward-6-Cast-Vote-Record.csv", "2023-Ward-6-Summary-Sheet.pdf"),
+    "ward-7-2023": (1, "2023-Ward-7-Cast-Vote-Record.csv", "2023-Ward-7-Summary-Sheet.pdf"),
+    "ward-8-2023": (1, "2023-Ward-8-Cast-Vote-Record.csv", "2023-Ward-8-Summary-Sheet.pdf"),
+    "ward-5-2025": (1, "2025-Ward-5-Cast-Vote-Record.csv", "2025-Ward-5-RCV-Tabulation-Summary.pdf"),
+    "mayor-2025": (1, "2025-Mayor-Cast-Vote-Record.csv", "2025-Mayor-Round-Results-Summary.pdf"),
+    "park-district-1-2025": (1, "2025-Park-District-1-CVR.csv", "2025-Park-District-1-RCV-Tabulation-Summary.pdf"),
+    "park-district-4-2025": (1, "2025-Park-District-4-CVR.csv", "2025-Park-District-4-RCV-Tabulation-Summary.pdf"),
+    "park-district-5-2025": (1, "2025-Park-District-5-CVR.csv", "2025-Park-District-5-RCV-Tabulation-Summary.pdf"),
+}
+CONTESTS.update(SINGLE)
 NUMBER = re.compile(r"^-?[\d,]+(\.\d+)?$")
 
 
@@ -92,6 +128,15 @@ def surname_match(name, names):
     found = difflib.get_close_matches(name.split()[-1].lower(), [n.split()[-1].lower() for n in names], n=1,
                                       cutoff=0.8)
     return next((n for n in names if found and n.split()[-1].lower() == found[0]), None)
+
+
+def official_figure(figures, name):
+    """The summary's figure for a candidate: by name, or, where the record spells it differently
+    ("Phillipe", "Philippe"), by surname."""
+    if name in figures:
+        return figures[name]
+    match = surname_match(name, list(figures))
+    return figures.get(match) if match else None
 
 
 def count(blt, jar, rules):
@@ -197,15 +242,15 @@ def check(data, contest, jar):
     for k in range(rounds):
         figures = {name: values[k] for name, values in totals.items()}
         hit = next((i for i in range(start, len(ours["rounds"]))
-                    if all(figures.get(name) == Decimal(votes) for name, votes in ours["rounds"][i]["tallies"].items())),
-                   None)
+                    if all(official_figure(figures, name) == Decimal(votes)
+                           for name, votes in ours["rounds"][i]["tallies"].items())), None)
         if hit is None:
             unmatched.append(k + 1)
         else:
             start = hit
     # Those the summary elects: the leaders after its last round (where the last defeated still shows votes).
     elected = sorted(sorted(totals, key=lambda name: totals[name][-1], reverse=True)[:seats])
-    same = sorted(ours["electedInOrder"]) == elected
+    same = sorted(surname_match(name, elected) or name for name in ours["electedInOrder"]) == elected
     line = (f"{contest}: threshold {Decimal(ours['quota']):f} (official {threshold}); "
             f"{rounds - len(unmatched)} of {rounds} official rounds match a round of this count; "
             f"elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder']) + ' vs ' + str(elected)}")

@@ -23,3 +23,9 @@ candidate, "Write-ins", where the City lists each, so the test leaves them out),
 `tools/reference/minneapolis/check.py`), under the record's spelling of each name. It's counted
 with `minneapolis-2009.yaml`: the 2006 ordinance's rules alone, without the rankings test the
 later counts add.
+
+`mayor-2021` and `ward-6-2023` are single-seat races, from the City's records and summary
+statements like the others, counted with `minneapolis` (its quota is then a majority of the first
+round's votes). The 2021 mayoral race needs the rankings test: by the 2006 rules alone, its
+second round differs. Ward 6 defeats three candidates together, Tiger Worku's 1,127 votes among
+them, and the City's count ends with two left, Jamal Osman ahead.
