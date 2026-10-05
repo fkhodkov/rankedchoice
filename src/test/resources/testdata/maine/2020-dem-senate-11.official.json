@@ -1,0 +1,18 @@
+{
+ "source": "https://www.maine.gov/sos/sites/maine.gov.sos/files/content/assets/offss11summary.xls",
+ "dataverseFile": 11593351,
+ "elected": [
+  "Curry, Glenn Chip"
+ ],
+ "rounds": [
+  {
+   "Curry, Glenn Chip": "2294",
+   "Pattavina, Charles F.": "1316",
+   "Stanicki, Robyn M.": "1669"
+  },
+  {
+   "Curry, Glenn Chip": "2807",
+   "Stanicki, Robyn M.": "2212"
+  }
+ ]
+}

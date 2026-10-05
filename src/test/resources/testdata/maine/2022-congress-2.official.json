@@ -1,0 +1,19 @@
+{
+ "source": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/Rep%20to%20Congress%20Dist%202%20RCV%20results.pdf",
+ "dataverseFile": 11593314,
+ "elected": [
+  "Golden, Jared Forrest"
+ ],
+ "rounds": [
+  {
+   "Bond, Tiffany": "21655",
+   "Golden, Jared Forrest": "153074",
+   "Poliquin, Bruce": "141260",
+   "Write-in": "393"
+  },
+  {
+   "Golden, Jared Forrest": "165136",
+   "Poliquin, Bruce": "146142"
+  }
+ ]
+}

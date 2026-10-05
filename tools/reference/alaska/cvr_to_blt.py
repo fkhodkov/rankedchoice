@@ -1,6 +1,6 @@
 """Convert an Alaska cast vote record from FairVote's single-winner RCV collection to BLT.
 
-usage: cvr_to_blt.py CVR.csv OUT.blt
+usage: cvr_to_blt.py CVR.csv OUT.blt [--write-in-candidate]
 
 FairVote's collection (https://doi.org/10.7910/DVN/AMK8PJ) has a row per ballot, with columns
 rank1, rank2, ...: a candidate, "skipped", "overvote" or "Write-in". Read as the Division of
@@ -8,7 +8,8 @@ Elections' Dominion count reads them, which reproduces its first rounds: an unre
 is excluded, passed over like an eliminated candidate; two skipped rankings in a row end the
 ballot, those before the first choice included ("Exhausted on Two or More Ranks Skipped"); an
 overvote ends it ("Skip overvoted rankings: False"); a candidate ranked again counts only where
-first ranked. Ballots ranking no one are left out; identical rankings are merged.
+first ranked. Ballots ranking no one are left out; identical rankings are merged. With
+--write-in-candidate, a write-in is a vote for a candidate named Write-in instead (Maine's counts).
 """
 import argparse
 import collections
@@ -19,6 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("cvr")
     parser.add_argument("out")
+    parser.add_argument("--write-in-candidate", action="store_true")
     args = parser.parse_args()
 
     reader = csv.DictReader(open(args.cvr, newline="", encoding="utf-8-sig"))
@@ -28,8 +30,10 @@ def main():
         ranking, skipped = [], 0
         for column in columns:
             mark = row[column].strip()
-            if mark.lower() in ("write-in", "write in"):
-                continue
+            if mark.lower() in ("write-in", "write in", "writein"):
+                if not args.write_in_candidate:
+                    continue
+                mark = "Write-in"
             if mark.lower() in ("skipped", ""):
                 skipped += 1
                 if skipped >= 2:

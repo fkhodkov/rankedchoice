@@ -8,7 +8,8 @@ Senate contests).
 - `cvr_to_blt.py` converts a cast vote record from FairVote's collection of single-winner RCV
   records (https://doi.org/10.7910/DVN/AMK8PJ) to BLT, reading the ballots as the Division's
   Dominion reports say: an unresolved write-in is passed over, two skipped rankings in a row end
-  the ballot, and so does an overvote.
+  the ballot, and so does an overvote. With `--write-in-candidate` write-ins are one candidate
+  instead, as Maine counts them (`../maine`).
 - `check.py` fetches each record and the Division's "RCV Detailed Report" as the Internet Archive
   kept it (elections.alaska.gov turns away scripted requests), converts and counts the record
   with `irv`, and compares every official round's votes with this count's, round for round, with
