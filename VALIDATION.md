@@ -23,7 +23,10 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 | [Schulze proportional ranking](#schulze-proportional-ranking) | | Schulze's own program's published lists (every comparison it prints, while the lists agree) | the paper's worked example |
 | [Borda](#borda) | Nauru's 2019 election, two constituencies (scores) | | hand-derived cases |
 
-**Official counts**: how closely each jurisdiction's counts are reproduced, from its ballots.
+**Official counts**: how closely each jurisdiction's counts are reproduced, from its ballots. How
+the US ranked-choice counts differ in reading ballots (overvotes, skipped rankings, write-ins)
+and in running (several defeated at once, stopping at a majority) is tabulated under
+[Real elections](#real-elections), before Portland.
 "Every round" means every candidate's votes in every official round, to the precision the
 official count gives them. Details are in [Real elections](#real-elections).
 
@@ -242,6 +245,43 @@ would leave as many candidates as seats, it elects them without transferring the
 candidate's papers. No 2024 count reached that point without the leaders already being sure of
 their seats.
 
+**How the US ranked-choice counts read ballots and run.** The counts below differ in a handful
+of rules, each established by matching the official rounds; the sections that follow give the
+evidence, one per count named here. Single-seat counts are all `irv`: what differs is how the
+ballots are read and how far the official count goes, which the checks absorb as described under
+"Rounds".
+
+| Counts | Overvote | Skipped ranking | Candidate ranked again | Write-ins | Defeats | Ends | Read with |
+|---|---|---|---|---|---|---|---|
+| Alameda County 2010–2017 (pass reports) | ends the ballot | passed over | counts once | one candidate (passed over where one had qualified) | one a round | at a majority | `albany/cvr_to_blt.py --write-in-candidate` |
+| Alameda County 2022–2025 (Dominion) | ends the ballot | passed over | counts once | passed over (2022: some ballots held back from round 1) | one a round | two left | `albany/cvr_to_blt.py` |
+| San Francisco 2010–2014 (pass reports) | ends the ballot | passed over | counts once | one candidate | several at once | at a majority | `albany/cvr_to_blt.py --write-in-candidate` |
+| San Francisco 2015–2018 | ends the ballot | passed over | counts once | passed over | several at once | at a majority | `albany/cvr_to_blt.py` |
+| San Francisco 2019–2024 (Dominion) | ends the ballot | passed over | counts once | passed over | one a round | two left | `albany/cvr_to_blt.py` |
+| Alaska 2022–2024 (Dominion) | ends the ballot | two in a row end it, before the first choice too | counts once | passed over | one a round | two left | `alaska/cvr_to_blt.py` |
+| New York City 2021–2025 | ends the ballot | passed over | counts once | one candidate, eliminated first whatever its number | several at once | two left | `albany/cvr_to_blt.py` (write-ins passed over) |
+| Maine 2018–2024 | ends the ballot | two in a row end it, before the first choice too | counts once | one candidate | several at once | at a majority | `alaska/cvr_to_blt.py --write-in-candidate` |
+| Minneapolis 2009–2025, `minneapolis` | skipped | passed over | counts once | one candidate, "Undeclared Write-ins" | the hopeless together, before surpluses; from 2017 also the rankings test | seats filled at the threshold | `minneapolis/cvr_to_blt.py` |
+| Portland 2024, `portland` (RCTab) | skipped (write-in lines count as marks) | passed over | counts once | "Uncertified Write In" a candidate, write-in lines alone skipped | STV | seats filled | `portland/cvr_to_blt.py` |
+| Eastpointe 2019, 2021, `portland` (RCTab) | ends the ballot | passed over, two in a row (write-ins included) end it | ends the ballot | passed over, as a skip | STV | seats filled | `eastpointe/cvr_to_blt.py` |
+| Albany 2022, 2024, `albany` (Dominion) | ends the ballot | passed over | counts once | passed over | STV | seats filled | `albany/cvr_to_blt.py` |
+
+- **Rounds.** Defeating several hopeless candidates at once passes through the same states as
+  defeating them one at a time, and stopping at a majority doesn't change the winner; neither
+  does an official round that changes nothing (New York's when a candidate first passes 50%,
+  Alameda's 2012–2017 first pass dropping an empty write-in line). So these counts are checked by
+  requiring every official round to be one of this count's rounds, in order, with the same
+  candidates continuing; where the official count is one a round to two left, that is round for
+  round.
+- **Write-ins eliminated first.** New York's rule that the write-ins go before anyone else, even
+  outpolling two candidates (its 2025 mayoral primary), is the one case where passing them over
+  isn't only a convenience: counted as a candidate, they'd be defeated later and the rounds
+  would differ. Passed over, every round but the first matches; the first is checked against the
+  record's first choices.
+- **Repeated candidates.** Counting a repeat once and passing over it are the same reading; the
+  other readings tried (a repeat as a skipped ranking, where two in a row end the ballot, in Maine
+  and Alaska) put rounds off, and Eastpointe's counts alone need a repeat to end the ballot.
+
 **Portland** (`portland`): the four multi-seat City Council contests of 2024, Portland's first
 (`tools/reference/portland`), from Multnomah County's cast vote records, against its official
 round-by-round results (RCTab's tabulation summaries): at the official threshold, every round of
@@ -343,8 +383,8 @@ archived; nor is there a pass report for Oakland's 2016 District 3 race.
   pass, 162 passes in all, among them the 10 of Oakland's 2010 mayoral race, which Jean Quan won
   from second place, and the 16 of its 2014 race.
 - **2022–2025**: the County's setting is "IRV" with no winners by threshold: the candidate with
-  fewest votes is defeated round by round until one is left, which the `irv` ruleset counts with
-  a Hare quota no one but the last candidate reaches. In 20 contests every official round matches
+  fewest votes is defeated round by round until two are left, the one with more votes winning;
+  the `irv` ruleset goes on to one, with a Hare quota no one but the last candidate reaches. In 20 contests every official round matches
   this count's to the vote; in the other 4 (Oakland's 2024 at-large and District 7 council and
   city attorney races, and its 2025 mayoral race) the record differs from the County's count by 1
   to 7 votes a candidate from the first round on, so the County counted a slightly different set
