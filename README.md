@@ -353,6 +353,10 @@ about 45 s, 16 / 8 about a minute.
   round with one of this count's, in order, to the vote for the single-seat ones (Alameda, San
   Francisco, Alaska, New York, Maine) and to the official decimal places for the multi-seat ones
   (Minneapolis, Portland, Eastpointe, Albany).
+- [`tools/reference/tests`](tools/reference/tests) — tests of those two, on small made-up ballots
+  and counts (every converter option; round matching with several defeated at once, repeated
+  rounds and rounds out of order; the summary lines; the pass-report parser), with nothing to
+  download: `python3 -m unittest discover -s tools/reference/tests`.
 - [`tools/reference/portland`](tools/reference/portland/README.md) — convert Multnomah
   County's cast vote records for Portland's 2024 Council contests and check each round against
   the County's official results.
