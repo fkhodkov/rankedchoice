@@ -1,14 +1,16 @@
 # Ranked Choice Voting Calculator
 
-A Java library and command-line tool for counting ranked-choice elections, under the rules
-real elections use. It counts the Single Transferable Vote in its legislated variants (Scottish,
-ERS97, Tasmanian and ACT Hare-Clark, Cambridge MA), Meek's and Warren's methods, Schulze,
-Borda, CPO-STV, QPQ, Schulze STV and the Schulze proportional ranking, and reports every round in text, CSV, JSON or HTML.
+A Java library and command-line tool for counting ranked-choice elections, under the rules real
+elections use. It counts the Single Transferable Vote in its legislated variants (Scottish,
+ERS97, Tasmanian and ACT Hare-Clark, Cambridge MA), Meek's and Warren's methods, Schulze, Borda,
+CPO-STV, QPQ, Schulze STV and the Schulze proportional ranking, and reports every round in text,
+CSV, JSON or HTML.
 
 Every method is checked against something independent of this code: official counts of real
 elections, independent implementations of the same method, or hand-worked cases. See
-[VALIDATION.md](VALIDATION.md) for what was checked and how; [PLAN.md](PLAN.md) is the
-original design.
+[VALIDATION.md](VALIDATION.md) for what was checked and how (its
+[overview](VALIDATION.md#at-a-glance) puts it in two tables); [PLAN.md](PLAN.md) is the original
+design.
 
 ## Methods
 
@@ -162,8 +164,8 @@ Schedule 4 clause 2(2) with s.180(2)(c), and the Tasmanian Act's ss.102–103 (a
 the 7th preference ends the ballot there). `hare-clark-qpq` and `act-hare-clark` share the
 "Hare-Clark" name but differ: Tasmania divides a surplus over every paper of the last parcel,
 truncates that value to 6 places and counts whole votes; the ACT divides it over the papers with
-a next preference, keeps the value exact, and rounds each recipient's gain to 6 places. Despite its name, `hare-clark-qpq` is classic STV, unrelated to the
-QPQ method.
+a next preference, keeps the value exact, and rounds each recipient's gain to 6 places. Despite
+its name, `hare-clark-qpq` is classic STV, unrelated to the QPQ method.
 
 ## Command line
 
@@ -211,7 +213,8 @@ reportFormat: json
 Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
 always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`,
 `votesRequired`, `surplusOrder`, `electAsTheyStand`, `electSureWinners`, `exclusionOrder`,
-`simultaneousSurpluses`, `mathematicalElimination`, `rankingsElimination` and `quotaEachRound` have no flags: they're treated as fixed properties of a ruleset.
+`simultaneousSurpluses`, `mathematicalElimination`, `rankingsElimination` and `quotaEachRound`
+have no flags: they're treated as fixed properties of a ruleset.
 
 ## Reports
 

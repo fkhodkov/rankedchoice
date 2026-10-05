@@ -6,15 +6,50 @@ own engine: official counts of real elections, independent implementations of th
 method (OpenSTV, droop, CRAN packages, pyRCV2), or, where neither exists, hand-derived cases.
 Tests named below are under `src/test/java`, fixtures under `src/test/resources/testdata/`.
 
+## At a glance
+
+**By method**: what each is checked against. Details are in the sections below.
+
+| Method | Official counts of real elections | Independent implementations | Otherwise |
+|---|---|---|---|
+| Classic STV (`stv` and its presets) | Scotland, the ACT, the Australian Senate, NSW councils, Portland, Minneapolis, Albany, Eastpointe; Ireland's first preferences and winners | [OpenTally](#opentally) (9 presets, 200 elections each); pyRCV2 on [the ERS97 model election](#the-ers97-model-election); CRAN `STV` (Hare quota) | [building blocks](#classic-stv-building-blocks): hand-derived cases, Imperiali's quota only so |
+| Instant-runoff (`irv`, classic STV for one seat) | Alameda County and Alaska; Minneapolis's single-seat races (as `minneapolis`) | | |
+| [Meek and Warren](#meek-and-warren) | | droop (144 elections, every round, at several precisions); OpenTally's Meek (the winners of 200) | |
+| [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (60 elections) | ballot-order sensitivity measured |
+| [QPQ](#qpq) | | droop and OpenSTV | hand-derived cases |
+| [CPO-STV](#cpo-stv) | (never used in a public election) | an independent count written from the rules | hand-derived cases |
+| [Schulze](#schulze) | a Debian General Resolution's pairwise tally | | Wikipedia's example; hand-derived cases |
+| [Schulze STV](#schulze-stv) | (never used in a public election) | Schulze's own program and its 315,112 published supports; an independent count from the paper | the paper's worked example |
+| [Schulze proportional ranking](#schulze-proportional-ranking) | | Schulze's own program's published lists (every comparison it prints, while the lists agree) | the paper's worked example |
+| [Borda](#borda) | Nauru's 2019 election, two constituencies (scores) | | hand-derived cases |
+
+**Official counts**: how closely each jurisdiction's counts are reproduced, from its ballots.
+"Every round" means every candidate's votes in every official round, to the precision the
+official count gives them. Details are in [Real elections](#real-elections).
+
+| Jurisdiction | Contests | Ruleset | Reproduced |
+|---|---|---|---|
+| Scotland, council wards (2007–2022) | 1,070 | `scottish` | every winner; every stage of 40 against the councils' reports and of 1,043 against Wikipedia's |
+| ACT Legislative Assembly (2020) | 5 | `act-hare-clark` | every round, to 6 decimal places, with votes exhausted and lost |
+| Australian Senate (2016–2025) | 32 | `senate` | every round, to the vote, with votes exhausted and lost |
+| NSW councils (2024) | 227 | `nsw-lg` | every round, to the vote, with votes lost |
+| Portland, Oregon (2024) | 4 | `portland` | every round, to 4 places, but the two that follow ties drawn by lot |
+| Minneapolis (2009–2025) | 8 multi-seat, 29 single-seat, and 2013's 2 by winners | `minneapolis`; 2009 by the 2006 ordinance's rules | every round, but one first round where the record is a vote short |
+| Cambridge, MA (2001–2023) | 22 | `--method cambridge` | every count of 2001–2017's 16; the winners of 5 of 2019–2023's 6 |
+| Albany, California (2022, 2024) | 4 | `albany`; 2022 by the County's settings then | every round |
+| Eastpointe, Michigan (2019, 2021) | 2 | `portland` | every round, but one figure the official summary itself has 2 votes off |
+| Alameda County, California (2022–2025) | 24 | `irv` | every round in 20; in all 24 the eliminations and the winner |
+| Alaska (2022, 2024) | 22 | `irv` | every round in 12; in all 22 the eliminations and the winner |
+| Ireland, Dáil (2002) | 3 | | first preferences and the TDs returned |
+
+Where a round doesn't match, it's because the ballot record isn't quite the set of ballots the
+official count used (a few votes a candidate, from the first round on), or because of a tie
+drawn by lot, an unofficial report, or a slip in the official summary; each is set out in its
+section. [Not validated](#not-validated) lists what isn't checked against anything independent.
+
 ## Real elections
 
-Every Scottish council election with published ballots, all five ACT electorates in 2020, every
-state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024,
-Portland's four City Council districts of 2024, Minneapolis's eight multi-seat contests of 2009–2025
-(and the winners of 2013's two) and 29 of its single-seat races of 2017–2025, Eastpointe, Michigan's two of 2019 and 2021, 24 of Alameda County's single-seat contests of
-2022–2025, 22 of Alaska's of 2022–2024, Albany, California's four of 2022 and 2024, Cambridge's sixteen of 2001–2017, and three Irish
-constituencies, run through their
-own rulesets, reproduce their actual results:
+Real elections, run through their own rulesets, reproduce their actual results:
 
 | Election | Ruleset | Checked | Source of ballots |
 |---|---|---|---|
@@ -664,9 +699,11 @@ H to 6 decimals, then who took it.
 
 - **Every comparison.** H depends only on who's already placed, so wherever the two lists agree
   on the places so far, every value of H can be compared. In the 64 Tideman elections counted
-  (A13 and A23, of 26 and 29 candidates and mostly short ballots, didn't finish within 30 and 15 minutes, and aren't checked), all 29,148 comparisons published for those places match, to the 6 decimals
-  they're given in; so do the 2,920 of the Berlin Pirates' 2011 convention (29 candidates, 106
-  ballots). The two larger Pirate conventions, Berlin 2013 (46 candidates) and Sweden 2014 (63), weren't run to the end.
+  (A13 and A23, of 26 and 29 candidates and mostly short ballots, didn't finish within 30 and 15
+  minutes, and aren't checked), all 29,148 comparisons published for those places match, to the
+  6 decimals they're given in; so do the 2,920 of the Berlin Pirates' 2011 convention (29
+  candidates, 106 ballots). The two larger Pirate conventions, Berlin 2013 (46 candidates) and
+  Sweden 2014 (63), weren't run to the end.
 - **The paper's worked example**, A53 (section 9.3): the list J A G D F B E C I H, the fifth place
   going to F over B by the single-winner ranking as the paper says, and all 330 comparisons
   (`SchulzeProportionalTideman53FixtureTest`).
