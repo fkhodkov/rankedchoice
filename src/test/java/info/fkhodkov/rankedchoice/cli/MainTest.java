@@ -214,6 +214,19 @@ class MainTest {
         assertThat(capturedOut.toString(StandardCharsets.UTF_8)).contains("Winning committee: {X}");
     }
 
+    @Test
+    void schulzeProportionalMethodRanksEveryCandidate() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main())
+                .execute("--input", bltFile.toString(), "--method", "schulze-proportional");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8))
+                .contains("Schulze proportional ranking:").contains("  1. X");
+    }
+
     /** 11 votes, 1 seat: Meek's quota is 11/2 rounded down at the count's precision, plus one step. */
     @ParameterizedTest
     @CsvSource({"meek, 3, 5.501", "warren, 6, 5.500001"})
@@ -305,7 +318,8 @@ class MainTest {
         "qpq, --rounding, truncate:2",
         "meek, --transfer, wigm",
         "schulze-stv, --quota, hare",
-        "schulze-stv, --tied-rankings, skip"})
+        "schulze-stv, --tied-rankings, skip",
+        "schulze-proportional, --seats, 1"})
     void everyMethodRefusesAnOptionItWouldIgnore(String method, String option, String value) throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, BLT);
@@ -332,7 +346,7 @@ class MainTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"qpq", "cpo-stv", "schulze-stv", "schulze", "borda", "cambridge"})
+    @CsvSource({"qpq", "cpo-stv", "schulze-stv", "schulze-proportional", "schulze", "borda", "cambridge"})
     void everyMethodWritesJsonWhenAsked(String method) throws Exception {
         Path bltFile = tempDir.resolve("election.blt");
         Files.writeString(bltFile, method.equals("cambridge") ? BLT.replaceFirst("5 1 0", "60 1 0") : BLT);

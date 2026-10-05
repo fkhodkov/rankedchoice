@@ -228,7 +228,7 @@ public final class SchulzeStvCounter {
      * other indifference. {@code smallCounts} holds the same counts as {@code long}s, or is
      * null if their total wouldn't fit in one.
      */
-    private record IndexedBallots(int[][] positions, BigInteger[] counts, long[] smallCounts) {
+    record IndexedBallots(int[][] positions, BigInteger[] counts, long[] smallCounts) {
 
         static IndexedBallots of(List<Candidate> candidates, List<Ballot> ballots) {
             Map<Candidate, Integer> indexOf = new HashMap<>();
@@ -293,8 +293,29 @@ public final class SchulzeStvCounter {
         return supports;
     }
 
+    /**
+     * N[the contest's other members; member k]: by the closed form while the committee has at
+     * most {@link #CLOSED_FORM_SEATS} members, else by {@link LargeCommitteeSupport}. Both give
+     * the same exact figure; the closed form's 2^M subsets are quicker for small committees.
+     */
+    static Fraction support(Reduced reduced, int k) {
+        int size = reduced.levels().length == 0 ? 0 : reduced.levels()[0].length;
+        return size - 1 <= CLOSED_FORM_SEATS
+                ? closedFormSupport(reduced, k)
+                : LargeCommitteeSupport.of(reduced.levels(), reduced.counts(), k);
+    }
+
+    /** The closed form for any committee small enough to try its 2^M subsets. */
+    static Fraction closedFormSupport(Reduced reduced, int k) {
+        int size = reduced.levels()[0].length;
+        return support(patterns(reduced, k, size), size - 1);
+    }
+
+    /** See {@link #support(Reduced, int)}. */
+    static final int CLOSED_FORM_SEATS = 20;
+
     /** Ballots reduced to one contest: {@code levels[b][j]} is member j's level on group b. */
-    private record Reduced(int[][] levels, BigInteger[] counts) {
+    record Reduced(int[][] levels, BigInteger[] counts) {
 
         static Reduced of(int[] contest, IndexedBallots ballots) {
             int size = contest.length;
@@ -431,7 +452,7 @@ public final class SchulzeStvCounter {
      * voters. With no donors, every order of T and g is equally likely: an order with s of T's
      * k members above g is one of s! (k - s)! out of (k + 1)!.
      */
-    private static final class Completion {
+    static final class Completion {
         private final int seats;
         private final long[] prefers;
         private final long[] ties;
@@ -439,7 +460,7 @@ public final class SchulzeStvCounter {
         private final double[] approximateCounts;
         private final BigInteger total;
         private final LongIndex index;
-        private final Map<Long, double[]> approximate = new HashMap<>();
+        private final Map<Long, Shares> approximate = new HashMap<>();
         private final Map<Long, ExactDonors> exactDonors = new HashMap<>();
         private final Map<Long, Map<Long, Fraction>> exact = new HashMap<>();
 
@@ -452,6 +473,22 @@ public final class SchulzeStvCounter {
         }
 
         private record ExactDonors(Donors donors, BigInteger[] counts, BigInteger total) {
+        }
+
+        /** From voters' patterns as separate masks, for committees of up to 63 members. */
+        Completion(long[] prefers, long[] ties, BigInteger[] counts, int seats) {
+            this.seats = seats;
+            this.prefers = prefers;
+            this.ties = ties;
+            this.counts = counts;
+            approximateCounts = new double[counts.length];
+            BigInteger sum = BigInteger.ZERO;
+            for (int i = 0; i < counts.length; i++) {
+                approximateCounts[i] = counts[i].doubleValue();
+                sum = sum.add(counts[i]);
+            }
+            total = sum;
+            index = new LongIndex(counts.length);
         }
 
         Completion(Map<Long, BigInteger> patterns, int seats) {
@@ -481,6 +518,9 @@ public final class SchulzeStvCounter {
         }
 
         private Donors donors(long tie) {
+            if (2 * seats > Long.SIZE) {
+                return wideDonors(tie);
+            }
             index.clear();
             int[] groupOf = new int[counts.length];
             long[] fixed = new long[counts.length];
@@ -502,6 +542,29 @@ public final class SchulzeStvCounter {
             return new Donors(groupOf, Arrays.copyOf(fixed, index.size()), Arrays.copyOf(stillTied, index.size()));
         }
 
+        /** {@link #donors}, for committees too large to pack a donor's two masks into one key. */
+        private Donors wideDonors(long tie) {
+            Map<List<Long>, Integer> groups = new HashMap<>();
+            int[] groupOf = new int[counts.length];
+            long[] fixed = new long[counts.length];
+            long[] stillTied = new long[counts.length];
+            for (int i = 0; i < counts.length; i++) {
+                long theirTie = ties[i] & tie;
+                if (theirTie == tie) {
+                    groupOf[i] = -1;
+                    continue;
+                }
+                int size = groups.size();
+                int g = groups.computeIfAbsent(List.of(prefers[i] & tie, theirTie), _ -> size);
+                if (g == size) {
+                    fixed[g] = prefers[i] & tie;
+                    stillTied[g] = theirTie;
+                }
+                groupOf[i] = g;
+            }
+            return new Donors(groupOf, Arrays.copyOf(fixed, groups.size()), Arrays.copyOf(stillTied, groups.size()));
+        }
+
         /** Every completed pattern's weight, approximately, indexed by its prefer mask. */
         double[] approximateWeights() {
             double[] weights = new double[1 << seats];
@@ -509,9 +572,9 @@ public final class SchulzeStvCounter {
                 if (ties[i] == 0) {
                     weights[(int) prefers[i]] += approximateCounts[i];
                 } else {
-                    double[] shares = approximate(ties[i]);
-                    for (int a = 0; a < shares.length; a++) {
-                        weights[(int) (prefers[i] | Long.expand(a, ties[i]))] += approximateCounts[i] * shares[a];
+                    Shares shares = approximate(ties[i]);
+                    for (int a = 0; a < shares.size(); a++) {
+                        weights[(int) (prefers[i] | shares.key(a))] += approximateCounts[i] * shares.value(a);
                     }
                 }
             }
@@ -519,16 +582,16 @@ public final class SchulzeStvCounter {
         }
 
         /**
-         * How a voter level with g on {@code tie} is completed, approximately: entry a is the
-         * share placing above g the members {@code Long.expand(a, tie)}.
+         * How a voter level with g on {@code tie} is completed, approximately: each set of
+         * members of {@code tie} it places above g, with its share. Kept sparse, since a tie's
+         * completion seldom reaches more than a few of its 2^|tie| subsets.
          */
-        private double[] approximate(long tie) {
-            double[] known = approximate.get(tie);
+        private Shares approximate(long tie) {
+            Shares known = approximate.get(tie);
             if (known != null) {
                 return known;
             }
-            int k = Long.bitCount(tie);
-            double[] shares = new double[1 << k];
+            LongDoubleMap shares = new LongDoubleMap();
             Donors donors = donors(tie);
             double[] weights = new double[donors.fixed().length];
             double sum = 0;
@@ -543,24 +606,25 @@ public final class SchulzeStvCounter {
                     double share = weights[d] / sum;
                     long stillTied = donors.stillTied()[d];
                     if (stillTied == 0) {
-                        shares[(int) Long.compress(donors.fixed()[d], tie)] += share;
+                        shares.add(donors.fixed()[d], share);
                     } else {
-                        double[] inner = approximate(stillTied);
-                        for (int a = 0; a < inner.length; a++) {
-                            long above = donors.fixed()[d] | Long.expand(a, stillTied);
-                            shares[(int) Long.compress(above, tie)] += share * inner[a];
+                        Shares inner = approximate(stillTied);
+                        for (int a = 0; a < inner.size(); a++) {
+                            shares.add(donors.fixed()[d] | inner.key(a), share * inner.value(a));
                         }
                     }
                 }
             } else {
+                int k = Long.bitCount(tie);
                 double orders = factorial(k + 1).doubleValue();
-                for (int a = 0; a < shares.length; a++) {
-                    int s = Integer.bitCount(a);
-                    shares[a] = factorial(s).multiply(factorial(k - s)).doubleValue() / orders;
+                for (long a = 0; a < 1L << k; a++) {
+                    int s = Long.bitCount(a);
+                    shares.add(Long.expand(a, tie), factorial(s).multiply(factorial(k - s)).doubleValue() / orders);
                 }
             }
-            approximate.put(tie, shares);
-            return shares;
+            Shares compact = shares.compact(tie);
+            approximate.put(tie, compact);
+            return compact;
         }
 
         private ExactDonors exactDonors(long tie) {

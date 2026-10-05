@@ -42,6 +42,9 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
 import info.fkhodkov.rankedchoice.schulze.SchulzeReports;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
+import info.fkhodkov.rankedchoice.schulzestv.SchulzeProportionalRanking;
+import info.fkhodkov.rankedchoice.schulzestv.SchulzeProportionalReports;
+import info.fkhodkov.rankedchoice.schulzestv.SchulzeProportionalResult;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvCounter;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvReports;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvResult;
@@ -124,11 +127,13 @@ public final class Main implements Callable<Integer> {
     private Path input;
 
     @Option(names = {"-m", "--method"},
-            description = "Counting method: stv|meek|warren|cambridge|schulze|borda|cpo-stv|schulze-stv|qpq. "
+            description = "Counting method: stv|meek|warren|cambridge|schulze|borda|cpo-stv|schulze-stv|"
+            + "schulze-proportional|qpq. "
             + "Defaults to stv. --quota/--transfer don't apply to meek or warren (their quota and transfer are fixed "
             + "by the method itself); schulze/borda don't use --seats, --quota, --transfer, --rounding, or "
             + "--tiebreak at all; cpo-stv uses --seats/--quota/--transfer/--rounding but not --tiebreak; "
-            + "schulze-stv uses only --seats; qpq (Woodall's Quota "
+            + "schulze-stv uses only --seats; schulze-proportional (a party list, every candidate ranked) uses "
+            + "none of them; qpq (Woodall's Quota "
             + "Preferential by Quotient -- unrelated to the hare-clark-qpq *ruleset*, a different, classic-STV "
             + "preset despite the similar name) uses --seats/--tiebreak but not --quota/--transfer/--rounding, "
             + "since its quota and transfer are both derived formulas, not configurable.")
@@ -234,7 +239,8 @@ public final class Main implements Callable<Integer> {
         String effectiveMethod = firstNonNull(method, "stv").toLowerCase(Locale.ROOT);
         refuseUnusedOptions(effectiveMethod);
         String reportAs = resolveReportFormat(fileConfig);
-        boolean seatsBasedMethod = !effectiveMethod.equals("schulze") && !effectiveMethod.equals("borda");
+        boolean seatsBasedMethod = !effectiveMethod.equals("schulze") && !effectiveMethod.equals("borda")
+                && !effectiveMethod.equals("schulze-proportional");
         String effectiveTiedRankings = firstNonNull(tiedRankings, fileConfig.tiedRankings());
         Integer configuredMinimumPreferences =
                 minimumPreferences != null ? minimumPreferences : fileConfig.minimumPreferences();
@@ -285,6 +291,15 @@ public final class Main implements Callable<Integer> {
                 case "json" -> CpoStvReports.json(result);
                 case "html" -> CpoStvReports.html(result);
                 default -> CpoStvTextReport.render(result);
+            };
+        }
+        if (effectiveMethod.equals("schulze-proportional")) {
+            SchulzeProportionalResult result = SchulzeProportionalRanking.count(candidates, ballots);
+            return switch (reportAs) {
+                case "csv" -> SchulzeProportionalReports.csv(result);
+                case "json" -> SchulzeProportionalReports.json(result);
+                case "html" -> SchulzeProportionalReports.html(result);
+                default -> SchulzeProportionalReports.text(result);
             };
         }
         if (effectiveMethod.equals("schulze-stv")) {
@@ -359,7 +374,7 @@ public final class Main implements Callable<Integer> {
             default -> throw new IllegalArgumentException(
                     "Unsupported method '" + effectiveMethod
                             + "'; expected 'stv', 'meek', 'warren', 'cambridge', 'schulze', 'borda', 'cpo-stv', "
-                            + "'schulze-stv', or 'qpq'");
+                            + "'schulze-stv', 'schulze-proportional', or 'qpq'");
         }
 
         return switch (reportAs) {
@@ -421,6 +436,17 @@ public final class Main implements Callable<Integer> {
             "schulze-stv", Map.of(
                     "--ruleset", "rulesets set STV rules",
                     "--quota", "it has no quota: committees are compared by their support",
+                    "--transfer", "votes are never transferred",
+                    "--rounding", "every support is exact",
+                    "--tiebreak", "ties are broken by the single-winner Schulze ranking",
+                    "--precision", "only meek and warren use it",
+                    "--tied-rankings", "it counts tied rankings natively, by proportional completion",
+                    "--minimum-preferences", "it counts every ballot, completing what's unranked",
+                    "--borda-scoring", "only borda uses it"),
+            "schulze-proportional", Map.of(
+                    "--seats", "it ranks every candidate rather than filling seats",
+                    "--ruleset", "rulesets set STV rules",
+                    "--quota", "it has no quota: places are filled by comparing supports",
                     "--transfer", "votes are never transferred",
                     "--rounding", "every support is exact",
                     "--tiebreak", "ties are broken by the single-winner Schulze ranking",

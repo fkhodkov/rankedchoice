@@ -556,6 +556,46 @@ contest, over its M+1 candidates only. In the database's letter format, a candid
 on a ballot ties everyone ranked since their first mention with them. Reading those ballots any
 other way changes the supports of the 7 elections that have them.
 
+## Schulze proportional ranking
+
+The Schulze proportional ranking (`schulze-proportional`, section 9.1 of the paper) builds a
+party list place by place: with a1..a(k-1) placed, each remaining b and c are compared by H[b,c]
+= N[{a1..a(k-1), b}; c], Schulze STV's support, and the single-winner Schulze method on H fills
+place k. Schulze's archive has his program for it (`singl04g.cpp`) and its output (`*_list.dat`)
+for Tideman's 66 elections and four Pirate Party list conventions: for each place, the whole of
+H to 6 decimals, then who took it.
+
+- **Every comparison.** H depends only on who's already placed, so wherever the two lists agree
+  on the places so far, every value of H can be compared. In the 64 Tideman elections counted
+  (A13 and A23, of 26 and 29 candidates and mostly short ballots, didn't finish within 30 and 15 minutes, and aren't checked), all 29,148 comparisons published for those places match, to the 6 decimals
+  they're given in; so do the 2,920 of the Berlin Pirates' 2011 convention (29 candidates, 106
+  ballots). The two larger Pirate conventions, Berlin 2013 (46 candidates) and Sweden 2014 (63), weren't run to the end.
+- **The paper's worked example**, A53 (section 9.3): the list J A G D F B E C I H, the fifth place
+  going to F over B by the single-winner ranking as the paper says, and all 330 comparisons
+  (`SchulzeProportionalTideman53FixtureTest`).
+- **The lists.** 57 of the 64 are the program's. The other seven part where the program isn't
+  the paper, and Schulze's own printed H shows why at each: on A04, A12 and A35 (and Berlin
+  2011, at place 4), the paper's Stage 3 compares H's links by margin and the program by winning
+  votes, and each picks its own candidate; on A14, A15, A22 and A33 several candidates go
+  unbeaten either way, and the tie-break decides it: this project uses the single-winner
+  Schulze ranking, the program a ranking drawn from a random ballot order. That randomness shows
+  in the files themselves: A10, A12, A33 and A67 hold two or three runs of the program, and they
+  don't all agree. The program also gives the first place to the top of its single-winner
+  ranking, where the paper runs Stage 3 for it too; no list parts there.
+- **Supports past the closed form.** For committees of over 20 members, the support's
+  minimising set is found by a minimum cut (Dinkelbach's method) in double precision, then the
+  support computed exactly at it (`LargeCommitteeSupport`). On 400 random contests of up to 9
+  candidates, ties of every kind included, it gives every one of over 1,500 supports exactly as
+  the closed form does (`LargeCommitteeSupportTest`); skipping its improvement steps fails that
+  at once. The closed form's completion is now kept sparse; Schulze STV's 315,112 published
+  supports still all match.
+
+The Berlin Pirates' 2011 list isn't a real outcome to check against: Andreas Baum, who headed
+the list the party ran with, is sixth in this ranking of those ballots (and fifth in the
+program's), so the convention's list wasn't this method's result on them.
+
+`tools/reference/schulze_stv/proportional_check.py` reruns all of this.
+
 ## QPQ
 
 Checked against two independent implementations of Woodall's rule, droop's `qpq.py` and

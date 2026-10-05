@@ -3,7 +3,7 @@
 A Java library and command-line tool for counting ranked-choice elections, under the rules
 real elections use. It counts the Single Transferable Vote in its legislated variants (Scottish,
 ERS97, Tasmanian and ACT Hare-Clark, Cambridge MA), Meek's and Warren's methods, Schulze,
-Borda, CPO-STV and QPQ, and reports every round in text, CSV, JSON or HTML.
+Borda, CPO-STV, QPQ, Schulze STV and the Schulze proportional ranking, and reports every round in text, CSV, JSON or HTML.
 
 Every method is checked against something independent of this code: official counts of real
 elections, independent implementations of the same method, or hand-worked cases. See
@@ -21,6 +21,7 @@ original design.
 | QPQ | `qpq` | Woodall's Quota Preferential by Quotient: whole votes, quotients, a restart after each exclusion | droop and OpenSTV, to 9 decimal places |
 | CPO-STV | `cpo-stv` | Tideman's: every possible committee compared with every other | hand-worked cases; an independent implementation (4,830 scores) |
 | Schulze STV | `schulze-stv` | Schulze's: committees one swap apart compared by how well each could split the voters into separate quotas, then a beatpath | Schulze's own program and published figures on Tideman's 65 elections; the paper's worked example |
+| Schulze proportional ranking | `schulze-proportional` | Schulze's: a party list built place by place, each candidate compared by how strongly the list so far plus them would hold against each other candidate, then a beatpath | every comparison behind Schulze's own program's published lists for Tideman's elections, to 6 decimals; the paper's worked example |
 | Schulze | `schulze` | Condorcet beatpath ranking (winning votes) | Wikipedia's example, a Debian vote's published tally |
 | Borda | `borda` | Positional scoring: classic, or Dowdall (Nauru) via `--borda-scoring`; tied ranks share their positions' points | Nauru 2019, two constituencies |
 
@@ -115,8 +116,8 @@ A classic STV ruleset is a combination of independent choices:
 ### Tied rankings and short ballots
 
 These apply to every method that transfers votes (`stv`, `meek`, `warren`, `cambridge`, `qpq`,
-`cpo-stv`); Schulze, Schulze STV and Borda count tied rankings natively (Schulze STV by the
-method's own "proportional completion").
+`cpo-stv`); Schulze, Schulze STV, the Schulze proportional ranking and Borda count tied rankings
+natively (the last two of Schulze's by his "proportional completion").
 
 - **`--tied-rankings`** — what to do with a ballot ranking several candidates equally:
   - `reject` refuses to count the election;
@@ -167,7 +168,7 @@ QPQ method.
 | Option | Description |
 |---|---|
 | `-i, --input` (required) | Ballot file (`.blt` or `.csv`) |
-| `-m, --method` | `stv\|meek\|warren\|cambridge\|schulze\|borda\|cpo-stv\|schulze-stv\|qpq`. Defaults to `stv`. |
+| `-m, --method` | `stv\|meek\|warren\|cambridge\|schulze\|borda\|cpo-stv\|schulze-stv\|schulze-proportional\|qpq`. Defaults to `stv`. |
 | `-f, --format` | Input format, `blt` or `csv`; inferred from the file extension if omitted. |
 | `-s, --seats` | Seats to fill. Required for CSV input; for BLT, overrides the file's seat count. Not for `schulze`/`borda`, which rank every candidate. |
 | `-o, --output` | Output file. Defaults to standard output. |
@@ -186,8 +187,8 @@ QPQ method.
 Every flag overrides the config file or ruleset, field by field. A flag the chosen method has
 no use for is refused with the reason, rather than silently ignored — e.g. `--quota` for
 `meek`, `warren`, `cambridge` or `qpq` (the method fixes its own), `--tiebreak` for `cpo-stv`,
-every STV option, `--seats` and `--ruleset` for `schulze`/`borda`, and everything but `--seats`
-for `schulze-stv`. A config file may still
+every STV option, `--seats` and `--ruleset` for `schulze`/`borda`, everything but `--seats`
+for `schulze-stv`, and everything for `schulze-proportional`. A config file may still
 carry fields a method doesn't use.
 
 ### Config file
@@ -226,6 +227,9 @@ each format:
 - **Schulze STV**: the winning committee and, when several committees go unbeaten, those and the
   single-winner ranking that chose between them; JSON and CSV add every support `N[committee;
   outsider]`, HTML a support table when there are at most 200.
+- **Schulze proportional ranking**: the list, and for any place with several potential winners,
+  those and the single-winner ranking that chose; JSON and CSV add every comparison `H[b][c] =
+  N[the list so far + b; c]` behind every place.
 - **Borda**: every candidate's score and place.
 
 Informal ballots are reported with their reasons — a leading line in text and HTML, an
@@ -279,6 +283,13 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   program ranks them differently, and its tie-break uses an older single-winner ranking, so on 2
   of Tideman's 65 elections it elects a different committee (see
   [VALIDATION.md](VALIDATION.md#schulze-stv)).
+- **The Schulze proportional ranking** is capped at 64 candidates, and slows sharply with many
+  candidates and truncated ballots: for committees of over 20, the minimising set is searched
+  for in double precision (then its support computed exactly), and proportional completion is
+  listed out, which can run to millions of orders; of Tideman's elections, the two with 26 and
+  29 candidates (and 91–104 voters, most ranking few) didn't finish within 15–30 minutes. It compares
+  links by margin, as the paper does, where Schulze's own program uses winning votes; see
+  [VALIDATION.md](VALIDATION.md#schulze-proportional-ranking).
 - **Cambridge STV depends on ballot order**: rarely at realistic sizes, but in small
   electorates with many seats another order can elect different people
   (`tools/order-sensitivity` measures it).
@@ -319,7 +330,8 @@ about 45 s, 16 / 8 about a minute.
   order changes a Cambridge STV count.
 - `tools/reference/cpo_stv.py` — an independent CPO-STV scorer used to check this one.
 - [`tools/reference/schulze_stv`](tools/reference/schulze_stv/README.md) — check Schulze STV
-  against Schulze's own program and published figures, and against an independent count.
+  and the Schulze proportional ranking against Schulze's own program and published figures, and
+  Schulze STV against an independent count.
 - [`tools/reference/aec`](tools/reference/aec/README.md) — count every state's Senate election
   from 2016 to 2025 from the AEC's ballot data and check each round against the official
   distribution of preferences.
@@ -375,7 +387,9 @@ src/main/java/info/fkhodkov/rankedchoice/
 │                  QpqReports
 ├── cpostv/        CpoStvCounter, CpoStvRuleset, CpoStvResult, CpoStvTextReport, CpoStvReports
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport, SchulzeReports
-├── schulzestv/    SchulzeStvCounter, SchulzeStvResult, SchulzeStvTextReport, SchulzeStvReports
+├── schulzestv/    SchulzeStvCounter, SchulzeStvResult, SchulzeStvTextReport, SchulzeStvReports,
+│                  SchulzeProportionalRanking, SchulzeProportionalResult, SchulzeProportionalReports,
+│                  LargeCommitteeSupport (supports for committees past the closed form)
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport, BordaReports
 └── cli/           Main
