@@ -26,24 +26,23 @@ round isn't in the summary.
 - 2013: FairVote's records, and the winners only (the City published no round summary for the
   Board of Estimate, and the Park Board's is a ballot-by-ballot listing), counted both ways.
 """
-import argparse
 import csv
 import difflib
-import json
 import os
 import re
 import subprocess
 import sys
-import urllib.request
 from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, ".."))
+import rcvcheck  # noqa: E402
+from rcvcheck import DATAVERSE, main, threshold_line, unmatched_rounds  # noqa: E402
+
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 # An overvote or a skipped ranking is passed over; write-ins are one candidate, named as the City's results do.
 READING = ["--overvote", "skip", "--write-in", "candidate"]
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
 FILES = "https://vote.minneapolismn.gov/media/-www-content-assets/documents/archive/elections/"
-DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 CONFIG_2009 = os.path.join(HERE, "..", "..", "..", "src", "test", "resources", "testdata", "minneapolis",
                            "minneapolis-2009.yaml")
 # 2009 and 2013: (seats, FairVote's Dataverse file, the City's Excel summary or the winners).
@@ -100,11 +99,7 @@ NUMBER = re.compile(r"^-?[\d,]+(\.\d+)?$")
 
 
 def fetch(data, name, url=None):
-    path = os.path.join(data, name)
-    if not os.path.exists(path):
-        request = urllib.request.Request(url or FILES + name, headers={"User-Agent": "Mozilla/5.0"})
-        open(path, "wb").write(urllib.request.urlopen(request, timeout=300).read())
-    return path
+    return rcvcheck.fetch(os.path.join(data, name), url or FILES + name)
 
 
 def spreadsheet_summary(xls, data):
@@ -143,11 +138,10 @@ def official_figure(figures, name):
 
 
 def count(blt, jar, rules):
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--report-format", "json"] + rules,
-                            capture_output=True, text=True)
-    if result.returncode:
-        raise RuntimeError(result.stderr.strip()[-200:])
-    return json.loads(result.stdout)
+    ours, error = rcvcheck.count(jar, blt, rules)
+    if error:
+        raise RuntimeError(error)
+    return ours
 
 
 def check_older(data, contest, jar):
@@ -202,7 +196,7 @@ def check_older(data, contest, jar):
 
 def summary(pdf):
     """The threshold, and each candidate's grand total after every round, from the summary statement."""
-    text = subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, text=True, check=True).stdout
+    text = rcvcheck.pdf_text(pdf)
     lines = text.splitlines()
     threshold = int(re.search(r"Threshold:\s+([\d,]+)", text).group(1).replace(",", ""))
     start = next(i for i, line in enumerate(lines) if line.strip().startswith("Candidate"))
@@ -234,48 +228,22 @@ def check(data, contest, jar):
     if not os.path.exists(blt):
         subprocess.run([sys.executable, CONVERTER, fetch(data, cvr), blt, "--seats", str(seats), "--title", contest]
                        + READING + ["--write-in-name", "Undeclared Write-ins"], check=True)
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "minneapolis", "--report-format", "json"],
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
+    ours, error = rcvcheck.count(jar, blt, ["--ruleset", "minneapolis"])
+    if error:
+        return False, f"{contest}: count failed: {error}"
     threshold, totals = summary(fetch(data, pdf))
     rounds = len(next(iter(totals.values())))
-    start, unmatched = 0, []
-    for k in range(rounds):
-        figures = {name: values[k] for name, values in totals.items()}
-        hit = next((i for i in range(start, len(ours["rounds"]))
-                    if all(official_figure(figures, name) == Decimal(votes)
-                           for name, votes in ours["rounds"][i]["tallies"].items())), None)
-        if hit is None:
-            unmatched.append(k + 1)
-        else:
-            start = hit
+    unmatched = unmatched_rounds([(k + 1, {name: values[k] for name, values in totals.items()}) for k in range(rounds)],
+                                 ours, official_figure)
     # Those the summary elects: the leaders after its last round (where the last defeated still shows votes).
     elected = sorted(sorted(totals, key=lambda name: totals[name][-1], reverse=True)[:seats])
     same = sorted(surname_match(name, elected) or name for name in ours["electedInOrder"]) == elected
-    line = (f"{contest}: threshold {Decimal(ours['quota']):f} (official {threshold}); "
-            f"{rounds - len(unmatched)} of {rounds} official rounds match a round of this count; "
-            f"elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder']) + ' vs ' + str(elected)}")
+    line = threshold_line(contest, ours, threshold, rounds - len(unmatched), rounds, same,
+                          f"{ours['electedInOrder']} vs {elected}")
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
     return not unmatched and same and Decimal(ours["quota"]) == threshold, line
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("data")
-    parser.add_argument("contests", nargs="*", default=list(OLDER) + list(CONTESTS))
-    parser.add_argument("--jar", default=DEFAULT_JAR)
-    args = parser.parse_args()
-    os.makedirs(args.data, exist_ok=True)
-    failed = 0
-    for contest in args.contests:
-        ok, line = check(args.data, contest, args.jar)
-        failed += not ok
-        print(line, flush=True)
-    sys.exit(1 if failed else 0)
-
-
 if __name__ == "__main__":
-    main()
+    main(__doc__.split("\n\n")[0], list(OLDER) + list(CONTESTS), check)

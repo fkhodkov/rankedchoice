@@ -16,19 +16,18 @@ are filled, which this count doesn't do, and round 4 of 2021, where the summary'
 Rob Baker is 2 votes more than its round 3 tally plus the transfers it lists (its round 5 builds
 on the lower figure, which is this count's).
 """
-import argparse
 import json
 import os
 import re
 import subprocess
 import sys
-import urllib.request
 from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+sys.path.insert(0, os.path.join(HERE, ".."))
+from rcvcheck import DATAVERSE, count, fetch, main, threshold_line, unmatched_rounds  # noqa: E402
+
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
-DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 CONTESTS = {
     "council-2019": (11620398, "https://rcvis.com/v/2019-11-08_13-19-44_summary"),
     "council-2021": (11620416, "https://rcvis.com/v/eastpointe-2021-results"),
@@ -36,13 +35,6 @@ CONTESTS = {
 NOT_CANDIDATES = {"Inactive Ballots", "Residual Surplus"}
 # The summary's own slip: (contest, round, candidate, its figure, what its other figures give).
 SLIPS = {("council-2021", 4, "Rob Baker"): (Decimal("1058.8175"), Decimal("1056.8175"))}
-
-
-def fetch(path, url):
-    if not os.path.exists(path):
-        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        open(path, "wb").write(urllib.request.urlopen(request, timeout=300).read())
-    return path
 
 
 def summary(path):
@@ -61,18 +53,16 @@ def check(data, contest, jar):
         # overvote ends it, and so does a candidate ranked again ("exhaust on duplicate candidate").
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "2", "--title", contest, "--skipped", "two-end",
                         "--write-in", "skip", "--repeat", "end"], check=True)
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "portland", "--report-format", "json"],
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
+    ours, error = count(jar, blt, ["--ruleset", "portland"])
+    if error:
+        return False, f"{contest}: count failed: {error}"
     rounds = official["results"]
     elected = [t["elected"] for r in rounds for t in r["tallyResults"] if "elected" in t]
     notes = []
     if not rounds[-1]["tallyResults"]:
         notes.append(f"round {rounds[-1]['round']}, after the last surplus moves, isn't one here (not checked)")
         rounds = rounds[:-1]
-    start, matched, unmatched = 0, 0, []
+    figures_by_round = []
     for official_round in rounds:
         figures = {name: Decimal(str(votes)) for name, votes in official_round["tally"].items()
                    if name not in NOT_CANDIDATES}
@@ -81,18 +71,11 @@ def check(data, contest, jar):
                 figures[name] = consistent
                 notes.append(f"round {slip_round}: the summary has {name} on {printed}, {printed - consistent} "
                              f"more than its round {slip_round - 1} plus its transfers ({consistent})")
-        hit = next((i for i in range(start, len(ours["rounds"]))
-                    if all(figures.get(name) == Decimal(votes) for name, votes in ours["rounds"][i]["tallies"].items())),
-                   None)
-        if hit is None:
-            unmatched.append(official_round["round"])
-        else:
-            matched += 1
-            start = hit
+        figures_by_round.append((official_round["round"], figures))
+    unmatched = unmatched_rounds(figures_by_round, ours)
     same = sorted(ours["electedInOrder"]) == sorted(elected)
-    line = (f"{contest}: threshold {Decimal(ours['quota']):f} (official {official['config']['threshold']}); "
-            f"{matched} of {len(rounds)} official rounds match a round of this count; "
-            f"elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}")
+    line = threshold_line(contest, ours, official["config"]["threshold"], len(rounds) - len(unmatched), len(rounds),
+                          same, ours["electedInOrder"])
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
     for note in notes:
@@ -100,20 +83,5 @@ def check(data, contest, jar):
     return not unmatched and same and Decimal(ours["quota"]) == Decimal(official["config"]["threshold"]), line
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("data")
-    parser.add_argument("contests", nargs="*", default=list(CONTESTS))
-    parser.add_argument("--jar", default=DEFAULT_JAR)
-    args = parser.parse_args()
-    os.makedirs(args.data, exist_ok=True)
-    failed = 0
-    for contest in args.contests:
-        ok, line = check(args.data, contest, args.jar)
-        failed += not ok
-        print(line, flush=True)
-    sys.exit(1 if failed else 0)
-
-
 if __name__ == "__main__":
-    main()
+    main(__doc__.split("\n\n")[0], CONTESTS, check)

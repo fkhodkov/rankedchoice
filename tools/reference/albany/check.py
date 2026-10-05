@@ -14,23 +14,21 @@ of this count's rounds, in order, every candidate to the report's decimal places
 first threshold, with the same candidates elected. The CVR and the report spell some names
 differently ("ROBIN D  LOPEZ", "ROBIN D. LÓPEZ"); they're matched on their letters.
 """
-import argparse
-import json
 import os
 import re
 import subprocess
 import sys
-import unicodedata
-import urllib.request
 import xml.etree.ElementTree as ET
 from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, ".."))
+from rcvcheck import (DATAVERSE, count, fetch, main, name_key as key, threshold_line,  # noqa: E402
+                      unmatched_rounds)
+
 ROOT = os.path.join(HERE, "..", "..", "..")
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
-DEFAULT_JAR = os.path.join(ROOT, "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
 CONFIG_2022 = os.path.join(ROOT, "src", "test", "resources", "testdata", "albany", "albany-2022.yaml")
-DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 REPORT = "https://alamedacountyca.gov/rovresults/rcv/{election}/Albany/{race}/RcvDetailedReport.xml"
 # contest: (Dataverse file id, County election id, race)
 CONTESTS = {
@@ -41,19 +39,6 @@ CONTESTS = {
 }
 NS = "{RcvDetailedReport}"
 NOT_CANDIDATES = {"Blanks", "Exhausted", "Overvotes", "Remainder Points", "Surplus Transfer Remainder"}
-
-
-def fetch(path, url):
-    if not os.path.exists(path):
-        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        open(path, "wb").write(urllib.request.urlopen(request, timeout=300).read())
-    return path
-
-
-def key(name):
-    """A name's letters, so the CVR's and the report's spellings meet."""
-    letters = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().upper()
-    return re.sub(r"[^A-Z]", "", letters)
 
 
 def report(path):
@@ -85,45 +70,20 @@ def check(data, contest, jar):
         # An overvote ends the ballot; a skipped ranking or a write-in is passed over.
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", str(seats), "--title", "Albany"], check=True)
     rules = ["--config", CONFIG_2022] if contest.endswith("2022") else ["--ruleset", "albany"]
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--report-format", "json"] + rules,
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
-    start, unmatched = 0, []
-    for k, (_, votes) in enumerate(rounds):
-        figures = {key(name): value for name, value in votes.items()}
-        hit = next((i for i in range(start, len(ours["rounds"]))
-                    if all(figures.get(key(name)) == Decimal(value)
-                           for name, value in ours["rounds"][i]["tallies"].items())), None)
-        if hit is None:
-            unmatched.append(k + 1)
-        else:
-            start = hit
+    ours, error = count(jar, blt, rules)
+    if error:
+        return False, f"{contest}: count failed: {error}"
+    unmatched = unmatched_rounds([(k + 1, {key(name): value for name, value in votes.items()})
+                                  for k, (_, votes) in enumerate(rounds)], ours,
+                                 lambda figures, name: figures.get(key(name)))
     same = sorted(map(key, ours["electedInOrder"])) == sorted(map(key, elected))
     threshold = rounds[0][0]
-    line = (f"{contest}: threshold {Decimal(ours['quota']):f} (official {threshold:f}); "
-            f"{len(rounds) - len(unmatched)} of {len(rounds)} official rounds match a round of this count; "
-            f"elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}")
+    line = threshold_line(contest, ours, f"{threshold:f}", len(rounds) - len(unmatched), len(rounds), same,
+                          ours["electedInOrder"])
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
     return not unmatched and same and Decimal(ours["quota"]) == threshold, line
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("data")
-    parser.add_argument("contests", nargs="*", default=list(CONTESTS))
-    parser.add_argument("--jar", default=DEFAULT_JAR)
-    args = parser.parse_args()
-    os.makedirs(args.data, exist_ok=True)
-    failed = 0
-    for contest in args.contests:
-        ok, line = check(args.data, contest, args.jar)
-        failed += not ok
-        print(line, flush=True)
-    sys.exit(1 if failed else 0)
-
-
 if __name__ == "__main__":
-    main()
+    main(__doc__.split("\n\n")[0], CONTESTS, check)

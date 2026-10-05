@@ -13,28 +13,25 @@ final surplus transferred, which this count doesn't do; it's left out. A round t
 tie for defeat the County drew by lot, decided otherwise than by this project's declared order,
 is reported apart.
 """
-import argparse
 import json
 import os
 import subprocess
 import sys
 import urllib.parse
-import urllib.request
 from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+sys.path.insert(0, os.path.join(HERE, ".."))
+from rcvcheck import count, fetch, main, threshold_line, unmatched_rounds  # noqa: E402
+
 REPORT = "a18a5db1-04a2-4123-8ccb-de12b485f135"    # the County's final results, 2 December 2024
 SUMMARY = ("https://mcdcselectionsrcvprdst.z5.web.core.windows.net/{report}_City of Portland Councilor District {n}/"
            "{report}_City of Portland, Councilor, District {n}.json")
 
 
 def official(data, n):
-    path = os.path.join(data, f"d{n}-official.json")
-    if not os.path.exists(path):
-        url = urllib.parse.quote(SUMMARY.format(report=REPORT, n=n), safe=":/")
-        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        open(path, "wb").write(urllib.request.urlopen(request, timeout=60).read())
+    path = fetch(os.path.join(data, f"d{n}-official.json"),
+                 urllib.parse.quote(SUMMARY.format(report=REPORT, n=n), safe=":/"))
     return json.load(open(path))
 
 
@@ -43,26 +40,16 @@ def check(data, n, jar):
     if not os.path.exists(blt):
         subprocess.run([sys.executable, os.path.join(HERE, "cvr_to_blt.py"), os.path.join(data, f"d{n}-cvr.csv"), blt],
                        check=True)
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "portland", "--report-format", "json"],
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"District {n}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
+    ours, error = count(jar, blt, ["--ruleset", "portland"])
+    if error:
+        return False, f"District {n}: count failed: {error}"
     summary = official(data, n)
     rounds = summary["results"]
     elected = [t["elected"] for r in rounds for t in r["tallyResults"] if "elected" in t]
     if not rounds[-1]["tallyResults"]:
         rounds = rounds[:-1]    # the last seats already filled: only the final surplus moves
-    start, unmatched = 0, []
-    for official_round in rounds:
-        figures = {name: Decimal(votes) for name, votes in official_round["tally"].items()}
-        hit = next((i for i in range(start, len(ours["rounds"]))
-                    if all(figures.get(name) == Decimal(votes) for name, votes in ours["rounds"][i]["tallies"].items())),
-                   None)
-        if hit is None:
-            unmatched.append(official_round["round"])
-        else:
-            start = hit
+    unmatched = unmatched_rounds([(r["round"], {name: Decimal(votes) for name, votes in r["tally"].items()})
+                                  for r in rounds], ours)
     # A tie for defeat is decided by lot (City Code 2.08.030 A.6), where this project uses
     # declared order: a round that follows such a draw, decided the other way, is counted apart.
     by_round = {r["round"]: r for r in summary["results"]}
@@ -77,9 +64,9 @@ def check(data, n, jar):
             lots.append(f"official round {k} follows a draw between {' and '.join(tied)} on {lowest}")
     unmatched = [k for k in unmatched if not any(f"round {k} " in lot for lot in lots)]
     same = sorted(ours["electedInOrder"]) == sorted(elected)
-    line = (f"District {n}: quota {Decimal(ours['quota']):f} (official {summary['config']['threshold']}); "
-            f"{len(rounds) - len(unmatched) - len(lots)} of {len(rounds)} official rounds match a round of this count; "
-            f"elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}")
+    matched = len(rounds) - len(unmatched) - len(lots)
+    line = threshold_line(f"District {n}", ours, summary["config"]["threshold"], matched, len(rounds), same,
+                          ours["electedInOrder"], quota="quota")
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
     for lot in lots:
@@ -87,19 +74,5 @@ def check(data, n, jar):
     return not unmatched and same and Decimal(ours["quota"]) == Decimal(summary["config"]["threshold"]), line
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("data")
-    parser.add_argument("districts", nargs="*", type=int, default=[1, 2, 3, 4])
-    parser.add_argument("--jar", default=DEFAULT_JAR)
-    args = parser.parse_args()
-    failed = 0
-    for n in args.districts:
-        ok, line = check(args.data, n, args.jar)
-        failed += not ok
-        print(line, flush=True)
-    sys.exit(1 if failed else 0)
-
-
 if __name__ == "__main__":
-    main()
+    main(__doc__.split("\n\n")[0], ["1", "2", "3", "4"], check)

@@ -348,9 +348,11 @@ about 45 s, 16 / 8 about a minute.
   reading the ballots by each jurisdiction's rules: what an overvote, a skipped or repeated
   ranking, and a write-in do. The checkers below for Alameda, San Francisco, Alaska, New York,
   Maine, Minneapolis, Eastpointe and Albany use it.
-- [`tools/reference/rcvcheck.py`](tools/reference/rcvcheck.py) — what the single-seat checkers
-  (Alameda, San Francisco, Alaska, New York, Maine) share: downloading, matching names, counting,
-  and matching each official round with one of this count's, in order.
+- [`tools/reference/rcvcheck.py`](tools/reference/rcvcheck.py) — what the checkers of US
+  ranked-choice counts share: downloading, matching names, counting, and matching each official
+  round with one of this count's, in order, to the vote for the single-seat ones (Alameda, San
+  Francisco, Alaska, New York, Maine) and to the official decimal places for the multi-seat ones
+  (Minneapolis, Portland, Eastpointe, Albany).
 - [`tools/reference/portland`](tools/reference/portland/README.md) — convert Multnomah
   County's cast vote records for Portland's 2024 Council contests and check each round against
   the County's official results.

@@ -1,7 +1,8 @@
-"""What the single-seat reference checkers share: fetching, matching names, counting, and matching the
-official rounds with this count's.
+"""What the reference checkers of US ranked-choice counts share: fetching, matching names, counting, and matching
+the official rounds with this count's, to the vote (single-seat) or to the official decimal places (multi-seat).
 
-The checkers (alameda, alaska, maine, nyc, sanfrancisco) import it from the directory above theirs.
+The checkers (alameda, alaska, maine, nyc, sanfrancisco; albany, eastpointe, minneapolis, portland) import it from
+the directory above theirs.
 """
 import argparse
 import csv
@@ -16,6 +17,7 @@ import subprocess
 import sys
 import unicodedata
 import urllib.request
+from decimal import Decimal
 
 DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "target",
                            "rankedchoice-0.1.0-SNAPSHOT.jar")
@@ -149,6 +151,32 @@ def summary(contest, exact, gaps, same, elected, rounds="official rounds", round
             + ("; eliminations the same" if None not in gaps
                else f"; ELIMINATIONS DIFFER from {round_name} {gaps.index(None) + first}")
             + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(elected)}")
+
+
+def unmatched_rounds(official, ours, figure=dict.get):
+    """Each official round, (label, {candidate: votes}), is required to be one of this count's rounds, in order,
+    every candidate of this count's round on exactly the official figure, figure(figures, name) finding it.
+    Returns the labels of the official rounds that aren't."""
+    def agrees(figures, tallies):
+        return all(figure(figures, name) == Decimal(votes) for name, votes in tallies.items())
+
+    start, unmatched = 0, []
+    for label, figures in official:
+        hit = next((i for i in range(start, len(ours["rounds"])) if agrees(figures, ours["rounds"][i]["tallies"])),
+                   None)
+        if hit is None:
+            unmatched.append(label)
+        else:
+            start = hit
+    return unmatched
+
+
+def threshold_line(contest, ours, official_threshold, matched, rounds, same, elected, quota="threshold"):
+    """A multi-seat contest's line: this count's threshold and the official one, how many official rounds are
+    rounds of this count, and whether the same candidates are elected."""
+    return (f"{contest}: {quota} {Decimal(ours['quota']):f} (official {official_threshold}); "
+            f"{matched} of {rounds} official rounds match a round of this count; "
+            f"elected {'the same' if same else 'DIFFERENTLY: ' + str(elected)}")
 
 
 def main(description, contests, check):
