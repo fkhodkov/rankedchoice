@@ -1,0 +1,94 @@
+{
+ "source": "https://acvote.alamedacountyca.gov/acvote-assets/pdf/elections/2010/11022010/results/rcv/oakland/mayor/november-2-2010-pass-report-oakland-mayor.pdf",
+ "dataverseFile": 11593459,
+ "elected": [
+  "JEAN QUAN"
+ ],
+ "passes": [
+  {
+   "DON PERATA": "40342",
+   "TERENCE CANDELL": "2315",
+   "GREG HARLAND": "966",
+   "DON MACLEAY": "1630",
+   "JEAN QUAN": "29266",
+   "ARNOLD FIELDS": "733",
+   "JOE TUMAN": "14347",
+   "MARCIE HODGE": "2994",
+   "LARRY LIONEL ''LL'' YOUNG JR.": "933",
+   "REBECCA KAPLAN": "25813",
+   "Write-In": "268"
+  },
+  {
+   "DON PERATA": "40374",
+   "TERENCE CANDELL": "2316",
+   "GREG HARLAND": "968",
+   "DON MACLEAY": "1636",
+   "JEAN QUAN": "29299",
+   "ARNOLD FIELDS": "738",
+   "JOE TUMAN": "14357",
+   "MARCIE HODGE": "2999",
+   "LARRY LIONEL ''LL'' YOUNG JR.": "939",
+   "REBECCA KAPLAN": "25831"
+  },
+  {
+   "DON PERATA": "40455",
+   "TERENCE CANDELL": "2386",
+   "GREG HARLAND": "1059",
+   "DON MACLEAY": "1677",
+   "JEAN QUAN": "29391",
+   "JOE TUMAN": "14471",
+   "MARCIE HODGE": "3033",
+   "LARRY LIONEL ''LL'' YOUNG JR.": "976",
+   "REBECCA KAPLAN": "25890"
+  },
+  {
+   "DON PERATA": "40606",
+   "TERENCE CANDELL": "2497",
+   "GREG HARLAND": "1087",
+   "DON MACLEAY": "1719",
+   "JEAN QUAN": "29514",
+   "JOE TUMAN": "14552",
+   "MARCIE HODGE": "3155",
+   "REBECCA KAPLAN": "26026"
+  },
+  {
+   "DON PERATA": "40728",
+   "TERENCE CANDELL": "2613",
+   "DON MACLEAY": "1852",
+   "JEAN QUAN": "29645",
+   "JOE TUMAN": "14780",
+   "MARCIE HODGE": "3200",
+   "REBECCA KAPLAN": "26117"
+  },
+  {
+   "DON PERATA": "40814",
+   "TERENCE CANDELL": "2680",
+   "JEAN QUAN": "30500",
+   "JOE TUMAN": "14949",
+   "MARCIE HODGE": "3250",
+   "REBECCA KAPLAN": "26496"
+  },
+  {
+   "DON PERATA": "41364",
+   "JEAN QUAN": "30884",
+   "JOE TUMAN": "15202",
+   "MARCIE HODGE": "3625",
+   "REBECCA KAPLAN": "26831"
+  },
+  {
+   "DON PERATA": "42188",
+   "JEAN QUAN": "31655",
+   "JOE TUMAN": "15462",
+   "REBECCA KAPLAN": "27475"
+  },
+  {
+   "DON PERATA": "45465",
+   "JEAN QUAN": "35033",
+   "REBECCA KAPLAN": "32719"
+  },
+  {
+   "DON PERATA": "51872",
+   "JEAN QUAN": "53897"
+  }
+ ]
+}

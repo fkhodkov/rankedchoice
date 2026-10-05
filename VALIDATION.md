@@ -38,7 +38,7 @@ official count gives them. Details are in [Real elections](#real-elections).
 | Cambridge, MA (2001–2023) | 22 | `--method cambridge` | every count of 2001–2017's 16; the winners of 5 of 2019–2023's 6 |
 | Albany, California (2022, 2024) | 4 | `albany`; 2022 by the County's settings then | every round |
 | Eastpointe, Michigan (2019, 2021) | 2 | `portland` | every round, but one figure the official summary itself has 2 votes off |
-| Alameda County, California (2022–2025) | 24 | `irv` | every round in 20; in all 24 the eliminations and the winner |
+| Alameda County, California (2010–2025) | 93 | `irv` | every round in 89; in all 93 the eliminations and the winner |
 | San Francisco (2010–2024) | 53 | `irv` | every round in 50 (before 2019, rounds that defeat several candidates at once); in the 3 whose archived results predate certification, the eliminations and the winner |
 | Alaska (2022, 2024) | 22 | `irv` | every round in 12; in all 22 the eliminations and the winner |
 | Ireland, Dáil (2002) | 3 | | first preferences and the TDs returned |
@@ -64,7 +64,7 @@ Real elections, run through their own rulesets, reproduce their actual results:
 | Minneapolis Park Board at large (3 seats) and Board of Estimate and Taxation (2 seats), 2017, 2021 and 2025 (4–11 candidates; 576,346 votes in the first round) | `minneapolis` | every official round's tallies, to 4 decimal places, against the City's summary statements, the threshold, and the candidates elected; see below | the City's cast vote records |
 | Minneapolis single-seat races, 2017–2025: mayor (2021, 2025), City Council wards and Park Board districts, the 29 with a round summary | `minneapolis` (its quota a majority, with one seat) | every official round's tallies, the threshold, and the winner; see below | the City's cast vote records |
 | Minneapolis Park Board and Board of Estimate, 2009 (68,741 votes in the first round), and the winners of 2013's two | the 2006 ordinance's rules (`minneapolis` without `rankingsElimination`) | every official round's tallies of 2009 (the Board of Estimate's first round apart, which the record has one vote short), and the candidates elected; see below | the City's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
-| Oakland and Berkeley single-seat contests (mayor, council, city attorney, auditor, school board), 2022, 2024 and April 2025: the 24 FairVote's collection and the County's reports both have | `irv` | every official round's votes, to the vote, in 20; in the other 4 the record is 1–7 votes a candidate off the County's count from the first round on, and the eliminations and winners still match; see below | the County's cast vote records, from [FairVote's single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
+| Oakland, Berkeley and San Leandro single-seat contests (mayor, council, city attorney, auditor, school board), 2010–2017 and 2022–2025: the 93 FairVote's collection and the County's reports both have | `irv` | every official round's votes, to the vote, in 89 (all 69 of 2010–2017, against the pass reports); in the other 4 the record is 1–7 votes a candidate off the County's count from the first round on, and the eliminations and winners still match; see below | the County's cast vote records, from [FairVote's single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | San Francisco: mayor (2011, 2015, 2018, 2019, 2024), Board of Supervisors districts, district attorney, public defender, city attorney, sheriff and assessor-recorder, 2010–2024: the 53 whose final results the Internet Archive kept | `irv` | every official round's votes, to the vote, in 50 (before 2019, a round that defeats several candidates at once is several of this count's); the other 3 (2024's city attorney, district attorney and sheriff races) only have results captured before certification, 76–80 votes short, and the eliminations and winners match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Alaska: US House (August 2022 special, 2022, 2024), US Senate (2022), and the State House and Senate contests of 2022 and 2024 that went past a first round, 22 in all | `irv` | every official round's votes, to the vote, in 12; in the other 10 the record is 1–9 votes a candidate off the Division of Elections' count (54–71 against the August 2022 special's unofficial report), and the eliminations and winners still match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Eastpointe, Michigan City Council, 2019 and 2021 (2 seats; 8,794 votes in the first round) | `portland` (both are RCTab counts) | every round's tallies, to 4 decimal places, against Macomb County's RCTab summaries, the threshold, and the councillors elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
@@ -322,26 +322,42 @@ either way. For 2013 the City published no round summary for the Board of Estima
 Park Board's is a ballot-by-ballot listing, so only the winners are checked: both elect the
 City's, by either set of rules.
 
-**Alameda County, single-seat** (`irv`; `tools/reference/alameda`): the Oakland and Berkeley
-contests of 2022, 2024 and April 2025 that both FairVote's collection of single-winner records
-and the County's Dominion "RCV Detailed Reports" have (24; the reports before 2022 are in another
-form). The County's setting is "IRV" with no winners by threshold: the candidate with fewest
-votes is defeated round by round until one is left, which the `irv` ruleset counts with a Hare
-quota no one but the last candidate reaches. In 20 contests every official round matches this
-count's to the vote; in the other 4 (Oakland's 2024 at-large and District 7 council and city
-attorney races, and its 2025 mayoral race) the record differs from the County's count by 1 to 7
-votes a candidate from the first round on, so the County counted a slightly different set of
-ballots, and the eliminations, in order, and the winners still match. Four are fixtures
-(`AlamedaIrvFixtureTest`).
+**Alameda County, single-seat** (`irv`; `tools/reference/alameda`): the Oakland, Berkeley and San
+Leandro contests that both FairVote's collection of single-winner records and the County's
+published counts have: 93. Of them, 69 are from 2010–2017, against the County's earlier counting
+system's pass reports, and 24 are from 2022, 2024 and April 2025, against its Dominion "RCV
+Detailed Reports". The County no longer publishes the counts of 2018 and 2020, and no copy was
+archived; nor is there a pass report for Oakland's 2016 District 3 race.
 
-- **Ballots**: an overvote ends the ballot (the reports' "skip overvoted rankings" is off); a
-  skipped ranking or a write-in is passed over; a candidate ranked again counts once.
+- **2010–2017**: the County eliminated the candidate with the fewest votes one a pass, as `irv`
+  does, but stopped once a candidate had a majority. From 2012 its first pass only drops the
+  write-in line, which has no votes, and repeats the state before. So every pass is required to
+  be one of this count's rounds, in order, with the same candidates continuing. Write-ins count as
+  a candidate, Write-In (`cvr_to_blt.py --write-in-candidate`), but where one had qualified
+  (Berkeley's 2012 mayoral race, Mark Schwartz) the report gives Write-In no votes and the
+  record's write-ins are passed over. All 69 match every pass to the vote; 22 go past the first
+  pass, 162 passes in all, among them the 10 of Oakland's 2010 mayoral race, which Jean Quan won
+  from second place, and the 16 of its 2014 race.
+- **2022–2025**: the County's setting is "IRV" with no winners by threshold: the candidate with
+  fewest votes is defeated round by round until one is left, which the `irv` ruleset counts with
+  a Hare quota no one but the last candidate reaches. In 20 contests every official round matches
+  this count's to the vote; in the other 4 (Oakland's 2024 at-large and District 7 council and
+  city attorney races, and its 2025 mayoral race) the record differs from the County's count by 1
+  to 7 votes a candidate from the first round on, so the County counted a slightly different set
+  of ballots, and the eliminations, in order, and the winners still match.
+
+- **Ballots**: an overvote ends the ballot (the 2022–2025 reports' "skip overvoted rankings" is
+  off); a skipped ranking is passed over, as is a write-in from 2022 on; a candidate ranked again
+  counts once.
 - **The 2022 first round**: the County held back some ballots whose first ranking is skipped or a
   write-in ("Suspended"), which count from round 2. That round is checked against the record's
   first rankings instead, and matches; the number held back doesn't follow from the record by any
   rule found (it's more than the ballots with a write-in first, but in two contests fewer than
   those and the ballots skipping their first ranking for a candidate together), so it's
   reported, not checked. The 2024 and 2025 counts hold nothing back.
+
+Six are fixtures (`AlamedaIrvFixtureTest`): four of 2022–2025 and Oakland's 2010 and 2014
+mayoral races.
 
 **San Francisco** (`irv`; `tools/reference/sanfrancisco`): the contests of 2010–2024 whose final
 round-by-round results the Internet Archive kept (sfelections.org turns away scripted requests)

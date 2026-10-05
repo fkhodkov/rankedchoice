@@ -34,7 +34,10 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  * {@code irv} ruleset against the County's own reports: every official round's votes are this
  * count's, round for round, to the vote; the candidates are eliminated in the same order; and the
  * same candidate wins. Where the County held some ballots back in round 1 (2022), that round is
- * left to {@code tools/reference/alameda}, which has the full record to check it against.
+ * left to {@code tools/reference/alameda}, which has the full record to check it against. And two from
+ * before, against the County's pass reports: every pass is one of this count's rounds, in order, with
+ * the same candidates continuing and the same votes, to the vote (the County then defeated together
+ * the candidates who couldn't overtake the next one up, and stopped at a majority).
  */
 class AlamedaIrvFixtureTest {
 
@@ -44,15 +47,7 @@ class AlamedaIrvFixtureTest {
     @ValueSource(strings = {"oakland-2022-mayor", "berkeley-2024-mayor", "oakland-2024-council-3",
         "oakland-2025-council-2"})
     void everyOfficialRoundIsThisCountsRound(String contest) throws IOException {
-        ParsedElection election;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                new GZIPInputStream(Files.newInputStream(DIRECTORY.resolve(contest + ".blt.gz"))),
-                StandardCharsets.UTF_8))) {
-            election = BltParser.parse(reader.lines());
-        }
-        List<Candidate> candidates = election.candidates();
-        StvResult result = StvCounter.count(candidates, election.ballots(), 1,
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/irv.yaml"), candidates));
+        StvResult result = count(contest);
         JsonNode official = new ObjectMapper().readTree(DIRECTORY.resolve(contest + ".official.json").toFile());
 
         int first = official.path("suspended").asInt() > 0 ? 1 : 0;
@@ -78,6 +73,58 @@ class AlamedaIrvFixtureTest {
                 .isEqualTo(eliminated);
         assertThat(result.electedInOrder()).extracting(candidate -> key(candidate.name()))
                 .containsExactly(key(official.path("elected").get(0).asText()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"oakland-2010-mayor", "oakland-2014-mayor"})
+    void everyPassIsOneOfThisCountsRounds(String contest) throws IOException {
+        StvResult result = count(contest);
+        JsonNode official = new ObjectMapper().readTree(DIRECTORY.resolve(contest + ".official.json").toFile());
+
+        int start = 0;
+        List<JsonNode> passes = new ArrayList<>();
+        official.path("passes").forEach(passes::add);
+        for (int k = 0; k < passes.size(); k++) {
+            Map<String, Fraction> tally = new LinkedHashMap<>();
+            passes.get(k).properties().forEach(entry -> {
+                if (entry.getValue().asLong() > 0) {
+                    tally.put(key(entry.getKey()), Fraction.of(entry.getValue().asLong()));
+                }
+            });
+            int i = start;
+            while (i < result.rounds().size() && !continuing(result.rounds().get(i)).keySet().equals(tally.keySet())) {
+                i++;
+            }
+            assertThat(i).as("pass %d's candidates continue in a round of this count", k)
+                    .isLessThan(result.rounds().size());
+            assertThat(continuing(result.rounds().get(i))).as("pass %d", k).isEqualTo(tally);
+            start = i;
+        }
+        assertThat(result.electedInOrder()).extracting(candidate -> key(candidate.name()))
+                .containsExactly(key(official.path("elected").get(0).asText()));
+    }
+
+    private static StvResult count(String contest) throws IOException {
+        ParsedElection election;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new GZIPInputStream(Files.newInputStream(DIRECTORY.resolve(contest + ".blt.gz"))),
+                StandardCharsets.UTF_8))) {
+            election = BltParser.parse(reader.lines());
+        }
+        List<Candidate> candidates = election.candidates();
+        return StvCounter.count(candidates, election.ballots(), 1,
+                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/irv.yaml"), candidates));
+    }
+
+    /** The candidates with votes in a round, by {@link #key}. */
+    private static Map<String, Fraction> continuing(RoundRecord round) {
+        Map<String, Fraction> tally = new LinkedHashMap<>();
+        round.tallies().forEach((candidate, votes) -> {
+            if (votes.signum() > 0) {
+                tally.put(key(candidate.name()), votes);
+            }
+        });
+        return tally;
     }
 
     /** A name's letters, so the record's spelling and the report's meet. */

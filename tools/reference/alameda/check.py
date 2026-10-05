@@ -2,21 +2,29 @@
 
 usage: check.py DATA_DIR [--jar PATH] [CONTEST ...]
 
-CONTEST is one of CONTESTS below (all, by default): the Oakland and Berkeley contests of 2022,
-2024 and April 2025 that both FairVote's collection of single-winner RCV cast vote records
-(https://doi.org/10.7910/DVN/AMK8PJ) and the County's Dominion "RCV Detailed Reports" (under
-https://alamedacountyca.gov/rovresults/rcv/) have. Each record and report is fetched into
-DATA_DIR, the record converted (../albany/cvr_to_blt.py: an overvote ends the ballot; a skipped
-ranking or a write-in is passed over; a candidate ranked again counts once) and counted with
-the `irv` ruleset.
+CONTEST is one of PASS_REPORTS or CONTESTS below (all, by default): the Oakland, Berkeley and San
+Leandro contests that FairVote's collection of single-winner RCV cast vote records
+(https://doi.org/10.7910/DVN/AMK8PJ) has and the County still publishes the count of: its counting
+system's pass reports for 2010-2017 (under https://acvote.alamedacountyca.gov/acvote-assets/pdf/elections/,
+read with pdftotext), and its Dominion "RCV Detailed Reports" for 2022, 2024 and April 2025 (under
+https://alamedacountyca.gov/rovresults/rcv/). The counts of 2018 and 2020 aren't published, and no
+copy was archived. Each record and report is fetched into DATA_DIR, the record converted
+(../albany/cvr_to_blt.py: an overvote ends the ballot; a skipped ranking is passed over; a
+candidate ranked again counts once) and counted with the `irv` ruleset.
 
-Every official round's tallies are compared with this count's rounds, in order, to the vote, and
-the elimination order and the winner must be the same. In 2022 the County's count held back, in
-its first round only, some ballots whose first ranking is skipped or a write-in ("Suspended"),
-which join from the second round; that first round is compared with the record's first rankings
-instead. Where the record isn't quite the ballots the County counted (a few votes a candidate,
-from the first round on), each round's largest difference is reported, and the contest passes
-on the same eliminations and winner.
+Up to 2017 the County eliminated one candidate a pass, as this count does, but stopped once a
+candidate had a majority, and counted write-ins as a candidate, Write-In, except where a write-in
+had qualified (Berkeley's 2012 mayoral race: there the report has Write-In with no votes, and the
+record's write-ins are passed over). Every pass must be one of this count's rounds, in order, with
+the same candidates continuing and the same votes, and the same candidate must win.
+
+From 2022, a write-in is passed over, and every official round's tallies are compared with this
+count's rounds, in order, to the vote, and the elimination order and the winner must be the same.
+In 2022 the County's count held back, in its first round only, some ballots whose first ranking is
+skipped or a write-in ("Suspended"), which join from the second round; that first round is
+compared with the record's first rankings instead. Where the record isn't quite the ballots the
+County counted (a few votes a candidate, from the first round on), each round's largest difference
+is reported, and the contest passes on the same eliminations and winner.
 """
 import argparse
 import collections
@@ -36,6 +44,7 @@ DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0
 CONVERTER = os.path.join(HERE, "..", "albany", "cvr_to_blt.py")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 REPORT = "https://alamedacountyca.gov/rovresults/rcv/{election}/{race}/RcvDetailedReport.xml"
+PASS_REPORT = "https://acvote.alamedacountyca.gov/acvote-assets/pdf/elections/{path}"
 NS = "{RcvDetailedReport}"
 NOT_CANDIDATES = {"Blanks", "Exhausted", "Overvotes", "Remainder Points", "Suspended", "Surplus Transfer Remainder"}
 PASSED_OVER = {"skipped", "write-in", "write in"}
@@ -66,6 +75,155 @@ CONTESTS = {
     "oakland-2025-mayor": (11593491, 257, "Oakland/001-Mayor"),
     "oakland-2025-council-2": (11593446, 257, "Oakland/002-CityCouncil_District_2"),
 }
+
+# 2010-2017: the counting system's pass report, as the County still publishes it.
+# contest: (Dataverse file id, the report under acvote-assets/pdf/elections/)
+PASS_REPORTS = {}
+for election, reports in (
+        ("2010/11022010", {
+            "berkeley-2010-auditor": (11593248, "berkeley/city_auditor/"
+                                                "november-2-2010-pass-report-berkeley-city-auditor.pdf"),
+            "berkeley-2010-council-1": (11593207, "berkeley/city_councilmember_district_1/"
+                                                  "november-2-2010-pass-report-berkeley-council-member-dist-1.pdf"),
+            "berkeley-2010-council-4": (11593217, "berkeley/city_councilmember_district_4/"
+                                                  "november-2-2010-pass-report-berkeley-council-member-dist-4.pdf"),
+            "berkeley-2010-council-7": (11593233, "berkeley/city_councilmember_district_7/"
+                                                  "november-2-2010-pass-report-berkeley-council-member-dist-7.pdf"),
+            "berkeley-2010-council-8": (11593247, "berkeley/city_councilmember_district_8/"
+                                                  "november-2-2010-pass-report-berkeley-council-member-dist-8.pdf"),
+            "oakland-2010-mayor": (11593459, "oakland/mayor/november-2-2010-pass-report-oakland-mayor.pdf"),
+            "oakland-2010-auditor": (11593448, "oakland/city_auditor/"
+                                               "november-2-2010-pass-report-oakland-city-auditor.pdf"),
+            "oakland-2010-council-2": (11593463, "oakland/city_councilmember_district_2/"
+                                                 "november-2-2010-rcv-oakland-city-council-district-2-pass-report.pdf"),
+            "oakland-2010-council-4": (11593451, "oakland/city_councilmember_district_4/"
+                                                 "november-2-2010-rcv-oakland-city-council-district-4-pass-report.pdf"),
+            "oakland-2010-council-6": (11593453, "oakland/city_councilmember_district_6/"
+                                                 "november-2-2010-rcv-oakland-city-council-district-6-pass-report.pdf"),
+            "oakland-2010-school-2": (11593487, "oakland/school_director_district_2/"
+                                                "november-2-2010-rcv-oakland-school-director-district-2-pass-report.pdf"),
+            "oakland-2010-school-4": (11593471, "oakland/school_director_district_4/"
+                                                "november-2-2010-rcv-oakland-school-director-district-4-pass-report.pdf"),
+            "oakland-2010-school-6": (11593447, "oakland/school_director_district_6/"
+                                                "november-2-2010-rcv-oakland-school-director-district-6-pass-report.pdf"),
+            "san-leandro-2010-mayor": (11593619, "san_leandro/mayor/november-2-2010-pass-report-san-leandro-mayor.pdf"),
+            "san-leandro-2010-council-1": (11593634, "san_leandro/city_councilmember_district_1/"
+                                                     "nov-2-2010-pass-report-san-leandro-council-mem-dist-1.pdf"),
+            "san-leandro-2010-council-3": (11593612, "san_leandro/city_councilmember_district_3/"
+                                                     "nov-2-2010-pass-report-san-leandro-council-mem-dis-3.pdf"),
+            "san-leandro-2010-council-5": (11593641, "san_leandro/city_councilmember_district_5/"
+                                                     "nov-2-2010-pass-report-san-leandro-council-mem-dis-5.pdf"),
+        }),
+        ("2012/11062012", {
+            "berkeley-2012-mayor": (11593219, "berkeley/mayor/nov-6-2012-pass-report-mayor.pdf"),
+            "berkeley-2012-council-2": (11593236, "berkeley/city_councilmember_district_2/"
+                                                  "nov-6-2012-pass-report-council-member-dist2.pdf"),
+            "berkeley-2012-council-3": (11593234, "berkeley/city_councilmember_district_3/"
+                                                  "nov-6-2012-pass-report-council-member-dist3.pdf"),
+            "berkeley-2012-council-5": (11593230, "berkeley/city_councilmember_district_5/"
+                                                  "nov-6-2012-pass-report-council-member-dist-5.pdf"),
+            "berkeley-2012-council-6": (11593222, "berkeley/city_councilmember_district_6/"
+                                                  "nov-6-2012-pass-report-council-member-dist-6.pdf"),
+            "oakland-2012-city-attorney": (11593490, "oakland/city_attorney/"
+                                                     "nov-6-2012-pass-report-oakland-city-attorney.pdf"),
+            "oakland-2012-council-at-large": (11593516, "oakland/city_councilmember_district_at_large/"
+                                                        "nov-6-2012-pass-report-oakland-council-member-at-large.pdf"),
+            "oakland-2012-council-1": (11593494, "oakland/city_councilmember_district_1/"
+                                                 "nov-6-2012-pass-report-oakland-council-member-dist-1.pdf"),
+            "oakland-2012-council-3": (11593467, "oakland/city_councilmember_district_3/"
+                                                 "nov-6-2012-pass-report-oakland-council-member-dist-3.pdf"),
+            "oakland-2012-council-5": (11593486, "oakland/city_councilmember_district_5/"
+                                                 "nov-6-2012-pass-report-oakland-council-member-dist-5.pdf"),
+            "oakland-2012-council-7": (11593504, "oakland/city_councilmember_district_7/"
+                                                 "nov-6-2012-pass-report-oakland-council-member-dist-7.pdf"),
+            "oakland-2012-school-1": (11593496, "oakland/school_director_district_1/"
+                                                "nov-6-2012-pass-report-oakland-school-director-dist-1.pdf"),
+            "oakland-2012-school-3": (11593510, "oakland/school_director_district_3/"
+                                                "nov-6-2012-pass-report-oakland-school-director-dist-3.pdf"),
+            "oakland-2012-school-5": (11593457, "oakland/school_director_district_5/"
+                                                "nov-6-2012-pass-report-oakland-school-director-dist-5.pdf"),
+            "oakland-2012-school-7": (11593480, "oakland/school_director_district_7/"
+                                                "nov-6-2012-pass-report-oakland-school-director-dist-7.pdf"),
+            "san-leandro-2012-council-2": (11593598, "san_leandro/city_councilmember_district_2/"
+                                                     "nov-6-2012-pass-report-san-leandro-council-member-dist-2.pdf"),
+            "san-leandro-2012-council-4": (11593626, "san_leandro/city_councilmember_district_4/"
+                                                     "nov-6-2012-pass-report-san-leandro-council-member-dist-4.pdf"),
+            "san-leandro-2012-council-6": (11593645, "san_leandro/city_councilmember_district_6/"
+                                                     "nov-6-2012-pass-report-san-leandro-council-member-dist-6.pdf"),
+        }),
+        ("2014/11042014", {
+            "berkeley-2014-auditor": (11593224, "berkeley/city_auditor/"
+                                                "nov-4-2014-pass-report-city-auditor-berkeley.pdf"),
+            "berkeley-2014-council-1": (11593212, "berkeley/city_council_district_1/"
+                                                  "nov-4-2014-pass-report-city-council-berkeley-dist1.pdf"),
+            "berkeley-2014-council-7": (11593231, "berkeley/city_council_district_7/"
+                                                  "nov-4-2014-pass-report-city-council-berkeley-dist7.pdf"),
+            "berkeley-2014-council-8": (11593211, "berkeley/city_council_district_8/"
+                                                  "nov-4-2014-pass-report-city-council-berkeley-dist8.pdf"),
+            "oakland-2014-mayor": (11593482, "oakland/mayor/nov-4-2014-pass-report-mayor-oakland.pdf"),
+            "oakland-2014-auditor": (11593517, "oakland/city_auditor/nov-4-2014-pass-report-city-auditor-oakland.pdf"),
+            "oakland-2014-council-2": (11593458, "oakland/city_council_district_2/"
+                                                 "nov-4-2014-pass-report-city-council-oakland-dist2.pdf"),
+            "oakland-2014-council-4": (11593512, "oakland/city_council_district_4/"
+                                                 "nov-4-2014-pass-report-city-council-oakland-dist4.pdf"),
+            "oakland-2014-council-6": (11593500, "oakland/city_council_district_6/"
+                                                 "nov-4-2014-pass-report-city-council-oakland-dist6.pdf"),
+            "oakland-2014-school-2": (11593495, "oakland/school_director_district_2/"
+                                                "nov-4-2014-pass-report-school-director-oakland-dist2.pdf"),
+            "oakland-2014-school-4": (11593484, "oakland/school_director_district_4/"
+                                                "nov-4-2014-pass-report-school-director-oakland-dist4.pdf"),
+            "oakland-2014-school-6": (11593506, "oakland/school_director_district_6/"
+                                                "nov-4-2014-pass-report-school-director-oakland-dist6.pdf"),
+            "san-leandro-2014-mayor": (11593614, "san_leandro/mayor/nov-4-2014-pass-report-mayor-san-leandro.pdf"),
+            "san-leandro-2014-council-1": (11593651, "san_leandro/city_council_district_1/"
+                                                     "nov-4-2014-pass-report-city-council-san-leandro-d1.pdf"),
+            "san-leandro-2014-council-3": (11593592, "san_leandro/city_council_district_3/"
+                                                     "nov-4-2014-pass-report-city-council-san-leandro-d3.pdf"),
+            "san-leandro-2014-council-5": (11593644, "san_leandro/city_council_district_5/"
+                                                     "nov-4-2014-pass-report-city-council-san-leandro-d5.pdf"),
+        }),
+        ("2016/11082016", {
+            "berkeley-2016-mayor": (11593239, "berkeley/mayor/nov-8-2016-pass-results-report-mayor.pdf"),
+            "berkeley-2016-council-2": (11593202, "berkeley/city_councilmember_district_2/"
+                                                  "nov-8-2016--pass-report-councilmember-dist2.pdf"),
+            "berkeley-2016-council-3": (11593223, "berkeley/city_councilmember_district_3/"
+                                                  "nov-8-2016-pass-report-councilmember-dist3.pdf"),
+            "berkeley-2016-council-5": (11593218, "berkeley/city_councilmember_district_5/"
+                                                  "nov-8-2016-pass-report-councilmember-dist5.pdf"),
+            "berkeley-2016-council-6": (11593226, "berkeley/city_councilmember_district_6/"
+                                                  "nov-8-2016-pass-report-councilmember-dist6.pdf"),
+            "oakland-2016-city-attorney": (11593450, "oakland/city_attorney/"
+                                                     "nov-8-2016-pass-report-city-attorney-oak.pdf"),
+            "oakland-2016-council-at-large": (11593477, "oakland/city_councilmember_district_at_large/"
+                                                        "nov-8-2016-pass-report-city-council-at-large-oak.pdf"),
+            "oakland-2016-council-1": (11593454, "oakland/city_councilmember_district_1/"
+                                                 "nov-8-2016-pass-report-city-council-dist1-oak.pdf"),
+            "oakland-2016-council-5": (11593514, "oakland/city_councilmember_district_5/"
+                                                 "nov-8-2016-pass-report-city-council-dist5-oak.pdf"),
+            "oakland-2016-council-7": (11593515, "oakland/city_councilmember_district_7/"
+                                                 "nov-8-2016-pass-report-city-council-dist7-oak.pdf"),
+            "oakland-2016-school-1": (11593460, "oakland/school_director_district_1/"
+                                                "nov-8-2016-pass-report-school-director-dist1-oak.pdf"),
+            "oakland-2016-school-3": (11593468, "oakland/school_director_district_3/"
+                                                "nov-8-2016-pass-report-school-director-dist3-oak.pdf"),
+            "oakland-2016-school-5": (11593476, "oakland/school_director_district_5/"
+                                                "nov-8-2016-pass-report-school-director-dist5-oak.pdf"),
+            "oakland-2016-school-7": (11593474, "oakland/school_director_district_7/"
+                                                "nov-8-2016-pass-report-school-director-dist7-oak.pdf"),
+            "san-leandro-2016-council-2": (11593587, "san_leandro/city_councilmember_district_2/"
+                                                     "nov-8-2016-pass-report-city-council-dist2-sl.pdf"),
+            "san-leandro-2016-council-4": (11593606, "san_leandro/city_councilmember_district_4/"
+                                                     "nov-8-2016-pass-report-city-council-dist4-sl.pdf"),
+            "san-leandro-2016-council-6": (11593605, "san_leandro/city_councilmember_district_6/"
+                                                     "nov-8-2016-pass-report-city-council-dist6-sl.pdf"),
+        }),
+        ("2017/03072017", {
+            "berkeley-2017-council-4": (11593208, "march-7-2017-pass-report-results.pdf"),
+        })):
+    for contest, (file_id, path) in reports.items():
+        PASS_REPORTS[contest] = (file_id, f"{election}/results/rcv/{path}")
+NUMBER = re.compile(r"^[\d,]+$")
+PERCENT = re.compile(r"^[\d.]+%$")
 
 
 def fetch(path, url):
@@ -145,16 +303,86 @@ def check(data, contest, jar):
     return same_order and same, line
 
 
+def pass_report(text):
+    """{candidate: [votes after pass 0, 1, ...]} from the "Final State" table of each pass: a row is the name,
+    perhaps a note ("Eliminated in pass 1.", "** WINNER **"), the votes and the percentage; a long name
+    wraps onto the next line."""
+    passes, reading = [], False
+    for line in text.splitlines():
+        cells = re.split(r"\s{2,}", line.strip())
+        if cells[0] == "Final State":
+            passes.append([])
+            reading = True
+        elif reading and "Continuing Ballots" in cells:
+            reading = False
+        elif reading and len(cells) >= 3 and PERCENT.match(cells[-1]) and NUMBER.match(cells[-2]):
+            name = re.sub(r"\s*(Eliminated in pass \d+\.|\*\* WINNER \*\*)$", "", cells[0])
+            passes[-1].append([name, int(cells[-2].replace(",", ""))])
+        elif reading and len(cells) == 1 and cells[0] and passes[-1]:
+            passes[-1][-1][0] += cells[0]
+    totals = {}
+    for rows in passes:
+        for name, votes in rows:
+            totals.setdefault(name, []).append(votes)
+    return totals
+
+
+def check_pass_report(data, contest, jar):
+    """Every pass must be one of this count's rounds, in order, with the same candidates continuing: the
+    County eliminated one candidate a pass, as this count does, but stopped at a majority, and from 2012
+    its first pass only drops the write-in line, with no votes, so that pass repeats the one before."""
+    file_id, path = PASS_REPORTS[contest]
+    pdf = fetch(os.path.join(data, contest + ".pdf"), PASS_REPORT.format(path=path))
+    text = subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, text=True, check=True).stdout
+    totals = {key(name): votes for name, votes in pass_report(text).items()}
+    passes = max(len(votes) for votes in totals.values())
+    cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+    blt = os.path.join(data, contest + ".blt")
+    if not os.path.exists(blt):
+        # Write-ins are a candidate where the report gives them votes; where it doesn't (Berkeley's 2012 mayoral
+        # race, with a qualified write-in), they are passed over.
+        write_ins = ["--write-in-candidate"] if totals.get(key("Write-In"), [0])[0] else []
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "1"] + write_ins, check=True)
+    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
+                            capture_output=True, text=True)
+    if result.returncode:
+        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
+    ours = json.loads(result.stdout)
+    exact, gaps, start = 0, [], 0
+    for k in range(passes):
+        figures = {name: votes[k] for name, votes in totals.items() if votes[k] > 0}
+        hit = next((i for i in range(start, len(ours["rounds"]))
+                    if {key(name) for name, v in ours["rounds"][i]["tallies"].items() if Decimal(v) > 0}
+                    == set(figures)), None)
+        if hit is None:
+            gaps.append(None)
+            continue
+        start = hit
+        mine = {key(name): Decimal(v) for name, v in ours["rounds"][hit]["tallies"].items()}
+        gap = int(max(abs(mine.get(name, Decimal(0)) - votes) for name, votes in figures.items()))
+        exact += gap == 0
+        gaps.append(gap)
+    winner = max(totals, key=lambda name: totals[name][-1])
+    same_rounds = None not in gaps
+    same = [key(name) for name in ours["electedInOrder"]] == [winner]
+    line = (f"{contest}: {exact} of {passes} passes match to the vote"
+            + (f" (largest differences by pass: {gaps})" if any(gaps) else "")
+            + ("; eliminations the same" if same_rounds
+               else f"; ELIMINATIONS DIFFER from pass {gaps.index(None)}")
+            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}")
+    return same_rounds and same, line
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("data")
-    parser.add_argument("contests", nargs="*", default=list(CONTESTS))
+    parser.add_argument("contests", nargs="*", default=list(PASS_REPORTS) + list(CONTESTS))
     parser.add_argument("--jar", default=DEFAULT_JAR)
     args = parser.parse_args()
     os.makedirs(args.data, exist_ok=True)
     failed = 0
     for contest in args.contests:
-        ok, line = check(args.data, contest, args.jar)
+        ok, line = (check_pass_report if contest in PASS_REPORTS else check)(args.data, contest, args.jar)
         failed += not ok
         print(line, flush=True)
     print(f"{len(args.contests) - failed} of {len(args.contests)} contests check out")
