@@ -22,21 +22,17 @@ a row per candidate giving the votes, percentage and transfer of every round. Th
 with no text; its figures are transcribed below (SCANNED), and its one round starts after the write-ins
 are eliminated.
 """
-import argparse
-import csv
-import glob
-import json
 import os
 import re
 import subprocess
 import sys
-import urllib.parse
-import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+sys.path.insert(0, os.path.join(HERE, ".."))
+from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pdf_text,  # noqa: E402
+                      summary, table_rows, winner)
+
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
-DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 SITE = "https://www.maine.gov/sos/sites/maine.gov.sos/files/"
 # contest: (Dataverse file id, the State's summary report under SITE)
 CONTESTS = {
@@ -57,35 +53,12 @@ SCANNED = {"2024-congress-2": {"Golden, Jared Forrest": [197151], "Theriault, Au
 NUMBER = re.compile(r"^-?\d+$")
 
 
-def fetch(path, url):
-    if not (os.path.exists(path) and os.path.getsize(path) > 0):
-        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(request, timeout=900) as response, open(path + ".part", "wb") as out:
-            while chunk := response.read(1 << 20):
-                out.write(chunk)
-        os.replace(path + ".part", path)
-    return path
-
-
-def key(name):
-    """A name's letters, so the record's spelling and the report's meet."""
-    return re.sub(r"[^A-Z]", "", name.upper())
-
-
 def rows_of(path):
     if path.endswith(".pdf"):
-        text = subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True, check=True).stdout
-        for line in text.splitlines():
+        for line in pdf_text(path).splitlines():
             yield re.split(r"\s{2,}", line.strip())
     else:
-        stem = os.path.splitext(path)[0]
-        if not glob.glob(stem + "-*.csv"):
-            # Every sheet (the last option), comma-separated, UTF-8.
-            subprocess.run(["soffice", "--headless", "--convert-to",
-                            "csv:Text - txt - csv (StarCalc):44,34,76,1,,0,false,true,false,false,false,-1",
-                            "--outdir", os.path.dirname(path), path], check=True, capture_output=True)
-        for sheet in sorted(glob.glob(stem + "-*.csv")):
-            yield from csv.reader(open(sheet, encoding="utf-8", errors="ignore"))
+        yield from table_rows(path)
 
 
 def official_rounds(path):
@@ -111,59 +84,19 @@ def check(data, contest, jar):
         local = fetch(os.path.join(data, contest + os.path.splitext(report)[1]), SITE + report)
         totals = official_rounds(local)
     totals = {key(name): votes for name, votes in totals.items()}
-    rounds = max(len(v) for v in totals.values())
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end",
                         "--write-in", "candidate"], check=True)
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
-    exact, gaps, start = 0, [], 0
-    for k in range(rounds):
-        figures = {name: votes[k] for name, votes in totals.items() if votes[k] > 0}
-        hit = next((i for i in range(start, len(ours["rounds"]))
-                    if {key(name) for name, v in ours["rounds"][i]["tallies"].items() if float(v) > 0}
-                    == set(figures)), None)
-        if hit is None:
-            gaps.append(None)
-            continue
-        start = hit
-        mine = {key(name): int(float(v)) for name, v in ours["rounds"][hit]["tallies"].items()}
-        gap = max(abs(mine.get(name, 0) - votes) for name, votes in figures.items())
-        exact += gap == 0
-        gaps.append(gap)
-    winner = max(totals, key=lambda name: totals[name][-1])
-    same_rounds = None not in gaps
-    same = [key(name) for name in ours["electedInOrder"]] == [winner]
-    line = (f"{contest}: {exact} of {rounds} official rounds match to the vote"
-            + (f" (largest differences by round: {gaps})" if any(gaps) else "")
-            + ("; eliminations the same" if same_rounds
-               else f"; ELIMINATIONS DIFFER from official round {gaps.index(None) + 1}")
-            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}"
-            + ("; report transcribed from a scan" if contest in SCANNED else ""))
-    return same_rounds and same, line
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("data")
-    parser.add_argument("contests", nargs="*")
-    parser.add_argument("--jar", default=DEFAULT_JAR)
-    args = parser.parse_args()
-    os.makedirs(args.data, exist_ok=True)
-    chosen = args.contests or list(CONTESTS)
-    failed = 0
-    for contest in chosen:
-        ok, line = check(args.data, contest, args.jar)
-        failed += not ok
-        print(line, flush=True)
-    print(f"{len(chosen) - failed} of {len(chosen)} contests check out")
-    sys.exit(1 if failed else 0)
+    ours, error = count(jar, blt)
+    if error:
+        return False, f"{contest}: count failed: {error}"
+    exact, gaps = match_rounds(totals, ours, key)
+    same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
+    line = summary(contest, exact, gaps, same, ours["electedInOrder"])
+    return None not in gaps and same, line + ("; report transcribed from a scan" if contest in SCANNED else "")
 
 
 if __name__ == "__main__":
-    main()
+    main(__doc__.split("\n\n")[0], CONTESTS, check)

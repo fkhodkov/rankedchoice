@@ -21,15 +21,9 @@ The results come as the counting system's pass report (2010-2014, a PDF: pdftote
 (2015-2018, 2024), an Excel file (2019, 2022: read with LibreOffice's soffice) or a PDF (2020),
 the last three with a row per candidate giving the votes, percentage and transfer of every round.
 """
-import argparse
-import csv
-import glob
-import gzip
-import html
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import time
@@ -37,9 +31,11 @@ import urllib.parse
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+sys.path.insert(0, os.path.join(HERE, ".."))
+from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
+                      pdf_text, summary, table_rows, winner)
+
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
-DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 RESULTS = "sfelections.org/results/"
 # contest: (Dataverse file id, the results file under sfelections.org/results/)
 CONTESTS = {
@@ -94,30 +90,6 @@ NOT_CANDIDATES = ("continuing", "blanks", "exhausted", "overvote", "under vote",
                   "remainder")
 
 
-def fetch(path, url, attempts=3):
-    """Downloads to a temporary name first, so a failed download leaves nothing behind."""
-    if os.path.exists(path) and os.path.getsize(path) > 0:
-        return path
-    for attempt in range(attempts):
-        try:
-            request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Encoding": "identity"})
-            with urllib.request.urlopen(request, timeout=900) as response, open(path + ".part", "wb") as out:
-                while chunk := response.read(1 << 20):
-                    out.write(chunk)
-            with open(path + ".part", "rb") as part:
-                compressed = part.read(2) == b"\x1f\x8b"    # the archive sometimes sends gzip regardless
-            if compressed:
-                with gzip.open(path + ".part", "rb") as packed, open(path + ".unpacked", "wb") as out:
-                    shutil.copyfileobj(packed, out)
-                os.replace(path + ".unpacked", path + ".part")
-            os.replace(path + ".part", path)
-            return path
-        except OSError:
-            if attempt == attempts - 1:
-                raise
-    return path
-
-
 def cdx(query, attempts=6):
     """One Wayback Machine index query, retried with a growing pause: the service rate-limits."""
     for attempt in range(attempts):
@@ -153,59 +125,20 @@ def latest_capture(data, contest, path):
 
 
 def rows_of(path):
-    ext = os.path.splitext(path)[1].lower()
-    if ext == ".html":
-        page = open(path, encoding="utf-8", errors="ignore").read()
-        for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", page, re.S | re.I):
-            yield [html.unescape(re.sub(r"<[^>]+>", "", c)).strip()
-                   for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)]
-    elif ext == ".xlsx":
-        stem = os.path.splitext(path)[0]
-        if not glob.glob(stem + "-*.csv"):
-            # Every sheet (the last option), comma-separated, UTF-8.
-            subprocess.run(["soffice", "--headless", "--convert-to",
-                            "csv:Text - txt - csv (StarCalc):44,34,76,1,,0,false,true,false,false,false,-1",
-                            "--outdir", os.path.dirname(path), path], check=True, capture_output=True)
-        for sheet in sorted(glob.glob(stem + "-*.csv")):
-            yield from csv.reader(open(sheet, encoding="utf-8", errors="ignore"))
-    elif ext == ".pdf":
-        text = subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True, check=True).stdout
-        for line in text.splitlines():
+    if path.lower().endswith(".pdf"):
+        for line in pdf_text(path).splitlines():
             match = re.match(r"^\s*(\S.*?)\s{2,}([-+\d,.%\s]+)$", line)
             if match:
                 yield [match.group(1)] + match.group(2).split()
-
-
-def pass_report(text):
-    """{candidate: [votes after pass 0, 1, ...]} from the "Final State" table of each pass: a row is the name,
-    perhaps a note ("Eliminated in pass 1.", "** WINNER **"), the votes and the percentage; a long name
-    wraps onto the next line."""
-    passes, reading = [], False
-    for line in text.splitlines():
-        cells = re.split(r"\s{2,}", line.strip())
-        if cells[0] == "Final State":
-            passes.append([])
-            reading = True
-        elif reading and "Continuing Ballots" in cells:
-            reading = False
-        elif reading and len(cells) >= 3 and PERCENT.match(cells[-1]) and NUMBER.match(cells[-2]):
-            name = re.sub(r"\s*(Eliminated in pass \d+\.|\*\* WINNER \*\*)$", "", cells[0])
-            passes[-1].append([name, int(cells[-2].replace(",", ""))])
-        elif reading and len(cells) == 1 and cells[0] and passes[-1]:
-            passes[-1][-1][0] += cells[0]
-    totals = {}
-    for rows in passes:
-        for name, votes in rows:
-            totals.setdefault(name, []).append(votes)
-    return totals
+    else:
+        yield from table_rows(path)
 
 
 def official_rounds(path):
     """{candidate: [votes in round 1, 2, ...]}: a candidate's row is the name, then votes,
     percentage and transfer per round (wrapped onto later pages in a PDF)."""
     if path.endswith(".pdf"):
-        text = subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True,
-                              check=True).stdout
+        text = pdf_text(path)
         if "Pass Number" in text:
             return pass_report(text)
     totals = {}
@@ -223,17 +156,12 @@ def official_rounds(path):
     return totals
 
 
-def key(name):
-    return re.sub(r"[^A-Z0-9]", "", name.upper())
-
-
 def check(data, contest, jar):
     file_id, path = CONTESTS[contest]
     url, stamp = latest_capture(data, contest, path)
     local = fetch(os.path.join(data, contest + os.path.splitext(path)[1]), url)
-    # Names compared in letters and digits only: the reports and the records quote nicknames differently.
+    # Names compared in letters only: the reports and the records quote nicknames differently.
     totals = {key(name): votes for name, votes in official_rounds(local).items()}
-    rounds = max(len(v) for v in totals.values())
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
@@ -241,55 +169,16 @@ def check(data, contest, jar):
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest]
                        + (["--write-in", "candidate", "--write-in-name", "WRITE-IN"] if contest < "2015" else []),
                        check=True)
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
+    ours, error = count(jar, blt)
+    if error:
+        return False, f"{contest}: count failed: {error}"
     # Each official round is a round of this count, in order, with the same candidates continuing: before 2019,
     # the hopeless were defeated together, and a round was printed when nothing changed.
-    exact, gaps, found, start = 0, [], 0, 0
-    for k in range(rounds):
-        figures = {name: votes[k] for name, votes in totals.items() if k < len(votes) and votes[k] > 0}
-        hit = next((i for i in range(start, len(ours["rounds"]))
-                    if {key(name) for name, v in ours["rounds"][i]["tallies"].items() if float(v) > 0} == set(figures)),
-                   None)
-        if hit is None:
-            gaps.append(None)
-            continue
-        found, start = found + 1, hit
-        mine = {key(name): int(float(v)) for name, v in ours["rounds"][hit]["tallies"].items()}
-        gap = max(abs(mine.get(name, 0) - votes) for name, votes in figures.items())
-        exact += gap == 0
-        gaps.append(gap)
-    winner = max(totals, key=lambda name: totals[name][-1] if len(totals[name]) == rounds else -1)
-    same_order = found == rounds
-    same = [key(name) for name in ours["electedInOrder"]] == [winner]
-    line = (f"{contest}: {exact} of {rounds} official rounds match to the vote"
-            + (f" (largest differences by round: {gaps})" if any(gaps) else "")
-            + ("; eliminations the same" if same_order
-               else f"; ELIMINATIONS DIFFER from official round {gaps.index(None) + 1}")
-            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder']) + ' vs ' + winner}"
-            + f"; results captured {stamp[:8]}")
-    return same_order and same, line
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("data")
-    parser.add_argument("contests", nargs="*")
-    parser.add_argument("--jar", default=DEFAULT_JAR)
-    args = parser.parse_args()
-    os.makedirs(args.data, exist_ok=True)
-    chosen = args.contests or list(CONTESTS)
-    failed = 0
-    for contest in chosen:
-        ok, line = check(args.data, contest, args.jar)
-        failed += not ok
-        print(line, flush=True)
-    print(f"{len(chosen) - failed} of {len(chosen)} contests check out")
-    sys.exit(1 if failed else 0)
+    exact, gaps = match_rounds(totals, ours, key)
+    same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
+    return None not in gaps and same, summary(contest, exact, gaps, same, ours["electedInOrder"]) + \
+        f"; results captured {stamp[:8]}"
 
 
 if __name__ == "__main__":
-    main()
+    main(__doc__.split("\n\n")[0], CONTESTS, check)

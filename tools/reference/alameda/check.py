@@ -26,28 +26,25 @@ compared with the record's first rankings instead. Where the record isn't quite 
 County counted (a few votes a candidate, from the first round on), each round's largest difference
 is reported, and the contest passes on the same eliminations and winner.
 """
-import argparse
 import collections
 import csv
-import json
 import os
 import re
 import subprocess
 import sys
-import unicodedata
-import urllib.request
 import xml.etree.ElementTree as ET
 from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+sys.path.insert(0, os.path.join(HERE, ".."))
+from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
+                      pdf_text, summary, winner)
+
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
-DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 REPORT = "https://alamedacountyca.gov/rovresults/rcv/{election}/{race}/RcvDetailedReport.xml"
 PASS_REPORT = "https://acvote.alamedacountyca.gov/acvote-assets/pdf/elections/{path}"
 NS = "{RcvDetailedReport}"
 NOT_CANDIDATES = {"Blanks", "Exhausted", "Overvotes", "Remainder Points", "Suspended", "Surplus Transfer Remainder"}
-PASSED_OVER = {"skipped", "write-in", "write in"}
 # contest: (Dataverse file id, County election id, race)
 CONTESTS = {
     "oakland-2022-mayor": (11593507, 248, "Oakland/001-Mayor"),
@@ -222,20 +219,6 @@ for election, reports in (
         })):
     for contest, (file_id, path) in reports.items():
         PASS_REPORTS[contest] = (file_id, f"{election}/results/rcv/{path}")
-NUMBER = re.compile(r"^[\d,]+$")
-PERCENT = re.compile(r"^[\d.]+%$")
-
-
-def fetch(path, url):
-    if not os.path.exists(path):
-        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        open(path, "wb").write(urllib.request.urlopen(request, timeout=300).read())
-    return path
-
-
-def key(name):
-    """A name's letters, so the record's and the report's spellings meet."""
-    return re.sub(r"[^A-Z]", "", unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().upper())
 
 
 def report(path):
@@ -274,11 +257,9 @@ def check(data, contest, jar):
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest], check=True)
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
+    ours, error = count(jar, blt)
+    if error:
+        return False, f"{contest}: count failed: {error}"
     ours_rounds = [{key(name): Decimal(votes) for name, votes in r["tallies"].items()} for r in ours["rounds"]]
     ours_eliminated = [key(r["action"]["candidate"]) for r in ours["rounds"] if r["action"]["type"] == "eliminated"]
     exact, worst = 0, Decimal(0)
@@ -303,39 +284,13 @@ def check(data, contest, jar):
     return same_order and same, line
 
 
-def pass_report(text):
-    """{candidate: [votes after pass 0, 1, ...]} from the "Final State" table of each pass: a row is the name,
-    perhaps a note ("Eliminated in pass 1.", "** WINNER **"), the votes and the percentage; a long name
-    wraps onto the next line."""
-    passes, reading = [], False
-    for line in text.splitlines():
-        cells = re.split(r"\s{2,}", line.strip())
-        if cells[0] == "Final State":
-            passes.append([])
-            reading = True
-        elif reading and "Continuing Ballots" in cells:
-            reading = False
-        elif reading and len(cells) >= 3 and PERCENT.match(cells[-1]) and NUMBER.match(cells[-2]):
-            name = re.sub(r"\s*(Eliminated in pass \d+\.|\*\* WINNER \*\*)$", "", cells[0])
-            passes[-1].append([name, int(cells[-2].replace(",", ""))])
-        elif reading and len(cells) == 1 and cells[0] and passes[-1]:
-            passes[-1][-1][0] += cells[0]
-    totals = {}
-    for rows in passes:
-        for name, votes in rows:
-            totals.setdefault(name, []).append(votes)
-    return totals
-
-
 def check_pass_report(data, contest, jar):
     """Every pass must be one of this count's rounds, in order, with the same candidates continuing: the
     County eliminated one candidate a pass, as this count does, but stopped at a majority, and from 2012
     its first pass only drops the write-in line, with no votes, so that pass repeats the one before."""
     file_id, path = PASS_REPORTS[contest]
     pdf = fetch(os.path.join(data, contest + ".pdf"), PASS_REPORT.format(path=path))
-    text = subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, text=True, check=True).stdout
-    totals = {key(name): votes for name, votes in pass_report(text).items()}
-    passes = max(len(votes) for votes in totals.values())
+    totals = {key(name): votes for name, votes in pass_report(pdf_text(pdf)).items()}
     cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
@@ -344,51 +299,15 @@ def check_pass_report(data, contest, jar):
         given = totals.get(key("Write-In"), [0])[0]
         write_ins = ["--write-in", "candidate", "--write-in-name", "WRITE-IN"] if given else []
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest] + write_ins, check=True)
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
-    exact, gaps, start = 0, [], 0
-    for k in range(passes):
-        figures = {name: votes[k] for name, votes in totals.items() if votes[k] > 0}
-        hit = next((i for i in range(start, len(ours["rounds"]))
-                    if {key(name) for name, v in ours["rounds"][i]["tallies"].items() if Decimal(v) > 0}
-                    == set(figures)), None)
-        if hit is None:
-            gaps.append(None)
-            continue
-        start = hit
-        mine = {key(name): Decimal(v) for name, v in ours["rounds"][hit]["tallies"].items()}
-        gap = int(max(abs(mine.get(name, Decimal(0)) - votes) for name, votes in figures.items()))
-        exact += gap == 0
-        gaps.append(gap)
-    winner = max(totals, key=lambda name: totals[name][-1])
-    same_rounds = None not in gaps
-    same = [key(name) for name in ours["electedInOrder"]] == [winner]
-    line = (f"{contest}: {exact} of {passes} passes match to the vote"
-            + (f" (largest differences by pass: {gaps})" if any(gaps) else "")
-            + ("; eliminations the same" if same_rounds
-               else f"; ELIMINATIONS DIFFER from pass {gaps.index(None)}")
-            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}")
-    return same_rounds and same, line
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("data")
-    parser.add_argument("contests", nargs="*", default=list(PASS_REPORTS) + list(CONTESTS))
-    parser.add_argument("--jar", default=DEFAULT_JAR)
-    args = parser.parse_args()
-    os.makedirs(args.data, exist_ok=True)
-    failed = 0
-    for contest in args.contests:
-        ok, line = (check_pass_report if contest in PASS_REPORTS else check)(args.data, contest, args.jar)
-        failed += not ok
-        print(line, flush=True)
-    print(f"{len(args.contests) - failed} of {len(args.contests)} contests check out")
-    sys.exit(1 if failed else 0)
+    ours, error = count(jar, blt)
+    if error:
+        return False, f"{contest}: count failed: {error}"
+    exact, gaps = match_rounds(totals, ours, key)
+    same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
+    return None not in gaps and same, summary(contest, exact, gaps, same, ours["electedInOrder"], rounds="passes",
+                                              round_name="pass", first=0)
 
 
 if __name__ == "__main__":
-    main()
+    main(__doc__.split("\n\n")[0], list(PASS_REPORTS) + list(CONTESTS),
+         lambda data, contest, jar: (check_pass_report if contest in PASS_REPORTS else check)(data, contest, jar))

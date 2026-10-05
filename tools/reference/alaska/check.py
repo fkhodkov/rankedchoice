@@ -14,20 +14,19 @@ count's, round for round, with the elimination order and the winner. Where the r
 from the Division's count by a few votes, each round's largest difference is reported; such a
 contest passes on the same eliminations and winner.
 """
-import argparse
-import gzip
+import functools
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
 import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, ".."))
+from rcvcheck import DATAVERSE, count, fetch, main, pdf_text  # noqa: E402
+
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
-DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 ARCHIVE = "https://web.archive.org/web/{stamp}id_/https://www.elections.alaska.gov/results/{path}"
 # contest: (Dataverse file id, archived report: timestamp and path under /results/)
 CONTESTS = {
@@ -55,30 +54,7 @@ STAMPS_2024 = {"RCV-HD28.pdf": "20241122015926", "RCV-HD36.pdf": "20250206032958
                "RCV-SenF.pdf": "20241220002622", "RCV-SenL.pdf": "20250206033015"}
 
 
-def fetch(path, url, attempts=3):
-    """Downloads to a temporary name first, so a failed or cut-off download leaves nothing behind."""
-    if os.path.exists(path) and os.path.getsize(path) > 0:
-        return path
-    for attempt in range(attempts):
-        try:
-            request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Encoding": "identity"})
-            with urllib.request.urlopen(request, timeout=600) as response, open(path + ".part", "wb") as out:
-                while chunk := response.read(1 << 20):
-                    out.write(chunk)
-            with open(path + ".part", "rb") as part:
-                compressed = part.read(2) == b"\x1f\x8b"    # the archive sometimes sends gzip regardless
-            if compressed:
-                with gzip.open(path + ".part", "rb") as packed, open(path + ".unpacked", "wb") as out:
-                    shutil.copyfileobj(packed, out)
-                os.replace(path + ".unpacked", path + ".part")
-            os.replace(path + ".part", path)
-            return path
-        except OSError:
-            if attempt == attempts - 1:
-                raise
-    return path
-
-
+@functools.cache
 def dataverse_ids():
     listing = json.loads(urllib.request.urlopen(urllib.request.Request(
         "https://dataverse.harvard.edu/api/datasets/:persistentId/?persistentId=doi:10.7910/DVN/AMK8PJ",
@@ -88,7 +64,7 @@ def dataverse_ids():
 
 def report(pdf):
     """Each round's votes per candidate, the candidates eliminated in order, and the winners."""
-    text = subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, text=True, check=True).stdout
+    text = pdf_text(pdf)
     rounds, current, eliminated, elected = [], None, [], []
     for line in text.splitlines():
         if re.match(r"^Round \d+\s*$", line.strip()):
@@ -108,7 +84,16 @@ def report(pdf):
     return rounds, eliminated, elected
 
 
-def check(data, contest, jar, file_id, stamp, path):
+def arguments(contest):
+    """A contest's Dataverse file id and archived report (timestamp, path); 2024's ids from the dataset's listing."""
+    if contest in CONTESTS:
+        return CONTESTS[contest]
+    filename, stamp, path = FILES_2024[contest]
+    return dataverse_ids()[filename], stamp or STAMPS_2024[path.split("/")[-1]], path
+
+
+def check(data, contest, jar):
+    file_id, stamp, path = arguments(contest)
     rounds, eliminated, elected = report(fetch(os.path.join(data, contest + ".pdf"),
                                                ARCHIVE.format(stamp=stamp, path=path)))
     blt = os.path.join(data, contest + ".blt")
@@ -116,11 +101,9 @@ def check(data, contest, jar, file_id, stamp, path):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
         # An unresolved write-in is passed over; two skipped rankings in a row end the ballot; so does an overvote.
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end"], check=True)
-    result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "irv", "--report-format", "json"],
-                            capture_output=True, text=True)
-    if result.returncode:
-        return False, f"{contest}: count failed: {result.stderr.strip()[-200:]}"
-    ours = json.loads(result.stdout)
+    ours, error = count(jar, blt)
+    if error:
+        return False, f"{contest}: count failed: {error}"
     exact, gaps = 0, []
     for k, figures in enumerate(rounds):
         mine = {name: int(float(votes)) for name, votes in ours["rounds"][k]["tallies"].items()} \
@@ -138,26 +121,5 @@ def check(data, contest, jar, file_id, stamp, path):
     return same_order and same, line
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("data")
-    parser.add_argument("contests", nargs="*")
-    parser.add_argument("--jar", default=DEFAULT_JAR)
-    args = parser.parse_args()
-    os.makedirs(args.data, exist_ok=True)
-    ids = dataverse_ids()
-    contests = dict(CONTESTS)
-    for name, (filename, stamp, path) in FILES_2024.items():
-        contests[name] = (ids[filename], stamp or STAMPS_2024[path.split("/")[-1]], path)
-    chosen = args.contests or list(contests)
-    failed = 0
-    for contest in chosen:
-        ok, line = check(args.data, contest, args.jar, *contests[contest])
-        failed += not ok
-        print(line, flush=True)
-    print(f"{len(chosen) - failed} of {len(chosen)} contests check out")
-    sys.exit(1 if failed else 0)
-
-
 if __name__ == "__main__":
-    main()
+    main(__doc__.split("\n\n")[0], list(CONTESTS) + list(FILES_2024), check)
