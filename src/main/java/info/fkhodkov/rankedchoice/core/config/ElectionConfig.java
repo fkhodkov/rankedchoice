@@ -25,6 +25,7 @@ public record ElectionConfig(
         String exclusionOrder,
         Boolean simultaneousSurpluses,
         Boolean mathematicalElimination,
-        Boolean quotaEachRound
+        Boolean quotaEachRound,
+        Boolean rankingsElimination
 ) {
 }

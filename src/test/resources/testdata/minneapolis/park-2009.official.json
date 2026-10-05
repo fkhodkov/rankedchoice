@@ -1,0 +1,71 @@
+{
+ "source": "2009-MPRB-At-Large-Final-RCV.xls",
+ "threshold": 9164,
+ "elected": [
+  "John Erwin",
+  "Bob Fine",
+  "Annie Young"
+ ],
+ "rounds": [
+  {
+   "Mary Merrill Anderson": "5394.0000",
+   "Nancy Bernard": "2024.0000",
+   "John Butler": "1114.0000",
+   "John Erwin": "6376.0000",
+   "Bob Fine": "8089.0000",
+   "Tom Nordyke": "3716.0000",
+   "David Wahstedt": "2807.0000",
+   "Annie Young": "6941.0000"
+  },
+  {
+   "Mary Merrill Anderson": "5470.0000",
+   "Nancy Bernard": "2125.0000",
+   "John Butler": "0.0000",
+   "John Erwin": "6514.0000",
+   "Bob Fine": "8193.0000",
+   "Tom Nordyke": "3787.0000",
+   "David Wahstedt": "2888.0000",
+   "Annie Young": "7062.0000"
+  },
+  {
+   "Mary Merrill Anderson": "5913.0000",
+   "Nancy Bernard": "0.0000",
+   "John Butler": "0.0000",
+   "John Erwin": "6635.0000",
+   "Bob Fine": "8363.0000",
+   "Tom Nordyke": "3885.0000",
+   "David Wahstedt": "2991.0000",
+   "Annie Young": "7490.0000"
+  },
+  {
+   "Mary Merrill Anderson": "6096.0000",
+   "Nancy Bernard": "0.0000",
+   "John Butler": "0.0000",
+   "John Erwin": "6841.0000",
+   "Bob Fine": "8708.0000",
+   "Tom Nordyke": "4118.0000",
+   "David Wahstedt": "0.0000",
+   "Annie Young": "7741.0000"
+  },
+  {
+   "Mary Merrill Anderson": "6810.0000",
+   "Nancy Bernard": "0.0000",
+   "John Butler": "0.0000",
+   "John Erwin": "7733.0000",
+   "Bob Fine": "9329.0000",
+   "Tom Nordyke": "0.0000",
+   "David Wahstedt": "0.0000",
+   "Annie Young": "8371.0000"
+  },
+  {
+   "Mary Merrill Anderson": "6810.0000",
+   "Nancy Bernard": "0.0000",
+   "John Butler": "0.0000",
+   "John Erwin": "7733.0000",
+   "Bob Fine": "9329.0000",
+   "Tom Nordyke": "0.0000",
+   "David Wahstedt": "0.0000",
+   "Annie Young": "8371.0000"
+  }
+ ]
+}

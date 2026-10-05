@@ -1,0 +1,69 @@
+{
+ "config": {
+  "contest": "Eastpointe City Council",
+  "date": "2019-11-05",
+  "jurisdiction": "Eastpointe",
+  "office": "City Council",
+  "threshold": "1664"
+ },
+ "results": [
+  {
+   "round": 1,
+   "tally": {
+    "Harvey Curley": 1610.0,
+    "Larry Edwards": 465.0,
+    "Mary Hall-Rayford": 1061.0,
+    "Sarah A. Lucido": 1855.0,
+    "Residual Surplus": 0,
+    "Inactive Ballots": 0
+   },
+   "tallyResults": [
+    {
+     "elected": "Sarah A. Lucido",
+     "transfers": {
+      "Harvey Curley": 63.9009,
+      "Larry Edwards": 28.6062,
+      "Mary Hall-Rayford": 68.1198,
+      "Inactive Ballots": 30.2526,
+      "Residual Surplus": 0.1205
+     }
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "tally": {
+    "Harvey Curley": 1673.9009,
+    "Larry Edwards": 493.6062,
+    "Mary Hall-Rayford": 1129.1198,
+    "Sarah A. Lucido": 1664.0,
+    "Inactive Ballots": 30.2526,
+    "Residual Surplus": 0.1205
+   },
+   "tallyResults": [
+    {
+     "elected": "Harvey Curley",
+     "transfers": {
+      "Larry Edwards": 3.0239,
+      "Mary Hall-Rayford": 2.3719,
+      "Inactive Ballots": 4.4758,
+      "Residual Surplus": 0.0293
+     }
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "tally": {
+    "Harvey Curley": 1664.0,
+    "Larry Edwards": 496.6301,
+    "Mary Hall-Rayford": 1131.4917,
+    "Sarah A. Lucido": 1664.0,
+    "Inactive Ballots": 34.7284,
+    "Residual Surplus": 0.1498
+   },
+   "tallyResults": []
+  }
+ ],
+ "source": "https://rcvis.com/v/2019-11-08_13-19-44_summary"
+}

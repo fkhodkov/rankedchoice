@@ -138,6 +138,9 @@ public final class StvCounter {
             throw new IllegalArgumentException(
                     "mathematicalElimination needs a transfer method that moves a surplus at once");
         }
+        if (ruleset.rankingsElimination() && !ruleset.mathematicalElimination()) {
+            throw new IllegalArgumentException("rankingsElimination is part of mathematicalElimination");
+        }
         if (defers && ruleset.quotaEachRound()) {
             throw new IllegalArgumentException("quotaEachRound needs a transfer method that moves a surplus at once");
         }
@@ -219,14 +222,17 @@ public final class StvCounter {
                         roundNumber, tallies, new RoundAction.Elected(higher, Fraction.ZERO), exhausted, loss));
                 break;
             }
-            // Minneapolis defeats everyone who can no longer win before any surplus moves.
-            List<Candidate> hopeless = ruleset.mathematicalElimination()
-                    ? mathematicallyEliminated(states, continuing, tallies, quota, remainingSeats)
-                    : List.of();
             Fraction required = votesRequired(ruleset, activeVotes, remainingSeats);
             List<Candidate> meetingQuota = continuing.stream()
                     .filter(candidate -> elects(tallies.get(candidate), roundQuota, required))
                     .toList();
+            // Minneapolis defeats everyone who can no longer win before any surplus moves, unless
+            // enough have reached the threshold to fill the seats: the count is then complete.
+            boolean seatsFilled = meetingQuota.size() >= remainingSeats;
+            List<Candidate> hopeless = ruleset.mathematicalElimination() && !seatsFilled
+                    ? mathematicallyEliminated(states, continuing, tallies, quota, remainingSeats,
+                            ruleset.rankingsElimination())
+                    : List.of();
 
             List<Candidate> sure = ruleset.electSureWinners() && meetingQuota.isEmpty() && hopeless.isEmpty()
                     ? sureWinners(continuing, tallies, remainingSeats, positiveSurplusTotal(pendingSurplus, quota),
@@ -254,7 +260,7 @@ public final class StvCounter {
                         : sortedByTallyDescending(
                                 new LinkedHashSet<>(meetingQuota), tallies, ruleset.tieBreak(), priorRounds);
                 // Minneapolis moves one surplus a round, the largest; the rest wait, still continuing.
-                int electing = ruleset.mathematicalElimination() ? 1 : remainingSeats;
+                int electing = ruleset.mathematicalElimination() && !seatsFilled ? 1 : remainingSeats;
                 if (electedThisStage.size() > electing) {
                     electedThisStage = electedThisStage.subList(0, electing);
                 }
@@ -704,7 +710,7 @@ public final class StvCounter {
      * Board counts did, defeating candidates the first spares.
      */
     private static List<Candidate> mathematicallyEliminated(List<BallotState> states, Set<Candidate> continuing,
-            Map<Candidate, Fraction> tallies, Fraction quota, int remainingSeats) {
+            Map<Candidate, Fraction> tallies, Fraction quota, int remainingSeats, boolean byRankings) {
         if (continuing.size() <= remainingSeats) {
             return List.of();
         }
@@ -722,11 +728,11 @@ public final class StvCounter {
             }
         }
         Fraction lastSeat = tallies.get(ascending.get(ascending.size() - remainingSeats));
-        Map<Candidate, Fraction> reachable = reachableVotes(states, continuing);
+        Map<Candidate, Fraction> reachable = byRankings ? reachableVotes(states, continuing) : Map.of();
         List<Candidate> defeated = new ArrayList<>();
         for (int i = 0; i < ascending.size(); i++) {
             Candidate candidate = ascending.get(i);
-            if (i < lowest || reachable.getOrDefault(candidate, Fraction.ZERO).compareTo(lastSeat) < 0) {
+            if (i < lowest || byRankings && reachable.getOrDefault(candidate, Fraction.ZERO).compareTo(lastSeat) < 0) {
                 defeated.add(candidate);
             }
         }

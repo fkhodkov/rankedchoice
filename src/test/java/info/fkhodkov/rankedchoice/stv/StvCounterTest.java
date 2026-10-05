@@ -1162,8 +1162,9 @@ class StvCounterTest {
      * Minneapolis's mathematical elimination, by hand: 2 seats, 90 ballots, quota 31. A is over
      * quota on 34, but before A's surplus moves, D (6, plus that surplus of 3, is less than E's
      * 12) and E (on only 12 ballots, short of B's 20 for the last seat) are defeated together. D's
-     * ballots go to A, still continuing, and E's to B. Then C's 18, plus the surpluses of 9 and
-     * 1, can't reach B's 32: C is defeated, and A and B are elected, A's surplus never moved.
+     * ballots go to A, still continuing, and E's to B. Then A and B are both over quota, as many
+     * as there are seats: the count is complete (167.70(a)(1)a), A and B elected and A's surplus
+     * never moved, without defeating C.
      */
     @Test
     void minneapolisDefeatsTheHopelessBeforeAnySurplusMoves() {
@@ -1177,7 +1178,7 @@ class StvCounterTest {
 
         assertThat(result.quota()).isEqualTo(Fraction.of(31));
         assertThat(result.rounds()).extracting(RoundRecord::action).containsExactly(
-                new RoundAction.Eliminated(D), new RoundAction.Eliminated(e), new RoundAction.Eliminated(C),
+                new RoundAction.Eliminated(D), new RoundAction.Eliminated(e),
                 new RoundAction.Elected(A, Fraction.ZERO), new RoundAction.Elected(B, Fraction.ZERO));
         assertThat(result.rounds().get(2).tallies())
                 .isEqualTo(Map.of(A, Fraction.of(40), B, Fraction.of(32), C, Fraction.of(18)));
@@ -1194,7 +1195,7 @@ class StvCounterTest {
         List<Ballot> ballots = List.of(ballot(9, A, B), ballot(7, B), ballot(5, C), ballot(4, D), ballot(2, D, A));
         StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
                 new DeclaredOrderTieBreak(candidates), false, TiedRankingPolicy.defaultFor(FractionalTransfer.INSTANCE),
-                0, false, false, false, false, false, ExclusionOrder.VALUE, false, false, true);
+                0, false, false, false, false, false, ExclusionOrder.VALUE, false, false, true, false);
 
         StvResult result = StvCounter.count(candidates, ballots, 2, ruleset);
 
@@ -1209,7 +1210,7 @@ class StvCounterTest {
     void mathematicalEliminationNeedsSurplusesMovedAtOnce() {
         StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, LastParcelTransfer.INSTANCE, Exact.INSTANCE,
                 new DeclaredOrderTieBreak(List.of(A, B, C)), false, TiedRankingPolicy.REJECT, 0, false, false,
-                false, false, false, ExclusionOrder.VALUE, false, true, false);
+                false, false, false, ExclusionOrder.VALUE, false, true, false, false);
 
         assertThatThrownBy(() -> StvCounter.count(List.of(A, B, C), List.of(ballot(3, A), ballot(1, B)), 1, ruleset))
                 .isInstanceOf(IllegalArgumentException.class)

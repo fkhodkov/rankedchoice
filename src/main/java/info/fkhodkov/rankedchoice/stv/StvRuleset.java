@@ -73,10 +73,10 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  *
  * <p>{@code mathematicalElimination} defeats, at the start of every round and before any surplus
  * moves, every candidate who can no longer be elected, as Minneapolis does (Code of Ordinances
- * 167.70 as enacted in 2006, and its counts of 2017 to 2025): the lowest candidates whose votes
- * together, with every surplus still to move, are less than the next candidate's, and those
- * ranked on too few ballots still in play to reach the candidate holding the last of the seats
- * left.
+ * 167.70 as enacted in 2006): the lowest candidates whose votes together, with every surplus
+ * still to move, are less than the next candidate's. With {@code rankingsElimination}, so are
+ * those ranked on too few ballots still in play to reach the candidate holding the last of the
+ * seats left, as Minneapolis's counts of 2017 to 2025 do (its 2009 counts don't).
  * Only when nobody is defeated so does a surplus move, the largest one, one a round; until it
  * does, its candidate keeps receiving ballots. Only for the transfer methods that move a surplus
  * at once.
@@ -92,7 +92,8 @@ public record StvRuleset(
         boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences,
         boolean deferSurpluses, boolean votesRequired, boolean surplusesInElectionOrder,
         boolean electAsTheyStand, boolean electSureWinners, ExclusionOrder exclusionOrder,
-        boolean simultaneousSurpluses, boolean mathematicalElimination, boolean quotaEachRound) {
+        boolean simultaneousSurpluses, boolean mathematicalElimination, boolean quotaEachRound,
+        boolean rankingsElimination) {
 
     public StvRuleset {
         if (minimumPreferences < 0) {
@@ -103,7 +104,7 @@ public record StvRuleset(
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,
             boolean batchExclusion, TiedRankingPolicy tiedRankings, int minimumPreferences) {
         this(quota, transferMethod, roundingRule, tieBreak, batchExclusion, tiedRankings, minimumPreferences, false,
-                false, false, false, false, ExclusionOrder.VALUE, false, false, false);
+                false, false, false, false, ExclusionOrder.VALUE, false, false, false, false);
     }
 
     public StvRuleset(Quota quota, TransferMethod transferMethod, RoundingRule roundingRule, TieBreakRule tieBreak,

@@ -1,0 +1,12 @@
+# Minneapolis's 2009 counts: the minneapolis ruleset without its rankings test, i.e. the 2006
+# ordinance's rules as written (Code of Ordinances 167.70): before any surplus moves, the lowest
+# candidates whose votes, with every surplus still to move, are less than the next candidate's
+# are defeated together; otherwise the largest surplus moves, one a round. The City's 2009
+# Board of Estimate count moves Becker's surplus before defeating anyone, and its Park Board
+# count defeats only Butler and the write-ins first, where the rankings test would defeat more.
+quota: droop
+transfer: fractional-truncated
+rounding: truncate:4
+tiebreak: declared
+tiedRankings: skip
+mathematicalElimination: true

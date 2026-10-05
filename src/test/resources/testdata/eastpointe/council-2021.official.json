@@ -1,0 +1,140 @@
+{
+ "config": {
+  "contest": "Eastpointe City Council",
+  "date": "2021-11-02",
+  "jurisdiction": "City of Eastpointe",
+  "office": "City Council",
+  "threshold": "1268"
+ },
+ "results": [
+  {
+   "round": 1,
+   "tally": {
+    "Cardi DeMonaco Jr.": 1805.0,
+    "Rob Baker": 705.0,
+    "Shenita Lloyd": 479.0,
+    "Sylvia L. Moore": 347.0,
+    "Michael Jones": 298.0,
+    "Tonia Gladney": 169.0,
+    "Residual Surplus": 0,
+    "Inactive Ballots": 0
+   },
+   "tallyResults": [
+    {
+     "elected": "Cardi DeMonaco Jr.",
+     "transfers": {
+      "Rob Baker": 214.2,
+      "Shenita Lloyd": 31.535,
+      "Sylvia L. Moore": 75.8625,
+      "Michael Jones": 63.3675,
+      "Tonia Gladney": 34.2125,
+      "Inactive Ballots": 117.81,
+      "Residual Surplus": 0.0125
+     }
+    }
+   ]
+  },
+  {
+   "round": 2,
+   "tally": {
+    "Cardi DeMonaco Jr.": 1268.0,
+    "Rob Baker": 919.2,
+    "Shenita Lloyd": 510.535,
+    "Sylvia L. Moore": 422.8625,
+    "Michael Jones": 361.3675,
+    "Tonia Gladney": 203.2125,
+    "Inactive Ballots": 117.81,
+    "Residual Surplus": 0.0125
+   },
+   "tallyResults": [
+    {
+     "eliminated": "Tonia Gladney",
+     "transfers": {
+      "Rob Baker": 30.14,
+      "Shenita Lloyd": 61.735,
+      "Sylvia L. Moore": 45.6525,
+      "Michael Jones": 39.165,
+      "Inactive Ballots": 26.52,
+      "Residual Surplus": 0.0125
+     }
+    }
+   ]
+  },
+  {
+   "round": 3,
+   "tally": {
+    "Cardi DeMonaco Jr.": 1268.0,
+    "Rob Baker": 949.34,
+    "Shenita Lloyd": 572.27,
+    "Sylvia L. Moore": 468.515,
+    "Michael Jones": 400.5325,
+    "Inactive Ballots": 144.33,
+    "Residual Surplus": 0.025
+   },
+   "tallyResults": [
+    {
+     "eliminated": "Michael Jones",
+     "transfers": {
+      "Rob Baker": 107.4775,
+      "Shenita Lloyd": 151.925,
+      "Sylvia L. Moore": 81.3625,
+      "Inactive Ballots": 59.7675
+     }
+    }
+   ]
+  },
+  {
+   "round": 4,
+   "tally": {
+    "Cardi DeMonaco Jr.": 1268.0,
+    "Rob Baker": 1058.8175,
+    "Shenita Lloyd": 724.195,
+    "Sylvia L. Moore": 549.8775,
+    "Inactive Ballots": 204.09750000000003,
+    "Residual Surplus": 0.025
+   },
+   "tallyResults": [
+    {
+     "eliminated": "Sylvia L. Moore",
+     "transfers": {
+      "Rob Baker": 224.195,
+      "Shenita Lloyd": 175.1725,
+      "Inactive Ballots": 150.51
+     }
+    }
+   ]
+  },
+  {
+   "round": 5,
+   "tally": {
+    "Cardi DeMonaco Jr.": 1268.0,
+    "Rob Baker": 1281.0125,
+    "Shenita Lloyd": 899.3675,
+    "Inactive Ballots": 354.6075,
+    "Residual Surplus": 0.025
+   },
+   "tallyResults": [
+    {
+     "elected": "Rob Baker",
+     "transfers": {
+      "Shenita Lloyd": 3.2356,
+      "Inactive Ballots": 10.2379,
+      "Residual Surplus": 0.079
+     }
+    }
+   ]
+  },
+  {
+   "round": 6,
+   "tally": {
+    "Cardi DeMonaco Jr.": 1268.0,
+    "Rob Baker": 1268.0,
+    "Shenita Lloyd": 903.0631,
+    "Inactive Ballots": 364.84540000000004,
+    "Residual Surplus": 0.10400000000000001
+   },
+   "tallyResults": []
+  }
+ ],
+ "source": "https://rcvis.com/v/eastpointe-2021-results"
+}

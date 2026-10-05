@@ -14,7 +14,7 @@ original design.
 
 | Method | `--method` | What it is | Checked against |
 |---|---|---|---|
-| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, Minneapolis's multi-seat contests 2017–2025, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
+| STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, Minneapolis's multi-seat contests 2009–2025, Eastpointe, Michigan's 2019 and 2021 councils, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | every count of Cambridge's 16 elections of 2001–2017 and the winners of 21 of its 22 of 2001–2023; OpenSTV, exactly, on 60 elections |
@@ -100,11 +100,12 @@ A classic STV ruleset is a combination of independent choices:
   their surplus transferred together, and a candidate those transfers take to quota is elected
   in the next round, not at once (Portland, Oregon).
 - **Mathematical elimination** (config `mathematicalElimination`, for the methods that move a
-  surplus at once): Minneapolis — each round, before any surplus moves, every candidate who can
-  no longer win is defeated together: the lowest whose votes, with every surplus still to move,
-  are less than the next candidate's, and anyone ranked on too few ballots still in play to reach
-  the last of the seats left. Otherwise the largest surplus moves, one a round, its candidate
-  receiving ballots until it does.
+  surplus at once): Minneapolis — each round, unless enough candidates have reached quota to fill
+  the seats, every candidate who can no longer win is defeated together before any surplus
+  moves: the lowest whose votes, with every surplus still to move, are less than the next
+  candidate's, and, with `rankingsElimination` too, anyone ranked on too few ballots still in
+  play to reach the last of the seats left. Otherwise the largest surplus moves, one a round, its
+  candidate receiving ballots until it does.
 - **Quota each round** (config `quotaEachRound`, for the methods that move a surplus at once): the
   quota is recomputed before every round and every surplus on the whole votes the candidates then
   hold, so it falls as ballots exhaust (Alameda County's Dominion count of Albany in 2022). The
@@ -196,7 +197,7 @@ carry fields a method doesn't use.
 A YAML file (`--config`) can set any of `quota`, `transfer`, `rounding`, `tiebreak`, `seats`,
 `format`, `reportFormat`, `batchExclusion`, `deferSurpluses`, `votesRequired`, `surplusOrder`,
 `electAsTheyStand`, `electSureWinners`, `exclusionOrder`, `simultaneousSurpluses`, `mathematicalElimination`,
-`quotaEachRound`, `tiedRankings`, `minimumPreferences` and `precision`:
+`rankingsElimination`, `quotaEachRound`, `tiedRankings`, `minimumPreferences` and `precision`:
 
 ```yaml
 quota: hare
@@ -209,7 +210,7 @@ reportFormat: json
 Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
 always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`,
 `votesRequired`, `surplusOrder`, `electAsTheyStand`, `electSureWinners`, `exclusionOrder`,
-`simultaneousSurpluses`, `mathematicalElimination` and `quotaEachRound` have no flags: they're treated as fixed properties of a ruleset.
+`simultaneousSurpluses`, `mathematicalElimination`, `rankingsElimination` and `quotaEachRound` have no flags: they're treated as fixed properties of a ruleset.
 
 ## Reports
 
@@ -342,8 +343,11 @@ about 45 s, 16 / 8 about a minute.
   County's cast vote records for Portland's 2024 Council contests and check each round against
   the County's official results.
 - [`tools/reference/minneapolis`](tools/reference/minneapolis/README.md) — convert the City of
-  Minneapolis's cast vote records for its multi-seat contests of 2017–2025 and check each round
+  Minneapolis's cast vote records for its multi-seat contests of 2009–2025 and check each round
   against the City's summary statements.
+- [`tools/reference/eastpointe`](tools/reference/eastpointe/README.md) — convert Macomb County's
+  cast vote records for Eastpointe, Michigan's 2019 and 2021 Council elections (from FairVote's
+  collection) and check each round against the County's RCTab summaries.
 - [`tools/reference/cambridge`](tools/reference/cambridge/README.md) — convert Cambridge's
   ballots from FairVote's collection, in the City's order, and check each election from 2001 to
   2023 against the official count sheets.

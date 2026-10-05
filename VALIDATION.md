@@ -10,8 +10,8 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 
 Every Scottish council election with published ballots, all five ACT electorates in 2020, every
 state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024,
-Portland's four City Council districts of 2024, Minneapolis's six multi-seat contests of 2017–2025,
-Albany, California's four of 2022 and 2024, Cambridge's sixteen of 2001–2017, and three Irish
+Portland's four City Council districts of 2024, Minneapolis's eight multi-seat contests of 2009–2025
+(and the winners of 2013's two), Eastpointe, Michigan's two of 2019 and 2021, Albany, California's four of 2022 and 2024, Cambridge's sixteen of 2001–2017, and three Irish
 constituencies, run through their
 own rulesets, reproduce their actual results:
 
@@ -25,6 +25,8 @@ own rulesets, reproduce their actual results:
 | NSW local government elections 2024, all 227 councillor counts with published figures (118 councils; 3–73 candidates, 2–15 seats; 4,051,337 ballots) | `nsw-lg` | every round's tallies and votes lost, to the vote, against the NSW Electoral Commission's full distribution of preferences, and the councillors elected; see below | the Commission's ballot-paper data |
 | Portland, Oregon City Council 2024, all four districts (17–31 candidates, 3 seats each; 281,260 votes in the first round) | `portland` | every official round's tallies, to 4 decimal places, against Multnomah County's round-by-round results, the threshold, and the councillors elected; see below | the County's cast vote records |
 | Minneapolis Park Board at large (3 seats) and Board of Estimate and Taxation (2 seats), 2017, 2021 and 2025 (4–11 candidates; 576,346 votes in the first round) | `minneapolis` | every official round's tallies, to 4 decimal places, against the City's summary statements, the threshold, and the candidates elected; see below | the City's cast vote records |
+| Minneapolis Park Board and Board of Estimate, 2009 (68,741 votes in the first round), and the winners of 2013's two | the 2006 ordinance's rules (`minneapolis` without `rankingsElimination`) | every official round's tallies of 2009 (the Board of Estimate's first round apart, which the record has one vote short), and the candidates elected; see below | the City's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
+| Eastpointe, Michigan City Council, 2019 and 2021 (2 seats; 8,794 votes in the first round) | `portland` (both are RCTab counts) | every round's tallies, to 4 decimal places, against Macomb County's RCTab summaries, the threshold, and the councillors elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Albany, California City Council and Board of Education, 2022 and 2024 (4–5 candidates, 2–3 seats; 28,782 votes in the first round) | `albany` (2024), the County's 2022 settings | every official round's tallies, to the report's 4 or 6 decimal places, against Alameda County's RCV Detailed Reports, the first threshold, and the candidates elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Cambridge, MA City Council (9 seats) and School Committee (6 seats), every election of 2001–2017 (16; 273,661 valid ballots) | `--method cambridge` | every official count's votes, to the vote, the quota, and the candidates elected, against the official count sheets; see [Cambridge STV](#cambridge-stv) | the City's ballots, in the City's order, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Dublin North, Dublin West, Meath — Irish general election 2002 (137,861 ballots) | see below | first preferences and the TDs returned | [PrefLib "Irish Election Data"](https://www.preflib.org/dataset/00001) |
@@ -248,6 +250,44 @@ found; the current Code of Ordinances wasn't reachable. What the counts show:
   candidate ranked again counts once.
 - **One surplus a round, the largest**, as the 2006 text's steps repeat; no count had two
   waiting at once, so that part is untested.
+- **The count ends as soon as enough candidates have reached the threshold to fill the seats**
+  (167.70(a)(1)a), before anyone is defeated. The 2013 Board of Estimate count shows it: Becker
+  and Wheeler both pass the threshold in the first round and are elected there. This count
+  defeated the other candidates first, with the same winners, until that was fixed.
+
+**Minneapolis 2009 and 2013** (`tools/reference/minneapolis`), from FairVote's collection of the
+City's records, against the City's 2009 summary statements (Excel files): the 2009 counts follow
+the 2006 ordinance as written, without the rankings test the later counts add
+(`testdata/minneapolis/minneapolis-2009.yaml`). The Board of Estimate count moves Becker's surplus
+before defeating anyone, and the Park Board's defeats only Butler and the write-ins in its first
+round, where the rankings test would defeat Swartwood, and Bernard and Wahlstedt, at once. So
+counted, every official round of the Park Board matches (a fixture), and of the Board of
+Estimate every round but the first, where the record has Becker on 16,727 and the City 16,728:
+after her surplus moves (at the same truncated 0.3605 a ballot) every figure matches. The
+records lump every write-in as one candidate, the City lists each; all go in the first defeat
+either way. For 2013 the City published no round summary for the Board of Estimate, and the
+Park Board's is a ballot-by-ballot listing, so only the winners are checked: both elect the
+City's, by either set of rules.
+
+**Eastpointe, Michigan** (`portland`; `tools/reference/eastpointe`): the City Council elections
+of 2019 and 2021 (2 seats each), from Macomb County's cast vote records as FairVote's collection
+has them, against the RCTab summaries of the County's counts published on RCVis: every round is
+one of this count's rounds, every candidate to 4 decimal places, at the official threshold, with
+the same councillors elected. Both are fixtures (`EastpointeFixtureTest`).
+
+- **Ballots, as RCTab was set.** A skipped ranking or a write-in is passed over, but two in a row
+  end the ballot; an overvote ends it; and so does a candidate ranked again. That last setting
+  is what decides the transfers: 6 ballots ranking DeMonaco twice before their next choice
+  exhaust in the 2021 summary when his surplus moves. Read so, both first rounds match to the
+  vote.
+- **The summary's own slip.** The 2021 summary's round 4 has Rob Baker on 1,058.8175: 2 votes
+  more than its round 3 tally plus the transfers it lists for that round, and more than the
+  total it carries into round 5. This count has the consistent 1,056.8175; every other figure of
+  that round, and every later round, match.
+- **What can't be told apart.** The only surpluses moved are of ballots still worth 1, where
+  `fractional`, `wigm` and `fractional-truncated` all agree; the `portland` ruleset, another
+  RCTab count at 4 places, is used. Each summary's last round, moving a surplus after both seats
+  are filled, isn't a round here.
 
 **Albany, California** (`albany`): the City Council and Board of Education contests of 2022 and
 2024 (`tools/reference/albany`), from Alameda County's cast vote records as FairVote's collection

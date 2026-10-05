@@ -28,7 +28,9 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
 
 /**
  * Minneapolis's multi-seat contests of 2017, 2021 and 2025, from the City's cast vote records,
- * counted with the {@code minneapolis} ruleset against the City's summary statements (see the
+ * counted with the {@code minneapolis} ruleset, and its 2009 Park Board contest, from FairVote's
+ * copy of the record, counted with the 2006 ordinance's rules alone (minneapolis-2009.yaml),
+ * against the City's summary statements (see the
  * fixture's README): every official round is one of this count's rounds, every candidate's votes
  * to the 4 decimal places of the official figures, at the official threshold, and the same
  * candidates are elected.
@@ -38,13 +40,16 @@ class MinneapolisFixtureTest {
     private static final Path DIRECTORY = Path.of("src/test/resources/testdata/minneapolis");
 
     @ParameterizedTest
-    @ValueSource(strings = {"park-2017", "park-2021", "park-2025", "bet-2017", "bet-2021", "bet-2025"})
+    @ValueSource(strings = {"park-2009", "park-2017", "park-2021", "park-2025", "bet-2017", "bet-2021", "bet-2025"})
     void everyOfficialRoundIsARoundOfThisCount(String contest) throws IOException {
         ParsedElection election = BltParser.parse(
                 Files.readAllLines(DIRECTORY.resolve(contest + ".blt"), StandardCharsets.UTF_8).stream());
         List<Candidate> candidates = election.candidates();
+        var config = contest.endsWith("2009")
+                ? ConfigLoader.load(DIRECTORY.resolve("minneapolis-2009.yaml"))
+                : ConfigLoader.loadResource("/rulesets/minneapolis.yaml");
         StvResult result = StvCounter.count(candidates, election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/minneapolis.yaml"), candidates));
+                StvRulesetParser.parse(config, candidates));
         JsonNode official = new ObjectMapper().readTree(DIRECTORY.resolve(contest + ".official.json").toFile());
 
         assertThat(result.quota()).isEqualTo(Fraction.of(official.path("threshold").asLong()));
@@ -70,6 +75,10 @@ class MinneapolisFixtureTest {
 
     private static boolean matches(RoundRecord round, Map<String, Fraction> tally) {
         for (Map.Entry<Candidate, Fraction> votes : round.tallies().entrySet()) {
+            // FairVote's 2009 record lumps every write-in as one; the City's summary lists each.
+            if (votes.getKey().name().equals("Write-ins")) {
+                continue;
+            }
             if (!votes.getValue().equals(tally.get(votes.getKey().name()))) {
                 return false;
             }

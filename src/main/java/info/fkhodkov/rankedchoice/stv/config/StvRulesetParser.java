@@ -76,7 +76,7 @@ public final class StvRulesetParser {
     public static StvRuleset parse(String quota, String transfer, String rounding, String tiebreak,
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, List<Candidate> declaredOrder) {
         return parse(quota, transfer, rounding, tiebreak, batchExclusion, tiedRankings, minimumPreferences, null, null,
-                null, null, null, null, null, null, null, declaredOrder);
+                null, null, null, null, null, null, null, null, declaredOrder);
     }
 
     /**
@@ -88,7 +88,7 @@ public final class StvRulesetParser {
             Boolean batchExclusion, String tiedRankings, Integer minimumPreferences, Boolean deferSurpluses,
             Boolean votesRequired, String surplusOrder, Boolean electAsTheyStand, Boolean electSureWinners,
             String exclusionOrder, Boolean simultaneousSurpluses, Boolean mathematicalElimination,
-            Boolean quotaEachRound, List<Candidate> declaredOrder) {
+            Boolean quotaEachRound, Boolean rankingsElimination, List<Candidate> declaredOrder) {
         TransferMethod transferMethod = parseTransfer(transfer);
         return new StvRuleset(
                 parseQuota(quota), transferMethod, parseRounding(rounding),
@@ -99,7 +99,7 @@ public final class StvRulesetParser {
                 electSureWinners != null && electSureWinners, parseExclusionOrder(exclusionOrder),
                 simultaneousSurpluses != null && simultaneousSurpluses,
                 mathematicalElimination != null && mathematicalElimination,
-                quotaEachRound != null && quotaEachRound);
+                quotaEachRound != null && quotaEachRound, rankingsElimination != null && rankingsElimination);
     }
 
     /** {@code size} (largest surplus first, the default) or {@code election} (in order of election). */
@@ -132,7 +132,7 @@ public final class StvRulesetParser {
                 config.tiedRankings(), config.minimumPreferences(), config.deferSurpluses(), config.votesRequired(),
                 config.surplusOrder(), config.electAsTheyStand(), config.electSureWinners(), config.exclusionOrder(),
                 config.simultaneousSurpluses(), config.mathematicalElimination(),
-                config.quotaEachRound(), declaredOrder);
+                config.quotaEachRound(), config.rankingsElimination(), declaredOrder);
     }
 
     /**

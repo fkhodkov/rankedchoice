@@ -4,9 +4,10 @@
 # seats, plus one, disregarding fractions (Droop). Each round, before any surplus moves, every
 # candidate it's mathematically impossible to elect is defeated together (167.70(a)(1)d): the
 # lowest candidates whose votes, with every surplus still to move, are less than the next
-# candidate's, and -- inferred from the 2017 and 2025 counts, as the 2006 text doesn't cover it --
-# anyone ranked on too few ballots still in play to reach the candidate holding the last of the
-# seats left, each test blind to the other's defeats. Otherwise the largest surplus moves (e),
+# candidate's (mathematicalElimination), and -- inferred from the 2017 and 2025 counts, as the
+# 2006 text doesn't cover it -- anyone ranked on too few ballots still in play to reach the
+# candidate holding the last of the seats left (rankingsElimination), each test blind to the
+# other's defeats. The City's 2009 counts don't use the second. Otherwise the largest surplus moves (e),
 # one a round; its candidate keeps receiving ballots until it does. The surplus fraction is truncated to 4 decimal places and each ballot's
 # new value is its value times that, truncated again, as the counts show. With no surplus, the
 # candidate with the fewest votes is defeated (f).
@@ -23,3 +24,4 @@ rounding: truncate:4
 tiebreak: declared
 tiedRankings: skip
 mathematicalElimination: true
+rankingsElimination: true
