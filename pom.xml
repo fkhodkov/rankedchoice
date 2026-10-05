@@ -20,6 +20,10 @@
     <picocli.version>4.7.6</picocli.version>
     <jackson.version>2.17.2</jackson.version>
     <checkstyle.version>14.3.0</checkstyle.version>
+    <!-- The Python tests of tools/reference run with the Java ones: -DskipTests skips both,
+         -DskipPythonTests these alone (where python3 isn't installed). -->
+    <skipTests>false</skipTests>
+    <skipPythonTests>${skipTests}</skipPythonTests>
   </properties>
 
   <dependencies>
@@ -88,6 +92,32 @@
             <goals>
               <goal>check</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>python-tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>python3</executable>
+              <arguments>
+                <argument>-m</argument>
+                <argument>unittest</argument>
+                <argument>discover</argument>
+                <argument>-s</argument>
+                <argument>tools/reference/tests</argument>
+              </arguments>
+              <workingDirectory>${project.basedir}</workingDirectory>
+              <skip>${skipPythonTests}</skip>
+            </configuration>
           </execution>
         </executions>
       </plugin>

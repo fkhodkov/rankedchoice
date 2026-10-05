@@ -31,7 +31,7 @@ IRV is STV with one seat.
 
 ## Quick start
 
-Requires Java 25 and Maven.
+Requires Java 25 and Maven, and Python 3 for the tests of the reference tools.
 
 ```sh
 mvn package
@@ -40,7 +40,9 @@ java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input election.blt --ruleset 
 java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input election.blt --method meek --report-format html --output result.html
 ```
 
-`mvn test` runs the test suite, including the real-election fixtures. Every build also runs
+`mvn test` runs the test suite, including the real-election fixtures, and then the Python tests of
+the reference tools (`tools/reference/tests`); `-DskipTests` skips both, `-DskipPythonTests` the
+Python ones alone, where Python isn't installed. Every build also runs
 Checkstyle (`checkstyle.xml`: 4-space indentation, 120 columns, imports grouped static, `java`,
 third-party, then this project's), and fails on any violation; `.editorconfig` sets the same
 for editors.
@@ -356,7 +358,7 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/tests`](tools/reference/tests) — tests of those two, on small made-up ballots
   and counts (every converter option; round matching with several defeated at once, repeated
   rounds and rounds out of order; the summary lines; the pass-report parser), with nothing to
-  download: `python3 -m unittest discover -s tools/reference/tests`.
+  download; `mvn test` runs them, or `python3 -m unittest discover -s tools/reference/tests`.
 - [`tools/reference/portland`](tools/reference/portland/README.md) — convert Multnomah
   County's cast vote records for Portland's 2024 Council contests and check each round against
   the County's official results.
