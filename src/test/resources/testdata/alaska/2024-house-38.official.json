@@ -1,0 +1,31 @@
+{
+ "source": "https://web.archive.org/web/20250206033002id_/https://www.elections.alaska.gov/results/24GENR/RCV-HD38.pdf",
+ "eliminated": [
+  "Sosa, Victoria B.",
+  "Keppel, Willy",
+  "McCormick, C.J."
+ ],
+ "elected": [
+  "Jimmie, Nellie D. \"Unangik\""
+ ],
+ "rounds": [
+  {
+   "Keppel, Willy": 932,
+   "McCormick, C.J.": 1166,
+   "Jimmie, Nellie D. \"Unangik\"": 1295,
+   "Sosa, Victoria B.": 184
+  },
+  {
+   "Keppel, Willy": 959,
+   "McCormick, C.J.": 1200,
+   "Jimmie, Nellie D. \"Unangik\"": 1351,
+   "Sosa, Victoria B.": 0
+  },
+  {
+   "Keppel, Willy": 0,
+   "McCormick, C.J.": 1411,
+   "Jimmie, Nellie D. \"Unangik\"": 1548,
+   "Sosa, Victoria B.": 0
+  }
+ ]
+}

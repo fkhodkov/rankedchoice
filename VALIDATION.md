@@ -12,7 +12,7 @@ Every Scottish council election with published ballots, all five ACT electorates
 state's and territory's Senate count from 2016 to 2025, every NSW councillor count of 2024,
 Portland's four City Council districts of 2024, Minneapolis's eight multi-seat contests of 2009–2025
 (and the winners of 2013's two) and 29 of its single-seat races of 2017–2025, Eastpointe, Michigan's two of 2019 and 2021, 24 of Alameda County's single-seat contests of
-2022–2025, Albany, California's four of 2022 and 2024, Cambridge's sixteen of 2001–2017, and three Irish
+2022–2025, 22 of Alaska's of 2022–2024, Albany, California's four of 2022 and 2024, Cambridge's sixteen of 2001–2017, and three Irish
 constituencies, run through their
 own rulesets, reproduce their actual results:
 
@@ -29,6 +29,7 @@ own rulesets, reproduce their actual results:
 | Minneapolis single-seat races, 2017–2025: mayor (2021, 2025), City Council wards and Park Board districts, the 29 with a round summary | `minneapolis` (its quota a majority, with one seat) | every official round's tallies, the threshold, and the winner; see below | the City's cast vote records |
 | Minneapolis Park Board and Board of Estimate, 2009 (68,741 votes in the first round), and the winners of 2013's two | the 2006 ordinance's rules (`minneapolis` without `rankingsElimination`) | every official round's tallies of 2009 (the Board of Estimate's first round apart, which the record has one vote short), and the candidates elected; see below | the City's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Oakland and Berkeley single-seat contests (mayor, council, city attorney, auditor, school board), 2022, 2024 and April 2025: the 24 FairVote's collection and the County's reports both have | `irv` | every official round's votes, to the vote, in 20; in the other 4 the record is 1–7 votes a candidate off the County's count from the first round on, and the eliminations and winners still match; see below | the County's cast vote records, from [FairVote's single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
+| Alaska: US House (August 2022 special, 2022, 2024), US Senate (2022), and the State House and Senate contests of 2022 and 2024 that went past a first round, 22 in all | `irv` | every official round's votes, to the vote, in 12; in the other 10 the record is 1–9 votes a candidate off the Division of Elections' count (54–71 against the August 2022 special's unofficial report), and the eliminations and winners still match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Eastpointe, Michigan City Council, 2019 and 2021 (2 seats; 8,794 votes in the first round) | `portland` (both are RCTab counts) | every round's tallies, to 4 decimal places, against Macomb County's RCTab summaries, the threshold, and the councillors elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Albany, California City Council and Board of Education, 2022 and 2024 (4–5 candidates, 2–3 seats; 28,782 votes in the first round) | `albany` (2024), the County's 2022 settings | every official round's tallies, to the report's 4 or 6 decimal places, against Alameda County's RCV Detailed Reports, the first threshold, and the candidates elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Cambridge, MA City Council (9 seats) and School Committee (6 seats), every election of 2001–2017 (16; 273,661 valid ballots) | `--method cambridge` | every official count's votes, to the vote, the quota, and the candidates elected, against the official count sheets; see [Cambridge STV](#cambridge-stv) | the City's ballots, in the City's order, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
@@ -304,6 +305,26 @@ ballots, and the eliminations, in order, and the winners still match. Four are f
   rule found (it's more than the ballots with a write-in first, but in two contests fewer than
   those and the ballots skipping their first ranking for a candidate together), so it's
   reported, not checked. The 2024 and 2025 counts hold nothing back.
+
+**Alaska** (`irv`; `tools/reference/alaska`): the contests of the August 2022 special election and
+the November 2022 and 2024 general elections that went past a first round, 22 in all: US House
+(each time), US Senate (2022), and 18 State House and Senate contests. The Division of Elections'
+own site turns away scripted requests, so its Dominion "RCV Detailed Reports" come from the
+Internet Archive; the ballots from FairVote's single-winner collection. The reports state their
+settings: IRV, no winners by threshold, unresolved write-ins excluded, overvotes not skipped, and
+"Exhausted on Two or More Ranks Skipped".
+
+- **Ballots, as the reports' settings say**, which reproduces every first round to the vote: an
+  unresolved write-in is passed over like an eliminated candidate, not counted as a skip; two
+  skipped rankings in a row end the ballot, before the first choice too; an overvote ends it.
+- **The rounds.** In 12 contests every official round matches this count's to the vote. In the
+  other 10 the first round matches, and later rounds differ by 1 to 9 votes a candidate (the 2022
+  and 2024 US House races, the 2022 US Senate race, and 6 State contests); no reading of the
+  ballots tried (skips counted over the whole ballot, repeated candidates as skips or ending the
+  ballot) closes those gaps without opening others, so they look like the record's, as in
+  Alameda. The August 2022 special differs by 54 to 71: the archived report is the unofficial
+  one of 31 August, before certification. In all 22 the candidates are eliminated in the same
+  order and the same candidate wins. Two are fixtures (`AlaskaIrvFixtureTest`).
 
 **Eastpointe, Michigan** (`portland`; `tools/reference/eastpointe`): the City Council elections
 of 2019 and 2021 (2 seats each), from Macomb County's cast vote records as FairVote's collection

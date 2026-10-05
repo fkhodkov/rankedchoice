@@ -1,0 +1,31 @@
+{
+ "source": "https://web.archive.org/web/20221201083955id_/https://www.elections.alaska.gov/results/22GENR/28.pdf",
+ "eliminated": [
+  "Wright, Jessica",
+  "Allen, Rachel M.",
+  "Menard, Steve"
+ ],
+ "elected": [
+  "Sumner, Jesse M."
+ ],
+ "rounds": [
+  {
+   "Allen, Rachel M.": 1287,
+   "Sumner, Jesse M.": 2217,
+   "Wright, Jessica": 863,
+   "Menard, Steve": 1575
+  },
+  {
+   "Allen, Rachel M.": 1491,
+   "Sumner, Jesse M.": 2418,
+   "Wright, Jessica": 0,
+   "Menard, Steve": 1721
+  },
+  {
+   "Allen, Rachel M.": 0,
+   "Sumner, Jesse M.": 3120,
+   "Wright, Jessica": 0,
+   "Menard, Steve": 1936
+  }
+ ]
+}
