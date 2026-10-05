@@ -1,0 +1,99 @@
+package info.fkhodkov.rankedchoice.stv.fixtures;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import info.fkhodkov.rankedchoice.core.ballot.BltParser;
+import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
+import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
+import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.stv.RoundRecord;
+import info.fkhodkov.rankedchoice.stv.StvCounter;
+import info.fkhodkov.rankedchoice.stv.StvResult;
+import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
+
+/**
+ * Three of New York City's primaries (see the fixture's README), counted with the {@code irv} ruleset:
+ * every official round is one of this count's rounds, in order, with the same candidates continuing and
+ * the same votes, to the vote; and the same candidate wins. The Board of Elections defeats together the
+ * lowest candidates who couldn't overtake the next one up, which is several of this count's rounds in
+ * one, and prints a round that changes nothing where a candidate first passes 50%. Its round 1 counts
+ * write-ins as one candidate, whom round 2 eliminates whatever their number; the record's write-ins are
+ * passed over, so this count starts from round 2, and round 1 is left to {@code tools/reference/nyc},
+ * which checks it against the record's first choices.
+ */
+class NycIrvFixtureTest {
+
+    private static final Path DIRECTORY = Path.of("src/test/resources/testdata/nyc");
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2021-dem-mayor", "2023-dem-council-9", "2025-dem-mayor"})
+    void everyOfficialRoundIsThisCountsRound(String contest) throws IOException {
+        ParsedElection election;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new GZIPInputStream(Files.newInputStream(DIRECTORY.resolve(contest + ".blt.gz"))),
+                StandardCharsets.UTF_8))) {
+            election = BltParser.parse(reader.lines());
+        }
+        List<Candidate> candidates = election.candidates();
+        StvResult result = StvCounter.count(candidates, election.ballots(), 1,
+                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/irv.yaml"), candidates));
+        JsonNode official = new ObjectMapper().readTree(DIRECTORY.resolve(contest + ".official.json").toFile());
+
+        List<JsonNode> rounds = new ArrayList<>();
+        official.path("rounds").forEach(rounds::add);
+        int start = 0;
+        for (int k = 1; k < rounds.size(); k++) {
+            Map<String, Fraction> tally = new LinkedHashMap<>();
+            rounds.get(k).properties().forEach(entry -> {
+                if (entry.getValue().asLong() > 0) {
+                    tally.put(key(entry.getKey()), Fraction.of(entry.getValue().asLong()));
+                }
+            });
+            int i = start;
+            while (i < result.rounds().size() && !continuing(result.rounds().get(i)).keySet().equals(tally.keySet())) {
+                i++;
+            }
+            assertThat(i).as("official round %d's candidates continue in a round of this count", k + 1)
+                    .isLessThan(result.rounds().size());
+            assertThat(continuing(result.rounds().get(i))).as("official round %d", k + 1).isEqualTo(tally);
+            start = i;
+        }
+        assertThat(result.electedInOrder()).extracting(candidate -> key(candidate.name()))
+                .containsExactly(key(official.path("elected").get(0).asText()));
+    }
+
+    /** The candidates with votes in a round, by {@link #key}. */
+    private static Map<String, Fraction> continuing(RoundRecord round) {
+        Map<String, Fraction> tally = new LinkedHashMap<>();
+        round.tallies().forEach((candidate, votes) -> {
+            if (votes.signum() > 0) {
+                tally.put(key(candidate.name()), votes);
+            }
+        });
+        return tally;
+    }
+
+    /** A name's letters, so the record's spelling and the page's meet; write-ins are one candidate. */
+    private static String key(String name) {
+        String letters = java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFKD)
+                .toUpperCase(Locale.ROOT).replaceAll("[^A-Z]", "");
+        return letters.startsWith("WRITEIN") ? "WRITEIN" : letters;
+    }
+}

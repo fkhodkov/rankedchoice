@@ -1,0 +1,32 @@
+{
+ "source": "https://www.vote.nyc/sites/default/files/pdf/election_results/2023/20230627Primary%20Election/rcv/025756_1.html",
+ "dataverseFile": 11593413,
+ "elected": [
+  "Yusef Salaam"
+ ],
+ "rounds": [
+  {
+   "Yusef Salaam": "5761",
+   "Inez E. Dickens": "2898",
+   "Al Taylor": "1664",
+   "Kristin R. Jordan": "1098",
+   "Write-ins": "123"
+  },
+  {
+   "Yusef Salaam": "5782",
+   "Inez E. Dickens": "2911",
+   "Al Taylor": "1704",
+   "Kristin R. Jordan": "1114"
+  },
+  {
+   "Yusef Salaam": "5782",
+   "Inez E. Dickens": "2911",
+   "Al Taylor": "1704",
+   "Kristin R. Jordan": "1114"
+  },
+  {
+   "Yusef Salaam": "7058",
+   "Inez E. Dickens": "3996"
+  }
+ ]
+}

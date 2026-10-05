@@ -1,0 +1,88 @@
+{
+ "source": "https://www.vote.nyc/sites/default/files/pdf/election_results/2021/20210622Primary%20Election/rcv/024306_1.html",
+ "dataverseFile": 11593393,
+ "elected": [
+  "Eric L. Adams"
+ ],
+ "rounds": [
+  {
+   "Eric L. Adams": "289403",
+   "Maya D. Wiley": "201127",
+   "Kathryn A. Garcia": "184463",
+   "Andrew Yang": "115130",
+   "Scott M. Stringer": "51778",
+   "Dianne Morales": "26495",
+   "Raymond J. McGuire": "25242",
+   "Shaun Donovan": "23167",
+   "Aaron S. Foldenauer": "7742",
+   "Art Chang": "7048",
+   "Paperboy Love Prince": "3964",
+   "Joycelyn Taylor": "2662",
+   "Isaac Wright Jr.": "2242",
+   "Write-ins": "1568"
+  },
+  {
+   "Eric L. Adams": "289603",
+   "Maya D. Wiley": "201193",
+   "Kathryn A. Garcia": "184571",
+   "Andrew Yang": "115301",
+   "Scott M. Stringer": "51850",
+   "Dianne Morales": "26534",
+   "Raymond J. McGuire": "25272",
+   "Shaun Donovan": "23189",
+   "Aaron S. Foldenauer": "7758",
+   "Art Chang": "7064",
+   "Paperboy Love Prince": "4007",
+   "Joycelyn Taylor": "2683",
+   "Isaac Wright Jr.": "2254"
+  },
+  {
+   "Eric L. Adams": "290055",
+   "Maya D. Wiley": "201518",
+   "Kathryn A. Garcia": "184669",
+   "Andrew Yang": "115502",
+   "Scott M. Stringer": "51951",
+   "Dianne Morales": "26645",
+   "Raymond J. McGuire": "25418",
+   "Shaun Donovan": "23314",
+   "Aaron S. Foldenauer": "7819",
+   "Art Chang": "7093",
+   "Paperboy Love Prince": "4060",
+   "Joycelyn Taylor": "2780"
+  },
+  {
+   "Eric L. Adams": "291806",
+   "Maya D. Wiley": "206013",
+   "Kathryn A. Garcia": "186731",
+   "Andrew Yang": "118008",
+   "Scott M. Stringer": "53599",
+   "Dianne Morales": "30157",
+   "Raymond J. McGuire": "26361",
+   "Shaun Donovan": "24042"
+  },
+  {
+   "Eric L. Adams": "295798",
+   "Maya D. Wiley": "209108",
+   "Kathryn A. Garcia": "191876",
+   "Andrew Yang": "121597",
+   "Scott M. Stringer": "56723",
+   "Dianne Morales": "30933",
+   "Raymond J. McGuire": "27934"
+  },
+  {
+   "Eric L. Adams": "317092",
+   "Maya D. Wiley": "239174",
+   "Kathryn A. Garcia": "223634",
+   "Andrew Yang": "135686"
+  },
+  {
+   "Eric L. Adams": "354657",
+   "Maya D. Wiley": "254728",
+   "Kathryn A. Garcia": "266932"
+  },
+  {
+   "Eric L. Adams": "404513",
+   "Kathryn A. Garcia": "397316"
+  }
+ ]
+}
