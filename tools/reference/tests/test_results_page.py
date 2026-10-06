@@ -98,7 +98,8 @@ class ValidationTable(unittest.TestCase):
         data = dict(DATA, validation_table={"columns": ["Jurisdiction", "Reproduced"],
                                             "rows": [["Somewhere", "every round in {somewhere.every_round}"]]})
         table = results_page.validation_table(data, CHECKED)
-        self.assertEqual(table, "| Jurisdiction | Reproduced |\n|---|---|\n| Somewhere | every round in 3 |")
+        self.assertEqual(table, "| Jurisdiction | Reproduced |\n|---|---|\n| Somewhere | every round in 3 |\n\n"
+                                "From the checks last run on 2026-10-05 (`tools/reference/refresh_results.py`).")
         stale = f"Before\n{results_page.BEGIN}\n| Somewhere | every round in 5 |\n{results_page.END}\nAfter"
         self.assertNotEqual(results_page.with_table(stale, table), stale)
         self.assertIn("every round in 3", results_page.with_table(stale, table))

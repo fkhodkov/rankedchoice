@@ -308,6 +308,8 @@ def validation_table(data, checked):
     lines = ["| " + " | ".join(table["columns"]) + " |", "|" + "---|" * len(table["columns"])]
     for row in table["rows"]:
         lines.append("| " + " | ".join(fill(cell, checked, data) for cell in row) + " |")
+    newest = max(results["date"] for results in checked.values())
+    lines += ["", f"From the checks last run on {newest} (`tools/reference/refresh_results.py`)."]
     return "\n".join(lines)
 
 
