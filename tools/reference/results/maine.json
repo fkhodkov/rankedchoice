@@ -96,7 +96,7 @@
    "matched": 0,
    "rounds": 3,
    "winners_same": true,
-   "line": "2026-dem-congress-2: 0 of 3 official rounds match to the vote (largest differences by round: [12, 15, 16]); eliminations the same; elected the same"
+   "line": "2026-dem-congress-2: 0 of 3 official rounds match to the vote (largest differences by round: [12, 15, 16]); eliminations the same; elected the same; the exports' first rankings differ from the State's tally of first choices in 9 places (Hanover, Jackson, Monson, New Vineyard, ...), 14 ballots in all"
   },
   {
    "contest": "2026-dem-governor",
@@ -104,7 +104,7 @@
    "matched": 0,
    "rounds": 4,
    "winners_same": true,
-   "line": "2026-dem-governor: 0 of 4 official rounds match to the vote (largest differences by round: [15, 17, 13, 8]); eliminations the same; elected the same"
+   "line": "2026-dem-governor: 0 of 4 official rounds match to the vote (largest differences by round: [15, 17, 13, 8]); eliminations the same; elected the same; the exports' first rankings differ from the State's tally of first choices in 13 places (Albany, Andover, Byron, Eastport, ...), 38 ballots in all"
   },
   {
    "contest": "2026-rep-governor",
@@ -112,7 +112,7 @@
    "matched": 0,
    "rounds": 7,
    "winners_same": true,
-   "line": "2026-rep-governor: 0 of 7 official rounds match to the vote (largest differences by round: [4, 4, 4, 4, 4, 4, 3]); eliminations the same; elected the same"
+   "line": "2026-rep-governor: 0 of 7 official rounds match to the vote (largest differences by round: [4, 4, 4, 4, 4, 4, 3]); eliminations the same; elected the same; the exports' first rankings differ from the State's tally of first choices in 17 places (Albany, Andover, Belfast, Benedicta, ...), 27 ballots in all"
   },
   {
    "contest": "2026-rep-senate-4",
@@ -120,7 +120,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2026-rep-senate-4: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2026-rep-senate-4: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; the exports' first rankings are the State's tally of first choices in every place"
   },
   {
    "contest": "2026-rep-house-58",
@@ -128,7 +128,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2026-rep-house-58: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2026-rep-house-58: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; the exports' first rankings are the State's tally of first choices in every place"
   }
  ]
 }

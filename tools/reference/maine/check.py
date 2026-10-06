@@ -27,7 +27,12 @@ each contest's in several Excel exports (the central count, towns counted apart,
 ballots, overseas ballots), a row per ballot with a column per choice. They're fetched, joined (every part must
 have the same columns) and read the same way; their reports are PDFs of a newer layout, a row per candidate with
 the votes of every round. These counts eliminate one candidate a round.
+
+For each 2026 contest the State also publishes its tally of first choices by town (FIRST_CHOICES): each
+candidate marked first, and blanks. The exports' first rankings are compared with it town by town, and the
+line says where they differ: where they do, the exports aren't quite the ballots the State counted.
 """
+import collections
 import csv
 import os
 import re
@@ -99,6 +104,17 @@ STATE_2026 = {
         "REP%20SR58%20Vienna%2020260618.xlsx",
         "Representative%20to%20the%20Legislature%20District%2058%20%28R%29%20UOCAVA.xlsx"]),
 }
+# 2026: the State's tally of first choices by town, under SITE's inline-files/.
+FIRST_CHOICES = {
+    "2026-dem-congress-2": "Representative%20to%20Congress%20District%202%20-%20Democratic.xlsx",
+    "2026-dem-governor": "Governor%20-%20Democratic.xlsx",
+    "2026-rep-governor": "Governor%20-%20Republican.xlsx",
+    "2026-rep-senate-4": "Senate%20District%204%20-%20Republican.xlsx",
+    "2026-rep-house-58": "House%20District%2058%20-%20Republican.xlsx",
+}
+# Places the exports name otherwise than the tally does: misspelt, or a township counted with a town.
+PLACES = {"MILLINOCKETT": "MILLINOCKET", "BUCKSPORTS": "BUCKSPORT", "TD R2 WELS": "BRIDGEWATER",
+          "ELLIOTTSVILLE": "MONSON"}
 SCANNED = {"2024-congress-2": {"Golden, Jared Forrest": [197151], "Theriault, Austin": [194445]}}
 NUMBER = re.compile(r"^-?\d+$")
 
@@ -163,6 +179,41 @@ def ballots_2026(data, contest):
     return joined
 
 
+def place(name):
+    """A town as the tally names it: no ward, no townships counted with it ("CARIBOU/CONNOR TWP")."""
+    name = re.sub(r"\s+(W\d.*|WARD.*|ALL|\(.*\))$", "", name.strip().upper()).split("/")[0].strip()
+    name = re.sub(r"\s+TWP(\s.*)?$", "", name)
+    return PLACES.get(name, name)
+
+
+def first_choices_compared(data, contest, cvr):
+    """Where the exports' first rankings differ from the State's tally of first choices: the places, and how many
+    ballots are counted differently (each moved from one column to another counts once)."""
+    sheet = list(table_rows(fetch(os.path.join(data, contest + "-first-choices.xlsx"),
+                                  SITE + "inline-files/" + FIRST_CHOICES[contest])))
+    labels = next(i for i, row in enumerate(sheet) if "TOWN" in row)
+    town_column = sheet[labels].index("TOWN")
+    start = next(i for i, cell in enumerate(sheet[0]) if cell.strip())
+    end = sheet[0].index("BLANK") + 1
+    columns = [key(name.split(",")[0]) for name in sheet[0][start:end - 1]] + ["BLANK"]
+    tally = collections.defaultdict(collections.Counter)
+    for row in sheet[labels + 1:]:
+        where = "UOCAVA" if "UOCAVA" in "".join(row[:start]).upper() else place(row[town_column])
+        if where and len(row) > end and re.fullmatch(r"\d+", row[start].strip() or "x"):    # not the totals
+            for column, votes in zip(columns, row[start:end]):
+                tally[where][column] += int(votes)
+    with open(cvr, newline="", encoding="utf-8") as source:
+        rows = list(csv.reader(source))
+    ours = collections.defaultdict(collections.Counter)
+    for row in rows[1:]:
+        mark = row[3].strip()
+        column = "BLANK" if mark in ("", "undervote", "overvote") else key(mark.split(",")[0])
+        ours["UOCAVA" if row[2].strip().upper() == "UOCAVA" else place(row[1])][column] += 1
+    places = [where for where in set(tally) | set(ours) if tally[where] != ours[where]]
+    moved = sum(abs(ours[where][c] - tally[where][c]) for where in places for c in columns) // 2
+    return sorted(places), moved
+
+
 def check(data, contest, jar):
     if contest in STATE_2026:
         totals = summary_2026(fetch(os.path.join(data, contest + ".pdf"),
@@ -185,6 +236,12 @@ def check(data, contest, jar):
     exact, gaps = match_rounds(totals, ours, key)
     same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
     line = summary(contest, exact, gaps, same, ours["electedInOrder"])
+    if contest in STATE_2026:
+        places, moved = first_choices_compared(data, contest, ballots_2026(data, contest))
+        line += ("; the exports' first rankings are the State's tally of first choices in every place" if not places
+                 else f"; the exports' first rankings differ from the State's tally of first choices in "
+                      f"{len(places)} places ({', '.join(p.title() if p != 'UOCAVA' else p for p in places[:4])}"
+                      f"{', ...' if len(places) > 4 else ''}), {moved} ballots in all")
     return None not in gaps and same, line + ("; report transcribed from a scan" if contest in SCANNED else "")
 
 

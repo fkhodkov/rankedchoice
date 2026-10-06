@@ -517,9 +517,15 @@ ballots the State publishes itself. The State's "RCV Summary Reports" give every
   District 4 and House District 58 match every round to the vote. In the other three (the
   Democratic primaries for governor and for Congress in the 2nd District, the Republican one for
   governor) the record is 3 to 17 votes a candidate off from the first round on, over for some
-  and under for others, and the eliminations and winners match. In the 2nd District's, neither
-  reading an unrecognised name (a trailing space in 31 rankings) as a skip nor skipping overvotes
-  closes the gap, so the gaps look like the record's, as in Alaska and New York.
+  and under for others, and the eliminations and winners match. That's the record, shown and not
+  only inferred: the State also publishes its own tally of first choices by town, and the
+  exports' first rankings differ from it in 9, 13 and 17 places (14, 38 and 27 ballots, mostly
+  one or two a town, a first choice where the export has a blank or the other way round; 15 in
+  Thorndike's Democratic governor ballots), where the two primaries that match every round agree
+  with it in every place. The tally shows first choices only; the rest of each gap is presumably
+  later rankings differing the same way. (Reading an unrecognised name, a trailing space in 31
+  of the 2nd District's rankings, as a skip, or skipping overvotes, doesn't close any gap.)
+  `check.py` makes the comparison for each 2026 contest.
 
 Four are fixtures (`MaineIrvFixtureTest`): the 2nd District's 2018 and 2022 races, the 2020
 Senate District 11 primary, and the 2026 Senate District 4 primary.
