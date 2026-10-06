@@ -1,5 +1,5 @@
 {
- "about": "What the results page (../results_page.py) shows besides the checkers' results files (<checker>.json, written with --results): each jurisdiction's name and what it is checked against, in page order; the figures of the two checked only by the Java tests; which of a checker's contests the page counts (scope); every known difference, naming its contests by the checker's ids; and the US rules table. A contest that isn't exact and that no difference names is shown as unexplained.",
+ "about": "What the results page (../results_page.py) shows besides the checkers' results files (<checker>.json, written with --results): each jurisdiction's name and what it is checked against, in page order; which of a checker's contests the page counts (scope); every known difference, naming its contests by the checker's ids; and the US rules table. A contest that isn't exact and that no difference names is shown as unexplained.",
  "groups": [
   {
    "name": "Australia",
@@ -10,13 +10,7 @@
      "ruleset": "act-hare-clark",
      "against": "Elections ACT's distributions of preferences",
      "precision": "to 6 decimal places, with votes exhausted and lost",
-     "fixed": {
-      "contests": 5,
-      "every_round": 5,
-      "with_rounds": 5,
-      "winners_same": 5
-     },
-     "source": "the Java tests (ActOfficialDistributionTest)"
+     "checker": "act"
     },
     {
      "name": "Australian Senate",
@@ -53,16 +47,10 @@
      "years": "2002: Dublin North, Dublin West, Meath",
      "ruleset": null,
      "against": "Official first preferences and TDs returned",
-     "fixed": {
-      "contests": 3,
-      "every_round": null,
-      "with_rounds": 0,
-      "winners_same": 3
-     },
      "chip": "Winners and first preferences",
      "text": "Dáil counts draw a random sample of each surplus, so no later round is reproducible.",
      "kind": "plain",
-     "source": "the Java tests (Irish2002GeneralElectionFixtureTest)"
+     "checker": "ireland"
     }
    ]
   },
@@ -515,9 +503,9 @@
    ],
    [
     "ACT Legislative Assembly (2020)",
-    "5",
+    "{act.contests}",
     "`act-hare-clark`",
-    "every round, to 6 decimal places, with votes exhausted and lost"
+    "every round in {act.every_round}, to 6 decimal places, with votes exhausted and lost; the winners in {act.winners}"
    ],
    [
     "Australian Senate (2016–2025)",
@@ -593,9 +581,9 @@
    ],
    [
     "Ireland, Dáil (2002)",
-    "3",
+    "{ireland.contests}",
     "",
-    "first preferences and the TDs returned"
+    "first preferences and the TDs returned in {ireland.passing}"
    ]
   ]
  }

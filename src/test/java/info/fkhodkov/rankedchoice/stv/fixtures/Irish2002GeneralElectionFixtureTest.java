@@ -3,13 +3,16 @@ package info.fkhodkov.rankedchoice.stv.fixtures;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
@@ -50,6 +53,9 @@ import info.fkhodkov.rankedchoice.stv.fixtures.ExpectedStvReplay.ExpectedRound;
  * ({@code jklundell/droop}) — matched to droop's own 5-decimal-place precision at every single
  * stage (see each {@code *.expected.txt} file's own header).
  * </ul>
+ *
+ * <p>With {@code -Dresults.dir=tools/reference/results}, whether each constituency's first preferences and TDs
+ * match goes to {@code ireland.json} there, for the results page ({@link FixtureResults}).
  */
 class Irish2002GeneralElectionFixtureTest {
 
@@ -89,6 +95,14 @@ class Irish2002GeneralElectionFixtureTest {
 
         ExpectedStvReplay expected = ExpectedStvReplay.parse(
                 readLines("/testdata/irish/" + fixtureName + ".expected.txt"));
+        Map<String, Fraction> firstPreferences = new LinkedHashMap<>();
+        actual.rounds().getFirst().tallies()
+                .forEach((candidate, tally) -> firstPreferences.put(candidate.name(), tally));
+        boolean sameFirst = firstPreferences.equals(expected.rounds().getFirst().tallies());
+        boolean sameElected = Set.copyOf(actual.electedInOrder()).equals(Set.copyOf(expectedWinners));
+        FixtureResults.record("ireland", fixtureName, sameFirst && sameElected, null, null, sameElected,
+                fixtureName + ": first preferences " + (sameFirst ? "the official ones" : "DIFFER") + "; elected "
+                        + (sameElected ? "the TDs returned" : "DIFFERENTLY: " + actual.electedInOrder()));
 
         assertThat(actual.quota()).as(fixtureName).isEqualTo(expected.quota());
         assertThat(actual.rounds()).as(fixtureName).hasSameSizeAs(expected.rounds());
@@ -98,6 +112,11 @@ class Irish2002GeneralElectionFixtureTest {
             ExpectedRound expectedRound = expected.rounds().get(i);
             assertRoundMatches(fixtureName, candidates, actualRound, expectedRound);
         }
+    }
+
+    @AfterAll
+    static void writeResults() throws IOException {
+        FixtureResults.write("ireland");
     }
 
     private static void assertRoundMatches(String fixtureName, List<Candidate> candidates,

@@ -3,7 +3,7 @@
 usage: results_page.py [--out PATH] [--validation check|write]
 
 Reads results/jurisdictions.json (each jurisdiction's name, what it is checked against, the figures of the two
-checked only by the Java tests, which of a checker's contests count, the known differences, the US rules table
+checked only by the Java tests, if any, which of a checker's contests count, the known differences, the US rules table
 and the rows of VALIDATION.md's table) and results/<name>.json, which each checker writes with --results
 (`python3 tools/reference/nyc/check.py nyc-data --results tools/reference/results/nyc.json`; also aec, nsw,
 cambridge, and Scotland's check.py as scotland, stage_report.py as scotland-stage-reports and stages.py as
@@ -354,8 +354,8 @@ def main():
     commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=HERE, capture_output=True,
                             text=True).stdout.strip()
     fixed = [j for g in data["groups"] for j in g["jurisdictions"] if "fixed" in j]
-    stamp = (f"Checks run up to {newest}" + (f", at commit {commit}" if commit else "") + "; "
-             + "; ".join(f'{j["name"]} from {j["source"]}' for j in fixed) + ".")
+    stamp = (f"Checks run up to {newest}" + (f", at commit {commit}" if commit else "")
+             + "".join(f'; {j["name"]} from {j["source"]}' for j in fixed) + ".")
     page, unexplained, warnings = build(data, checked, css, stamp)
     with open(args.out, "w", encoding="utf-8") as out:
         out.write(page)

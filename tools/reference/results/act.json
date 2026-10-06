@@ -1,0 +1,40 @@
+{
+  "checker" : "act",
+  "date" : "2026-10-06",
+  "contests" : [ {
+    "contest" : "brindabella",
+    "ok" : true,
+    "matched" : 23,
+    "rounds" : 23,
+    "winners_same" : true,
+    "line" : "brindabella: 23 of 23 rounds match an official count, to 6 decimal places, with the votes exhausted and the loss by fraction; elected the same"
+  }, {
+    "contest" : "ginninderra",
+    "ok" : true,
+    "matched" : 32,
+    "rounds" : 32,
+    "winners_same" : true,
+    "line" : "ginninderra: 32 of 32 rounds match an official count, to 6 decimal places, with the votes exhausted and the loss by fraction; elected the same"
+  }, {
+    "contest" : "kurrajong",
+    "ok" : true,
+    "matched" : 28,
+    "rounds" : 28,
+    "winners_same" : true,
+    "line" : "kurrajong: 28 of 28 rounds match an official count, to 6 decimal places, with the votes exhausted and the loss by fraction; elected the same"
+  }, {
+    "contest" : "murrumbidgee",
+    "ok" : true,
+    "matched" : 28,
+    "rounds" : 28,
+    "winners_same" : true,
+    "line" : "murrumbidgee: 28 of 28 rounds match an official count, to 6 decimal places, with the votes exhausted and the loss by fraction; elected the same"
+  }, {
+    "contest" : "yerrabi",
+    "ok" : true,
+    "matched" : 25,
+    "rounds" : 25,
+    "winners_same" : true,
+    "line" : "yerrabi: 25 of 25 rounds match an official count, to 6 decimal places, with the votes exhausted and the loss by fraction; elected the same"
+  } ]
+}

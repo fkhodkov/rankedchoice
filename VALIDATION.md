@@ -36,7 +36,7 @@ the build fails when it no longer matches them.
 | Jurisdiction | Contests | Ruleset | Reproduced |
 |---|---|---|---|
 | Scotland, council wards (2007–2022) | 1,070 | `scottish` | the winners in all 1,070; every stage in 40 of the 40 council stage reports; every count in 874 of Wikipedia's 1,043 result boxes |
-| ACT Legislative Assembly (2020) | 5 | `act-hare-clark` | every round, to 6 decimal places, with votes exhausted and lost |
+| ACT Legislative Assembly (2020) | 5 | `act-hare-clark` | every round in 5, to 6 decimal places, with votes exhausted and lost; the winners in all 5 |
 | Australian Senate (2016–2025) | 32 | `senate` | every round in 32, to the vote, with votes exhausted and lost; the winners in all 32 |
 | NSW councils (2024) | 227 | `nsw-lg` | every round in 212, to the vote, with votes lost; the other 15 part at a tie the Commission drew by lot; the winners in all 227 |
 | Portland, Oregon (2024) | 4 | `portland` | every round in 2, to 4 places; the other 2 part at a tie drawn by lot; the winners in all 4 |
@@ -49,7 +49,7 @@ the build fails when it no longer matches them.
 | Alaska (2022, 2024) | 22 | `irv` | every round in 12; the eliminations and the winner in all 22 |
 | New York City primaries (2021–2025) | 123 | `irv` | every round in 117; the eliminations and the winner in all 123 |
 | Maine (2018–2024) | 11 | `irv` | every round in 10; the eliminations and the winner in all 11 |
-| Ireland, Dáil (2002) | 3 |  | first preferences and the TDs returned |
+| Ireland, Dáil (2002) | 3 |  | first preferences and the TDs returned in all 3 |
 <!-- End of the generated table. -->
 
 Where a round doesn't match, it's because the ballot record isn't quite the set of ballots the

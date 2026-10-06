@@ -1,0 +1,26 @@
+{
+  "checker" : "ireland",
+  "date" : "2026-10-06",
+  "contests" : [ {
+    "contest" : "meath-2002",
+    "ok" : true,
+    "matched" : null,
+    "rounds" : null,
+    "winners_same" : true,
+    "line" : "meath-2002: first preferences the official ones; elected the TDs returned"
+  }, {
+    "contest" : "dublin-west-2002",
+    "ok" : true,
+    "matched" : null,
+    "rounds" : null,
+    "winners_same" : true,
+    "line" : "dublin-west-2002: first preferences the official ones; elected the TDs returned"
+  }, {
+    "contest" : "dublin-north-2002",
+    "ok" : true,
+    "matched" : null,
+    "rounds" : null,
+    "winners_same" : true,
+    "line" : "dublin-north-2002: first preferences the official ones; elected the TDs returned"
+  } ]
+}

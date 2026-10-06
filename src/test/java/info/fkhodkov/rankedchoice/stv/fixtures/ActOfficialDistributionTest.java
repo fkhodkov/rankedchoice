@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
@@ -39,6 +40,9 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  *
  * <p>The official count has more counts than this one has rounds: it records each value group of
  * an exclusion as a count of its own, where a round here covers the whole exclusion.
+ *
+ * <p>With {@code -Dresults.dir=tools/reference/results}, the results go to {@code act.json} there, for the
+ * results page ({@link FixtureResults}).
  */
 class ActOfficialDistributionTest {
 
@@ -61,6 +65,7 @@ class ActOfficialDistributionTest {
         List<Count> official = read(DIRECTORY.resolve("act-2020-" + electorate + ".official.txt"));
 
         int from = 0;
+        List<String> mismatches = new ArrayList<>();
         for (RoundRecord round : result.rounds()) {
             Integer match = null;
             for (int i = from; i < official.size() && match == null; i++) {
@@ -68,10 +73,14 @@ class ActOfficialDistributionTest {
                     match = i;
                 }
             }
-            assertThat(match).as("%s round %d matches an official count", electorate, round.roundNumber()).isNotNull();
-            assertThat(round.roundingLoss()).as("%s round %d: loss by fraction (official count %d)", electorate,
-                    round.roundNumber(), official.get(match).number()).isEqualTo(official.get(match).loss());
-            from = match;
+            if (match == null) {
+                mismatches.add("round " + round.roundNumber() + " matches no official count");
+            } else if (!round.roundingLoss().equals(official.get(match).loss())) {
+                mismatches.add("round " + round.roundNumber() + ": loss by fraction " + round.roundingLoss()
+                        + ", official count " + official.get(match).number() + " has " + official.get(match).loss());
+            } else {
+                from = match;
+            }
         }
 
         Set<String> electedOfficially = new java.util.HashSet<>();
@@ -81,9 +90,22 @@ class ActOfficialDistributionTest {
                 electedOfficially.add(key(matcher.group(1) + matcher.group(2)));
             }
         }
-        assertThat(result.electedInOrder().stream().map(candidate -> key(candidate.name())).collect(Collectors.toSet()))
-                .hasSize(5)
-                .isEqualTo(electedOfficially);
+        Set<String> elected = result.electedInOrder().stream().map(candidate -> key(candidate.name()))
+                .collect(Collectors.toSet());
+        int rounds = result.rounds().size();
+        boolean sameElected = elected.size() == 5 && elected.equals(electedOfficially);
+        FixtureResults.record("act", electorate, mismatches.isEmpty() && sameElected, rounds - mismatches.size(),
+                rounds, sameElected, electorate + ": " + (rounds - mismatches.size()) + " of " + rounds
+                        + " rounds match an official count, to 6 decimal places, with the votes exhausted and the loss "
+                        + "by fraction; elected " + (sameElected ? "the same" : "DIFFERENTLY: " + elected));
+
+        assertThat(mismatches).as("%s: rounds that don't match the official counts", electorate).isEmpty();
+        assertThat(elected).hasSize(5).isEqualTo(electedOfficially);
+    }
+
+    @AfterAll
+    static void writeResults() throws IOException {
+        FixtureResults.write("act");
     }
 
     /** Every candidate in the round's tallies has the official votes, and so do the exhausted votes. */

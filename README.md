@@ -360,11 +360,12 @@ about 45 s, 16 / 8 about a minute.
   every jurisdiction's official-count checks at a glance, with every known difference and its
   cause. Every checker it draws on (the US ones, `aec`, `nsw`, `cambridge`, and Scotland's
   `check.py`, `stage_report.py` and `stages.py`) writes its results with `--results
-  tools/reference/results/<name>.json`; the ACT's and Ireland's figures (from the Java tests), the
-  causes and the rules table are in `results/jurisdictions.json`. A difference no cause names
-  shows on the page as unexplained, and the script reports it. VALIDATION.md's Official counts
-  table is generated the same way (`--validation write`), and the Python tests fail when it no
-  longer matches the results.
+  tools/reference/results/<name>.json`, and so do the ACT's and Ireland's fixture tests, asked to
+  (`mvn test -Dtest='ActOfficialDistributionTest,Irish2002GeneralElectionFixtureTest'
+  -Dresults.dir=tools/reference/results`); the causes and the rules table are in
+  `results/jurisdictions.json`. A difference no cause names shows on the page as unexplained,
+  and the script reports it. VALIDATION.md's Official counts table is generated the same way
+  (`--validation write`), and the Python tests fail when it no longer matches the results.
 - [`tools/reference/tests`](tools/reference/tests) — tests of those, on small made-up ballots
   and counts (every converter option; round matching with several defeated at once, repeated
   rounds and rounds out of order; the summary lines; the pass-report parser; the results page's
