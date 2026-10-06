@@ -959,13 +959,28 @@ pairs, 10 fresh JVM runs each) found the CPO-STV bug above and nothing else.
 
 ## Not validated
 
+The gaps below were checked again in October 2026, against what each election authority then
+published; none had begun to publish what would close them.
+
 - **ERS76** — no surviving copy of the 1976 rulebook or any election published under it was
   found; the preset is ERS97's settings ("believed similar", not verified).
 - **`hare-clark-qpq`** against official counts — the Tasmanian Electoral Commission publishes
-  detailed round-by-round scrutiny reports but never ballot-level data, so there's nothing to
-  replay. It's checked against the Act's Schedule 4 through OpenTally instead (see above).
-- **`vic-lc` and `wa-lc`** against official counts — no ballot papers are published; checked
+  detailed round-by-round scrutiny reports and results by polling place, but never ballot-level
+  data, so there's nothing to replay (the 2024 and 2025 House of Assembly elections included).
+  It's checked against the Act's Schedule 4 through OpenTally instead (see above).
+- **`vic-lc`** against official counts — the Victorian Electoral Commission publishes full
+  preference distributions for Legislative Assembly districts (39 in 2022), but no Legislative
+  Council ballot papers; checked against OpenTally (see above).
+- **`wa-lc`** against official counts — the WA Electoral Commission's public results feed
+  (media.waec.wa.gov.au, the 2025 general election's final files included) has candidate and
+  ticket setups and results by polling place, but no Legislative Council ballot papers; checked
   against OpenTally (see above).
+- **Meek's method against an official public count** — New Zealand's councils count by Meek,
+  and some publish each iteration's figures (Wellington City Council's declarations of 2022 and
+  2025, for one), but not the ballots, so no iteration can be replayed. A request under the
+  Official Information Act might obtain them. Meek is checked against droop on every round,
+  OpenTally's Meek presets on the winners, and one real election run on OpaVote (MapLibre's,
+  see above).
 - **Imperiali quota** — hand-derived only (see above).
 - **Cambridge STV's rounds for 2019–2023** — the ballot records don't mark overvotes; the
   winners are checked (see above).
