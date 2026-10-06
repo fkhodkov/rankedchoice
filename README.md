@@ -366,6 +366,11 @@ about 45 s, 16 / 8 about a minute.
   `results/jurisdictions.json`. A difference no cause names shows on the page as unexplained,
   and the script reports it. VALIDATION.md's Official counts table is generated the same way
   (`--validation write`), and the Python tests fail when it no longer matches the results.
+- [`tools/reference/refresh_results.py`](tools/reference/refresh_results.py) — refresh all of it in
+  one go: given a data root with a directory per checker (`alameda/`, `nyc/`, `aec/`,
+  `scotland/`, …), it runs every checker whose directory is there, then the ACT's and Ireland's
+  fixture tests, then rebuilds the page and VALIDATION.md's table, and says which it skipped and
+  why (`--only` for some checkers, `--dry-run` to see the plan).
 - [`tools/reference/tests`](tools/reference/tests) — tests of those, on small made-up ballots
   and counts (every converter option; round matching with several defeated at once, repeated
   rounds and rounds out of order; the summary lines; the pass-report parser; the results page's

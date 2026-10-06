@@ -95,9 +95,10 @@ def check(data, event, state, jar):
             f"official count (of {len(counts)}); elected {'the same, in order' if ours == elected else 'DIFFERENTLY'}")
     if unmatched:
         line += f"; first unmatched round {unmatched[0]}"
-    line += f" ({seconds:.0f}s to count)"
-    return record(f"{event}-{state}", ok, line, matched=len(report["rounds"]) - len(unmatched),
-                  rounds=len(report["rounds"]), winners_same=ours == elected)
+    result = record(f"{event}-{state}", ok, line, matched=len(report["rounds"]) - len(unmatched),
+                    rounds=len(report["rounds"]), winners_same=ours == elected)
+    result["seconds"] = seconds    # printed, not written to the results file: it changes from run to run
+    return result
 
 
 def main():
@@ -115,8 +116,8 @@ def main():
         event, state = election.split("-")
         result = check(args.data, event, state, args.jar)
         failed += not result["ok"]
+        print(f'{result["line"]} ({result.pop("seconds", 0):.0f}s to count)', flush=True)
         results.append(result)
-        print(result["line"], flush=True)
     if args.results:
         write_results(args.results, "aec", results)
     sys.exit(1 if failed else 0)
