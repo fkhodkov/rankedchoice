@@ -497,5 +497,106 @@
    "pattern": "^(?!.*by_election)",
    "why": "regular ward elections; by-elections aren't claimed"
   }
+ },
+ "validation_table": {
+  "about": "VALIDATION.md's \"Official counts\" table, between its generated-table markers: each row's cells, with placeholders in braces (a checker's name, a dot, a field) filled from that checker's results. results_page.py --validation write rewrites it; --validation check, and the Python tests, fail when it is stale.",
+  "columns": [
+   "Jurisdiction",
+   "Contests",
+   "Ruleset",
+   "Reproduced"
+  ],
+  "rows": [
+   [
+    "Scotland, council wards (2007–2022)",
+    "{scotland.contests}",
+    "`scottish`",
+    "the winners in {scotland.winners}; every stage in {scotland-stage-reports.every_round} of the {scotland-stage-reports.contests} council stage reports; every count in {scotland-wikipedia.every_round} of Wikipedia's {scotland-wikipedia.contests} result boxes"
+   ],
+   [
+    "ACT Legislative Assembly (2020)",
+    "5",
+    "`act-hare-clark`",
+    "every round, to 6 decimal places, with votes exhausted and lost"
+   ],
+   [
+    "Australian Senate (2016–2025)",
+    "{aec.contests}",
+    "`senate`",
+    "every round in {aec.every_round}, to the vote, with votes exhausted and lost; the winners in {aec.winners}"
+   ],
+   [
+    "NSW councils (2024)",
+    "{nsw.contests}",
+    "`nsw-lg`",
+    "every round in {nsw.every_round}, to the vote, with votes lost; the other {nsw.short} part at a tie the Commission drew by lot; the winners in {nsw.winners}"
+   ],
+   [
+    "Portland, Oregon (2024)",
+    "{portland.contests}",
+    "`portland`",
+    "every round in {portland.every_round}, to 4 places; the other {portland.short} part at a tie drawn by lot; the winners in {portland.winners}"
+   ],
+   [
+    "Minneapolis (2009–2025)",
+    "{minneapolis.contests}",
+    "`minneapolis`; 2009 by the 2006 ordinance's rules",
+    "every round in {minneapolis.every_round} of {minneapolis.with_rounds}, the other's first round a vote short in the record; {minneapolis.winners_only} (2013) by winners only; the winners in {minneapolis.winners}"
+   ],
+   [
+    "Cambridge, MA (2001–2023)",
+    "{cambridge.contests}",
+    "`--method cambridge`",
+    "every count in {cambridge.every_round} of the {cambridge.with_rounds} compared (2001–2017); the winners in {cambridge.winners}"
+   ],
+   [
+    "Albany, California (2022, 2024)",
+    "{albany.contests}",
+    "`albany`; 2022 by the County's settings then",
+    "every round in {albany.every_round}; the winners in {albany.winners}"
+   ],
+   [
+    "Eastpointe, Michigan (2019, 2021)",
+    "{eastpointe.contests}",
+    "`portland`",
+    "every round in {eastpointe.every_round}, but one figure the official summary itself has 2 votes off; the winners in {eastpointe.winners}"
+   ],
+   [
+    "Alameda County, California (2010–2025)",
+    "{alameda.contests}",
+    "`irv`",
+    "every round in {alameda.every_round}; the eliminations and the winner in {alameda.passing}"
+   ],
+   [
+    "San Francisco (2010–2024)",
+    "{sanfrancisco.contests}",
+    "`irv`",
+    "every round in {sanfrancisco.every_round} (before 2019, official rounds that defeat several candidates at once); the eliminations and the winner in {sanfrancisco.passing}"
+   ],
+   [
+    "Alaska (2022, 2024)",
+    "{alaska.contests}",
+    "`irv`",
+    "every round in {alaska.every_round}; the eliminations and the winner in {alaska.passing}"
+   ],
+   [
+    "New York City primaries (2021–2025)",
+    "{nyc.contests}",
+    "`irv`",
+    "every round in {nyc.every_round}; the eliminations and the winner in {nyc.passing}"
+   ],
+   [
+    "Maine (2018–2024)",
+    "{maine.contests}",
+    "`irv`",
+    "every round in {maine.every_round}; the eliminations and the winner in {maine.passing}"
+   ],
+   [
+    "Ireland, Dáil (2002)",
+    "3",
+    "",
+    "first preferences and the TDs returned"
+   ]
+  ]
  }
 }

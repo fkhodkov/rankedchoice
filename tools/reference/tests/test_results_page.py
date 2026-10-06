@@ -84,5 +84,25 @@ class Page(unittest.TestCase):
         self.assertIn("its own converter", rows)
 
 
+class ValidationTable(unittest.TestCase):
+
+    def test_validation_md_matches_the_results(self):
+        """VALIDATION.md's Official counts table is what the committed results give (results_page.py --validation
+        write rewrites it)."""
+        data, checked = results_page.load()
+        with open(results_page.VALIDATION, encoding="utf-8") as source:
+            text = source.read()
+        self.assertEqual(results_page.with_table(text, results_page.validation_table(data, checked)), text)
+
+    def test_a_stale_table_is_told_apart(self):
+        data = dict(DATA, validation_table={"columns": ["Jurisdiction", "Reproduced"],
+                                            "rows": [["Somewhere", "every round in {somewhere.every_round}"]]})
+        table = results_page.validation_table(data, CHECKED)
+        self.assertEqual(table, "| Jurisdiction | Reproduced |\n|---|---|\n| Somewhere | every round in 3 |")
+        stale = f"Before\n{results_page.BEGIN}\n| Somewhere | every round in 5 |\n{results_page.END}\nAfter"
+        self.assertNotEqual(results_page.with_table(stale, table), stale)
+        self.assertIn("every round in 3", results_page.with_table(stale, table))
+
+
 if __name__ == "__main__":
     unittest.main()
