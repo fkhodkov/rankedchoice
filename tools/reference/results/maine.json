@@ -89,6 +89,46 @@
    "rounds": 1,
    "winners_same": true,
    "line": "2024-congress-2: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; report transcribed from a scan"
+  },
+  {
+   "contest": "2026-dem-congress-2",
+   "ok": true,
+   "matched": 0,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2026-dem-congress-2: 0 of 3 official rounds match to the vote (largest differences by round: [12, 15, 16]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2026-dem-governor",
+   "ok": true,
+   "matched": 0,
+   "rounds": 4,
+   "winners_same": true,
+   "line": "2026-dem-governor: 0 of 4 official rounds match to the vote (largest differences by round: [15, 17, 13, 8]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2026-rep-governor",
+   "ok": true,
+   "matched": 0,
+   "rounds": 7,
+   "winners_same": true,
+   "line": "2026-rep-governor: 0 of 7 official rounds match to the vote (largest differences by round: [4, 4, 4, 4, 4, 4, 3]); eliminations the same; elected the same"
+  },
+  {
+   "contest": "2026-rep-senate-4",
+   "ok": true,
+   "matched": 3,
+   "rounds": 3,
+   "winners_same": true,
+   "line": "2026-rep-senate-4: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2026-rep-house-58",
+   "ok": true,
+   "matched": 2,
+   "rounds": 2,
+   "winners_same": true,
+   "line": "2026-rep-house-58: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
   }
  ]
 }

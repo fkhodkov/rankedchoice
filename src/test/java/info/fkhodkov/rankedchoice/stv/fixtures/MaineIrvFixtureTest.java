@@ -29,7 +29,7 @@ import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
 
 /**
- * Three of Maine's ranked-choice contests (see the fixture's README), counted with the {@code irv} ruleset:
+ * Four of Maine's ranked-choice contests (see the fixture's README), counted with the {@code irv} ruleset:
  * every official round is one of this count's rounds, in order, with the same candidates continuing and the
  * same votes, to the vote; and the same candidate wins. The Secretary of State defeats together the lowest
  * candidates who couldn't overtake the next one up, and stops at a majority.
@@ -39,7 +39,7 @@ class MaineIrvFixtureTest {
     private static final Path DIRECTORY = Path.of("src/test/resources/testdata/maine");
 
     @ParameterizedTest
-    @ValueSource(strings = {"2018-congress-2", "2020-dem-senate-11", "2022-congress-2"})
+    @ValueSource(strings = {"2018-congress-2", "2020-dem-senate-11", "2022-congress-2", "2026-rep-senate-4"})
     void everyOfficialRoundIsThisCountsRound(String contest) throws IOException {
         ParsedElection election;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(

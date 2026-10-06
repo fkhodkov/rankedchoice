@@ -1,4 +1,4 @@
-"""Check the irv ruleset against Maine's official ranked-choice counts, 2018-2024.
+"""Check the irv ruleset against Maine's official ranked-choice counts, 2018-2026.
 
 usage: check.py DATA_DIR [--jar PATH] [CONTEST ...]
 
@@ -21,7 +21,14 @@ The reports come as Excel files (2018, 2020: read with LibreOffice's soffice) or
 a row per candidate giving the votes, percentage and transfer of every round. The 2024 report is a scan,
 with no text; its figures are transcribed below (SCANNED), and its one round starts after the write-ins
 are eliminated.
+
+The June 2026 primaries (STATE_2026) aren't in FairVote's collection: the State publishes their ballots itself,
+each contest's in several Excel exports (the central count, towns counted apart, the manual count of auxiliary
+ballots, overseas ballots), a row per ballot with a column per choice. They're fetched, joined (every part must
+have the same columns) and read the same way; their reports are PDFs of a newer layout, a row per candidate with
+the votes of every round. These counts eliminate one candidate a round.
 """
+import csv
 import os
 import re
 import subprocess
@@ -49,6 +56,49 @@ CONTESTS = {
     "2024-congress-2": (11593287, "content/assets/Nov24-20RCV-20CG2-20Summary-20Report.pdf"),
 }
 # The 2024 report is a scanned page: its figures, read off it.
+# 2026: the State's summary report and every export of the ballots, under SITE's inline-files/.
+STATE_2026 = {
+    "2026-dem-congress-2": ("CG2%20Democratic%20RCV%20Summary%20Report.pdf", [
+        "DEM%20CG2%20Additional%20CVR%20Export%2020260618.xlsx",
+        "DEM%20CG2%20Vienna%2020260618.xlsx",
+        "Jun26%20DEM%20CG2%2020260618.xlsx",
+        "Jun26%20DEM%20CG2%20Auburn%202060616.xlsx",
+        "Jun26%20DEM%20CG2%20AUX%20MANUAL1%2020260617.xlsx",
+        "Jun26%20DEM%20CG2%20AUX%20MANUAL2%2020260617.xlsx",
+        "Jun26%20DEM%20CG2%20AUX%20MANUAL3%20Updated%2020260623.xlsx",
+        "Representative%20to%20Congress%20District%202%20%28D%29%20UOCAVA.xlsx"]),
+    "2026-dem-governor": ("GOV%20Democratic%20RCV%20Summary%20Report.pdf", [
+        "DEM%20Gov%20Additional%20CVR%20Export%2020260618.xlsx",
+        "DEM%20Gov%20Vienna%2020260618.xlsx",
+        "Governor%20%28D%29%20UOCAVA.xlsx",
+        "Jun26%20DEM%20GOV%2020260618%20-%201.xlsx",
+        "Jun26%20DEM%20GOV%2020260618%20-%202.xlsx",
+        "Jun26%20DEM%20GOV%2020260618.xlsx",
+        "Jun26%20DEM%20Gov%20Auburn%2020260616.xlsx",
+        "Jun26%20DEM%20Gov%20AUX%20MANUAL1%2020260617.xlsx",
+        "Jun26%20DEM%20Gov%20AUX%20MANUAL2%2020260617.xlsx",
+        "Jun26%20DEM%20Gov%20AUX%20MANUAL3%20Updated%2020260623.xlsx"]),
+    "2026-rep-governor": ("GOV%20Republican%20RCV%20Summary%20Reportxlsx.pdf", [
+        "Governor%20%28R%29%20UOCAVA.xlsx",
+        "Jun26%20REP%20GOV%2020260618%20-%201.xlsx",
+        "Jun26%20REP%20GOV%2020260618_2.xlsx",
+        "Jun26%20REP%20Gov%20Auburn%2020260616.xlsx",
+        "Jun26%20REP%20Gov%20AUX1%2020260617.xlsx",
+        "Jun26%20REP%20Gov%20AUX2%2020260617.xlsx",
+        "Jun26%20REP%20Gov%20AUX3%20MANUAL%20Updated%2020260623.xlsx",
+        "REP%20Gov%20Additional%20CVR%20Export%2020260618.xlsx",
+        "REP%20Gov%20Vienna%2020260618.xlsx"]),
+    "2026-rep-senate-4": ("REP%20SS4%20RCV%20Summary%20Report.pdf", [
+        "Jun26%20REP%20SS4%2020260618.xlsx",
+        "Jun26%20REP%20SS4%20AUX%20MANUAL%2020260617.xlsx",
+        "State%20Senator%20District%204%20%28R%29%20UOCAVA.xlsx"]),
+    "2026-rep-house-58": ("REP%20SR58%20RCV%20Summary%20Report.pdf", [
+        "Jun26%20REP%20SR58%2020260618.xlsx",
+        "Jun26%20REP%20SR58%20AUX1.xlsx",
+        "REP%20SR58%20Additional%20CVR%20Export%2020260618.xlsx",
+        "REP%20SR58%20Vienna%2020260618.xlsx",
+        "Representative%20to%20the%20Legislature%20District%2058%20%28R%29%20UOCAVA.xlsx"]),
+}
 SCANNED = {"2024-congress-2": {"Golden, Jared Forrest": [197151], "Theriault, Austin": [194445]}}
 NUMBER = re.compile(r"^-?\d+$")
 
@@ -76,17 +126,57 @@ def official_rounds(path):
     return totals
 
 
+def summary_2026(path):
+    """{candidate: [votes in round 1, 2, ...]} from a 2026 report: after the "Elected" row, a row per candidate,
+    the name and each round's votes, until "Exhausted Ballots"."""
+    totals, reading = {}, False
+    for line in pdf_text(path).splitlines():
+        cells = re.split(r"\s{2,}", line.strip())
+        if cells[0].startswith("Elected"):
+            reading = True
+        elif reading and cells[0].startswith("Exhausted"):
+            break
+        elif reading and cells[0]:
+            totals[cells[0]] = [int(v.replace(",", "")) for v in cells[1:] if re.fullmatch(r"[\d,]+", v)]
+    return totals
+
+
+def ballots_2026(data, contest):
+    """Every export of a 2026 contest's ballots, fetched and joined into one CSV file; its path."""
+    joined = os.path.join(data, contest + ".csv")
+    if os.path.exists(joined):
+        return joined
+    header, rows = None, []
+    for n, export in enumerate(STATE_2026[contest][1], 1):
+        part = fetch(os.path.join(data, f"{contest}-part{n}.xlsx"), SITE + "inline-files/" + export)
+        sheet = list(table_rows(part))
+        if header is None:
+            header = sheet[0]
+        if sheet[0] != header:
+            raise ValueError(f"{export} has other columns than the first export: {sheet[0]}")
+        rows += sheet[1:]
+    with open(joined + ".part", "w", newline="", encoding="utf-8") as out:
+        writer = csv.writer(out)
+        writer.writerow(header)
+        writer.writerows(rows)
+    os.replace(joined + ".part", joined)
+    return joined
+
+
 def check(data, contest, jar):
-    file_id, report = CONTESTS[contest]
-    if contest in SCANNED:
+    if contest in STATE_2026:
+        totals = summary_2026(fetch(os.path.join(data, contest + ".pdf"),
+                                    SITE + "inline-files/" + STATE_2026[contest][0]))
+    elif contest in SCANNED:
         totals = SCANNED[contest]
     else:
-        local = fetch(os.path.join(data, contest + os.path.splitext(report)[1]), SITE + report)
-        totals = official_rounds(local)
+        report = CONTESTS[contest][1]
+        totals = official_rounds(fetch(os.path.join(data, contest + os.path.splitext(report)[1]), SITE + report))
     totals = {key(name): votes for name, votes in totals.items()}
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
-        cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+        cvr = ballots_2026(data, contest) if contest in STATE_2026 else \
+            fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=CONTESTS[contest][0]))
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end",
                         "--write-in", "candidate"], check=True)
     ours, error = count(jar, blt)
@@ -99,4 +189,4 @@ def check(data, contest, jar):
 
 
 if __name__ == "__main__":
-    main(__doc__.split("\n\n")[0], CONTESTS, check)
+    main(__doc__.split("\n\n")[0], list(CONTESTS) + list(STATE_2026), check)

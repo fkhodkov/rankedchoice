@@ -4,7 +4,8 @@ Checks the `irv` ruleset against the Maine Secretary of State's "RCV Summary Rep
 contests it counted by ranked choice and whose ballots FairVote's collection of single-winner RCV
 cast vote records (https://doi.org/10.7910/DVN/AMK8PJ) has: 11, from the 2018 Democratic primary
 for governor and the 2018, 2022 and 2024 races for Congress in the 2nd District to five
-legislative primaries of 2020.
+legislative primaries of 2020. And the five primaries of June 2026, whose ballots the State
+publishes itself, each in several Excel exports that `check.py` fetches and joins.
 
 - The records are converted with `../cvr_to_blt.py --skipped two-end --write-in candidate`: two skipped
   rankings in a row end the ballot (those before the first choice included), an overvote ends

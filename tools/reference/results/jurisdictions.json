@@ -133,10 +133,10 @@
     },
     {
      "name": "Maine",
-     "years": "2018–2024",
+     "years": "2018–2026",
      "ruleset": "irv",
      "checker": "maine",
-     "against": "The Secretary of State's RCV summary reports"
+     "against": "The Secretary of State's RCV summary reports; 2026's ballots from the State itself"
     }
    ]
   }
@@ -211,6 +211,16 @@
     "2018-dem-governor"
    ],
    "text": "Maine: the 2018 Democratic primary for governor, Janet Mills 3 votes higher in the last round."
+  },
+  {
+   "cause": "record",
+   "checker": "maine",
+   "contests": [
+    "2026-dem-congress-2",
+    "2026-dem-governor",
+    "2026-rep-governor"
+   ],
+   "text": "Maine: the 2026 Democratic primaries for Congress in the 2nd District and for governor, and the Republican primary for governor, 3–17 votes a candidate, over for some and under for others; the State's exports hold exactly the ballots its reports count, so some are read differently. The other two 2026 primaries match every round."
   },
   {
    "cause": "record",
@@ -439,6 +449,16 @@
     "--skipped two-end --write-in candidate"
    ],
    [
+    "Maine 2026",
+    "ends the ballot",
+    "two in a row end it",
+    "counts once",
+    "one candidate",
+    "one a round",
+    "at a majority",
+    "--skipped two-end --write-in candidate"
+   ],
+   [
     "Minneapolis 2009–2025",
     "skipped",
     "passed over",
@@ -574,7 +594,7 @@
     "every round in {nyc.every_round}; the eliminations and the winner in {nyc.passing}"
    ],
    [
-    "Maine (2018–2024)",
+    "Maine (2018–2026)",
     "{maine.contests}",
     "`irv`",
     "every round in {maine.every_round}; the eliminations and the winner in {maine.passing}"
