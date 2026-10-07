@@ -8,7 +8,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2010-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2010-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2010-council-1",
@@ -16,7 +16,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2010-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2010-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2010-council-4",
@@ -24,7 +24,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2010-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2010-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2010-council-7",
@@ -32,7 +32,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "berkeley-2010-council-7: 2 of 2 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2010-council-7: 2 of 2 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "berkeley-2010-council-8",
@@ -40,7 +40,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2010-council-8: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2010-council-8: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2010-mayor",
@@ -48,7 +48,7 @@
    "matched": 10,
    "rounds": 10,
    "winners_same": true,
-   "line": "oakland-2010-mayor: 10 of 10 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2010-mayor: 10 of 10 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (10 rounds)"
   },
   {
    "contest": "oakland-2010-auditor",
@@ -56,7 +56,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2010-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2010-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2010-council-2",
@@ -64,7 +64,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2010-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2010-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2010-council-4",
@@ -72,7 +72,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "oakland-2010-council-4: 6 of 6 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2010-council-4: 6 of 6 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "oakland-2010-council-6",
@@ -80,7 +80,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2010-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2010-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2010-school-2",
@@ -88,7 +88,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2010-school-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2010-school-2: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2010-school-4",
@@ -96,7 +96,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2010-school-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2010-school-4: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2010-school-6",
@@ -104,7 +104,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2010-school-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2010-school-6: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2010-mayor",
@@ -112,7 +112,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "san-leandro-2010-mayor: 6 of 6 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2010-mayor: 6 of 6 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "san-leandro-2010-council-1",
@@ -120,7 +120,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2010-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2010-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2010-council-3",
@@ -128,7 +128,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2010-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2010-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2010-council-5",
@@ -136,7 +136,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2010-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2010-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2012-mayor",
@@ -144,7 +144,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2012-mayor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2012-mayor: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2012-council-2",
@@ -152,7 +152,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2012-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2012-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2012-council-3",
@@ -160,7 +160,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2012-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2012-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2012-council-5",
@@ -168,7 +168,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2012-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2012-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2012-council-6",
@@ -176,7 +176,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2012-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2012-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2012-city-attorney",
@@ -184,7 +184,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2012-city-attorney: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-city-attorney: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2012-council-at-large",
@@ -192,7 +192,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "oakland-2012-council-at-large: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-council-at-large: 5 of 5 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "oakland-2012-council-1",
@@ -200,7 +200,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "oakland-2012-council-1: 7 of 7 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-council-1: 7 of 7 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (7 rounds)"
   },
   {
    "contest": "oakland-2012-council-3",
@@ -208,7 +208,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "oakland-2012-council-3: 6 of 6 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-council-3: 6 of 6 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "oakland-2012-council-5",
@@ -216,7 +216,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "oakland-2012-council-5: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-council-5: 4 of 4 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "oakland-2012-council-7",
@@ -224,7 +224,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2012-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2012-school-1",
@@ -232,7 +232,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2012-school-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-school-1: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2012-school-3",
@@ -240,7 +240,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "oakland-2012-school-3: 3 of 3 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-school-3: 3 of 3 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "oakland-2012-school-5",
@@ -248,7 +248,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2012-school-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-school-5: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2012-school-7",
@@ -256,7 +256,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2012-school-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2012-school-7: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2012-council-2",
@@ -264,7 +264,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "san-leandro-2012-council-2: 3 of 3 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2012-council-2: 3 of 3 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "san-leandro-2012-council-4",
@@ -272,7 +272,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "san-leandro-2012-council-4: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2012-council-4: 4 of 4 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "san-leandro-2012-council-6",
@@ -280,7 +280,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2012-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2012-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2014-auditor",
@@ -288,7 +288,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2014-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2014-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2014-council-1",
@@ -296,7 +296,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2014-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2014-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2014-council-7",
@@ -304,7 +304,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2014-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2014-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2014-council-8",
@@ -312,7 +312,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "berkeley-2014-council-8: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2014-council-8: 4 of 4 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "oakland-2014-mayor",
@@ -320,7 +320,7 @@
    "matched": 16,
    "rounds": 16,
    "winners_same": true,
-   "line": "oakland-2014-mayor: 16 of 16 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2014-mayor: 16 of 16 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (16 rounds)"
   },
   {
    "contest": "oakland-2014-auditor",
@@ -328,7 +328,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2014-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2014-auditor: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2014-council-2",
@@ -336,7 +336,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "oakland-2014-council-2: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2014-council-2: 5 of 5 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "oakland-2014-council-4",
@@ -344,7 +344,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2014-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2014-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2014-council-6",
@@ -352,7 +352,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "oakland-2014-council-6: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2014-council-6: 5 of 5 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "oakland-2014-school-2",
@@ -360,7 +360,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2014-school-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2014-school-2: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2014-school-4",
@@ -368,7 +368,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "oakland-2014-school-4: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2014-school-4: 4 of 4 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "oakland-2014-school-6",
@@ -376,7 +376,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2014-school-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2014-school-6: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2014-mayor",
@@ -384,7 +384,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "san-leandro-2014-mayor: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2014-mayor: 4 of 4 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "san-leandro-2014-council-1",
@@ -392,7 +392,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "san-leandro-2014-council-1: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2014-council-1: 4 of 4 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "san-leandro-2014-council-3",
@@ -400,7 +400,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2014-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2014-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2014-council-5",
@@ -408,7 +408,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2014-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2014-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2016-mayor",
@@ -416,7 +416,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "berkeley-2016-mayor: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2016-mayor: 5 of 5 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "berkeley-2016-council-2",
@@ -424,7 +424,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "berkeley-2016-council-2: 3 of 3 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2016-council-2: 3 of 3 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "berkeley-2016-council-3",
@@ -432,7 +432,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2016-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2016-council-3: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2016-council-5",
@@ -440,7 +440,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2016-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2016-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2016-council-6",
@@ -448,7 +448,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2016-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2016-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2016-city-attorney",
@@ -456,7 +456,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2016-city-attorney: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-city-attorney: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2016-council-at-large",
@@ -464,7 +464,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2016-council-at-large: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-council-at-large: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2016-council-1",
@@ -472,7 +472,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2016-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-council-1: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2016-council-5",
@@ -480,7 +480,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2016-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-council-5: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2016-council-7",
@@ -488,7 +488,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2016-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-council-7: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2016-school-1",
@@ -496,7 +496,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2016-school-1: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-school-1: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2016-school-3",
@@ -504,7 +504,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "oakland-2016-school-3: 5 of 5 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-school-3: 5 of 5 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "oakland-2016-school-5",
@@ -512,7 +512,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "oakland-2016-school-5: 4 of 4 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-school-5: 4 of 4 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "oakland-2016-school-7",
@@ -520,7 +520,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "oakland-2016-school-7: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "oakland-2016-school-7: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2016-council-2",
@@ -528,7 +528,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2016-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2016-council-2: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2016-council-4",
@@ -536,7 +536,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2016-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2016-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "san-leandro-2016-council-6",
@@ -544,7 +544,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "san-leandro-2016-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "san-leandro-2016-council-6: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "berkeley-2017-council-4",
@@ -552,7 +552,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "berkeley-2017-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same"
+   "line": "berkeley-2017-council-4: 1 of 1 passes match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "oakland-2022-mayor",

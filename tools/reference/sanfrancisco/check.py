@@ -41,7 +41,8 @@ from decimal import Decimal
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, exhausted_line, fetch, main, match_rounds, name_key as key,  # noqa: E402
-                      pass_report, pdf_text, sheets, stale, summary, table_rows, transfer_line, winner)
+                      pass_exhausted_line, pass_report, pdf_text, sheets, stale, summary, table_rows,
+                      transfer_line, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 RESULTS = "sfelections.org/results/"
@@ -288,6 +289,8 @@ def check(data, contest, jar):
     exact, gaps = match_rounds(totals, ours, key)
     same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
     transfers = transfer_line(official_transfers(local, totals), ours, key) if contest >= "2019" else ""
+    if contest < "2015":
+        transfers = pass_exhausted_line(pdf_text(local), ours, key)
     if "2015" <= contest < "2019":
         # Exhausted votes, overvotes past the first round's among them (ballots whose first ranking is an overvote
         # never come into this count); the hopeless defeated together don't matter, rounds being matched by tallies.

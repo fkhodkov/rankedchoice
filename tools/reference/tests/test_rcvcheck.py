@@ -282,6 +282,20 @@ class PassReport(unittest.TestCase):
                          {"ANNE SMITH": [600, 650], "BOB WRITE-A-VERY-LONG-NAME-THAT-WRAPS": [300, 350],
                           "Write-In": [100, 0]})
 
+    def test_exhausted_ballots_after_each_pass(self):
+        report = PASS_REPORT.replace(
+            "                                  Continuing Ballots          1000\n",
+            "                                  Continuing Ballots          1000\n"
+            "   Exhausted by Over Votes                    7\n   Under Votes      30\n"
+            "   Exhausted Ballots                          0\n                   Total Ballots   1037\n", 1)
+        report = report.replace("Write-In            Eliminated in pass 1.     0            0.00%\n"
+                                "                                  Continuing Ballots          1000\n",
+                                "Write-In            Eliminated in pass 1.     0            0.00%\n"
+                                "                                  Continuing Ballots          1000\n"
+                                "   Exhausted by Over Votes                    8\n"
+                                "   Exhausted Ballots                          4\n                   Total Ballots   1042\n")
+        self.assertEqual(rcvcheck.pass_exhausted(report), [7, 12])
+
 
 if __name__ == "__main__":
     unittest.main()

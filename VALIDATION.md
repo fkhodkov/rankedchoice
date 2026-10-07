@@ -406,7 +406,9 @@ archived; nor is there a pass report for Oakland's 2016 District 3 race.
   (Berkeley's 2012 mayoral race, Mark Schwartz) the report gives Write-In no votes and the
   record's write-ins are passed over. All 69 match every pass to the vote; 22 go past the first
   pass, 162 passes in all, among them the 10 of Oakland's 2010 mayoral race, which Jean Quan won
-  from second place, and the 16 of its 2014 race.
+  from second place, and the 16 of its 2014 race. Every pass's exhausted ballots ("Exhausted
+  Ballots" and "Exhausted by Over Votes", less the first pass's overvotes) are this count's
+  exhausted votes too, in all 69 (`rcvcheck.pass_exhausted_line`).
 - **2022–2025**: the County's setting is "IRV" with no winners by threshold: the candidate with
   fewest votes is defeated round by round until two are left, the one with more votes winning;
   the `irv` ruleset goes on to one, with a Hare quota no one but the last candidate reaches. In 20 contests every official round matches
@@ -472,7 +474,8 @@ with the report's, each candidate's gain and the change in its "Exhausted" and "
 (as for Alaska): in all 17 contests that go past a first round, every transfer is the report's.
 For 2015–2018, whose counts defeat several at once, it compares each round's exhausted votes
 instead (the pages' "Exhausted Ballots" and "Exhausted by Over Votes", less the first round's
-overvotes): every round of all 18 contests matches. The 2010–2014 pass reports aren't compared.
+overvotes): every round of all 18 contests matches. So do the 2010–2014 pass reports' exhausted
+ballots, every pass of all 10 contests.
 Skipping overvotes instead flags transfers moved in the three tried (2019's district attorney,
 2020's District 1, 2024's mayor).
 

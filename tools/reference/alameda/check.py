@@ -41,7 +41,7 @@ from decimal import Decimal
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
-                      pdf_text, stale, summary, transfer_line, winner)
+                      pass_exhausted_line, pdf_text, stale, summary, transfer_line, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 REPORT = "https://alamedacountyca.gov/rovresults/rcv/{election}/{race}/RcvDetailedReport.xml"
@@ -302,7 +302,8 @@ def check_pass_report(data, contest, jar):
     its first pass only drops the write-in line, with no votes, so that pass repeats the one before."""
     file_id, path = PASS_REPORTS[contest]
     pdf = fetch(os.path.join(data, contest + ".pdf"), PASS_REPORT.format(path=path))
-    totals = {key(name): votes for name, votes in pass_report(pdf_text(pdf)).items()}
+    text = pdf_text(pdf)
+    totals = {key(name): votes for name, votes in pass_report(text).items()}
     cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
     blt = os.path.join(data, contest + ".blt")
     if stale(blt, cvr):
@@ -317,7 +318,7 @@ def check_pass_report(data, contest, jar):
     exact, gaps = match_rounds(totals, ours, key)
     same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
     return None not in gaps and same, summary(contest, exact, gaps, same, ours["electedInOrder"], rounds="passes",
-                                              round_name="pass", first=0)
+                                              round_name="pass", first=0) + pass_exhausted_line(text, ours, key)
 
 
 if __name__ == "__main__":

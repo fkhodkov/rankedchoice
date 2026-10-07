@@ -13,7 +13,8 @@ Detailed Reports". The counts of 2018 and 2020 are no longer published, and no c
   (Berkeley's 2012 mayoral race), which `check.py` reads off the report.
 - Up to 2017 the County eliminated one candidate a pass but stopped at a majority, and from 2012
   its first pass only drops the empty write-in line; `check.py` requires every pass to be one of
-  this count's rounds, in order, with the same candidates continuing and the same votes.
+  this count's rounds, in order, with the same candidates continuing and the same votes, and
+  each pass's exhausted ballots (overvotes included) to be this count's exhausted votes.
 - From 2022, `check.py` compares every official round's votes with this count's, round for round,
   to the vote, with the order of eliminations and the winner. Where the record differs from the
   County's count by a few votes from the first round on, it says by how much; such a contest

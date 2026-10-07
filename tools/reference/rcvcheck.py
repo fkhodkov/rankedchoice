@@ -152,6 +152,34 @@ def pass_report(text):
     return totals
 
 
+def pass_exhausted(text):
+    """[exhausted ballots after pass 0, 1, ...] from a pass report: each Final State's "Exhausted by Over Votes"
+    and "Exhausted Ballots" together, up to its "Total Ballots"."""
+    found, reading = [], False
+    for line in text.splitlines():
+        cells = re.split(r"\s{2,}", line.strip())
+        if cells[0] == "Final State":
+            found.append(0)
+            reading = True
+        elif reading and "Total Ballots" in cells:
+            reading = False
+        elif reading and cells[0] in ("Exhausted by Over Votes", "Exhausted Ballots") and re.match(r"^[\d,]+$",
+                                                                                                   cells[-1]):
+            found[-1] += int(cells[-1].replace(",", ""))
+    return found
+
+
+def pass_exhausted_line(text, ours, key):
+    """exhausted_line for a pass report: each pass's candidates and exhausted ballots, the overvotes past the first
+    pass's (a ballot whose first ranking is an overvote never comes into this count)."""
+    totals = {key(name): votes for name, votes in pass_report(text).items()}
+    exhausted = pass_exhausted(text)
+    passes = min(len(exhausted), max((len(votes) for votes in totals.values()), default=0))
+    return exhausted_line([({name: Decimal(votes[k]) for name, votes in totals.items() if len(votes) > k},
+                            Decimal(exhausted[k]), None) for k in range(passes)],
+                          ours, lambda figures, name: figures.get(key(name)), past_first=True)
+
+
 def count(jar, blt, rules=("--ruleset", "irv")):
     """This count of a BLT file, as its JSON report, or the error it stopped with."""
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--report-format", "json", *rules],
