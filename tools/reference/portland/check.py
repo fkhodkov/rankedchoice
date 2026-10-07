@@ -22,7 +22,7 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import count, fetch, main, stale, threshold_line, unmatched_rounds  # noqa: E402
+from rcvcheck import count, exhausted_line, fetch, main, stale, threshold_line, unmatched_rounds  # noqa: E402
 
 REPORT = "a18a5db1-04a2-4123-8ccb-de12b485f135"    # the County's final results, 2 December 2024
 SUMMARY = ("https://mcdcselectionsrcvprdst.z5.web.core.windows.net/{report}_City of Portland Councilor District {n}/"
@@ -65,10 +65,16 @@ def check(data, n, jar):
     unmatched = [k for k in unmatched if not any(f"round {k} " in lot for lot in lots)]
     same = sorted(ours["electedInOrder"]) == sorted(elected)
     matched = len(rounds) - len(unmatched) - len(lots)
+    # Each round's exhausted votes: the "exhausted" transfers of the rounds before it.
+    exhausted, gone = [], Decimal(0)
+    for r in rounds:
+        exhausted.append(({name: Decimal(votes) for name, votes in r["tally"].items()}, gone, None))
+        gone += sum(Decimal(t.get("transfers", {}).get("exhausted", "0")) for t in r["tallyResults"])
     line = threshold_line(f"District {n}", ours, summary["config"]["threshold"], matched, len(rounds), same,
                           ours["electedInOrder"], quota="quota")
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
+    line += exhausted_line(exhausted, ours)
     for lot in lots:
         line += f"; {lot} (decided by lot)"
     return not unmatched and same and Decimal(ours["quota"]) == Decimal(summary["config"]["threshold"]), line

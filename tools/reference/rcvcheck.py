@@ -1,6 +1,6 @@
 """What the reference checkers of US ranked-choice counts share: fetching, matching names, counting, and matching
-the official rounds with this count's, to the vote (single-seat) or to the official decimal places (multi-seat), and
-comparing each elimination's transfers with an official report's.
+the official rounds with this count's, to the vote (single-seat) or to the official decimal places (multi-seat),
+comparing each elimination's transfers with an official report's, and each round's exhausted votes.
 
 The checkers (alameda, alaska, maine, nyc, sanfrancisco; albany, eastpointe, minneapolis, portland) import it from
 the directory above theirs.
@@ -214,6 +214,30 @@ def unmatched_rounds(official, ours, figure=dict.get):
         else:
             start = hit
     return unmatched
+
+
+def exhausted_line(official, ours, figure=dict.get, past_first=False):
+    """Whether, in each official round that is a round of this count (every candidate on the official figure,
+    figure(figures, name) finding it), the votes no longer with a candidate are this count's: OFFICIAL is
+    [(figures, exhausted, remainders or None)] by round, compared with this count's exhausted votes and rounding loss.
+    With past_first, the first round's exhausted figure is taken off every round's (votes a count reports exhausted
+    from the start, such as ballots whose first ranking is an overvote, that never come into this one)."""
+    start, compared, off, remainders = 0, 0, [], False
+    base = official[0][1] if past_first and official else 0
+    for k, (figures, exhausted, remainder) in enumerate(official):
+        hit = next((i for i in range(start, len(ours["rounds"])) if all(
+            figure(figures, name) == Decimal(votes) for name, votes in ours["rounds"][i]["tallies"].items())), None)
+        if hit is None:
+            continue
+        start, compared, mine = hit, compared + 1, ours["rounds"][hit]
+        remainders |= remainder is not None
+        if (exhausted - base != Decimal(mine["exhaustedVotes"])
+                or (remainder is not None and remainder != Decimal(mine["roundingLoss"]))):
+            off.append(k + 1)
+    what = "exhausted votes and remainders" if remainders else "exhausted votes"
+    if off:
+        return f"; {what} DIFFER in official rounds {off}"
+    return f"; {what} the official ones ({compared} rounds)" if compared else ""
 
 
 def threshold_line(contest, ours, official_threshold, matched, rounds, same, elected, quota="threshold"):

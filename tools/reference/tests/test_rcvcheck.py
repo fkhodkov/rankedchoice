@@ -170,6 +170,40 @@ class Transfers(unittest.TestCase):
         self.assertEqual(rcvcheck.transfer_line([("D", {"A": 1})], TRANSFERS, name_key), "")
 
 
+def counted(*rounds):
+    """A count's JSON report with each round's exhausted votes and rounding loss: (tallies, exhausted, loss)."""
+    return {"rounds": [{"tallies": tallies, "exhaustedVotes": gone, "roundingLoss": loss}
+                       for tallies, gone, loss in rounds]}
+
+
+EXHAUSTING = counted(({"Ann": "12", "Bob": "8", "Cy": "3"}, "0", "0"),
+                     ({"Ann": "10", "Bob": "9.5", "Cy": "3.25"}, "0.5", "0.25"))
+FIRST = {"Ann": Decimal(12), "Bob": Decimal(8), "Cy": Decimal(3)}
+SECOND = {"Ann": Decimal(10), "Bob": Decimal("9.5"), "Cy": Decimal("3.25")}
+
+
+class ExhaustedLine(unittest.TestCase):
+
+    def test_exhausted_votes_alone(self):
+        self.assertEqual(rcvcheck.exhausted_line([(FIRST, Decimal(0), None), (SECOND, Decimal("0.5"), None)],
+                                                 EXHAUSTING), "; exhausted votes the official ones (2 rounds)")
+
+    def test_with_remainders_and_the_first_rounds_overvotes_aside(self):
+        official = [(FIRST, Decimal(4), Decimal(0)), (SECOND, Decimal("4.5"), Decimal("0.25"))]
+        self.assertEqual(rcvcheck.exhausted_line(official, EXHAUSTING, past_first=True),
+                         "; exhausted votes and remainders the official ones (2 rounds)")
+
+    def test_a_round_that_differs_named(self):
+        official = [(FIRST, Decimal(4), Decimal(0)), (SECOND, Decimal("4.75"), Decimal(0))]
+        self.assertEqual(rcvcheck.exhausted_line(official, EXHAUSTING, past_first=True),
+                         "; exhausted votes and remainders DIFFER in official rounds [2]")
+
+    def test_rounds_not_in_this_count_are_left_out(self):
+        other = {"Ann": Decimal(11), "Bob": Decimal(9), "Cy": Decimal(3)}
+        self.assertEqual(rcvcheck.exhausted_line([(FIRST, Decimal(0), None), (other, Decimal(0), None)], EXHAUSTING),
+                         "; exhausted votes the official ones (1 rounds)")
+
+
 class Fetch(unittest.TestCase):
     """The download cache: a file is reused while it comes from the same address, fetched again from another."""
 

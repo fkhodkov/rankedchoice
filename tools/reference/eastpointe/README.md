@@ -12,7 +12,10 @@ ruleset (another RCTab count at 4 decimal places).
 - `check.py` fetches each record and the RCTab summary published on RCVis, converts and counts
   the record, and matches every official round to a round of this count, every candidate to 4
   decimal places, with the threshold and the councillors elected. It reports the two rounds it
-  lets pass: the last, after the last surplus moves, and the 2021 summary's round 4 slip.
+  lets pass: the last, after the last surplus moves, and the 2021 summary's round 4 slip. In each
+  matched round it also compares the inactive ballots with this count's exhausted votes (the
+  residual surplus isn't compared: from round 3, 2021's summary counts its first surplus's
+  residual twice).
 
 ```sh
 mvn package -DskipTests

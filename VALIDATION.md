@@ -302,7 +302,9 @@ round-by-round results (RCTab's tabulation summaries): at the official threshold
 Districts 2 and 4 is one of this count's rounds, every candidate to 4 decimal places, and in
 Districts 1 and 3 every round but the one that follows a tie for defeat the County drew by lot
 (Linn and Owens on 1,441; Smith-Moore and Hilton on 200), where this project's declared order
-chose the other; both elect the same councillors either way. District 4 is a fixture
+chose the other; both elect the same councillors either way. In each of the 96 rounds that are
+this count's, the votes exhausted so far (the summaries' "exhausted" transfers of the rounds
+before) are this count's exhausted votes, to 4 decimal places. District 4 is a fixture
 (`PortlandFixtureTest`).
 
 The rules are City Code 2.08.030 C, and the ballots needed reading as the County reads them:
@@ -324,7 +326,9 @@ and Recreation Board at large and the Board of Estimate and Taxation (`tools/ref
 from its cast vote records, against its summary statements (those of 2025 marked "unofficial"):
 at the official threshold, every official round of all six is one of this count's rounds, every
 candidate to 4 decimal places, and the same candidates are elected. All six are fixtures
-(`MinneapolisFixtureTest`).
+(`MinneapolisFixtureTest`). In every such round the statement's exhausted votes are this
+count's too, as they are in every matched round of the 29 single-seat races below
+(`rcvcheck.exhausted_line`).
 
 The rules are **inferred**, partly. The ordinance as enacted in 2006 (167.70) is the only text
 found; the current Code of Ordinances wasn't reachable. What the counts show:
@@ -608,7 +612,11 @@ Senate District 11 primary, and the 2026 Senate District 4 primary.
 of 2019 and 2021 (2 seats each), from Macomb County's cast vote records as FairVote's collection
 has them, against the RCTab summaries of the County's counts published on RCVis: every round is
 one of this count's rounds, every candidate to 4 decimal places, at the official threshold, with
-the same councillors elected. Both are fixtures (`EastpointeFixtureTest`).
+the same councillors elected, and each round's inactive ballots are this count's exhausted votes.
+The summaries' residual surplus is this count's rounding loss in 2019; in 2021 it is 0.0125 more
+from round 3 on, a slip of the summary's own: it lists the first surplus's residual again among
+Tonia Gladney's transfers, which already account for all of her 203.2125 votes, so that round's
+figures add up to 3,803.0125 of 3,803 ballots. Both are fixtures (`EastpointeFixtureTest`).
 
 - **Ballots, as RCTab was set.** A skipped ranking or a write-in is passed over, but two in a row
   end the ballot; an overvote ends it; and so does a candidate ranked again. That last setting

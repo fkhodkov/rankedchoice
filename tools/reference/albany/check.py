@@ -13,7 +13,7 @@ threshold recomputed each round, 6 decimal places), and every official round's t
 of this count's rounds, in order, every candidate to the report's decimal places, at the official
 first threshold, with the same candidates elected. The CVR and the report spell some names
 differently ("ROBIN D  LOPEZ", "ROBIN D. LÓPEZ"); they're matched on their letters. In each matched
-round the votes no longer with a candidate are compared too (nontransferable_line).
+round the votes no longer with a candidate are compared too (rcvcheck.exhausted_line).
 """
 import os
 import re
@@ -24,8 +24,8 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import (DATAVERSE, count, fetch, main, name_key as key, stale, threshold_line,  # noqa: E402
-                      unmatched_rounds)
+from rcvcheck import (DATAVERSE, count, exhausted_line, fetch, main, name_key as key, stale,  # noqa: E402
+                      threshold_line, unmatched_rounds)
 
 ROOT = os.path.join(HERE, "..", "..", "..")
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
@@ -64,27 +64,6 @@ def report(path):
     return seats, rounds, elected, gone
 
 
-def nontransferable_line(rounds, gone, ours):
-    """Whether, in each official round that is a round of this count, the votes no longer with a candidate are this
-    count's: exhausted and overvotes past the first round's (ballots whose first ranking is an overvote never come into
-    this count) against its exhausted votes, the rounding remainders against its rounding loss."""
-    start, compared, off = 0, 0, []
-    for k, (_, votes) in enumerate(rounds):
-        figures = {key(name): value for name, value in votes.items()}
-        hit = next((i for i in range(start, len(ours["rounds"])) if all(
-            figures.get(key(name)) == Decimal(value) for name, value in ours["rounds"][i]["tallies"].items())), None)
-        if hit is None:
-            continue
-        start, compared = hit, compared + 1
-        mine = ours["rounds"][hit]
-        if (gone[k][0] - gone[0][0] != Decimal(mine["exhaustedVotes"])
-                or gone[k][1] != Decimal(mine["roundingLoss"])):
-            off.append(k + 1)
-    if off:
-        return f"; exhausted votes or remainders DIFFER in official rounds {off}"
-    return f"; exhausted votes and remainders the official ones ({compared} rounds)" if compared else ""
-
-
 def check(data, contest, jar):
     file_id, election, race = CONTESTS[contest]
     seats, rounds, elected, gone = report(fetch(os.path.join(data, contest + ".xml"),
@@ -107,7 +86,11 @@ def check(data, contest, jar):
                           ours["electedInOrder"])
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
-    line += nontransferable_line(rounds, gone, ours)
+    # Exhausted votes and overvotes past the first round's (ballots whose first ranking is an overvote never come into
+    # this count), and the rounding remainders, against this count's exhausted votes and rounding loss.
+    line += exhausted_line([(votes, exhausted, remainder) for (_, votes), (exhausted, remainder) in zip(rounds, gone)],
+                           ours, lambda figures, name: next((v for n, v in figures.items() if key(n) == key(name)),
+                                                            None), past_first=True)
     return not unmatched and same and Decimal(ours["quota"]) == threshold, line
 
 

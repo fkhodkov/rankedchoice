@@ -195,7 +195,8 @@ def check_older(data, contest, jar):
 
 
 def summary(pdf):
-    """The threshold, and each candidate's grand total after every round, from the summary statement."""
+    """The threshold, each candidate's grand total after every round, and the exhausted votes after every round (none
+    where the statement has no Exhausted row), from the summary statement."""
     text = rcvcheck.pdf_text(pdf)
     lines = text.splitlines()
     threshold = int(re.search(r"Threshold:\s+([\d,]+)", text).group(1).replace(",", ""))
@@ -216,8 +217,8 @@ def summary(pdf):
         first = Decimal(0) if values[0] == "-" else Decimal(values[0])
         totals[name] = [first] + [Decimal(v) for v in values[2::2]]
         name = ""
-    totals.pop("Exhausted", None)
-    return threshold, totals
+    exhausted = totals.pop("Exhausted", None)
+    return threshold, totals, exhausted
 
 
 def check(data, contest, jar):
@@ -232,7 +233,7 @@ def check(data, contest, jar):
     ours, error = rcvcheck.count(jar, blt, ["--ruleset", "minneapolis"])
     if error:
         return False, f"{contest}: count failed: {error}"
-    threshold, totals = summary(fetch(data, pdf))
+    threshold, totals, exhausted = summary(fetch(data, pdf))
     rounds = len(next(iter(totals.values())))
     unmatched = unmatched_rounds([(k + 1, {name: values[k] for name, values in totals.items()}) for k in range(rounds)],
                                  ours, official_figure)
@@ -243,6 +244,9 @@ def check(data, contest, jar):
                           f"{ours['electedInOrder']} vs {elected}")
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
+    if exhausted:
+        line += rcvcheck.exhausted_line([({name: values[k] for name, values in totals.items()}, exhausted[k], None)
+                                         for k in range(min(rounds, len(exhausted)))], ours, official_figure)
     return not unmatched and same and Decimal(ours["quota"]) == threshold, line
 
 

@@ -25,7 +25,8 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import DATAVERSE, count, fetch, main, stale, threshold_line, unmatched_rounds  # noqa: E402
+from rcvcheck import (DATAVERSE, count, exhausted_line, fetch, main, stale, threshold_line,  # noqa: E402
+                      unmatched_rounds)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 CONTESTS = {
@@ -33,6 +34,7 @@ CONTESTS = {
     "council-2021": (11620416, "https://rcvis.com/v/eastpointe-2021-results"),
 }
 NOT_CANDIDATES = {"Inactive Ballots", "Residual Surplus"}
+PLACES = Decimal("0.0001")
 # The summary's own slip: (contest, round, candidate, its figure, what its other figures give).
 SLIPS = {("council-2021", 4, "Rob Baker"): (Decimal("1058.8175"), Decimal("1056.8175"))}
 
@@ -72,12 +74,18 @@ def check(data, contest, jar):
                 notes.append(f"round {slip_round}: the summary has {name} on {printed}, {printed - consistent} "
                              f"more than its round {slip_round - 1} plus its transfers ({consistent})")
         figures_by_round.append((official_round["round"], figures))
+    # Inactive ballots, round by round, against this count's exhausted votes (the residual surplus isn't compared:
+    # 2021's summary carries its first surplus's residual into an elimination whose transfers account for every vote).
+    # The page's figures are floating-point numbers (204.09750000000003); RCTab counts to 4 decimal places.
+    inactive = [(figures, Decimal(str(official_round["tally"].get("Inactive Ballots", 0))).quantize(PLACES), None)
+                for (_, figures), official_round in zip(figures_by_round, rounds)]
     unmatched = unmatched_rounds(figures_by_round, ours)
     same = sorted(ours["electedInOrder"]) == sorted(elected)
     line = threshold_line(contest, ours, official["config"]["threshold"], len(rounds) - len(unmatched), len(rounds),
                           same, ours["electedInOrder"])
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
+    line += exhausted_line(inactive, ours)
     for note in notes:
         line += f"; {note}"
     return not unmatched and same and Decimal(ours["quota"]) == Decimal(official["config"]["threshold"]), line

@@ -17,6 +17,8 @@ seats) and the Board of Estimate and Taxation (2 seats), and its single-seat rac
   `minneapolis` and their PDF summaries read with `pdftotext` (poppler-utils); 2009 with the 2006
   ordinance's rules alone (`src/test/resources/testdata/minneapolis/minneapolis-2009.yaml`) and
   its Excel summaries read with LibreOffice (`soffice`); for 2013, only the winners, both ways.
+  For 2017–2025 it also compares each matched round's "Exhausted" row with this count's
+  exhausted votes.
 
 ```sh
 mvn package -DskipTests
