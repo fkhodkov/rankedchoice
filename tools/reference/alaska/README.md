@@ -31,5 +31,10 @@ mvn package -DskipTests
 python3 tools/reference/alaska/check.py alaska-data
 ```
 
+The August 2022 special is checked against the Division's official report of 2 September (the
+Archive's copy of 3 September). A data directory filled before October 2026 holds the unofficial
+report of 31 August as `2022-special-us-house.pdf`: delete it, and the checker fetches the
+official one.
+
 The statewide records are about 60 MB each. Result: see
 [VALIDATION.md](../../../VALIDATION.md#real-elections).

@@ -33,7 +33,7 @@ CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 ARCHIVE = "https://web.archive.org/web/{stamp}id_/https://www.elections.alaska.gov/results/{path}"
 # contest: (Dataverse file id, archived report: timestamp and path under /results/)
 CONTESTS = {
-    "2022-special-us-house": (11593054, "20220901162008", "22SSPG/RcvDetailedReport.pdf"),
+    "2022-special-us-house": (11593054, "20220903003548", "22SSPG/RcvDetailedReport.pdf"),
     "2022-us-house": (11593091, "20221201122645", "22GENR/US%20REP.pdf"),
     "2022-us-senate": (11593072, "20221201102100", "22GENR/US%20SEN.pdf"),
     "2022-house-11": (11593061, "20221201150232", "22GENR/11.pdf"),

@@ -51,7 +51,7 @@ lists every contest whose result would change.
 | Eastpointe, Michigan (2019, 2021) | 2 | `portland` | every round in 2, but one figure the official summary itself has 2 votes off; the winners in all 2 |
 | Alameda County, California (2010–2025) | 93 | `irv` | every round in 89; the eliminations and the winner in all 93 |
 | San Francisco (2010–2024) | 53 | `irv` | every round in 50 (before 2019, official rounds that defeat several candidates at once); the eliminations and the winner in all 53 |
-| Alaska (2022, 2024) | 22 | `irv` | every round in 20; the eliminations and the winner in all 22 |
+| Alaska (2022, 2024) | 22 | `irv` | every round in 21; the eliminations and the winner in all 22 |
 | New York City primaries (2021–2025) | 124 | `irv` | every round in 120; the eliminations and the winner in all 124 |
 | Maine (2018–2026) | 16 | `irv` | every round in 12; the eliminations and the winner in all 16 |
 | Ireland, Dáil (2002) | 3 |  | first preferences and the TDs returned in all 3 |
@@ -84,7 +84,7 @@ Real elections, run through their own rulesets, reproduce their actual results:
 | San Francisco: mayor (2011, 2015, 2018, 2019, 2024), Board of Supervisors districts, district attorney, public defender, city attorney, sheriff and assessor-recorder, 2010–2024: the 53 whose final results the Internet Archive kept | `irv` | every official round's votes, to the vote, in 50 (before 2019, a round that defeats several candidates at once is several of this count's); the other 3 (2024's city attorney, district attorney and sheriff races) only have results captured before certification, 76–80 votes short, and the eliminations and winners match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | New York City primaries of 2021, 2023 and 2025, from mayor (Adams 2021, Mamdani 2025) to city council: the 124 whose certified rounds the Board of Elections publishes as web pages | `irv` | every official round's votes, to the vote, in 120 (several candidates defeated together being several of this count's rounds); in the other 4, of 2021, the Board's published record is 2–19 votes a candidate off its count, and the eliminations and winners still match; see below | The Board's own cast vote records |
 | Maine: the 2018 Democratic primary for governor, the 2nd District's races for Congress (2018, 2022, 2024) and its 2018 Democratic and 2020 Republican primaries, five legislative primaries of 2020, and the five primaries of June 2026 (both parties' for governor, the 2nd District's Democratic one, two legislative): the 16 the Secretary of State counted by ranked choice whose ballots are published | `irv` | every official round's votes, to the vote, in 12; in the 2018 governor primary the last round is 3 votes off for Janet Mills, and in three 2026 primaries the record is 3–17 votes a candidate off; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ); for 2026, the Secretary of State's own exports |
-| Alaska: US House (August 2022 special, 2022, 2024), US Senate (2022), and the State House and Senate contests of 2022 and 2024 that went past a first round, 22 in all | `irv` | every official round's votes, to the vote, in 20 (a candidate ranked again read as a skipped ranking, as the reports' transfers show); in 2024's House District 28 the record holds 7 more first choices than the Division of Elections counted, 3 votes a candidate off, and the August 2022 special is 54–60 off its unofficial report; the eliminations and winners match in all; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
+| Alaska: US House (August 2022 special, 2022, 2024), US Senate (2022), and the State House and Senate contests of 2022 and 2024 that went past a first round, 22 in all | `irv` | every official round's votes, to the vote, in 21 (a candidate ranked again read as a skipped ranking, as the reports' transfers show; the August 2022 special against its official report of 2 September); in 2024's House District 28 the record holds 7 more first choices than the Division of Elections counted, 3 votes a candidate off, and the eliminations and winners match in all; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Eastpointe, Michigan City Council, 2019 and 2021 (2 seats; 8,794 votes in the first round) | `portland` (both are RCTab counts) | every round's tallies, to 4 decimal places, against Macomb County's RCTab summaries, the threshold, and the councillors elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Albany, California City Council and Board of Education, 2022 and 2024 (4–5 candidates, 2–3 seats; 28,782 votes in the first round) | `albany` (2024), the County's 2022 settings | every official round's tallies, to the report's 4 or 6 decimal places, against Alameda County's RCV Detailed Reports, the first threshold, and the candidates elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Cambridge, MA City Council (9 seats) and School Committee (6 seats), every election of 2001–2017 (16; 273,661 valid ballots) | `--method cambridge` | every official count's votes, to the vote, the quota, and the candidates elected, against the official count sheets; see [Cambridge STV](#cambridge-stv) | the City's ballots, in the City's order, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
@@ -472,24 +472,26 @@ settings: IRV, no winners by threshold, unresolved write-ins excluded, overvotes
   overvotes match. The one Bye ballot is ranked Bye, Bye, Bye, Bye, Peltola. With repeats as
   skips, every transfer of every elimination is the report's, to the ballot. In the 2022 US
   Senate race one ballot, three write-ins then Buzz Kelley, puts Kelley's first round a vote over
-  unless the second and third write-ins are repeats too. Read this way, 8 contests that were
+  unless the second and third write-ins are repeats too. Read this way, 9 contests that were
   short of every round now match every round. Maine's counts don't read repeats this way: there
   it puts 8 contests off, by up to 293 votes.
-- **The rounds.** In 20 contests every official round matches this count's to the vote. 2024's
+- **The rounds.** In 21 contests every official round matches this count's to the vote. 2024's
   House District 28 is 3 votes a candidate off in both rounds: the record holds 7 more first
   choices than the Division's first round (3, 2 and 2 a candidate), and no reading changes a
-  first round. The August 2022 special differs by 54 to 60: the archived report is the
-  unofficial one of 31 August, before certification. The record is the Division's own: its
+  first round. The August 2022 special is checked against its official report of 2 September,
+  as the Internet Archive kept it from the 3rd; against the unofficial one of 31 August, which
+  the Archive also kept, the record was 120 first-round votes over (28 to 54 a candidate), the
+  ballots counted between the two. The record is the Division's own: its
   Dominion export of 2022 (as the Internet Archive kept it), read anew (each session's
   adjudicated version), gives all 13 contests of 2022 exactly the figures FairVote's copies do.
   The 2024 export the Archive kept, dated 30 November, isn't the set counted: its US House first
   round is 4,035 votes over the Division's.
 - **Transfers.** The checker compares every elimination's transfers with the report's too,
-  "Exhausted" and "Overvotes" together (a ballot an overvote ends is exhausted here). In the 20
-  every transfer is the report's (26 eliminations); 2024's House District 28 is 2 ballots over
-  and the August special 54 over, none moved between destinations, as ballots the record has
-  over the count would be. Under the reading before `--repeat skip`, the checker flags transfers
-  moved in all 8 contests the rule brought to every round, and in the special. In all 22 the candidates are
+  "Exhausted" and "Overvotes" together (a ballot an overvote ends is exhausted here). In the 21
+  every transfer is the report's (27 eliminations); 2024's House District 28 is 2 ballots over,
+  none moved between destinations, as ballots the record has over the count would be. Under the
+  reading before `--repeat skip`, the checker flags transfers moved in all 9 contests the rule
+  brings to every round. In all 22 the candidates are
   eliminated in the same
   order and the same candidate wins. Two are fixtures (`AlaskaIrvFixtureTest`).
 

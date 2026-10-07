@@ -5,10 +5,10 @@
   {
    "contest": "2022-special-us-house",
    "ok": true,
-   "matched": 0,
+   "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-special-us-house: 0 of 2 official rounds match to the vote (largest differences by round: [54, 60]); eliminations in the same order; elected the same; transfers 54 ballots over in 1 eliminations, none moved between destinations"
+   "line": "2022-special-us-house: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-us-house",
