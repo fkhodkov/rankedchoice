@@ -19,6 +19,9 @@ Detailed Reports". The counts of 2018 and 2020 are no longer published, and no c
   County's count by a few votes from the first round on, it says by how much; such a contest
   passes on the same eliminations and winner. In 2022 the County held back some ballots in round 1
   ("Suspended"); that round is compared with the record's first rankings instead.
+- The 4 contests short of every round (Oakland, 2024–2025) are short because the record lacks a
+  few ballots: the reports count 2 to 13 more, and every transfer is the record's or one ballot
+  over; see VALIDATION.md.
 
 ```sh
 mvn package -DskipTests
