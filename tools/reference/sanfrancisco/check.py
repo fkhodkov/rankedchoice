@@ -15,12 +15,16 @@ must win; the votes are compared, and where they differ, each round's largest di
 reported. Before 2019 the Department defeated together the candidates who couldn't overtake the
 next one up, which is several of this count's rounds in one, and stopped at a majority. The
 latest capture of each result file is used: for 2024's city attorney, district attorney and
-sheriff contests, the only captures predate certification, and are a few dozen votes short.
+sheriff contests, the only captures predate certification, and are a few dozen votes short. For
+2024 the record's first rankings are also compared with the certified statement of vote's,
+citywide (each candidate, undervotes, overvotes), which holds for all ten contests.
 
 The results come as the counting system's pass report (2010-2014, a PDF: pdftotext), a web page
 (2015-2018, 2024), an Excel file (2019, 2022: read with LibreOffice's soffice) or a PDF (2020),
 the last three with a row per candidate giving the votes, percentage and transfer of every round.
 """
+import collections
+import csv
 import json
 import os
 import re
@@ -33,7 +37,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
-                      pdf_text, summary, table_rows, winner)
+                      pdf_text, sheets, summary, table_rows, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 RESULTS = "sfelections.org/results/"
@@ -84,6 +88,12 @@ for n, file_id in ((1, 11593588), (3, 11593637), (5, 11593590), (7, 11593635), (
     CONTESTS[f"2020-supervisor-{n}"] = (file_id, f"20201103/data/20201201/d{n}/20201201_d{n}_short.pdf")
 for n, file_id in ((1, 11593580), (3, 11593648), (5, 11593611), (7, 11593578), (9, 11593579), (11, 11593628)):
     CONTESTS[f"2024-supervisor-{n}"] = (file_id, f"20241105/final/round-pages/d{n}_short-rounds-en.html")
+# The certified statement of vote of November 2024, a sheet per contest: its first rankings, citywide.
+STATEMENT_2024 = "20241105/data/20241203/sov.xlsx"
+QUALIFIED = "qualified write-ins"
+SHEETS_2024 = {"2024-mayor": "MAYOR", "2024-city-attorney": "CITY ATTORNEY",
+               "2024-district-attorney": "DISTRICT ATTORNEY", "2024-sheriff": "SHERIFF",
+               **{f"2024-supervisor-{n}": f"MEMBER, BOARD OF SUPERVISORS, DISTRICT {n}" for n in (1, 3, 5, 7, 9, 11)}}
 NUMBER = re.compile(r"^[-+]?[\d,]+$")
 PERCENT = re.compile(r"^[\d.]+%$")
 NOT_CANDIDATES = ("continuing", "blanks", "exhausted", "overvote", "under vote", "non transferable", "total",
@@ -156,6 +166,58 @@ def official_rounds(path):
     return totals
 
 
+def statement_of_vote(path):
+    """{contest title: {candidate (by key), UNDERVOTES or OVERVOTES: first rankings}}: each sheet's title,
+    in its second row, its header row (from "Precinct") naming each column, and its "Countywide - Total" row.
+    A qualified write-in is named "<NAME> Qualified Write In", and also counted in "Write-in", the write-ins'
+    total; the qualified ones are listed under QUALIFIED."""
+    found = {}
+    for sheet in sheets(path):
+        rows = list(csv.reader(open(sheet, encoding="utf-8")))
+        header = next((row for row in rows if row and row[0] == "Precinct"), None)
+        total = next((row for row in rows if row and row[0] == "Countywide - Total"), None)
+        if len(rows) < 2 or not rows[1] or header is None or total is None:
+            continue
+        figures = {QUALIFIED: []}
+        for name, figure in zip(header[1:], total[1:]):
+            name = " ".join(name.split())
+            if name and name not in ("Registered Voters", "Precinct", "Total Votes") and NUMBER.match(figure):
+                if name.endswith(" Qualified Write In"):
+                    name = name[:-len(" Qualified Write In")]
+                    figures[QUALIFIED].append(key(name))
+                figures[key(name)] = int(figure.replace(",", ""))
+        found[" ".join(rows[1][0].split())] = figures
+    return found
+
+
+def first_rankings(cvr):
+    """The record's first rankings, as the statement of vote counts them: each candidate's (by key), UNDERVOTES
+    (skipped) and OVERVOTES."""
+    source = open(cvr, newline="", encoding="utf-8-sig")
+    delimiter = "\t" if "\t" in source.readline() else ","
+    source.seek(0)
+    counts = collections.Counter()
+    for row in csv.DictReader(source, delimiter=delimiter):
+        mark = row["rank1"].strip()
+        counts[{"": "UNDERVOTES", "skipped": "UNDERVOTES", "undervote": "UNDERVOTES",
+                "overvote": "OVERVOTES"}.get(mark.lower(), key(mark))] += 1
+    return counts
+
+
+def certified_line(data, contest, cvr):
+    """For 2024, how the record's first rankings compare with the certified statement of vote's."""
+    if contest not in SHEETS_2024:
+        return ""
+    url, stamp = latest_capture(data, "2024-statement-of-vote", STATEMENT_2024)
+    statement = statement_of_vote(fetch(os.path.join(data, "2024-statement-of-vote.xlsx"), url))
+    theirs, ours = dict(statement[SHEETS_2024[contest]]), first_rankings(cvr)
+    # The record names a qualified write-in as a candidate: "Write-in" is all its write-ins.
+    ours[key("Write-in")] += sum(ours[name] for name in theirs.pop(QUALIFIED))
+    gap = max(abs(ours[name] - figure) for name, figure in theirs.items())
+    return ("; first rankings the certified statement of vote's" if gap == 0
+            else f"; first rankings up to {gap} off the certified statement of vote") + f" (captured {stamp[:8]})"
+
+
 def check(data, contest, jar):
     file_id, path = CONTESTS[contest]
     url, stamp = latest_capture(data, contest, path)
@@ -163,8 +225,8 @@ def check(data, contest, jar):
     # Names compared in letters only: the reports and the records quote nicknames differently.
     totals = {key(name): votes for name, votes in official_rounds(local).items()}
     blt = os.path.join(data, contest + ".blt")
+    cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
     if not os.path.exists(blt):
-        cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
         # Before 2015, the reports count write-ins of no qualified candidate as a candidate, WRITE-IN.
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest]
                        + (["--write-in", "candidate", "--write-in-name", "WRITE-IN"] if contest < "2015" else []),
@@ -177,7 +239,7 @@ def check(data, contest, jar):
     exact, gaps = match_rounds(totals, ours, key)
     same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
     return None not in gaps and same, summary(contest, exact, gaps, same, ours["electedInOrder"]) + \
-        f"; results captured {stamp[:8]}"
+        f"; results captured {stamp[:8]}" + certified_line(data, contest, cvr)
 
 
 if __name__ == "__main__":

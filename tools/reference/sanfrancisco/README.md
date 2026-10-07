@@ -20,6 +20,10 @@ Nothing usable was kept for 2004–2008.
   page (2015–2018, 2024), an Excel report (2019, 2022; LibreOffice's `soffice`) or a PDF (2020).
   The Archive's index rate-limits; the script retries, and remembers each capture it chose in
   the data directory.
+- For 2024 it also fetches the certified statement of vote (`sov.xlsx`, a sheet per contest)
+  and compares the record's first rankings with it, citywide: each candidate, the undervotes
+  and the overvotes. All 10 contests match it to the ballot, the three whose round pages the
+  Archive only kept from before certification among them.
 
 ```sh
 mvn package -DskipTests
