@@ -515,8 +515,10 @@ certified "Official Ranked Choice Rounds" the Board of Elections publishes as we
 from the mayoral primaries (Eric Adams over Kathryn Garcia in 2021, 8 rounds; Zohran Mamdani
 over Andrew Cuomo in 2025) to 107 council primaries. 58 go past the first round, 406 official
 rounds in all. The ballots are the Board's own cast vote records, Excel workbooks by borough and
-way of voting. Left out: the 2025 District 44 and 51 specials, whose results are PDFs in another
-layout.
+way of voting. Left out: the 2025 special elections for District 44 (25 March) and District 51
+(29 April), the Board having published no cast vote record of either (none on its results page,
+none kept by the Internet Archive); both were decided in round 1 anyway (Simcha Felder 81.8%,
+Frank Morano 58.9%), so there are no later rounds to check.
 
 - **Ballots**: an overvote ends the ballot, a skipped ranking is passed over, a candidate ranked
   again counts once (`cvr_to_blt.py`); skipping overvotes instead puts the later rounds off in all 58

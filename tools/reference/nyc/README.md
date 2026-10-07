@@ -3,8 +3,8 @@
 Checks the `irv` ruleset against the Board of Elections in the City of New York's certified
 round-by-round results ("Official Ranked Choice Rounds") for 124 primaries of 2021, 2023 and 2025,
 from the mayoral primaries to city council, counting the Board's own cast vote records. Left out:
-the 2025 District 44 and 51 specials, whose results are PDFs in another layout (one link broken,
-the other decided in round 1).
+the 2025 special elections for Districts 44 and 51, whose cast vote records the Board didn't
+publish (nor did the Internet Archive keep any); both were decided in round 1.
 
 - Each year's record is a zip of Excel workbooks, one per borough and way of voting, with a
   column per contest and ranking ("DEM Mayor Choice 2 of 5 Citywide (224306)": the ranking, then
