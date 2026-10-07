@@ -455,7 +455,12 @@ write-ins' total, which the record names). Each of the three has two candidates,
 round is its count. The results come in four forms
 (the counting system's pass report as a PDF in 2010–2014, a web page in 2015–2018 and 2024, an
 Excel report in 2019 and 2022, a PDF in 2020); six contests are fixtures
-(`SanFranciscoIrvFixtureTest`), one of each form and three from before 2019.
+(`SanFranciscoIrvFixtureTest`), one of each form and three from before 2019. From 2019, when the
+Department defeats one candidate a round, the checker also compares each elimination's transfers
+with the report's, each candidate's gain and the change in its "Exhausted" and "Overvotes" rows
+(as for Alaska): in all 17 contests that go past a first round, every transfer is the report's.
+Skipping overvotes instead flags transfers moved in the three tried (2019's district attorney,
+2020's District 1, 2024's mayor).
 
 **Alaska** (`irv`; `tools/reference/alaska`): the contests of the August 2022 special election and
 the November 2022 and 2024 general elections that went past a first round, 22 in all: US House
@@ -602,7 +607,12 @@ the same councillors elected. Both are fixtures (`EastpointeFixtureTest`).
 2024 (`tools/reference/albany`), from Alameda County's cast vote records as FairVote's collection
 has them, against the County's Dominion "RCV Detailed Reports": every official round of all four
 is one of this count's rounds, every candidate to the report's decimal places, at the official
-first threshold, and the same candidates are elected. All four are fixtures (`AlbanyFixtureTest`).
+first threshold, and the same candidates are elected. In every round the votes no longer with a
+candidate are this count's too, to the report's decimal places: its exhausted votes and
+overvotes, less the first round's (a ballot whose first ranking is an overvote never comes into
+this count), are this count's exhausted votes, and its rounding remainders ("Remainder Points",
+"Surplus Transfer Remainder") are this count's rounding loss. All four are fixtures
+(`AlbanyFixtureTest`).
 
 The reports name their settings, and the counts confirm them:
 

@@ -12,7 +12,8 @@ ones with src/test/resources/testdata/albany/albany-2022.yaml (the County's sett
 threshold recomputed each round, 6 decimal places), and every official round's tallies must be one
 of this count's rounds, in order, every candidate to the report's decimal places, at the official
 first threshold, with the same candidates elected. The CVR and the report spell some names
-differently ("ROBIN D  LOPEZ", "ROBIN D. LÓPEZ"); they're matched on their letters.
+differently ("ROBIN D  LOPEZ", "ROBIN D. LÓPEZ"); they're matched on their letters. In each matched
+round the votes no longer with a candidate are compared too (nontransferable_line).
 """
 import os
 import re
@@ -42,27 +43,51 @@ NOT_CANDIDATES = {"Blanks", "Exhausted", "Overvotes", "Remainder Points", "Surpl
 
 
 def report(path):
-    """Seats, each round's threshold and candidates' votes, and those elected, from a Dominion report."""
+    """Seats, each round's threshold, candidates' votes and votes no longer with a candidate (exhausted and overvotes;
+    the remainders of rounding), and those elected, from a Dominion report."""
     root = ET.parse(path).getroot()
     seats = int(re.search(r"\d+", root.find(f".//{NS}Tablix2").get("Textbox53")).group())
-    rounds, elected = [], []
+    rounds, elected, gone = [], [], []
     for group in root.iter(f"{NS}roundGroup"):
         summary = group.find(f"{NS}Tablix5")
         threshold = Decimal(summary.get("Textbox86").split("Threshold:")[1].strip().replace(",", ""))
-        votes = {c.get("choiceName2"): Decimal(c.get("votes")) for c in summary.iter(f"{NS}choiceGroup")
-                 if c.get("choiceName2") not in NOT_CANDIDATES}
+        figures = {c.get("choiceName2"): Decimal(c.get("votes")) for c in summary.iter(f"{NS}choiceGroup")}
+        votes = {name: value for name, value in figures.items() if name not in NOT_CANDIDATES}
         rounds.append((threshold, votes))
+        gone.append((figures.get("Exhausted", 0) + figures.get("Overvotes", 0),
+                     figures.get("Remainder Points", 0) + figures.get("Surplus Transfer Remainder", 0)))
         for element in group.iter():
             text = element.get("Textbox21") or ""
             match = re.match(r"(.*) is elected because", text)
             if match and match.group(1) not in elected:
                 elected.append(match.group(1))
-    return seats, rounds, elected
+    return seats, rounds, elected, gone
+
+
+def nontransferable_line(rounds, gone, ours):
+    """Whether, in each official round that is a round of this count, the votes no longer with a candidate are this
+    count's: exhausted and overvotes past the first round's (ballots whose first ranking is an overvote never come into
+    this count) against its exhausted votes, the rounding remainders against its rounding loss."""
+    start, compared, off = 0, 0, []
+    for k, (_, votes) in enumerate(rounds):
+        figures = {key(name): value for name, value in votes.items()}
+        hit = next((i for i in range(start, len(ours["rounds"])) if all(
+            figures.get(key(name)) == Decimal(value) for name, value in ours["rounds"][i]["tallies"].items())), None)
+        if hit is None:
+            continue
+        start, compared = hit, compared + 1
+        mine = ours["rounds"][hit]
+        if (gone[k][0] - gone[0][0] != Decimal(mine["exhaustedVotes"])
+                or gone[k][1] != Decimal(mine["roundingLoss"])):
+            off.append(k + 1)
+    if off:
+        return f"; exhausted votes or remainders DIFFER in official rounds {off}"
+    return f"; exhausted votes and remainders the official ones ({compared} rounds)" if compared else ""
 
 
 def check(data, contest, jar):
     file_id, election, race = CONTESTS[contest]
-    seats, rounds, elected = report(fetch(os.path.join(data, contest + ".xml"),
+    seats, rounds, elected, gone = report(fetch(os.path.join(data, contest + ".xml"),
                                           REPORT.format(election=election, race=race)))
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
@@ -82,6 +107,7 @@ def check(data, contest, jar):
                           ours["electedInOrder"])
     if unmatched:
         line += f"; first unmatched official round {unmatched[0]}"
+    line += nontransferable_line(rounds, gone, ours)
     return not unmatched and same and Decimal(ours["quota"]) == threshold, line
 
 

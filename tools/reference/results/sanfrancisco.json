@@ -8,7 +8,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2019-supervisor-5: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118"
+   "line": "2019-supervisor-5: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2019-district-attorney",
@@ -16,7 +16,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2019-district-attorney: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118"
+   "line": "2019-district-attorney: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2019-mayor",
@@ -24,7 +24,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2019-mayor: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118"
+   "line": "2019-mayor: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20241118; every transfer the official one (5 eliminations)"
   },
   {
    "contest": "2022-supervisor-4",
@@ -40,7 +40,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2022-supervisor-6: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20250826"
+   "line": "2022-supervisor-6: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20250826; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2022-supervisor-8",
@@ -64,7 +64,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2022-district-attorney: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20250827"
+   "line": "2022-district-attorney: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20250827; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2022-public-defender",
@@ -80,7 +80,7 @@
    "matched": 14,
    "rounds": 14,
    "winners_same": true,
-   "line": "2024-mayor: 14 of 14 official rounds match to the vote; eliminations the same; elected the same; results captured 20250324; first rankings the certified statement of vote's (captured 20261004)"
+   "line": "2024-mayor: 14 of 14 official rounds match to the vote; eliminations the same; elected the same; results captured 20250324; every transfer the official one (13 eliminations); first rankings the certified statement of vote's (captured 20261004)"
   },
   {
    "contest": "2024-city-attorney",
@@ -336,7 +336,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2020-supervisor-1: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222"
+   "line": "2020-supervisor-1: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222; every transfer the official one (5 eliminations)"
   },
   {
    "contest": "2020-supervisor-3",
@@ -344,7 +344,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2020-supervisor-3: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222"
+   "line": "2020-supervisor-3: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2020-supervisor-5",
@@ -352,7 +352,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2020-supervisor-5: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230926"
+   "line": "2020-supervisor-5: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230926; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2020-supervisor-7",
@@ -360,7 +360,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2020-supervisor-7: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+   "line": "2020-supervisor-7: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321; every transfer the official one (5 eliminations)"
   },
   {
    "contest": "2020-supervisor-9",
@@ -376,7 +376,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2020-supervisor-11: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230926"
+   "line": "2020-supervisor-11: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230926; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2024-supervisor-1",
@@ -384,7 +384,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2024-supervisor-1: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20250724; first rankings the certified statement of vote's (captured 20261004)"
+   "line": "2024-supervisor-1: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20250724; every transfer the official one (3 eliminations); first rankings the certified statement of vote's (captured 20261004)"
   },
   {
    "contest": "2024-supervisor-3",
@@ -392,7 +392,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2024-supervisor-3: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222; first rankings the certified statement of vote's (captured 20261004)"
+   "line": "2024-supervisor-3: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222; every transfer the official one (4 eliminations); first rankings the certified statement of vote's (captured 20261004)"
   },
   {
    "contest": "2024-supervisor-5",
@@ -400,7 +400,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2024-supervisor-5: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20251013; first rankings the certified statement of vote's (captured 20261004)"
+   "line": "2024-supervisor-5: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20251013; every transfer the official one (3 eliminations); first rankings the certified statement of vote's (captured 20261004)"
   },
   {
    "contest": "2024-supervisor-7",
@@ -408,7 +408,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2024-supervisor-7: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222; first rankings the certified statement of vote's (captured 20261004)"
+   "line": "2024-supervisor-7: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20251222; every transfer the official one (2 eliminations); first rankings the certified statement of vote's (captured 20261004)"
   },
   {
    "contest": "2024-supervisor-9",
@@ -416,7 +416,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2024-supervisor-9: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20260115; first rankings the certified statement of vote's (captured 20261004)"
+   "line": "2024-supervisor-9: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20260115; every transfer the official one (5 eliminations); first rankings the certified statement of vote's (captured 20261004)"
   },
   {
    "contest": "2024-supervisor-11",
@@ -424,7 +424,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2024-supervisor-11: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20250724; first rankings the certified statement of vote's (captured 20261004)"
+   "line": "2024-supervisor-11: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; results captured 20250724; every transfer the official one (5 eliminations); first rankings the certified statement of vote's (captured 20261004)"
   }
  ]
 }

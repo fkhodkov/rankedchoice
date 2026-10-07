@@ -18,7 +18,8 @@ latest capture of each result file is used (the choice remembered for RECHECK_DA
 again, so a later capture is found): for 2024's city attorney, district attorney and
 sheriff contests, the only captures predate certification, and are a few dozen votes short. For
 2024 the record's first rankings are also compared with the certified statement of vote's,
-citywide (each candidate, undervotes, overvotes), which holds for all ten contests.
+citywide (each candidate, undervotes, overvotes), which holds for all ten contests. From 2019, each
+elimination's transfers are compared with the report's (rcvcheck.transfer_line).
 
 The results come as the counting system's pass report (2010-2014, a PDF: pdftotext), a web page
 (2015-2018, 2024), an Excel file (2019, 2022: read with LibreOffice's soffice) or a PDF (2020),
@@ -39,7 +40,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
-                      pdf_text, sheets, summary, table_rows, winner)
+                      pdf_text, sheets, summary, table_rows, transfer_line, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 RESULTS = "sfelections.org/results/"
@@ -177,6 +178,28 @@ def official_rounds(path):
     return totals
 
 
+def official_transfers(path, totals):
+    """From 2019, when one candidate goes a round: each elimination's transfers, [(eliminated, {destination:
+    ballots})], from the change between its round and the next in each candidate's votes and in the "Exhausted" and
+    "Overvotes" rows (their votes, then their transfer, round by round)."""
+    gone = {}
+    for row in rows_of(path):
+        cells = [c.strip() for c in row if c and c.strip()]
+        if cells and cells[0] in ("Exhausted", "Overvotes") and all(NUMBER.match(v) for v in cells[1:]):
+            gone[cells[0]] = [int(v.replace(",", "").replace("+", "")) for v in cells[1:]][0::2]
+    moves = []
+    for k in range(len(min(gone.values(), key=len, default=[])) - 1):
+        losers = [name for name, votes in totals.items() if len(votes) > k and votes[k] and
+                  (len(votes) <= k + 1 or not votes[k + 1])]
+        if len(losers) != 1:
+            continue
+        gains = {name: votes[k + 1] - votes[k] for name, votes in totals.items()
+                 if name != losers[0] and len(votes) > k + 1 and votes[k + 1] != votes[k]}
+        gains.update({row: figures[k + 1] - figures[k] for row, figures in gone.items()})
+        moves.append((losers[0], gains))
+    return moves
+
+
 def statement_of_vote(path):
     """{contest title: {candidate (by key), UNDERVOTES or OVERVOTES: first rankings}}: each sheet's title,
     in its second row, its header row (from "Precinct") naming each column, and its "Countywide - Total" row.
@@ -250,8 +273,9 @@ def check(data, contest, jar):
     # the hopeless were defeated together, and a round was printed when nothing changed.
     exact, gaps = match_rounds(totals, ours, key)
     same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
+    transfers = transfer_line(official_transfers(local, totals), ours, key) if contest >= "2019" else ""
     return None not in gaps and same, summary(contest, exact, gaps, same, ours["electedInOrder"]) + \
-        f"; results captured {stamp[:8]}" + certified_line(data, contest, cvr)
+        f"; results captured {stamp[:8]}" + transfers + certified_line(data, contest, cvr)
 
 
 if __name__ == "__main__":
