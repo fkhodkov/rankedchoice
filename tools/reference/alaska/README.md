@@ -6,9 +6,11 @@ that went past a first round (US House each time, US Senate in 2022, and 18 Stat
 Senate contests).
 
 - The records, from FairVote's collection of single-winner RCV records
-  (https://doi.org/10.7910/DVN/AMK8PJ), are converted with `../cvr_to_blt.py --skipped two-end`,
-  reading the ballots as the Division's Dominion reports say: an unresolved write-in is passed
-  over, two skipped rankings in a row end the ballot, and so does an overvote.
+  (https://doi.org/10.7910/DVN/AMK8PJ), are converted with `../cvr_to_blt.py --skipped two-end
+  --repeat skip`, reading the ballots as the Division's Dominion reports say: an unresolved
+  write-in is passed over, two skipped rankings in a row end the ballot, and so does an overvote.
+  A candidate ranked again, or a write-in after a write-in, counts as a skipped ranking: the
+  reports' transfers, by where each eliminated candidate's ballots went, show it to the ballot.
 - `check.py` fetches each record and the Division's "RCV Detailed Report" as the Internet Archive
   kept it (elections.alaska.gov turns away scripted requests), converts and counts the record
   with `irv`, and compares every official round's votes with this count's, round for round, with
@@ -19,8 +21,7 @@ Senate contests).
   2022 general election (`results/22GENR/rcv/CVR_Export.zip`, as the Internet Archive kept it on
   23 December 2022) and of the August special, read anew (each session's adjudicated version; at
   each ranking the marks that are unambiguous or adjudicated votes), give every one of the 13
-  contests exactly the figures FairVote's records do, including the four short of every round
-  and the special. The 2024 export the Archive kept, dated 30 November 2024, isn't the set
+  contests exactly the figures FairVote's records do. The 2024 export the Archive kept, dated 30 November 2024, isn't the set
   counted: its US House first round is 4,035 votes over the Division's, every candidate higher.
 
 ```sh

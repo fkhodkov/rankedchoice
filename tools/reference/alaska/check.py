@@ -99,8 +99,10 @@ def check(data, contest, jar):
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
         cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
-        # An unresolved write-in is passed over; two skipped rankings in a row end the ballot; so does an overvote.
-        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end"], check=True)
+        # An unresolved write-in is passed over; two skipped rankings in a row end the ballot, a candidate ranked again
+        # (or a write-in after a write-in) counting as one; an overvote ends it.
+        subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end",
+                        "--repeat", "skip"], check=True)
     ours, error = count(jar, blt)
     if error:
         return False, f"{contest}: count failed: {error}"

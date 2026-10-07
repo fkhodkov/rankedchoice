@@ -1,6 +1,6 @@
 {
  "checker": "alaska",
- "date": "2026-10-06",
+ "date": "2026-10-07",
  "contests": [
   {
    "contest": "2022-special-us-house",
@@ -8,31 +8,31 @@
    "matched": 0,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-special-us-house: 0 of 2 official rounds match to the vote (largest differences by round: [54, 71]); eliminations in the same order; elected the same"
+   "line": "2022-special-us-house: 0 of 2 official rounds match to the vote (largest differences by round: [54, 60]); eliminations in the same order; elected the same"
   },
   {
    "contest": "2022-us-house",
    "ok": true,
-   "matched": 1,
+   "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2022-us-house: 1 of 3 official rounds match to the vote (largest differences by round: [0, 1, 9]); eliminations in the same order; elected the same"
+   "line": "2022-us-house: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
   },
   {
    "contest": "2022-us-senate",
    "ok": true,
-   "matched": 0,
+   "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2022-us-senate: 0 of 3 official rounds match to the vote (largest differences by round: [1, 1, 3]); eliminations in the same order; elected the same"
+   "line": "2022-us-senate: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
   },
   {
    "contest": "2022-house-11",
    "ok": true,
-   "matched": 1,
+   "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-house-11: 1 of 2 official rounds match to the vote (largest differences by round: [0, 1]); eliminations in the same order; elected the same"
+   "line": "2022-house-11: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
   },
   {
    "contest": "2022-house-15",
@@ -45,10 +45,10 @@
   {
    "contest": "2022-house-18",
    "ok": true,
-   "matched": 1,
+   "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-house-18: 1 of 2 official rounds match to the vote (largest differences by round: [0, 1]); eliminations in the same order; elected the same"
+   "line": "2022-house-18: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
   },
   {
    "contest": "2022-house-28",
@@ -109,18 +109,18 @@
   {
    "contest": "2024-us-house",
    "ok": true,
-   "matched": 1,
+   "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2024-us-house: 1 of 3 official rounds match to the vote (largest differences by round: [0, 2, 9]); eliminations in the same order; elected the same"
+   "line": "2024-us-house: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
   },
   {
    "contest": "2024-house-6",
    "ok": true,
-   "matched": 1,
+   "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2024-house-6: 1 of 2 official rounds match to the vote (largest differences by round: [0, 1]); eliminations in the same order; elected the same"
+   "line": "2024-house-6: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
   },
   {
    "contest": "2024-house-28",
@@ -133,10 +133,10 @@
   {
    "contest": "2024-house-36",
    "ok": true,
-   "matched": 2,
+   "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2024-house-36: 2 of 3 official rounds match to the vote (largest differences by round: [0, 0, 2]); eliminations in the same order; elected the same"
+   "line": "2024-house-36: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
   },
   {
    "contest": "2024-house-38",
@@ -173,10 +173,10 @@
   {
    "contest": "2024-senate-l",
    "ok": true,
-   "matched": 1,
+   "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2024-senate-l: 1 of 2 official rounds match to the vote (largest differences by round: [0, 1]); eliminations in the same order; elected the same"
+   "line": "2024-senate-l: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
   }
  ]
 }

@@ -179,17 +179,9 @@
    "cause": "record",
    "checker": "alaska",
    "contests": [
-    "2022-us-house",
-    "2022-us-senate",
-    "2022-house-11",
-    "2022-house-18",
-    "2024-us-house",
-    "2024-house-6",
-    "2024-house-28",
-    "2024-house-36",
-    "2024-senate-l"
+    "2024-house-28"
    ],
-   "text": "Alaska: 9 contests of 2022–2024, first rounds exact, later rounds 1–9 votes a candidate. The Division of Elections' own 2022 export, read anew, gives the same figures in the four of 2022, so FairVote's copies of them are faithful; no reading of the ballots tried closes the gaps, and the cause isn't shown."
+   "text": "Alaska: 2024's House District 28, 3 votes a candidate in both rounds; the record holds 7 more first choices than the Division counted (3, 2 and 2 a candidate)."
   },
   {
    "cause": "record",
@@ -244,7 +236,7 @@
    "contests": [
     "2022-special-us-house"
    ],
-   "text": "Alaska: the August 2022 special for US House, the unofficial report of 31 August; 54–71 votes."
+   "text": "Alaska: the August 2022 special for US House, the unofficial report of 31 August; 54–60 votes."
   },
   {
    "cause": "lot",
@@ -420,11 +412,11 @@
     "Alaska 2022–2024",
     "ends the ballot",
     "two in a row end it",
-    "counts once",
+    "a skipped ranking",
     "passed over",
     "one a round",
     "two left",
-    "--skipped two-end"
+    "--skipped two-end --repeat skip"
    ],
    [
     "New York City 2021–2025",

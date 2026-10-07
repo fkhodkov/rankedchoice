@@ -61,6 +61,16 @@ class Rules(unittest.TestCase):
     def test_a_repeat_breaks_a_run_of_skips(self):
         self.assertEqual(read("A", "skipped", "A", "skipped", "B", skipped="two-end"), ["A", "B"])
 
+    def test_a_repeat_can_count_as_a_skipped_ranking(self):
+        # Alaska's 2022 US House count: Bye four times, then Peltola, is exhausted once Bye is out.
+        self.assertEqual(read("A", "A", "A", "A", "B", skipped="two-end", repeat="skip"), ["A"])
+        self.assertEqual(read("A", "A", "skipped", "B", skipped="two-end", repeat="skip"), ["A"])
+        self.assertEqual(read("A", "A", "B", "skipped", "C", skipped="two-end", repeat="skip"), ["A", "B", "C"])
+        self.assertEqual(read("A", "A", "B", repeat="skip"), ["A", "B"])
+        # Its 2022 US Senate count: three write-ins, then Kelley, is exhausted.
+        self.assertEqual(read("Write-in", "Write-in", "Write-in", "B", skipped="two-end", repeat="skip"), [])
+        self.assertEqual(read("Write-in", "skipped", "B", skipped="two-end", repeat="skip"), ["B"])
+
 
 class Files(unittest.TestCase):
 

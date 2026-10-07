@@ -1,7 +1,7 @@
 """Convert a ranked-choice cast vote record, a row per ballot or per distinct ballot, to BLT.
 
 usage: cvr_to_blt.py CVR OUT.blt [--seats N] [--title TEXT] [--overvote end|skip] [--skipped pass|two-end]
-                     [--repeat once|end] [--write-in pass|skip|candidate] [--write-in-name NAME]
+                     [--repeat once|end|skip] [--write-in pass|skip|candidate] [--write-in-name NAME]
 
 The record has a column per ranking: "rank1", "rank2", ... (FairVote's collections,
 https://doi.org/10.7910/DVN/AMK8PJ and https://doi.org/10.7910/DVN/STVUET; CSV in the original
@@ -17,7 +17,9 @@ the counts checked (VALIDATION.md tabulates them):
   --skipped pass      a skipped ranking is passed over (the default); two-end passes over one, but
                       two in a row end the ballot, those before the first choice included
   --repeat once       a candidate ranked again counts only where first ranked (the default); end
-                      ends the ballot there
+                      ends the ballot there; skip counts it as a skipped ranking (so with
+                      --skipped two-end, a repeat next to a skip, or two repeats, end the ballot),
+                      a write-in after a write-in included
   --write-in pass     a write-in is passed over, neither a choice nor a skipped ranking (the
                       default); skip counts it as a skipped ranking; candidate makes it a vote for
                       one candidate, --write-in-name (default "Write-in")
@@ -42,19 +44,23 @@ def columns_of(header):
 
 
 def ranking_of(marks, args, candidates):
-    ranking, skipped = [], 0
+    ranking, skipped, write_ins = [], 0, 0
     for mark in marks:
         mark = mark.strip()
         lower = mark.lower()
-        if lower in WRITE_IN:
-            if args.write_in == "pass":
-                continue
+        write_in = lower in WRITE_IN
+        if write_in:
+            write_ins += 1
             if args.write_in == "candidate":
                 mark, lower = args.write_in_name, args.write_in_name.lower()
-        if lower in SKIPPED or (lower in WRITE_IN and args.write_in == "skip"):
+        repeated = (mark in candidates and candidates.index(mark) in ranking) or (write_in and write_ins > 1)
+        if (lower in SKIPPED or (write_in and args.write_in == "skip")
+                or (repeated and args.repeat == "skip")):
             skipped += 1
             if args.skipped == "two-end" and skipped >= 2:
                 break
+            continue
+        if write_in and args.write_in == "pass":
             continue
         skipped = 0
         if lower == "overvote":
@@ -63,7 +69,7 @@ def ranking_of(marks, args, candidates):
             continue
         if mark not in candidates:
             candidates.append(mark)
-        if candidates.index(mark) in ranking:
+        if repeated:
             if args.repeat == "end":
                 break
             continue
@@ -79,7 +85,7 @@ def main():
     parser.add_argument("--title", default="Contest")
     parser.add_argument("--overvote", choices=["end", "skip"], default="end")
     parser.add_argument("--skipped", choices=["pass", "two-end"], default="pass")
-    parser.add_argument("--repeat", choices=["once", "end"], default="once")
+    parser.add_argument("--repeat", choices=["once", "end", "skip"], default="once")
     parser.add_argument("--write-in", choices=["pass", "skip", "candidate"], default="pass")
     parser.add_argument("--write-in-name", default="Write-in")
     args = parser.parse_args()

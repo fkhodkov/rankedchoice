@@ -50,12 +50,12 @@ what would be skipped for want of data.
 | Eastpointe, Michigan (2019, 2021) | 2 | `portland` | every round in 2, but one figure the official summary itself has 2 votes off; the winners in all 2 |
 | Alameda County, California (2010–2025) | 93 | `irv` | every round in 89; the eliminations and the winner in all 93 |
 | San Francisco (2010–2024) | 53 | `irv` | every round in 50 (before 2019, official rounds that defeat several candidates at once); the eliminations and the winner in all 53 |
-| Alaska (2022, 2024) | 22 | `irv` | every round in 12; the eliminations and the winner in all 22 |
+| Alaska (2022, 2024) | 22 | `irv` | every round in 20; the eliminations and the winner in all 22 |
 | New York City primaries (2021–2025) | 124 | `irv` | every round in 120; the eliminations and the winner in all 124 |
 | Maine (2018–2026) | 16 | `irv` | every round in 12; the eliminations and the winner in all 16 |
 | Ireland, Dáil (2002) | 3 |  | first preferences and the TDs returned in all 3 |
 
-From the checks last run on 2026-10-06 (`tools/reference/refresh_results.py`).
+From the checks last run on 2026-10-07 (`tools/reference/refresh_results.py`).
 <!-- End of the generated table. -->
 
 Where a round doesn't match, it's because the ballot record isn't quite the set of ballots the
@@ -83,7 +83,7 @@ Real elections, run through their own rulesets, reproduce their actual results:
 | San Francisco: mayor (2011, 2015, 2018, 2019, 2024), Board of Supervisors districts, district attorney, public defender, city attorney, sheriff and assessor-recorder, 2010–2024: the 53 whose final results the Internet Archive kept | `irv` | every official round's votes, to the vote, in 50 (before 2019, a round that defeats several candidates at once is several of this count's); the other 3 (2024's city attorney, district attorney and sheriff races) only have results captured before certification, 76–80 votes short, and the eliminations and winners match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | New York City primaries of 2021, 2023 and 2025, from mayor (Adams 2021, Mamdani 2025) to city council: the 124 whose certified rounds the Board of Elections publishes as web pages | `irv` | every official round's votes, to the vote, in 120 (several candidates defeated together being several of this count's rounds); in the other 4, of 2021, the Board's published record is 2–19 votes a candidate off its count, and the eliminations and winners still match; see below | The Board's own cast vote records |
 | Maine: the 2018 Democratic primary for governor, the 2nd District's races for Congress (2018, 2022, 2024) and its 2018 Democratic and 2020 Republican primaries, five legislative primaries of 2020, and the five primaries of June 2026 (both parties' for governor, the 2nd District's Democratic one, two legislative): the 16 the Secretary of State counted by ranked choice whose ballots are published | `irv` | every official round's votes, to the vote, in 12; in the 2018 governor primary the last round is 3 votes off for Janet Mills, and in three 2026 primaries the record is 3–17 votes a candidate off; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ); for 2026, the Secretary of State's own exports |
-| Alaska: US House (August 2022 special, 2022, 2024), US Senate (2022), and the State House and Senate contests of 2022 and 2024 that went past a first round, 22 in all | `irv` | every official round's votes, to the vote, in 12; in the other 10 the record is 1–9 votes a candidate off the Division of Elections' count (54–71 against the August 2022 special's unofficial report), and the eliminations and winners still match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
+| Alaska: US House (August 2022 special, 2022, 2024), US Senate (2022), and the State House and Senate contests of 2022 and 2024 that went past a first round, 22 in all | `irv` | every official round's votes, to the vote, in 20 (a candidate ranked again read as a skipped ranking, as the reports' transfers show); in 2024's House District 28 the record holds 7 more first choices than the Division of Elections counted, 3 votes a candidate off, and the August 2022 special is 54–60 off its unofficial report; the eliminations and winners match in all; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Eastpointe, Michigan City Council, 2019 and 2021 (2 seats; 8,794 votes in the first round) | `portland` (both are RCTab counts) | every round's tallies, to 4 decimal places, against Macomb County's RCTab summaries, the threshold, and the councillors elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Albany, California City Council and Board of Education, 2022 and 2024 (4–5 candidates, 2–3 seats; 28,782 votes in the first round) | `albany` (2024), the County's 2022 settings | every official round's tallies, to the report's 4 or 6 decimal places, against Alameda County's RCV Detailed Reports, the first threshold, and the candidates elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Cambridge, MA City Council (9 seats) and School Committee (6 seats), every election of 2001–2017 (16; 273,661 valid ballots) | `--method cambridge` | every official count's votes, to the vote, the quota, and the candidates elected, against the official count sheets; see [Cambridge STV](#cambridge-stv) | the City's ballots, in the City's order, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
@@ -269,7 +269,7 @@ rule (Portland's record, a column per candidate per ranking, has its own).
 | San Francisco 2010–2014 (pass reports) | ends the ballot | passed over | counts once | one candidate | several at once | at a majority | `--write-in candidate` |
 | San Francisco 2015–2018 | ends the ballot | passed over | counts once | passed over | several at once | at a majority | defaults |
 | San Francisco 2019–2024 (Dominion) | ends the ballot | passed over | counts once | passed over | one a round | two left | defaults |
-| Alaska 2022–2024 (Dominion) | ends the ballot | two in a row end it, before the first choice too | counts once | passed over | one a round | two left | `--skipped two-end` |
+| Alaska 2022–2024 (Dominion) | ends the ballot | two in a row end it, before the first choice too | a skipped ranking (a write-in after a write-in too) | passed over | one a round | two left | `--skipped two-end --repeat skip` |
 | New York City 2021–2025 | ends the ballot | passed over | counts once | one candidate, eliminated first whatever its number | several at once | two left | defaults (write-ins passed over) |
 | Maine 2018–2024 | ends the ballot | two in a row end it, before the first choice too | counts once | one candidate | several at once | at a majority | `--skipped two-end --write-in candidate` |
 | Maine 2026 | ends the ballot | two in a row end it, before the first choice too | counts once | one candidate | one a round | at a majority | `--skipped two-end --write-in candidate` |
@@ -290,9 +290,10 @@ rule (Portland's record, a column per candidate per ranking, has its own).
   isn't only a convenience: counted as a candidate, they'd be defeated later and the rounds
   would differ. Passed over, every round but the first matches; the first is checked against the
   record's first choices.
-- **Repeated candidates.** Counting a repeat once and passing over it are the same reading; the
-  other readings tried (a repeat as a skipped ranking, where two in a row end the ballot, in Maine
-  and Alaska) put rounds off, and Eastpointe's counts alone need a repeat to end the ballot.
+- **Repeated candidates.** Counting a repeat once and passing over it are the same reading.
+  Alaska's Dominion counts read a repeat as a skipped ranking, so that two in a row end the
+  ballot; the reports' transfers show it. The same reading puts Maine's rounds off.
+  Eastpointe's counts alone need a repeat to end the ballot.
 
 **Portland** (`portland`): the four multi-seat City Council contests of 2024, Portland's first
 (`tools/reference/portland`), from Multnomah County's cast vote records, against its official
@@ -448,21 +449,30 @@ Internet Archive; the ballots from FairVote's single-winner collection. The repo
 settings: IRV, no winners by threshold, unresolved write-ins excluded, overvotes not skipped, and
 "Exhausted on Two or More Ranks Skipped".
 
-- **Ballots, as the reports' settings say**, which reproduces every first round to the vote: an
-  unresolved write-in is passed over like an eliminated candidate, not counted as a skip; two
-  skipped rankings in a row end the ballot, before the first choice too; an overvote ends it.
-- **The rounds.** In 12 contests every official round matches this count's to the vote. In the
-  other 10 the first round matches, and later rounds differ by 1 to 9 votes a candidate (the 2022
-  and 2024 US House races, the 2022 US Senate race, and 6 State contests); no reading of the
-  ballots tried closes those gaps without opening others: skips counted over the whole ballot,
-  a repeated candidate as a skip or ending the ballot, overvotes skipped, write-ins as skips or as
-  a candidate, the scans as first read rather than as adjudicated, ambiguous marks counted. The
-  record is the Division's own: its Dominion export of 2022 (as the Internet Archive kept it), read
-  anew, gives all 13 contests of 2022 exactly the figures FairVote's copies do, the four of them
-  short of every round included. So the gaps are the published record's, or a rule of the
-  Division's count not found; which isn't shown. (The 2024 export the Archive kept, dated 30
-  November, isn't the set counted: its US House first round is 4,035 votes over the Division's.) The August 2022 special differs by 54 to 71: the archived report is the unofficial
-  one of 31 August, before certification. In all 22 the candidates are eliminated in the same
+- **Ballots, as the reports' settings say**: an unresolved write-in is passed over like an
+  eliminated candidate, not counted as a skip; two skipped rankings in a row end the ballot,
+  before the first choice too; an overvote ends it.
+- **A candidate ranked again counts as a skipped ranking** (`--repeat skip`), and so does a
+  write-in after a write-in: a repeat next to a skip, or two repeats, end the ballot. The reports
+  show it. Each elimination's transfers are listed by where the ballots went (each candidate,
+  "Exhausted", "Overvotes"). In the 2022 US House race, counting a repeat once sends one more of
+  Chris Bye's ballots to Mary Peltola (1,032 against the report's 1,031, one fewer exhausted),
+  and of Nick Begich's 9 more to Sarah Palin and 3 more to Peltola, 12 fewer exhausted;
+  overvotes match. The one Bye ballot is ranked Bye, Bye, Bye, Bye, Peltola. With repeats as
+  skips, every transfer of every elimination is the report's, to the ballot. In the 2022 US
+  Senate race one ballot, three write-ins then Buzz Kelley, puts Kelley's first round a vote over
+  unless the second and third write-ins are repeats too. Read this way, 8 contests that were
+  short of every round now match every round. Maine's counts don't read repeats this way: there
+  it puts 8 contests off, by up to 293 votes.
+- **The rounds.** In 20 contests every official round matches this count's to the vote. 2024's
+  House District 28 is 3 votes a candidate off in both rounds: the record holds 7 more first
+  choices than the Division's first round (3, 2 and 2 a candidate), and no reading changes a
+  first round. The August 2022 special differs by 54 to 60: the archived report is the
+  unofficial one of 31 August, before certification. The record is the Division's own: its
+  Dominion export of 2022 (as the Internet Archive kept it), read anew (each session's
+  adjudicated version), gives all 13 contests of 2022 exactly the figures FairVote's copies do.
+  The 2024 export the Archive kept, dated 30 November, isn't the set counted: its US House first
+  round is 4,035 votes over the Division's. In all 22 the candidates are eliminated in the same
   order and the same candidate wins. Two are fixtures (`AlaskaIrvFixtureTest`).
 
 **New York City** (`irv`; `tools/reference/nyc`): the primaries of 2021, 2023 and 2025 whose
