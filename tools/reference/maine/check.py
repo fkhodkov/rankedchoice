@@ -41,11 +41,12 @@ import os
 import re
 import subprocess
 import sys
+from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pdf_text,  # noqa: E402
-                      stale, summary, table_rows, winner)
+from rcvcheck import (DATAVERSE, count, exhausted_line as exhausted_votes_line, fetch, main, match_rounds,  # noqa: E402
+                      name_key as key, pdf_text, stale, summary, table_rows, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 SITE = "https://www.maine.gov/sos/sites/maine.gov.sos/files/"
@@ -204,19 +205,21 @@ def exhausted_line(cvr, totals, causes):
         f"round {k} {', '.join(f'{cause} {gap:+d}' for cause, gap in gaps.items())}" for k, gaps in off.items())
 
 
-def summary_2026(path):
-    """{candidate: [votes in round 1, 2, ...]} from a 2026 report: after the "Elected" row, a row per candidate,
-    the name and each round's votes, until "Exhausted Ballots"."""
+def report_2026(path):
+    """From a 2026 report: {candidate: [votes in round 1, 2, ...]}, after the "Elected" row a row per candidate, the
+    name and each round's votes; and the "Exhausted Ballots" row that follows, [ballots after round 1, 2, ...] (the
+    report has no breakdown by cause)."""
     totals, reading = {}, False
     for line in pdf_text(path).splitlines():
         cells = re.split(r"\s{2,}", line.strip())
+        figures = [int(v.replace(",", "")) for v in cells[1:] if re.fullmatch(r"[\d,]+", v)]
         if cells[0].startswith("Elected"):
             reading = True
         elif reading and cells[0].startswith("Exhausted"):
-            break
+            return totals, figures
         elif reading and cells[0]:
-            totals[cells[0]] = [int(v.replace(",", "")) for v in cells[1:] if re.fullmatch(r"[\d,]+", v)]
-    return totals
+            totals[cells[0]] = figures
+    return totals, []
 
 
 def ballots_2026(data, contest):
@@ -278,9 +281,10 @@ def first_choices_compared(data, contest, cvr):
 
 
 def check(data, contest, jar):
+    exhausted = []
     if contest in STATE_2026:
-        totals = summary_2026(fetch(os.path.join(data, contest + ".pdf"),
-                                    SITE + "inline-files/" + STATE_2026[contest][0]))
+        totals, exhausted = report_2026(fetch(os.path.join(data, contest + ".pdf"),
+                                              SITE + "inline-files/" + STATE_2026[contest][0]))
     elif contest in SCANNED:
         totals = SCANNED[contest]
     else:
@@ -304,6 +308,12 @@ def check(data, contest, jar):
     if contest not in STATE_2026 and contest not in SCANNED and causes:
         line += exhausted_line(fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=CONTESTS[contest][0])),
                                totals, causes)
+    if exhausted:
+        # Exhausted ballots past the first round's (blank ballots and those whose first ranking is an overvote never
+        # come into this count), against this count's exhausted votes, in each round that is one of this count's.
+        line += exhausted_votes_line([({name: Decimal(votes[k]) for name, votes in totals.items() if len(votes) > k},
+                                       Decimal(exhausted[k]), None) for k in range(len(exhausted))],
+                                     ours, lambda figures, name: figures.get(key(name)), past_first=True)
     if contest in STATE_2026:
         places, moved = first_choices_compared(data, contest, ballots_2026(data, contest))
         line += ("; the exports' first rankings are the State's tally of first choices in every place" if not places

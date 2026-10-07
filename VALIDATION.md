@@ -590,7 +590,10 @@ ballots the State publishes itself. The State's "RCV Summary Reports" give every
   RCTab, has the same three causes; its second round has one ballot fewer among the undervotes
   and one more among the exhausted choices, and of the 86 ballots that run out after a skip, one
   alone skips only its first ranking (then three choices): perhaps RCTab doesn't count a skip
-  before the first choice, which one ballot can't settle. No candidate's votes differ. In the 2018 governor
+  before the first choice, which one ballot can't settle. No candidate's votes differ. The 2026
+  reports give each round's exhausted ballots without a cause, so the labeling can't be followed
+  there; in the two 2026 primaries that match every round, each round's exhausted ballots, less
+  the first round's, are this count's exhausted votes. In the 2018 governor
   primary the first three rounds match too, and the last has 3 ballots fewer exhausted by
   undervotes: the 3 that go to Mills here, the record holding the report's 132,250 ballots. So
   the State's count leaves those 3 with no further choice. The readings tried that exhaust more

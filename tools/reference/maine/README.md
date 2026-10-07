@@ -17,6 +17,8 @@ the five, which are also the three that don't match every round).
 - For the 2018–2022 reports, `check.py` also compares each round's exhausted ballots by cause
   (overvotes, undervotes, exhausted choices) with the record's, read the same way: a ballot that
   runs out of rankings is "exhausted choices" only if it skips none, an undervote otherwise.
+  The 2026 reports give exhausted ballots without a cause; in each round that matches, their
+  total past the first round's is compared with this count's exhausted votes.
 - The State defeats together the lowest candidates who couldn't overtake the next one up, and
   stops at a majority; `check.py` requires every official round to be one of this count's
   rounds, in order, with the same candidates continuing, and the same winner, and reports each

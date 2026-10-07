@@ -120,7 +120,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2026-rep-senate-4: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; the exports' first rankings are the State's tally of first choices in every place"
+   "line": "2026-rep-senate-4: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds); the exports' first rankings are the State's tally of first choices in every place"
   },
   {
    "contest": "2026-rep-house-58",
@@ -128,7 +128,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2026-rep-house-58: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; the exports' first rankings are the State's tally of first choices in every place"
+   "line": "2026-rep-house-58: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds); the exports' first rankings are the State's tally of first choices in every place"
   }
  ]
 }
