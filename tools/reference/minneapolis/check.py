@@ -103,7 +103,8 @@ def fetch(data, name, url=None):
 
 
 def spreadsheet_summary(xls, data):
-    """The threshold and each candidate's grand total after every round, from a 2009 Excel summary."""
+    """The threshold, each candidate's grand total after every round, and the exhausted votes after every round,
+    from a 2009 Excel summary."""
     out = os.path.splitext(xls)[0] + ".csv"
     if not os.path.exists(out):
         subprocess.run(["soffice", "--headless", "--convert-to", "csv:Text - txt - csv (StarCalc):44,34,76",
@@ -111,14 +112,18 @@ def spreadsheet_summary(xls, data):
     rows = list(csv.reader(open(out, encoding="utf-8", errors="ignore")))
     threshold = int(next(row[1] for row in rows if row and row[0].startswith("Threshold")))
     start = next(i for i, row in enumerate(rows) if row and row[0] == "Candidate")
-    totals = {}
+    totals, exhausted = {}, []
     for row in rows[start + 3:]:
+        if row and row[0] == "Exhausted":
+            values = [Decimal(v.replace(",", ".")) if v.strip() not in ("", "-") and not v.endswith("%") else None
+                      for v in row[1:]]
+            exhausted = [Decimal(0)] + [values[i] for i in range(2, len(values), 2) if values[i] is not None]
         if not row or not row[0] or row[0].startswith(("TOTAL", "Exhausted", "Over", "Under")):
             continue
         values = [Decimal(v.replace(",", ".")).quantize(Decimal("0.0001"))
                   if v.strip() not in ("", "-") and not v.endswith("%") else None for v in row[1:]]
         totals[row[0]] = [values[0]] + [values[i] for i in range(2, len(values), 2) if values[i] is not None]
-    return threshold, totals
+    return threshold, totals, exhausted
 
 
 def surname_match(name, names):
@@ -161,7 +166,7 @@ def check_older(data, contest, jar):
             line += f"; by {label}, {'the same' if same else 'DIFFERENTLY: ' + str(elected)}"
         return ok, line
     ours = count(blt, jar, ["--config", CONFIG_2009])
-    threshold, totals = spreadsheet_summary(fetch(data, official), data)
+    threshold, totals, exhausted = spreadsheet_summary(fetch(data, official), data)
     rounds = max(len(values) for values in totals.values())
     start, unmatched, first_round = 0, [], []
     for k in range(rounds):
@@ -191,6 +196,11 @@ def check_older(data, contest, jar):
         line += f"; the record's first count differs from the City's: {', '.join(first_round)}"
     elif unmatched:
         line += f"; unmatched official rounds {unmatched}"
+    # The record lumps the write-ins, which the City lists each: they're left out of the matching, as above.
+    line += rcvcheck.exhausted_line(
+        [({name: values[k] for name, values in totals.items() if len(values) > k}, exhausted[k], None)
+         for k in range(min(rounds, len(exhausted)))], ours,
+        lambda figures, name: figures.get(surname_match(name, list(figures))), ignore=("Write-ins",))
     return (not unmatched or record_only) and same, line
 
 

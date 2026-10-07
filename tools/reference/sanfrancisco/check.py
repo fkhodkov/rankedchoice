@@ -36,11 +36,12 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
-                      pdf_text, sheets, stale, summary, table_rows, transfer_line, winner)
+from rcvcheck import (DATAVERSE, count, exhausted_line, fetch, main, match_rounds, name_key as key,  # noqa: E402
+                      pass_report, pdf_text, sheets, stale, summary, table_rows, transfer_line, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 RESULTS = "sfelections.org/results/"
@@ -200,6 +201,19 @@ def official_transfers(path, totals):
     return moves
 
 
+def exhausted_2015(path, totals):
+    """2015-2018: each round's candidates and exhausted votes, [(figures, exhausted, None)], from the page's
+    "Exhausted by Over Votes" and "Exhausted Ballots" rows (their votes, then their change, round by round)."""
+    gone = {}
+    for row in rows_of(path):
+        cells = [c.strip() for c in row if c and c.strip()]
+        if cells and cells[0] in ("Exhausted by Over Votes", "Exhausted Ballots"):
+            gone[cells[0]] = [int(v.replace(",", "").replace("+", "")) for v in cells[1:] if NUMBER.match(v)][0::2]
+    rounds = min((len(figures) for figures in gone.values()), default=0)
+    return [({name: Decimal(votes[k]) for name, votes in totals.items() if len(votes) > k},
+             Decimal(sum(figures[k] for figures in gone.values())), None) for k in range(rounds)]
+
+
 def statement_of_vote(path):
     """{contest title: {candidate (by key), UNDERVOTES or OVERVOTES: first rankings}}: each sheet's title,
     in its second row, its header row (from "Precinct") naming each column, and its "Countywide - Total" row.
@@ -274,6 +288,11 @@ def check(data, contest, jar):
     exact, gaps = match_rounds(totals, ours, key)
     same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
     transfers = transfer_line(official_transfers(local, totals), ours, key) if contest >= "2019" else ""
+    if "2015" <= contest < "2019":
+        # Exhausted votes, overvotes past the first round's among them (ballots whose first ranking is an overvote
+        # never come into this count); the hopeless defeated together don't matter, rounds being matched by tallies.
+        transfers = exhausted_line(exhausted_2015(local, totals), ours, lambda figures, name: figures.get(key(name)),
+                                   past_first=True)
     return None not in gaps and same, summary(contest, exact, gaps, same, ours["electedInOrder"]) + \
         f"; results captured {stamp[:8]}" + transfers + certified_line(data, contest, cvr)
 

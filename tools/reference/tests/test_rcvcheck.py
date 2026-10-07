@@ -198,6 +198,12 @@ class ExhaustedLine(unittest.TestCase):
         self.assertEqual(rcvcheck.exhausted_line(official, EXHAUSTING, past_first=True),
                          "; exhausted votes and remainders DIFFER in official rounds [2]")
 
+    def test_names_ignored_in_the_matching(self):
+        lumped = counted(({"Ann": "12", "Write-ins": "4"}, "0", "0"))
+        self.assertEqual(rcvcheck.exhausted_line([({"Ann": Decimal(12)}, Decimal(0), None)], lumped,
+                                                 ignore=("Write-ins",)),
+                         "; exhausted votes the official ones (1 rounds)")
+
     def test_rounds_not_in_this_count_are_left_out(self):
         other = {"Ann": Decimal(11), "Bob": Decimal(9), "Cy": Decimal(3)}
         self.assertEqual(rcvcheck.exhausted_line([(FIRST, Decimal(0), None), (other, Decimal(0), None)], EXHAUSTING),

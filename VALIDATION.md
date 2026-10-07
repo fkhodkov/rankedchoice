@@ -378,7 +378,14 @@ before defeating anyone, and the Park Board's defeats only Butler and the write-
 round, where the rankings test would defeat Swartwood, and Bernard and Wahlstedt, at once. So
 counted, every official round of the Park Board matches (a fixture), and of the Board of
 Estimate every round but the first, where the record has Becker on 16,727 and the City 16,728:
-after her surplus moves (at the same truncated 0.3605 a ballot) every figure matches. The
+after her surplus moves (at the same truncated 0.3605 a ballot) every figure matches. It's one
+ballot: the record has 226 write-ins to the City's 225, the same 32,086 votes in all, and the
+exhausted votes show it, the City's 0.3605 over this count's once Becker's surplus moves (that
+ballot's share of it, with no next choice) and this count's 0.6395 over the City's once the
+write-ins are defeated (the rest of the whole vote it holds here). So a ballot with no choice
+past its first is Becker's in the City's count and a write-in in the record. That fits a
+write-in of her name counted for her; the record names no write-in to show it. In every round
+of the Park Board's count the exhausted votes match (`check.py` compares them). The
 records lump every write-in as one candidate, the City lists each; all go in the first defeat
 either way. For 2013 the City published no round summary for the Board of Estimate, and the
 Park Board's is a ballot-by-ballot listing, so only the winners are checked: both elect the
@@ -463,6 +470,9 @@ Excel report in 2019 and 2022, a PDF in 2020); six contests are fixtures
 Department defeats one candidate a round, the checker also compares each elimination's transfers
 with the report's, each candidate's gain and the change in its "Exhausted" and "Overvotes" rows
 (as for Alaska): in all 17 contests that go past a first round, every transfer is the report's.
+For 2015–2018, whose counts defeat several at once, it compares each round's exhausted votes
+instead (the pages' "Exhausted Ballots" and "Exhausted by Over Votes", less the first round's
+overvotes): every round of all 18 contests matches. The 2010–2014 pass reports aren't compared.
 Skipping overvotes instead flags transfers moved in the three tried (2019's district attorney,
 2020's District 1, 2024's mayor).
 
@@ -573,7 +583,11 @@ ballots the State publishes itself. The State's "RCV Summary Reports" give every
   record, read as above, in every round. A ballot that runs out of rankings is "exhausted
   choices" only if it skips none; one that skipped a ranking anywhere is among the undervotes.
   So read, every round of 8 of the 9 contests matches in all three, to the ballot (counting
-  every ballot that runs out as exhausted choices puts them 2 to 98 off). In the 2018 governor
+  every ballot that runs out as exhausted choices puts them 2 to 98 off). The 2022 report, from
+  RCTab, has the same three causes; its second round has one ballot fewer among the undervotes
+  and one more among the exhausted choices, and of the 86 ballots that run out after a skip, one
+  alone skips only its first ranking (then three choices): perhaps RCTab doesn't count a skip
+  before the first choice, which one ballot can't settle. No candidate's votes differ. In the 2018 governor
   primary the first three rounds match too, and the last has 3 ballots fewer exhausted by
   undervotes: the 3 that go to Mills here, the record holding the report's 132,250 ballots. So
   the State's count leaves those 3 with no further choice. The readings tried that exhaust more
@@ -1087,8 +1101,11 @@ the official counts put down to the ballot record was reviewed against the stand
   the readings tried that exhaust more ballots put other rounds off, and the State's own
   published cast vote record is FairVote's copy ballot for ballot, so the State's published
   ballots and its count differ, by 3 ballots or a rule. Minneapolis's 2009
-  Board of Estimate: Becker has 16,727 here against 16,728 in the first round only, every later
-  figure matching; no ballot-level data of the City's own for 2009 was found to compare with,
+  Board of Estimate: one ballot with no later choice is Becker's in the City's count and a
+  write-in in the record (226 write-ins to the City's 225, Becker 16,727 to 16,728, the exhausted
+  votes off by that ballot's 0.3605 and 0.6395), every candidate's later figure matching;
+  perhaps a write-in of her name, which the record, naming no write-in, can't show. No ballot-level
+  data of the City's own for 2009 was found to compare with,
   on its results pages or in the Internet Archive's copies of its old election pages (which keep
   its 2013 cast vote records, but only 2009's summaries). In both the eliminations and winners
   match. The others (Oakland, New York 2021,

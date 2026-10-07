@@ -26,7 +26,8 @@ Nothing usable was kept for 2004–2008.
 - From 2019 it also compares each elimination's transfers with the report's: each candidate's
   gain and the change in the "Exhausted" and "Overvotes" rows, which are the same, off one way
   (ballots the record lacks or has over), or moved between destinations (a rule of reading the
-  ballots that differs).
+  ballots that differs). For 2015–2018, whose counts defeat several at once, it compares each
+  round's exhausted votes (the "Exhausted Ballots" and "Exhausted by Over Votes" rows) instead.
 - For 2024 it also fetches the certified statement of vote (`sov.xlsx`, a sheet per contest)
   and compares the record's first rankings with it, citywide: each candidate, the undervotes
   and the overvotes. All 10 contests match it to the ballot, the three whose round pages the

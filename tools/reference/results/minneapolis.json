@@ -8,7 +8,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "park-2009: threshold 9164.0000 (official 9164); 6 of 6 official rounds match a round of this count; elected the same"
+   "line": "park-2009: threshold 9164.0000 (official 9164); 6 of 6 official rounds match a round of this count; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "bet-2009",
@@ -16,7 +16,7 @@
    "matched": 4,
    "rounds": 5,
    "winners_same": true,
-   "line": "bet-2009: threshold 10696.0000 (official 10696); 4 of 5 official rounds match a round of this count; elected the same; the record's first count differs from the City's: Carol Becker 16727.0000 (official 16728.0000)"
+   "line": "bet-2009: threshold 10696.0000 (official 10696); 4 of 5 official rounds match a round of this count; elected the same; the record's first count differs from the City's: Carol Becker 16727.0000 (official 16728.0000); exhausted votes DIFFER in official rounds [2, 3, 4, 5]"
   },
   {
    "contest": "park-2013",

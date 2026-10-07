@@ -218,17 +218,19 @@ def unmatched_rounds(official, ours, figure=dict.get):
     return unmatched
 
 
-def exhausted_line(official, ours, figure=dict.get, past_first=False):
+def exhausted_line(official, ours, figure=dict.get, past_first=False, ignore=()):
     """Whether, in each official round that is a round of this count (every candidate on the official figure,
     figure(figures, name) finding it), the votes no longer with a candidate are this count's: OFFICIAL is
     [(figures, exhausted, remainders or None)] by round, compared with this count's exhausted votes and rounding loss.
     With past_first, the first round's exhausted figure is taken off every round's (votes a count reports exhausted
-    from the start, such as ballots whose first ranking is an overvote, that never come into this one)."""
+    from the start, such as ballots whose first ranking is an overvote, that never come into this one). Candidates
+    named in IGNORE aren't matched (a record's lumped write-ins, where the count lists each)."""
     start, compared, off, remainders = 0, 0, [], False
     base = official[0][1] if past_first and official else 0
     for k, (figures, exhausted, remainder) in enumerate(official):
         hit = next((i for i in range(start, len(ours["rounds"])) if all(
-            figure(figures, name) == Decimal(votes) for name, votes in ours["rounds"][i]["tallies"].items())), None)
+            figure(figures, name) == Decimal(votes) for name, votes in ours["rounds"][i]["tallies"].items()
+            if name not in ignore)), None)
         if hit is None:
             continue
         start, compared, mine = hit, compared + 1, ours["rounds"][hit]

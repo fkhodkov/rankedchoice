@@ -17,7 +17,7 @@ majority; so every official round must be one of this count's rounds, in order, 
 continuing, and the same candidate must win. The votes are compared, and where they differ, each round's
 largest difference is reported.
 
-For the 2018-2020 reports each round's exhausted ballots by cause (overvotes, undervotes, exhausted choices)
+For the 2018-2022 reports each round's exhausted ballots by cause (overvotes, undervotes, exhausted choices)
 are compared with the record's too (exhausted_line).
 
 The reports come as Excel files (2018, 2020: read with LibreOffice's soffice) or PDFs (2022: pdftotext),
@@ -149,13 +149,15 @@ CAUSES = {"By Overvotes": "overvotes", "By Undervotes": "undervotes", "By Exhaus
 
 
 def exhausted_by_cause(path):
-    """{cause: [ballots in round 1, 2, ...]}: the 2018-2020 reports' rows under "Ballot Exhausted" (a spreadsheet's
-    every third column, as for the candidates)."""
+    """{cause: [ballots in round 1, 2, ...]}: the 2018-2022 reports' rows under "Ballot Exhausted": a spreadsheet's
+    every third column, as for the candidates; a PDF's every other figure (ballots, then the transfer, a round)."""
     found = {}
     for row in rows_of(path):
         cells = [c.strip() for c in row]
         if cells and cells[0] in CAUSES:
-            found[CAUSES[cells[0]]] = [int(v) for v in cells[1::3] if NUMBER.match(v)]
+            figures = [int(v) for v in cells[1:] if NUMBER.match(v)] if path.endswith(".pdf") else \
+                [int(v) for v in cells[1::3] if NUMBER.match(v)]
+            found[CAUSES[cells[0]]] = figures[0::2] if path.endswith(".pdf") else figures
     return found
 
 
@@ -285,7 +287,7 @@ def check(data, contest, jar):
         report = CONTESTS[contest][1]
         local = fetch(os.path.join(data, contest + os.path.splitext(report)[1]), SITE + report)
         totals = official_rounds(local)
-        causes = exhausted_by_cause(local) if not local.endswith(".pdf") else {}
+        causes = exhausted_by_cause(local)
     totals = {key(name): votes for name, votes in totals.items()}
     blt = os.path.join(data, contest + ".blt")
     cvr = ballots_2026(data, contest) if contest in STATE_2026 else \

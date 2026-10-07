@@ -192,7 +192,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2015-supervisor-3: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20220125"
+   "line": "2015-supervisor-3: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20220125; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2015-mayor",
@@ -200,7 +200,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2015-mayor: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20250126"
+   "line": "2015-mayor: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20250126; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2015-sheriff",
@@ -208,7 +208,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2015-sheriff: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20220125"
+   "line": "2015-sheriff: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20220125; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2016-supervisor-1",
@@ -216,7 +216,7 @@
    "matched": 10,
    "rounds": 10,
    "winners_same": true,
-   "line": "2016-supervisor-1: 10 of 10 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+   "line": "2016-supervisor-1: 10 of 10 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321; exhausted votes the official ones (10 rounds)"
   },
   {
    "contest": "2016-supervisor-3",
@@ -224,7 +224,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2016-supervisor-3: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20230414"
+   "line": "2016-supervisor-3: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20230414; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2016-supervisor-5",
@@ -232,7 +232,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2016-supervisor-5: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20260701"
+   "line": "2016-supervisor-5: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20260701; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2016-supervisor-7",
@@ -240,7 +240,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2016-supervisor-7: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+   "line": "2016-supervisor-7: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2016-supervisor-9",
@@ -248,7 +248,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2016-supervisor-9: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20230414"
+   "line": "2016-supervisor-9: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20230414; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2016-supervisor-11",
@@ -256,7 +256,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2016-supervisor-11: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+   "line": "2016-supervisor-11: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2018-06-supervisor-8",
@@ -264,7 +264,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2018-06-supervisor-8: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230410"
+   "line": "2018-06-supervisor-8: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20230410; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2018-06-mayor",
@@ -272,7 +272,7 @@
    "matched": 9,
    "rounds": 9,
    "winners_same": true,
-   "line": "2018-06-mayor: 9 of 9 official rounds match to the vote; eliminations the same; elected the same; results captured 20260417"
+   "line": "2018-06-mayor: 9 of 9 official rounds match to the vote; eliminations the same; elected the same; results captured 20260417; exhausted votes the official ones (9 rounds)"
   },
   {
    "contest": "2018-assessor-recorder",
@@ -280,7 +280,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2018-assessor-recorder: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20190716"
+   "line": "2018-assessor-recorder: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20190716; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2018-public-defender",
@@ -288,7 +288,7 @@
    "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "2018-public-defender: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; results captured 20190717"
+   "line": "2018-public-defender: 1 of 1 official rounds match to the vote; eliminations the same; elected the same; results captured 20190717; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "2018-supervisor-2",
@@ -296,7 +296,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2018-supervisor-2: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+   "line": "2018-supervisor-2: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2018-supervisor-4",
@@ -304,7 +304,7 @@
    "matched": 8,
    "rounds": 8,
    "winners_same": true,
-   "line": "2018-supervisor-4: 8 of 8 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+   "line": "2018-supervisor-4: 8 of 8 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321; exhausted votes the official ones (8 rounds)"
   },
   {
    "contest": "2018-supervisor-6",
@@ -312,7 +312,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2018-supervisor-6: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20190718"
+   "line": "2018-supervisor-6: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; results captured 20190718; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2018-supervisor-8",
@@ -320,7 +320,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2018-supervisor-8: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20230423"
+   "line": "2018-supervisor-8: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20230423; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2018-supervisor-10",
@@ -328,7 +328,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "2018-supervisor-10: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321"
+   "line": "2018-supervisor-10: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321; exhausted votes the official ones (7 rounds)"
   },
   {
    "contest": "2020-supervisor-1",
