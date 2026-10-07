@@ -575,7 +575,10 @@ ballots the State publishes itself. The State's "RCV Summary Reports" give every
   repeats as skips) put the governor primary's rounds 2 to 4 off for Cote and Mills, or by
   hundreds. The record is the State's own: its cast vote record of the primary (five
   spreadsheets, `govd-1.xlsx` to `govd-5.xlsx`, published beside the report and kept by the
-  Internet Archive) holds the same 132,250 ballots as FairVote's copy, ranking for ranking. So the
+  Internet Archive) holds the same 132,250 ballots as FairVote's copy, ranking for ranking. It's
+  the only version kept: the results page linked the same five files by July 2018, and every
+  capture of them, from June 2020 to April 2025, is the same file (where for the November general
+  the State published a raw and a final export). So the
   difference lies between the State's published ballots and its count: 3 ballots the published
   record reads otherwise, or a rule touching no other ballot in nine contests; which isn't
   shown.
