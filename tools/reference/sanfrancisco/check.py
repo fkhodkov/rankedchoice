@@ -14,7 +14,8 @@ of this count's rounds, in order, with the same candidates continuing, and the s
 must win; the votes are compared, and where they differ, each round's largest difference is
 reported. Before 2019 the Department defeated together the candidates who couldn't overtake the
 next one up, which is several of this count's rounds in one, and stopped at a majority. The
-latest capture of each result file is used: for 2024's city attorney, district attorney and
+latest capture of each result file is used (the choice remembered for RECHECK_DAYS, then looked up
+again, so a later capture is found): for 2024's city attorney, district attorney and
 sheriff contests, the only captures predate certification, and are a few dozen votes short. For
 2024 the record's first rankings are also compared with the certified statement of vote's,
 citywide (each candidate, undervotes, overvotes), which holds for all ten contests.
@@ -25,6 +26,7 @@ the last three with a row per candidate giving the votes, percentage and transfe
 """
 import collections
 import csv
+import datetime
 import json
 import os
 import re
@@ -41,6 +43,7 @@ from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as k
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 RESULTS = "sfelections.org/results/"
+RECHECK_DAYS = 30
 # contest: (Dataverse file id, the results file under sfelections.org/results/)
 CONTESTS = {
     "2019-supervisor-5": (11593655, "20191105/data/20191125/d5/20191125_d5_short.xlsx"),
@@ -113,24 +116,32 @@ def cdx(query, attempts=6):
     return []
 
 
-def latest_capture(data, contest, path):
-    """The Internet Archive's latest good capture of a results file, as a URL to fetch it as captured;
-    remembered in DATA_DIR, so a rerun asks once."""
+def latest_capture(data, contest, path, today=None):
+    """The Internet Archive's latest good capture of a results file, as a URL to fetch it as captured, and its
+    timestamp. Remembered in DATA_DIR with the day the index was asked, and reused for RECHECK_DAYS, so a rerun
+    asks once but a later capture (a certified report, say) is found within a month; where the index can't be
+    reached, the remembered capture is used."""
     remembered = os.path.join(data, contest + ".capture")
-    if os.path.exists(remembered):
-        url, stamp = open(remembered).read().split()
-        return url, stamp
+    today = today or datetime.date.today()
+    known = open(remembered).read().split() if os.path.exists(remembered) else []
+    if len(known) == 3 and (today - datetime.date.fromisoformat(known[2])).days < RECHECK_DAYS:
+        return known[0], known[1]
     best = None
-    for host in ("www.", ""):
-        query = urllib.parse.urlencode({"url": host + RESULTS + path, "output": "json", "fl": "timestamp,original",
-                                        "filter": "statuscode:200"})
-        for stamp, original in cdx(query)[1:]:
-            if best is None or stamp > best[0]:
-                best = (stamp, original)
+    try:
+        for host in ("www.", ""):
+            query = urllib.parse.urlencode({"url": host + RESULTS + path, "output": "json",
+                                            "fl": "timestamp,original", "filter": "statuscode:200"})
+            for stamp, original in cdx(query)[1:]:
+                if best is None or stamp > best[0]:
+                    best = (stamp, original)
+    except (OSError, ValueError):
+        if known:
+            return known[0], known[1]
+        raise
     if best is None:
         raise ValueError(f"no capture of {path}")
     url = f"https://web.archive.org/web/{best[0]}id_/{best[1]}"
-    open(remembered, "w").write(f"{url} {best[0]}\n")
+    open(remembered, "w").write(f"{url} {best[0]} {today.isoformat()}\n")
     return url, best[0]
 
 
@@ -209,7 +220,7 @@ def certified_line(data, contest, cvr):
     if contest not in SHEETS_2024:
         return ""
     url, stamp = latest_capture(data, "2024-statement-of-vote", STATEMENT_2024)
-    statement = statement_of_vote(fetch(os.path.join(data, "2024-statement-of-vote.xlsx"), url))
+    statement = statement_of_vote(fetch(os.path.join(data, f"2024-statement-of-vote-{stamp}.xlsx"), url))
     theirs, ours = dict(statement[SHEETS_2024[contest]]), first_rankings(cvr)
     # The record names a qualified write-in as a candidate: "Write-in" is all its write-ins.
     ours[key("Write-in")] += sum(ours[name] for name in theirs.pop(QUALIFIED))
@@ -221,7 +232,8 @@ def certified_line(data, contest, cvr):
 def check(data, contest, jar):
     file_id, path = CONTESTS[contest]
     url, stamp = latest_capture(data, contest, path)
-    local = fetch(os.path.join(data, contest + os.path.splitext(path)[1]), url)
+    # Named by its capture, so a later capture is fetched anew, not mistaken for the one already here.
+    local = fetch(os.path.join(data, f"{contest}-{stamp}{os.path.splitext(path)[1]}"), url)
     # Names compared in letters only: the reports and the records quote nicknames differently.
     totals = {key(name): votes for name, votes in official_rounds(local).items()}
     blt = os.path.join(data, contest + ".blt")

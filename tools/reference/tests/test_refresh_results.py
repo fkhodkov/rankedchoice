@@ -61,13 +61,30 @@ class Compare(unittest.TestCase):
     def test_the_copy_leaves_out_the_cached_blt_files(self):
         with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as work:
             os.makedirs(os.path.join(root, "maine"))
-            for name in ("a.csv", "a.blt", "a.pdf"):
+            for name in ("a.csv", "a.blt"):
                 open(os.path.join(root, "maine", name), "w").close()
+            with open(os.path.join(root, "maine", "a.pdf"), "w") as out:
+                out.write("x" * refresh_results.SMALL)
             open(os.path.join(root, "notes.txt"), "w").close()
             refresh_results.shadow(root, os.path.join(work, "copy"))
             self.assertEqual(sorted(os.listdir(os.path.join(work, "copy"))), ["maine"])
             self.assertEqual(sorted(os.listdir(os.path.join(work, "copy", "maine"))), ["a.csv", "a.pdf"])
-            self.assertTrue(os.path.islink(os.path.join(work, "copy", "maine", "a.csv")))
+            self.assertTrue(os.path.islink(os.path.join(work, "copy", "maine", "a.pdf")))
+
+    def test_small_files_are_copied_so_rewriting_one_leaves_the_data_alone(self):
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as work:
+            os.makedirs(os.path.join(root, "sanfrancisco"))
+            with open(os.path.join(root, "sanfrancisco", "a.capture"), "w") as out:
+                out.write("old\n")
+            with open(os.path.join(root, "sanfrancisco", "a.csv"), "w") as out:
+                out.write("x" * refresh_results.SMALL)
+            refresh_results.shadow(root, os.path.join(work, "copy"))
+            note = os.path.join(work, "copy", "sanfrancisco", "a.capture")
+            self.assertFalse(os.path.islink(note))
+            with open(note, "w") as out:
+                out.write("new\n")
+            self.assertEqual(open(os.path.join(root, "sanfrancisco", "a.capture")).read(), "old\n")
+            self.assertTrue(os.path.islink(os.path.join(work, "copy", "sanfrancisco", "a.csv")))
 
     def test_results_differ_contest_by_contest_the_date_aside(self):
         def results(*contests, date="2026-10-01"):

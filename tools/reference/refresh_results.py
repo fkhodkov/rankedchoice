@@ -24,6 +24,7 @@ import argparse
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -34,6 +35,7 @@ RESULTS = os.path.join(HERE, "results")
 DEFAULT_JAR = os.path.join(ROOT, "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
 SINGLE = ["alameda", "sanfrancisco", "nyc", "alaska", "maine", "minneapolis", "portland", "eastpointe", "albany",
           "aec", "nsw", "cambridge"]
+SMALL = 64 * 1024        # --compare copies files under this size rather than linking them
 JAVA_TESTS = "ActOfficialDistributionTest,Irish2002GeneralElectionFixtureTest"
 
 
@@ -73,15 +75,22 @@ def steps(data_root, only=None, java=True, jar=DEFAULT_JAR, python=sys.executabl
 
 def shadow(data_root, copy):
     """Fills COPY with a directory per checker directory of DATA_ROOT, linking to everything in it but its BLT files
-    (each checker's cache of its converted records; Scotland's ballots are in scot-elex/, linked whole)."""
+    (each checker's cache of its converted records; Scotland's ballots are in scot-elex/, linked whole). Small files
+    are copied, not linked, so a checker rewriting one of its notes (San Francisco's .capture) leaves DATA_ROOT as
+    it was."""
     for name in os.listdir(data_root):
         source = os.path.join(data_root, name)
         if not os.path.isdir(source):
             continue
         os.makedirs(os.path.join(copy, name))
         for entry in os.listdir(source):
-            if not entry.endswith(".blt"):
-                os.symlink(os.path.realpath(os.path.join(source, entry)), os.path.join(copy, name, entry))
+            path = os.path.realpath(os.path.join(source, entry))
+            if entry.endswith(".blt"):
+                continue
+            if os.path.isfile(path) and os.path.getsize(path) < SMALL:
+                shutil.copyfile(path, os.path.join(copy, name, entry))
+            else:
+                os.symlink(path, os.path.join(copy, name, entry))
 
 
 def differences(committed, fresh):

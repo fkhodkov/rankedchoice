@@ -19,7 +19,10 @@ Nothing usable was kept for 2004–2008.
 - The results come as the counting system's pass report (2010–2014, a PDF; `pdftotext`), a web
   page (2015–2018, 2024), an Excel report (2019, 2022; LibreOffice's `soffice`) or a PDF (2020).
   The Archive's index rate-limits; the script retries, and remembers each capture it chose in
-  the data directory.
+  the data directory (`<contest>.capture`, with the day it asked) for 30 days, then asks again,
+  so a later capture, a certified report say, is found; each results file is saved under its
+  capture's timestamp, so a later one is fetched anew. Where the index can't be reached, the
+  remembered capture is used.
 - For 2024 it also fetches the certified statement of vote (`sov.xlsx`, a sheet per contest)
   and compares the record's first rankings with it, citywide: each candidate, the undervotes
   and the overvotes. All 10 contests match it to the ballot, the three whose round pages the
