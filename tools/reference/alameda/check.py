@@ -24,7 +24,10 @@ In 2022 the County's count held back, in its first round only, some ballots whos
 skipped or a write-in ("Suspended"), which join from the second round; that first round is
 compared with the record's first rankings instead. Where the record isn't quite the ballots the
 County counted (a few votes a candidate, from the first round on), each round's largest difference
-is reported, and the contest passes on the same eliminations and winner.
+is reported, and the contest passes on the same eliminations and winner. Each elimination's
+transfers the report lists, by where the ballots went, are compared too (rcvcheck.transfer_line):
+the same; off one way, ballots the record lacks or has over the count; or MOVED, more to one
+destination and fewer to another, as a rule of reading the ballots that differs would do.
 """
 import collections
 import csv
@@ -38,7 +41,7 @@ from decimal import Decimal
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
-                      pdf_text, summary, winner)
+                      pdf_text, summary, transfer_line, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 REPORT = "https://alamedacountyca.gov/rovresults/rcv/{election}/{race}/RcvDetailedReport.xml"
@@ -223,9 +226,17 @@ for election, reports in (
 
 def report(path):
     """Each round's votes per candidate (by key), the suspended ballots of round 1, the candidates
-    eliminated in order, and the winners."""
+    eliminated in order, the winners, and each elimination's transfers, [(eliminated, {destination:
+    ballots})] (destinations "Exhausted" and "Overvotes" among them)."""
     root = ET.parse(path).getroot()
     rounds, suspended, elected, eliminated = [], 0, [], []
+    moves = []
+    for source in root.iter(f"{NS}sourceChoiceId"):
+        match = re.match(r"Elimination transfer for candidate (.*)\.$", source.get("Textbox44") or "")
+        if match:
+            moves.append((match.group(1), {c.get("choiceName"): int(c.get("ballotsTransferred3"))
+                                           for c in source.iter(f"{NS}choiceId")
+                                           if c.get("choiceName") != c.get("sourceChoiceName")}))
     for group in root.iter(f"{NS}roundGroup"):
         summary = group.find(f"{NS}Tablix5")
         votes = {c.get("choiceName2"): Decimal(c.get("votes")) for c in summary.iter(f"{NS}choiceGroup")}
@@ -239,7 +250,7 @@ def report(path):
                 into = elected if match.group(2) == "elected" else eliminated
                 if key(match.group(1)) not in into:
                     into.append(key(match.group(1)))
-    return rounds, suspended, elected, eliminated
+    return rounds, suspended, elected, eliminated, moves
 
 
 def first_rankings(cvr):
@@ -251,7 +262,7 @@ def first_rankings(cvr):
 
 def check(data, contest, jar):
     file_id, election, race = CONTESTS[contest]
-    rounds, suspended, elected, eliminated = report(fetch(os.path.join(data, contest + ".xml"),
+    rounds, suspended, elected, eliminated, moves = report(fetch(os.path.join(data, contest + ".xml"),
                                                           REPORT.format(election=election, race=race)))
     cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
     blt = os.path.join(data, contest + ".blt")
@@ -280,7 +291,8 @@ def check(data, contest, jar):
             + (f" (round 1 against the record's first rankings, {int(suspended)} ballots suspended)" if suspended else "")
             + (f"; the record differs by up to {int(worst)} votes a candidate" if worst else "")
             + f"; eliminations in {'the same' if same_order else 'A DIFFERENT'} order"
-            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}")
+            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}"
+            + transfer_line(moves, ours, key))
     return same_order and same, line
 
 

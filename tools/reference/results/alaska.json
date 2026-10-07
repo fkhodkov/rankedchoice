@@ -8,7 +8,7 @@
    "matched": 0,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-special-us-house: 0 of 2 official rounds match to the vote (largest differences by round: [54, 60]); eliminations in the same order; elected the same"
+   "line": "2022-special-us-house: 0 of 2 official rounds match to the vote (largest differences by round: [54, 60]); eliminations in the same order; elected the same; transfers 54 ballots over in 1 eliminations, none moved between destinations"
   },
   {
    "contest": "2022-us-house",
@@ -16,7 +16,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2022-us-house: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-us-house: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2022-us-senate",
@@ -24,7 +24,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2022-us-senate: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-us-senate: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2022-house-11",
@@ -32,7 +32,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-house-11: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-house-11: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-house-15",
@@ -40,7 +40,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-house-15: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-house-15: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-house-18",
@@ -48,7 +48,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-house-18: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-house-18: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-house-28",
@@ -56,7 +56,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2022-house-28: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-house-28: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2022-house-30",
@@ -64,7 +64,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-house-30: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-house-30: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-house-31",
@@ -72,7 +72,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-house-31: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-house-31: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-house-34",
@@ -80,7 +80,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-house-34: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-house-34: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-senate-d",
@@ -88,7 +88,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-senate-d: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-senate-d: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-senate-e",
@@ -96,7 +96,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-senate-e: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-senate-e: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2022-senate-n",
@@ -104,7 +104,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2022-senate-n: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2022-senate-n: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2024-us-house",
@@ -112,7 +112,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2024-us-house: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2024-us-house: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2024-house-6",
@@ -120,7 +120,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2024-house-6: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2024-house-6: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2024-house-28",
@@ -128,7 +128,7 @@
    "matched": 0,
    "rounds": 2,
    "winners_same": true,
-   "line": "2024-house-28: 0 of 2 official rounds match to the vote (largest differences by round: [3, 3]); eliminations in the same order; elected the same"
+   "line": "2024-house-28: 0 of 2 official rounds match to the vote (largest differences by round: [3, 3]); eliminations in the same order; elected the same; transfers 2 ballots over in 1 eliminations, none moved between destinations"
   },
   {
    "contest": "2024-house-36",
@@ -136,7 +136,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2024-house-36: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2024-house-36: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2024-house-38",
@@ -144,7 +144,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2024-house-38: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2024-house-38: 3 of 3 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "2024-house-40",
@@ -152,7 +152,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2024-house-40: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2024-house-40: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2024-senate-d",
@@ -160,7 +160,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2024-senate-d: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2024-senate-d: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2024-senate-f",
@@ -168,7 +168,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2024-senate-f: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2024-senate-f: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "2024-senate-l",
@@ -176,7 +176,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2024-senate-l: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "2024-senate-l: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   }
  ]
 }

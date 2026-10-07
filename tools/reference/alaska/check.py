@@ -12,7 +12,10 @@ ballots. Each is fetched into DATA_DIR, the record converted (../cvr_to_blt.py) 
 by round until one candidate is left), and every official round's votes compared with this
 count's, round for round, with the elimination order and the winner. Where the record differs
 from the Division's count by a few votes, each round's largest difference is reported; such a
-contest passes on the same eliminations and winner.
+contest passes on the same eliminations and winner. Each elimination's transfers the report
+lists, by where the ballots went, are compared too (rcvcheck.transfer_line): the same; off one
+way, ballots the record lacks or has over the count; or MOVED, more to one destination and fewer
+to another, as a rule of reading the ballots that differs would do.
 """
 import functools
 import json
@@ -24,7 +27,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import DATAVERSE, count, fetch, main, pdf_text  # noqa: E402
+from rcvcheck import DATAVERSE, count, fetch, main, name_key, pdf_text, transfer_line  # noqa: E402
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 ARCHIVE = "https://web.archive.org/web/{stamp}id_/https://www.elections.alaska.gov/results/{path}"
@@ -63,10 +66,25 @@ def dataverse_ids():
 
 
 def report(pdf):
-    """Each round's votes per candidate, the candidates eliminated in order, and the winners."""
+    """Each round's votes per candidate, the candidates eliminated in order, the winners, and each elimination's
+    transfers, [(eliminated, {destination: ballots})] (destinations "Exhausted" and "Overvotes" among them)."""
     text = pdf_text(pdf)
-    rounds, current, eliminated, elected = [], None, [], []
+    rounds, current, eliminated, elected, moves, wrapped = [], None, [], [], [], None
     for line in text.splitlines():
+        match = re.match(r"^Elimination transfer for candidate (.*)\.\s*$", line.strip())
+        if match:
+            moves.append((match.group(1), {}))
+            continue
+        # From, to, ballots, (from 2024) the fraction, votes.
+        match = re.match(r"^(\S.*?)\s{2,}(\S.*?)\s{2,}(\d+)\s+(?:[\d.]+\s+)?[\d,]+\s*$", line.strip())
+        if match and moves and match.group(1) == moves[-1][0]:
+            moves[-1][1][match.group(2)] = int(match.group(3))
+            wrapped = match.group(2)
+            continue
+        if wrapped and re.match(r"^\s{20,}\S[^\d]*$", line):
+            # A long name wraps onto the next line, in the destination's column.
+            moves[-1][1][wrapped + " " + line.strip()] = moves[-1][1].pop(wrapped)
+        wrapped = None
         if re.match(r"^Round \d+\s*$", line.strip()):
             current = {}
             rounds.append(current)
@@ -81,7 +99,7 @@ def report(pdf):
         match = re.match(r"^(.*) is (eliminated|elected) because", line.strip())
         if match:
             (eliminated if match.group(2) == "eliminated" else elected).append(match.group(1))
-    return rounds, eliminated, elected
+    return rounds, eliminated, elected, moves
 
 
 def arguments(contest):
@@ -94,7 +112,7 @@ def arguments(contest):
 
 def check(data, contest, jar):
     file_id, stamp, path = arguments(contest)
-    rounds, eliminated, elected = report(fetch(os.path.join(data, contest + ".pdf"),
+    rounds, eliminated, elected, moves = report(fetch(os.path.join(data, contest + ".pdf"),
                                                ARCHIVE.format(stamp=stamp, path=path)))
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
@@ -119,7 +137,8 @@ def check(data, contest, jar):
     line = (f"{contest}: {exact} of {len(rounds)} official rounds match to the vote"
             + (f" (largest differences by round: {gaps})" if any(gaps) else "")
             + f"; eliminations in {'the same' if same_order else 'A DIFFERENT'} order"
-            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder']) + ' vs ' + str(elected)}")
+            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder']) + ' vs ' + str(elected)}"
+            + transfer_line(moves, ours, name_key))
     return same_order and same, line
 
 

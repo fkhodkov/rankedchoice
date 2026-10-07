@@ -132,6 +132,42 @@ Final State
 """
 
 
+def eliminations(*rounds):
+    """A count's JSON report with each round's exhausted votes and its elimination: (tallies, exhausted, eliminated)."""
+    return {"rounds": [{"tallies": {name: str(votes) for name, votes in tallies.items()}, "exhaustedVotes": str(gone),
+                        "action": {"type": "eliminated", "candidate": loser}} for tallies, gone, loser in rounds],
+            "electedInOrder": []}
+
+
+# C goes first, 10 ballots: 6 to A, 3 to B, 1 exhausted; then B, 33: 20 to A, 13 exhausted.
+TRANSFERS = eliminations(({"A": 50, "B": 30, "C": 10}, 0, "C"), ({"A": 56, "B": 33}, 1, "B"), ({"A": 76}, 14, "A"))
+
+
+class Transfers(unittest.TestCase):
+
+    def test_each_elimination_from_the_change_between_rounds(self):
+        self.assertEqual(rcvcheck.transfers(TRANSFERS), {"C": {"A": 6, "B": 3, "Exhausted": 1},
+                                                         "B": {"A": 20, "Exhausted": 13}})
+
+    def test_the_same_with_exhausted_and_overvotes_together(self):
+        official = [("C", {"A": 6, "B": 3, "Exhausted": 0, "Overvotes": 1}), ("B", {"A": 20, "Exhausted": 13})]
+        self.assertEqual(rcvcheck.transfer_line(official, TRANSFERS, name_key),
+                         "; every transfer the official one (2 eliminations)")
+
+    def test_ballots_the_record_lacks_are_off_one_way(self):
+        official = [("C", {"A": 7, "B": 3, "Exhausted": 1}), ("B", {"A": 20, "Exhausted": 14})]
+        self.assertEqual(rcvcheck.transfer_line(official, TRANSFERS, name_key),
+                         "; transfers 2 ballots short in 2 eliminations, none moved between destinations")
+
+    def test_a_ballot_read_otherwise_moves_between_destinations(self):
+        official = [("C", {"A": 5, "B": 3, "Exhausted": 2}), ("B", {"A": 20, "Exhausted": 13})]
+        self.assertEqual(rcvcheck.transfer_line(official, TRANSFERS, name_key),
+                         "; transfers MOVED between destinations in 1 of 2 eliminations (C)")
+
+    def test_nothing_to_compare_says_nothing(self):
+        self.assertEqual(rcvcheck.transfer_line([("D", {"A": 1})], TRANSFERS, name_key), "")
+
+
 class PassReport(unittest.TestCase):
 
     def test_final_states_notes_and_wrapped_names(self):

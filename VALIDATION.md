@@ -410,7 +410,9 @@ archived; nor is there a pass report for Oakland's 2016 District 3 race.
   the record's, or one ballot more to a single destination (2, 2 and 3 ballots in all), never
   ballots moved from one destination to another, as a rule of reading would. Reading skips as in
   Alaska (two in a row ending the ballot) or skipping overvotes puts the transfers off by 40 to
-  5,139 ballots.
+  5,139 ballots. The checker compares every elimination's transfers with the report's (as for
+  Alaska): in the 12 other contests that go past a first round every transfer is the report's,
+  and in these three it says "short, none moved".
 
 - **Ballots**: an overvote ends the ballot (the 2022–2025 reports' "skip overvoted rankings" is
   off); a skipped ranking is passed over, as is a write-in from 2022 on; a candidate ranked again
@@ -481,7 +483,14 @@ settings: IRV, no winners by threshold, unresolved write-ins excluded, overvotes
   Dominion export of 2022 (as the Internet Archive kept it), read anew (each session's
   adjudicated version), gives all 13 contests of 2022 exactly the figures FairVote's copies do.
   The 2024 export the Archive kept, dated 30 November, isn't the set counted: its US House first
-  round is 4,035 votes over the Division's. In all 22 the candidates are eliminated in the same
+  round is 4,035 votes over the Division's.
+- **Transfers.** The checker compares every elimination's transfers with the report's too,
+  "Exhausted" and "Overvotes" together (a ballot an overvote ends is exhausted here). In the 20
+  every transfer is the report's (26 eliminations); 2024's House District 28 is 2 ballots over
+  and the August special 54 over, none moved between destinations, as ballots the record has
+  over the count would be. Under the reading before `--repeat skip`, the checker flags transfers
+  moved in all 8 contests the rule brought to every round, and in the special. In all 22 the candidates are
+  eliminated in the same
   order and the same candidate wins. Two are fixtures (`AlaskaIrvFixtureTest`).
 
 **New York City** (`irv`; `tools/reference/nyc`): the primaries of 2021, 2023 and 2025 whose

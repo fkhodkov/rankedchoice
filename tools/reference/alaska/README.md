@@ -16,7 +16,9 @@ Senate contests).
   with `irv`, and compares every official round's votes with this count's, round for round, with
   the elimination order and the winner. Where the record differs from the Division's count by a
   few votes, each round's largest difference is reported; such a contest passes on the same
-  eliminations and winner.
+  eliminations and winner. Each elimination's transfers, by where the ballots went, are compared
+  with the report's too: the same, off one way (ballots the record lacks or has over), or moved
+  between destinations, which points to a rule of reading the ballots that differs.
 - FairVote's 2022 records are the Division's own: its Dominion cast vote record export of the
   2022 general election (`results/22GENR/rcv/CVR_Export.zip`, as the Internet Archive kept it on
   23 December 2022) and of the August special, read anew (each session's adjudicated version; at

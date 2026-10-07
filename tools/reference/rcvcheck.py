@@ -1,10 +1,12 @@
 """What the reference checkers of US ranked-choice counts share: fetching, matching names, counting, and matching
-the official rounds with this count's, to the vote (single-seat) or to the official decimal places (multi-seat).
+the official rounds with this count's, to the vote (single-seat) or to the official decimal places (multi-seat), and
+comparing each elimination's transfers with an official report's.
 
 The checkers (alameda, alaska, maine, nyc, sanfrancisco; albany, eastpointe, minneapolis, portland) import it from
 the directory above theirs.
 """
 import argparse
+import collections
 import csv
 import glob
 import gzip
@@ -184,6 +186,56 @@ def threshold_line(contest, ours, official_threshold, matched, rounds, same, ele
     return (f"{contest}: {quota} {Decimal(ours['quota']):f} (official {official_threshold}); "
             f"{matched} of {rounds} official rounds match a round of this count; "
             f"elected {'the same' if same else 'DIFFERENTLY: ' + str(elected)}")
+
+
+EXHAUSTED = "Exhausted"
+
+
+def transfers(ours):
+    """This count's transfers, {eliminated candidate: {candidate or EXHAUSTED: votes gained}}, each elimination's
+    from the change in every tally and in the exhausted votes between its round and the next (a ballot an overvote
+    ended counts as exhausted, the converter having ended it)."""
+    found = {}
+    for now, after in zip(ours["rounds"], ours["rounds"][1:]):
+        if now["action"]["type"] != "eliminated":
+            continue
+        loser = now["action"]["candidate"]
+        gains = {name: Decimal(after["tallies"].get(name, 0)) - Decimal(votes)
+                 for name, votes in now["tallies"].items() if name != loser}
+        gains[EXHAUSTED] = Decimal(after["exhaustedVotes"]) - Decimal(now["exhaustedVotes"])
+        found[loser] = {name: gain for name, gain in gains.items() if gain}
+    return found
+
+
+def transfer_line(official, ours, key):
+    """How each official elimination's transfers, [(eliminated, {destination: ballots})] with "Exhausted" and
+    "Overvotes" counted together, compare with this count's: the same; off one way (ballots the record lacks or has
+    over the official count, none moved); or moved, more to one destination and fewer to another in one elimination,
+    which a rule of reading the ballots that differs would do, and missing or extra ballots alone wouldn't."""
+    mine = {key(name): {EXHAUSTED if to == EXHAUSTED else key(to): votes for to, votes in gains.items()}
+            for name, gains in transfers(ours).items()}
+    compared, moved, gaps = 0, [], []
+    for loser, theirs in official:
+        if key(loser) not in mine:
+            continue
+        compared += 1
+        wanted = collections.Counter()
+        for to, ballots in theirs.items():
+            wanted[EXHAUSTED if to in ("Exhausted", "Overvotes") else key(to)] += ballots
+        got = mine[key(loser)]
+        off = {to: got.get(to, 0) - wanted.get(to, 0) for to in set(got) | set(wanted) if got.get(to, 0) != wanted[to]}
+        if any(gap > 0 for gap in off.values()) and any(gap < 0 for gap in off.values()):
+            moved.append(loser)
+        gaps += off.values()
+    if not compared:
+        return ""
+    if moved:
+        return f"; transfers MOVED between destinations in {len(moved)} of {compared} eliminations ({', '.join(moved)})"
+    if not gaps:
+        return f"; every transfer the official one ({compared} eliminations)"
+    way = "short" if all(gap < 0 for gap in gaps) else "over" if all(gap > 0 for gap in gaps) else "off"
+    return (f"; transfers {int(sum(abs(gap) for gap in gaps))} ballots {way} in {compared} eliminations, "
+            f"none moved between destinations")
 
 
 def record(contest, ok, line, matched=None, rounds=None, winners_same=None):

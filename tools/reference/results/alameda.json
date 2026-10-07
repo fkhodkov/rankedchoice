@@ -1,6 +1,6 @@
 {
  "checker": "alameda",
- "date": "2026-10-06",
+ "date": "2026-10-07",
  "contests": [
   {
    "contest": "berkeley-2010-auditor",
@@ -560,7 +560,7 @@
    "matched": 9,
    "rounds": 9,
    "winners_same": true,
-   "line": "oakland-2022-mayor: 9 of 9 official rounds match to the vote (round 1 against the record's first rankings, 810 ballots suspended); eliminations in the same order; elected the same"
+   "line": "oakland-2022-mayor: 9 of 9 official rounds match to the vote (round 1 against the record's first rankings, 810 ballots suspended); eliminations in the same order; elected the same; every transfer the official one (8 eliminations)"
   },
   {
    "contest": "oakland-2022-council-4",
@@ -576,7 +576,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "oakland-2022-council-6: 3 of 3 official rounds match to the vote (round 1 against the record's first rankings, 199 ballots suspended); eliminations in the same order; elected the same"
+   "line": "oakland-2022-council-6: 3 of 3 official rounds match to the vote (round 1 against the record's first rankings, 199 ballots suspended); eliminations in the same order; elected the same; every transfer the official one (2 eliminations)"
   },
   {
    "contest": "oakland-2022-auditor",
@@ -592,7 +592,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "oakland-2022-school-2: 2 of 2 official rounds match to the vote (round 1 against the record's first rankings, 135 ballots suspended); eliminations in the same order; elected the same"
+   "line": "oakland-2022-school-2: 2 of 2 official rounds match to the vote (round 1 against the record's first rankings, 135 ballots suspended); eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "oakland-2022-school-4",
@@ -600,7 +600,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "oakland-2022-school-4: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "oakland-2022-school-4: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "oakland-2022-school-6",
@@ -608,7 +608,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "oakland-2022-school-6: 2 of 2 official rounds match to the vote (round 1 against the record's first rankings, 154 ballots suspended); eliminations in the same order; elected the same"
+   "line": "oakland-2022-school-6: 2 of 2 official rounds match to the vote (round 1 against the record's first rankings, 154 ballots suspended); eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "berkeley-2024-mayor",
@@ -616,7 +616,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "berkeley-2024-mayor: 4 of 4 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "berkeley-2024-mayor: 4 of 4 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (3 eliminations)"
   },
   {
    "contest": "berkeley-2024-council-2",
@@ -632,7 +632,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "berkeley-2024-council-3: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "berkeley-2024-council-3: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "berkeley-2024-council-5",
@@ -640,7 +640,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "berkeley-2024-council-5: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "berkeley-2024-council-5: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "berkeley-2024-council-6",
@@ -656,7 +656,7 @@
    "matched": 0,
    "rounds": 9,
    "winners_same": true,
-   "line": "oakland-2024-council-at-large: 0 of 9 official rounds match to the vote; the record differs by up to 3 votes a candidate; eliminations in the same order; elected the same"
+   "line": "oakland-2024-council-at-large: 0 of 9 official rounds match to the vote; the record differs by up to 3 votes a candidate; eliminations in the same order; elected the same; transfers 2 ballots short in 8 eliminations, none moved between destinations"
   },
   {
    "contest": "oakland-2024-council-1",
@@ -664,7 +664,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "oakland-2024-council-1: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "oakland-2024-council-1: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "oakland-2024-council-3",
@@ -672,7 +672,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "oakland-2024-council-3: 5 of 5 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "oakland-2024-council-3: 5 of 5 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (4 eliminations)"
   },
   {
    "contest": "oakland-2024-council-5",
@@ -680,7 +680,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "oakland-2024-council-5: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "oakland-2024-council-5: 2 of 2 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (1 eliminations)"
   },
   {
    "contest": "oakland-2024-council-7",
@@ -688,7 +688,7 @@
    "matched": 0,
    "rounds": 3,
    "winners_same": true,
-   "line": "oakland-2024-council-7: 0 of 3 official rounds match to the vote; the record differs by up to 1 votes a candidate; eliminations in the same order; elected the same"
+   "line": "oakland-2024-council-7: 0 of 3 official rounds match to the vote; the record differs by up to 1 votes a candidate; eliminations in the same order; elected the same; transfers 2 ballots short in 2 eliminations, none moved between destinations"
   },
   {
    "contest": "oakland-2024-city-attorney",
@@ -736,7 +736,7 @@
    "matched": 0,
    "rounds": 9,
    "winners_same": true,
-   "line": "oakland-2025-mayor: 0 of 9 official rounds match to the vote; the record differs by up to 7 votes a candidate; eliminations in the same order; elected the same"
+   "line": "oakland-2025-mayor: 0 of 9 official rounds match to the vote; the record differs by up to 7 votes a candidate; eliminations in the same order; elected the same; transfers 3 ballots short in 8 eliminations, none moved between destinations"
   },
   {
    "contest": "oakland-2025-council-2",
@@ -744,7 +744,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "oakland-2025-council-2: 5 of 5 official rounds match to the vote; eliminations in the same order; elected the same"
+   "line": "oakland-2025-council-2: 5 of 5 official rounds match to the vote; eliminations in the same order; elected the same; every transfer the official one (4 eliminations)"
   }
  ]
 }

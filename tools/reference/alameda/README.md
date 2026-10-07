@@ -22,6 +22,9 @@ Detailed Reports". The counts of 2018 and 2020 are no longer published, and no c
 - The 4 contests short of every round (Oakland, 2024–2025) are short because the record lacks a
   few ballots: the reports count 2 to 13 more, and every transfer is the record's or one ballot
   over; see VALIDATION.md.
+- From 2022 `check.py` also compares each elimination's transfers, by where the ballots went,
+  with the report's: the same, off one way (ballots the record lacks or has over), or moved
+  between destinations, which points to a rule of reading the ballots that differs.
 
 ```sh
 mvn package -DskipTests
