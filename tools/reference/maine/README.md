@@ -14,6 +14,9 @@ the five, which are also the three that don't match every round).
   rankings in a row end the ballot (those before the first choice included), an overvote ends
   it, a candidate ranked again counts once, and write-ins are one candidate. That reproduces the
   reports' first rounds to the vote, the ballots exhausted by overvotes and undervotes included.
+- For the 2018–2020 reports, `check.py` also compares each round's exhausted ballots by cause
+  (overvotes, undervotes, exhausted choices) with the record's, read the same way: a ballot that
+  runs out of rankings is "exhausted choices" only if it skips none, an undervote otherwise.
 - The State defeats together the lowest candidates who couldn't overtake the next one up, and
   stops at a majority; `check.py` requires every official round to be one of this count's
   rounds, in order, with the same candidates continuing, and the same winner, and reports each

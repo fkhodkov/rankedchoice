@@ -17,6 +17,9 @@ majority; so every official round must be one of this count's rounds, in order, 
 continuing, and the same candidate must win. The votes are compared, and where they differ, each round's
 largest difference is reported.
 
+For the 2018-2020 reports each round's exhausted ballots by cause (overvotes, undervotes, exhausted choices)
+are compared with the record's too (exhausted_line).
+
 The reports come as Excel files (2018, 2020: read with LibreOffice's soffice) or PDFs (2022: pdftotext),
 a row per candidate giving the votes, percentage and transfer of every round. The 2024 report is a scan,
 with no text; its figures are transcribed below (SCANNED), and its one round starts after the write-ins
@@ -142,6 +145,63 @@ def official_rounds(path):
     return totals
 
 
+CAUSES = {"By Overvotes": "overvotes", "By Undervotes": "undervotes", "By Exhausted Choices": "exhausted choices"}
+
+
+def exhausted_by_cause(path):
+    """{cause: [ballots in round 1, 2, ...]}: the 2018-2020 reports' rows under "Ballot Exhausted" (a spreadsheet's
+    every third column, as for the candidates)."""
+    found = {}
+    for row in rows_of(path):
+        cells = [c.strip() for c in row]
+        if cells and cells[0] in CAUSES:
+            found[CAUSES[cells[0]]] = [int(v) for v in cells[1::3] if NUMBER.match(v)]
+    return found
+
+
+def where(ballot, out):
+    """Where a ballot is, read as the converter reads it (--skipped two-end --write-in candidate) with the
+    candidates OUT gone: a candidate (by key), or the cause the reports exhaust it by. One that runs out of
+    rankings is "exhausted choices" only if it skips none; the reports count it among the undervotes otherwise."""
+    skipped, seen = 0, False
+    for mark in ballot:
+        lower = mark.lower()
+        if lower in ("", "skipped", "undervote"):
+            skipped += 1
+            if skipped >= 2:
+                return "undervotes"
+            continue
+        skipped = 0
+        if lower == "overvote":
+            return "overvotes"
+        seen = True
+        name = key("Write-in" if lower in ("write-in", "writein", "write in") else mark)
+        if name not in out:
+            return name
+    skips = any(mark.lower() in ("", "skipped", "undervote") for mark in ballot)
+    return "exhausted choices" if seen and not skips else "undervotes"
+
+
+def exhausted_line(cvr, totals, causes):
+    """How the record's exhausted ballots, by cause, compare with the report's in every round, the candidates the
+    report eliminates going in its order."""
+    reader = csv.DictReader(open(cvr, newline="", encoding="utf-8-sig"))
+    columns = sorted((c for c in reader.fieldnames if c.startswith("rank")), key=lambda c: int(c[4:]))
+    ballots = [[row[column].strip() for column in columns] for row in reader]
+    out, off = set(), {}
+    rounds = len(next(iter(causes.values())))
+    for k in range(rounds):
+        tally = collections.Counter(where(ballot, out) for ballot in ballots)
+        gaps = {cause: tally[cause] - figures[k] for cause, figures in causes.items() if tally[cause] != figures[k]}
+        if gaps:
+            off[k + 1] = gaps
+        out |= {name for name, votes in totals.items() if len(votes) > k + 1 and votes[k] and not votes[k + 1]}
+    if not off:
+        return "; exhausted ballots, by cause, the report's in every round"
+    return "; exhausted ballots by cause DIFFER: " + "; ".join(
+        f"round {k} {', '.join(f'{cause} {gap:+d}' for cause, gap in gaps.items())}" for k, gaps in off.items())
+
+
 def summary_2026(path):
     """{candidate: [votes in round 1, 2, ...]} from a 2026 report: after the "Elected" row, a row per candidate,
     the name and each round's votes, until "Exhausted Ballots"."""
@@ -222,7 +282,9 @@ def check(data, contest, jar):
         totals = SCANNED[contest]
     else:
         report = CONTESTS[contest][1]
-        totals = official_rounds(fetch(os.path.join(data, contest + os.path.splitext(report)[1]), SITE + report))
+        local = fetch(os.path.join(data, contest + os.path.splitext(report)[1]), SITE + report)
+        totals = official_rounds(local)
+        causes = exhausted_by_cause(local) if not local.endswith(".pdf") else {}
     totals = {key(name): votes for name, votes in totals.items()}
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
@@ -236,6 +298,9 @@ def check(data, contest, jar):
     exact, gaps = match_rounds(totals, ours, key)
     same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
     line = summary(contest, exact, gaps, same, ours["electedInOrder"])
+    if contest not in STATE_2026 and contest not in SCANNED and causes:
+        line += exhausted_line(fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=CONTESTS[contest][0])),
+                               totals, causes)
     if contest in STATE_2026:
         places, moved = first_choices_compared(data, contest, ballots_2026(data, contest))
         line += ("; the exports' first rankings are the State's tally of first choices in every place" if not places

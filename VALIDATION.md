@@ -561,6 +561,19 @@ ballots the State publishes itself. The State's "RCV Summary Reports" give every
   2018 governor primary the first three rounds do, and in the last Janet Mills has 3 votes more
   here than the report gives her (Adam Cote's figure matches); no reading of repeated rankings
   tried (as skips, or as neither skip nor choice) changes that, so it looks like the record's.
+- **Exhausted ballots by cause**: the 2018–2020 reports count each round's exhausted ballots by
+  overvotes, by undervotes and by exhausted choices, and `check.py` compares all three with the
+  record, read as above, in every round. A ballot that runs out of rankings is "exhausted
+  choices" only if it skips none; one that skipped a ranking anywhere is among the undervotes.
+  So read, every round of 8 of the 9 contests matches in all three, to the ballot (counting
+  every ballot that runs out as exhausted choices puts them 2 to 98 off). In the 2018 governor
+  primary the first three rounds match too, and the last has 3 ballots fewer exhausted by
+  undervotes: the 3 that go to Mills here, the record holding the report's 132,250 ballots. So
+  the State's count leaves those 3 with no further choice. The readings tried that exhaust more
+  ballots (skips counted over the whole ballot, eliminated candidates not breaking a run of them;
+  repeats as skips) put the governor primary's rounds 2 to 4 off for Cote and Mills, or by
+  hundreds. Whether the record or a rule touching no other ballot in nine contests differs isn't
+  shown.
 - **2024**: the report is a scanned page with no text; its figures are written into `check.py`.
   Its one round starts after the write-ins are eliminated, which is this count's second.
 - **2026**: the State publishes each primary's ballots itself, in several Excel exports (the
