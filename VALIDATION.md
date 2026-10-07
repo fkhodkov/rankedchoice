@@ -51,7 +51,7 @@ what would be skipped for want of data.
 | Alameda County, California (2010–2025) | 93 | `irv` | every round in 89; the eliminations and the winner in all 93 |
 | San Francisco (2010–2024) | 53 | `irv` | every round in 50 (before 2019, official rounds that defeat several candidates at once); the eliminations and the winner in all 53 |
 | Alaska (2022, 2024) | 22 | `irv` | every round in 12; the eliminations and the winner in all 22 |
-| New York City primaries (2021–2025) | 123 | `irv` | every round in 117; the eliminations and the winner in all 123 |
+| New York City primaries (2021–2025) | 124 | `irv` | every round in 120; the eliminations and the winner in all 124 |
 | Maine (2018–2026) | 16 | `irv` | every round in 12; the eliminations and the winner in all 16 |
 | Ireland, Dáil (2002) | 3 |  | first preferences and the TDs returned in all 3 |
 
@@ -81,7 +81,7 @@ Real elections, run through their own rulesets, reproduce their actual results:
 | Minneapolis Park Board and Board of Estimate, 2009 (68,741 votes in the first round), and the winners of 2013's two | the 2006 ordinance's rules (`minneapolis` without `rankingsElimination`) | every official round's tallies of 2009 (the Board of Estimate's first round apart, which the record has one vote short), and the candidates elected; see below | the City's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
 | Oakland, Berkeley and San Leandro single-seat contests (mayor, council, city attorney, auditor, school board), 2010–2017 and 2022–2025: the 93 FairVote's collection and the County's reports both have | `irv` | every official round's votes, to the vote, in 89 (all 69 of 2010–2017, against the pass reports); in the other 4 the record is 1–7 votes a candidate off the County's count from the first round on, and the eliminations and winners still match; see below | the County's cast vote records, from [FairVote's single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | San Francisco: mayor (2011, 2015, 2018, 2019, 2024), Board of Supervisors districts, district attorney, public defender, city attorney, sheriff and assessor-recorder, 2010–2024: the 53 whose final results the Internet Archive kept | `irv` | every official round's votes, to the vote, in 50 (before 2019, a round that defeats several candidates at once is several of this count's); the other 3 (2024's city attorney, district attorney and sheriff races) only have results captured before certification, 76–80 votes short, and the eliminations and winners match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
-| New York City primaries of 2021, 2023 and 2025, from mayor (Adams 2021, Mamdani 2025) to city council: the 123 FairVote's collection and the Board of Elections' certified rounds both have | `irv` | every official round's votes, to the vote, in 117 (several candidates defeated together being several of this count's rounds); in the other 6 the record is 1–33 votes a candidate off the Board's count, and the eliminations and winners still match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
+| New York City primaries of 2021, 2023 and 2025, from mayor (Adams 2021, Mamdani 2025) to city council: the 124 whose certified rounds the Board of Elections publishes as web pages | `irv` | every official round's votes, to the vote, in 120 (several candidates defeated together being several of this count's rounds); in the other 4, of 2021, the Board's published record is 2–19 votes a candidate off its count, and the eliminations and winners still match; see below | The Board's own cast vote records |
 | Maine: the 2018 Democratic primary for governor, the 2nd District's races for Congress (2018, 2022, 2024) and its 2018 Democratic and 2020 Republican primaries, five legislative primaries of 2020, and the five primaries of June 2026 (both parties' for governor, the 2nd District's Democratic one, two legislative): the 16 the Secretary of State counted by ranked choice whose ballots are published | `irv` | every official round's votes, to the vote, in 12; in the 2018 governor primary the last round is 3 votes off for Janet Mills, and in three 2026 primaries the record is 3–17 votes a candidate off; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ); for 2026, the Secretary of State's own exports |
 | Alaska: US House (August 2022 special, 2022, 2024), US Senate (2022), and the State House and Senate contests of 2022 and 2024 that went past a first round, 22 in all | `irv` | every official round's votes, to the vote, in 12; in the other 10 the record is 1–9 votes a candidate off the Division of Elections' count (54–71 against the August 2022 special's unofficial report), and the eliminations and winners still match; see below | FairVote's [single-winner collection](https://doi.org/10.7910/DVN/AMK8PJ) |
 | Eastpointe, Michigan City Council, 2019 and 2021 (2 seats; 8,794 votes in the first round) | `portland` (both are RCTab counts) | every round's tallies, to 4 decimal places, against Macomb County's RCTab summaries, the threshold, and the councillors elected; see below | the County's cast vote records, from [FairVote's collection](https://doi.org/10.7910/DVN/STVUET) |
@@ -454,23 +454,28 @@ settings: IRV, no winners by threshold, unresolved write-ins excluded, overvotes
 - **The rounds.** In 12 contests every official round matches this count's to the vote. In the
   other 10 the first round matches, and later rounds differ by 1 to 9 votes a candidate (the 2022
   and 2024 US House races, the 2022 US Senate race, and 6 State contests); no reading of the
-  ballots tried (skips counted over the whole ballot, repeated candidates as skips or ending the
-  ballot) closes those gaps without opening others, so they look like the record's, as in
-  Alameda. The August 2022 special differs by 54 to 71: the archived report is the unofficial
+  ballots tried closes those gaps without opening others: skips counted over the whole ballot,
+  a repeated candidate as a skip or ending the ballot, overvotes skipped, write-ins as skips or as
+  a candidate, the scans as first read rather than as adjudicated, ambiguous marks counted. The
+  record is the Division's own: its Dominion export of 2022 (as the Internet Archive kept it), read
+  anew, gives all 13 contests of 2022 exactly the figures FairVote's copies do, the four of them
+  short of every round included. So the gaps are the published record's, or a rule of the
+  Division's count not found; which isn't shown. (The 2024 export the Archive kept, dated 30
+  November, isn't the set counted: its US House first round is 4,035 votes over the Division's.) The August 2022 special differs by 54 to 71: the archived report is the unofficial
   one of 31 August, before certification. In all 22 the candidates are eliminated in the same
   order and the same candidate wins. Two are fixtures (`AlaskaIrvFixtureTest`).
 
-**New York City** (`irv`; `tools/reference/nyc`): the primaries of 2021, 2023 and 2025 that both
-FairVote's single-winner collection and the Board of Elections' certified "Official Ranked Choice
-Rounds" pages have: 123, from the mayoral primaries (Eric Adams over Kathryn Garcia in 2021, 8
-rounds; Zohran Mamdani over Andrew Cuomo in 2025) to 107 council primaries. 58 go past the
-first round, 405 official rounds in all. Left out: the 2025 Republican comptroller primary, whose
-record in the collection holds 5,402 ballots, mostly from Queens, of about 30,400 counted
-citywide; and the 2025 District 44 and 51 specials, whose results are PDFs in another layout.
+**New York City** (`irv`; `tools/reference/nyc`): the primaries of 2021, 2023 and 2025 whose
+certified "Official Ranked Choice Rounds" the Board of Elections publishes as web pages: 124,
+from the mayoral primaries (Eric Adams over Kathryn Garcia in 2021, 8 rounds; Zohran Mamdani
+over Andrew Cuomo in 2025) to 107 council primaries. 58 go past the first round, 406 official
+rounds in all. The ballots are the Board's own cast vote records, Excel workbooks by borough and
+way of voting. Left out: the 2025 District 44 and 51 specials, whose results are PDFs in another
+layout.
 
 - **Ballots**: an overvote ends the ballot, a skipped ranking is passed over, a candidate ranked
-  again counts once (`cvr_to_blt.py`); skipping overvotes instead doesn't fit 2023's
-  District 13 Republican first round, where the record is a vote off.
+  again counts once (`cvr_to_blt.py`); skipping overvotes instead puts the later rounds off in all 58
+  that go past the first round, by up to 851 votes (2021's Democratic mayoral; 533 in 2025's).
 - **Write-ins**: the Board counts them as one candidate in round 1 and eliminates them first, in
   round 2, whatever their number (in 2025's mayoral primary, 1,581 of them, ahead of two
   candidates). Passing them over is the same, so this count's first round is the Board's second,
@@ -479,15 +484,23 @@ citywide; and the 2025 District 44 and 51 specials, whose results are PDFs in an
   are left, but defeats together the lowest candidates who couldn't overtake the next one up (four
   in 2021's mayoral round 4, nine in 2025's round 3), and prints a round that changes nothing
   where a candidate first passes 50%. Every later official round is required to be one of this
-  count's rounds, in order, with the same candidates continuing. In 117 contests every round
-  matches to the vote. In the other 6 (2021's District 9 Democratic and 50 Republican council
-  primaries, Republican mayoral and Staten Island borough president primaries, 2023's District 13
-  Republican and 2025's District 35 Democratic council primaries) the record is 1 to 33 votes a
-  candidate off from the first round on, over in some candidates and under in others, so it isn't
-  quite the set of ballots counted; the eliminations and the winners still match. Names are
-  compared without initials (the record's "Selvena N. Brooks-Powers" is the page's "Selvena
+  count's rounds, in order, with the same candidates continuing. In 120 contests every round
+  matches to the vote. In the other 4, all of 2021 (the District 9 Democratic and 50 Republican
+  council primaries, and the Republican mayoral and Staten Island borough president primaries),
+  the Board's published record is 2 to 19 votes a candidate off from the first round on, so it
+  isn't quite the set of ballots the Board counted: its first choices are 2, 2 and 14 short of the
+  Board's first round in three, and in District 9 one short with votes moved both ways (6 under to
+  5 over a candidate). The eliminations and the winners still match. Names are compared without
+  initials (the record's "Selvena N. Brooks-Powers" is the page's "Selvena
   Brooks-Powers"). Three are fixtures (`NycIrvFixtureTest`): both mayoral primaries and 2023's
   District 9.
+- **FairVote's copies**: until October 2026 the ballots came from FairVote's single-winner
+  collection, which has 123 of these primaries. Its copies give the four 2021 contests the same
+  figures, but two others differed from the Board's records: 2023's District 13 Republican council
+  primary lacks one ballot (in Assembly District 82, Election District 12), and 2025's District 35
+  Democratic council primary is up to 33 votes a candidate short. Its 2025 Republican comptroller
+  primary holds 5,402 ballots, mostly from Queens, of about 30,400; from the Board's record it
+  matches.
 
 **Maine** (`irv`; `tools/reference/maine`): the 16 contests the Secretary of State counted by
 ranked choice whose ballots are published: 11 in FairVote's single-winner collection, the 2018 Democratic

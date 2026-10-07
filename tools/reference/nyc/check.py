@@ -2,12 +2,16 @@
 
 usage: check.py DATA_DIR [--jar PATH] [CONTEST ...]
 
-CONTEST is one of CONTESTS below (all, by default): the 123 primaries, from mayor to city council, that
-both FairVote's collection of single-winner RCV cast vote records (https://doi.org/10.7910/DVN/AMK8PJ)
-and the Board of Elections' certified round-by-round pages ("Official Ranked Choice Rounds", under
-https://www.vote.nyc/sites/default/files/pdf/election_results/) have. Each record and page is fetched
-into DATA_DIR, the record converted with ../cvr_to_blt.py (an overvote ends the ballot; a skipped
-ranking or a write-in is passed over; a candidate ranked again counts once) and counted with `irv`.
+CONTEST is one of CONTESTS below (all, by default): 124 primaries, from mayor to city council, whose
+certified round-by-round pages ("Official Ranked Choice Rounds", under
+https://www.vote.nyc/sites/default/files/pdf/election_results/) the Board of Elections publishes. The
+ballots are the Board's own cast vote record of each primary (EXPORTS), a zip of Excel workbooks, one per
+borough and way of voting, with a column per contest and ranking and the candidates by id: each year's is
+fetched into DATA_DIR/<year>/, its workbooks converted to CSV with LibreOffice's soffice, and every
+contest's rankings written out in one pass to DATA_DIR/<contest>.csv with the candidates' names (the
+ballots that rank no one in it are left out). Each page is fetched into DATA_DIR, each record converted
+with ../cvr_to_blt.py (an overvote ends the ballot; a skipped ranking or a write-in is passed over; a
+candidate ranked again counts once) and counted with `irv`.
 
 The Board counts write-ins as one candidate in round 1 and eliminates them first, in round 2, whatever
 their number; passing them over is the same, so this count's first round is the Board's second, and the
@@ -23,142 +27,150 @@ import collections
 import csv
 import os
 import re
+import shutil
 import subprocess
 import sys
+import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import DATAVERSE, count, fetch, main, match_rounds, name_key, summary, table_rows, winner  # noqa: E402
+from rcvcheck import count, fetch, main, match_rounds, name_key, sheets, summary, table_rows, winner  # noqa: E402
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 ROUNDS = "https://www.vote.nyc/sites/default/files/pdf/election_results/{year}/{date}Primary%20Election/rcv/{page}"
 DATES = {"2021": "20210622", "2023": "20230627", "2025": "20250624"}
-# contest: (Dataverse file id, the Board's page). Left out: the 2025 Republican comptroller primary, whose record
-# in the collection holds 5,402 ballots, most of them from Queens, of about 30,400 counted citywide.
+EXPORTS = {"2021": "2021/20210622Primary%20Election/cvr/PE2021_CVR_Final.zip",
+           "2023": "2023/20230627Primary%20Election/cvr/2023P_CVR_Final.zip",
+           "2025": "2025/20250624Primary%20Election/rcv/2025_Primary_CVR_2025-07-17.zip"}
+EXPORT = "https://www.vote.nyc/sites/default/files/pdf/election_results/{path}"
+# A ranking's column: "DEM Mayor Choice 2 of 5 Citywide (224306)", the choice's digit and the contest's code.
+CHOICE = re.compile(r"Choice (\d+) of \d+ .*\(\d(\d{5})\)\s*$")
+# contest: the Board's page, named for the contest's code in its ballot export.
 CONTESTS = {
-    "2021-dem-mayor": (11593393, "024306_1.html"),
-    "2021-dem-public-advocate": (11593384, "024408_1.html"),
-    "2021-dem-comptroller": (11593360, "024314_1.html"),
-    "2021-dem-borough-president-bronx": (11593412, "024339_1.html"),
-    "2021-dem-borough-president-brooklyn": (11593359, "024336_1.html"),
-    "2021-dem-borough-president-manhattan": (11593403, "024307_1.html"),
-    "2021-dem-borough-president-queens": (11593397, "024415_1.html"),
-    "2021-dem-borough-president-richmond": (11593415, "024458_1.html"),
-    "2021-dem-council-1": (11593361, "024340_1.html"),
-    "2021-dem-council-2": (11593396, "024463_1.html"),
-    "2021-dem-council-3": (11593381, "024321_1.html"),
-    "2021-dem-council-5": (11593402, "024332_1.html"),
-    "2021-dem-council-6": (11593377, "024361_1.html"),
-    "2021-dem-council-7": (11593395, "024318_1.html"),
-    "2021-dem-council-8": (11593364, "024470_1.html"),
-    "2021-dem-council-9": (11593434, "24347_1.html"),
-    "2021-dem-council-10": (11593417, "024370_1.html"),
-    "2021-dem-council-11": (11593390, "024329_1.html"),
-    "2021-dem-council-12": (11593408, "024328_1.html"),
-    "2021-dem-council-13": (11593405, "024341_1.html"),
-    "2021-dem-council-14": (11593442, "024327_1.html"),
-    "2021-dem-council-15": (11593388, "024357_1.html"),
-    "2021-dem-council-16": (11593407, "024330_1.html"),
-    "2021-dem-council-17": (11593368, "024481_1.html"),
-    "2021-dem-council-18": (11593366, "024355_1.html"),
-    "2021-dem-council-19": (11593391, "024350_1.html"),
-    "2021-dem-council-20": (11593431, "024346_1.html"),
-    "2021-dem-council-21": (11593411, "024358_1.html"),
-    "2021-dem-council-22": (11593440, "024349_1.html"),
-    "2021-dem-council-23": (11593430, "024351_1.html"),
-    "2021-dem-council-24": (11593383, "024399_1.html"),
-    "2021-dem-council-25": (11593423, "024310_1.html"),
-    "2021-dem-council-26": (11593400, "024311_1.html"),
-    "2021-dem-council-27": (11593427, "024312_1.html"),
-    "2021-dem-council-28": (11593441, "024406_1.html"),
-    "2021-dem-council-29": (11593367, "024324_1.html"),
-    "2021-dem-council-30": (11593433, "024414_1.html"),
-    "2021-dem-council-31": (11593439, "024462_1.html"),
-    "2021-dem-council-32": (11593382, "024320_1.html"),
-    "2021-dem-council-33": (11593438, "024309_1.html"),
-    "2021-dem-council-34": (11593409, "024319_1.html"),
-    "2021-dem-council-35": (11593375, "024335_1.html"),
-    "2021-dem-council-36": (11593419, "024379_1.html"),
-    "2021-dem-council-37": (11593406, "024389_1.html"),
-    "2021-dem-council-38": (11593387, "024352_1.html"),
-    "2021-dem-council-39": (11593443, "024353_1.html"),
-    "2021-dem-council-40": (11593380, "024348_1.html"),
-    "2021-dem-council-41": (11593394, "024424_1.html"),
-    "2021-dem-council-42": (11593376, "024323_1.html"),
-    "2021-dem-council-45": (11593429, "024375_1.html"),
-    "2021-dem-council-46": (11593420, "024338_1.html"),
-    "2021-dem-council-47": (11593358, "024394_1.html"),
-    "2021-dem-council-48": (11593392, "024337_1.html"),
-    "2021-dem-council-49": (11593357, "024326_1.html"),
-    "2021-con-council-19": (11593365, "024500_1.html"),
-    "2021-rep-mayor": (11593372, "024425_1.html"),
-    "2021-rep-borough-president-richmond": (11593426, "024496_1.html"),
-    "2021-rep-council-15": (11593428, "024524_1.html"),
-    "2021-rep-council-19": (11593424, "024410_1.html"),
-    "2021-rep-council-23": (11593369, "024546_1.html"),
-    "2021-rep-council-24": (11593425, "024554_1.html"),
-    "2021-rep-council-32": (11593374, "024550_1.html"),
-    "2021-rep-council-50": (11593401, "24367_1.html"),
-    "2023-dem-council-1": (11593379, "025715_1.html"),
-    "2023-dem-council-2": (11593421, "025980_1.html"),
-    "2023-dem-council-9": (11593413, "025756_1.html"),
-    "2023-dem-council-10": (11593410, "026031_1.html"),
-    "2023-dem-council-12": (11593362, "025797_1.html"),
-    "2023-dem-council-13": (11593437, "025908_1.html"),
-    "2023-dem-council-14": (11593432, "025919_1.html"),
-    "2023-dem-council-19": (11593363, "025767_1.html"),
-    "2023-dem-council-22": (11593386, "026015_1.html"),
-    "2023-dem-council-23": (11593398, "026013_1.html"),
-    "2023-dem-council-25": (11593422, "025985_1.html"),
-    "2023-dem-council-26": (11593371, "025983_1.html"),
-    "2023-dem-council-29": (11593416, "025804_1.html"),
-    "2023-dem-council-34": (11593370, "026026_1.html"),
-    "2023-dem-council-41": (11593414, "025822_1.html"),
-    "2023-dem-council-42": (11593378, "025760_1.html"),
-    "2023-dem-council-43": (11593436, "025755_1.html"),
-    "2023-con-council-13": (11593373, "025929_1.html"),
-    "2023-rep-council-13": (11593404, "025927_1.html"),
-    "2023-rep-council-20": (11593435, "025934_1.html"),
-    "2023-rep-council-43": (11593399, "026119_1.html"),
-    "2023-rep-council-44": (11593385, "025933_1.html"),
-    "2023-rep-council-47": (11593418, "025913_1.html"),
-    "2023-rep-council-48": (11593389, "026030_1.html"),
-    "2025-dem-mayor": (11845395, "026916_1.html"),
-    "2025-dem-public-advocate": (11845405, "026915_1.html"),
-    "2025-dem-comptroller": (11845413, "026914_1.html"),
-    "2025-dem-borough-president-bronx": (11845411, "026929_1.html"),
-    "2025-dem-borough-president-brooklyn": (11845401, "026913_1.html"),
-    "2025-dem-borough-president-manhattan": (11845417, "026918_1.html"),
-    "2025-dem-council-1": (11845404, "026942_1.html"),
-    "2025-dem-council-2": (11845394, "026922_1.html"),
-    "2025-dem-council-3": (11845427, "026955_1.html"),
-    "2025-dem-council-4": (11845418, "026921_1.html"),
-    "2025-dem-council-5": (11845392, "027025_1.html"),
-    "2025-dem-council-7": (11845407, "026947_1.html"),
-    "2025-dem-council-8": (11845398, "026927_1.html"),
-    "2025-dem-council-10": (11845393, "027101_1.html"),
-    "2025-dem-council-11": (11845415, "026989_1.html"),
-    "2025-dem-council-12": (11845408, "026928_1.html"),
-    "2025-dem-council-13": (11845416, "026988_1.html"),
-    "2025-dem-council-14": (11845429, "026933_1.html"),
-    "2025-dem-council-16": (11845400, "027058_1.html"),
-    "2025-dem-council-17": (11845402, "026938_1.html"),
-    "2025-dem-council-19": (11845426, "026957_1.html"),
-    "2025-dem-council-21": (11845422, "026932_1.html"),
-    "2025-dem-council-25": (11845409, "027075_1.html"),
-    "2025-dem-council-28": (11845397, "026939_1.html"),
-    "2025-dem-council-30": (11845423, "026943_1.html"),
-    "2025-dem-council-33": (11845410, "027078_1.html"),
-    "2025-dem-council-35": (11845419, "026919_1.html"),
-    "2025-dem-council-36": (11845425, "026924_1.html"),
-    "2025-dem-council-38": (11845414, "027007_1.html"),
-    "2025-dem-council-39": (11845396, "026925_1.html"),
-    "2025-dem-council-41": (11845420, "026952_1.html"),
-    "2025-dem-council-46": (11845428, "026936_1.html"),
-    "2025-dem-council-47": (11845424, "026999_1.html"),
-    "2025-dem-council-49": (11845399, "026956_1.html"),
-    "2025-rep-council-48": (11845403, "027131_1.html"),
-    "2025-rep-council-51": (11845406, "026937_1.html"),
+    "2021-dem-mayor": "024306_1.html",
+    "2021-dem-public-advocate": "024408_1.html",
+    "2021-dem-comptroller": "024314_1.html",
+    "2021-dem-borough-president-bronx": "024339_1.html",
+    "2021-dem-borough-president-brooklyn": "024336_1.html",
+    "2021-dem-borough-president-manhattan": "024307_1.html",
+    "2021-dem-borough-president-queens": "024415_1.html",
+    "2021-dem-borough-president-richmond": "024458_1.html",
+    "2021-dem-council-1": "024340_1.html",
+    "2021-dem-council-2": "024463_1.html",
+    "2021-dem-council-3": "024321_1.html",
+    "2021-dem-council-5": "024332_1.html",
+    "2021-dem-council-6": "024361_1.html",
+    "2021-dem-council-7": "024318_1.html",
+    "2021-dem-council-8": "024470_1.html",
+    "2021-dem-council-9": "24347_1.html",
+    "2021-dem-council-10": "024370_1.html",
+    "2021-dem-council-11": "024329_1.html",
+    "2021-dem-council-12": "024328_1.html",
+    "2021-dem-council-13": "024341_1.html",
+    "2021-dem-council-14": "024327_1.html",
+    "2021-dem-council-15": "024357_1.html",
+    "2021-dem-council-16": "024330_1.html",
+    "2021-dem-council-17": "024481_1.html",
+    "2021-dem-council-18": "024355_1.html",
+    "2021-dem-council-19": "024350_1.html",
+    "2021-dem-council-20": "024346_1.html",
+    "2021-dem-council-21": "024358_1.html",
+    "2021-dem-council-22": "024349_1.html",
+    "2021-dem-council-23": "024351_1.html",
+    "2021-dem-council-24": "024399_1.html",
+    "2021-dem-council-25": "024310_1.html",
+    "2021-dem-council-26": "024311_1.html",
+    "2021-dem-council-27": "024312_1.html",
+    "2021-dem-council-28": "024406_1.html",
+    "2021-dem-council-29": "024324_1.html",
+    "2021-dem-council-30": "024414_1.html",
+    "2021-dem-council-31": "024462_1.html",
+    "2021-dem-council-32": "024320_1.html",
+    "2021-dem-council-33": "024309_1.html",
+    "2021-dem-council-34": "024319_1.html",
+    "2021-dem-council-35": "024335_1.html",
+    "2021-dem-council-36": "024379_1.html",
+    "2021-dem-council-37": "024389_1.html",
+    "2021-dem-council-38": "024352_1.html",
+    "2021-dem-council-39": "024353_1.html",
+    "2021-dem-council-40": "024348_1.html",
+    "2021-dem-council-41": "024424_1.html",
+    "2021-dem-council-42": "024323_1.html",
+    "2021-dem-council-45": "024375_1.html",
+    "2021-dem-council-46": "024338_1.html",
+    "2021-dem-council-47": "024394_1.html",
+    "2021-dem-council-48": "024337_1.html",
+    "2021-dem-council-49": "024326_1.html",
+    "2021-con-council-19": "024500_1.html",
+    "2021-rep-mayor": "024425_1.html",
+    "2021-rep-borough-president-richmond": "024496_1.html",
+    "2021-rep-council-15": "024524_1.html",
+    "2021-rep-council-19": "024410_1.html",
+    "2021-rep-council-23": "024546_1.html",
+    "2021-rep-council-24": "024554_1.html",
+    "2021-rep-council-32": "024550_1.html",
+    "2021-rep-council-50": "24367_1.html",
+    "2023-dem-council-1": "025715_1.html",
+    "2023-dem-council-2": "025980_1.html",
+    "2023-dem-council-9": "025756_1.html",
+    "2023-dem-council-10": "026031_1.html",
+    "2023-dem-council-12": "025797_1.html",
+    "2023-dem-council-13": "025908_1.html",
+    "2023-dem-council-14": "025919_1.html",
+    "2023-dem-council-19": "025767_1.html",
+    "2023-dem-council-22": "026015_1.html",
+    "2023-dem-council-23": "026013_1.html",
+    "2023-dem-council-25": "025985_1.html",
+    "2023-dem-council-26": "025983_1.html",
+    "2023-dem-council-29": "025804_1.html",
+    "2023-dem-council-34": "026026_1.html",
+    "2023-dem-council-41": "025822_1.html",
+    "2023-dem-council-42": "025760_1.html",
+    "2023-dem-council-43": "025755_1.html",
+    "2023-con-council-13": "025929_1.html",
+    "2023-rep-council-13": "025927_1.html",
+    "2023-rep-council-20": "025934_1.html",
+    "2023-rep-council-43": "026119_1.html",
+    "2023-rep-council-44": "025933_1.html",
+    "2023-rep-council-47": "025913_1.html",
+    "2023-rep-council-48": "026030_1.html",
+    "2025-dem-mayor": "026916_1.html",
+    "2025-dem-public-advocate": "026915_1.html",
+    "2025-dem-comptroller": "026914_1.html",
+    "2025-dem-borough-president-bronx": "026929_1.html",
+    "2025-dem-borough-president-brooklyn": "026913_1.html",
+    "2025-dem-borough-president-manhattan": "026918_1.html",
+    "2025-dem-council-1": "026942_1.html",
+    "2025-dem-council-2": "026922_1.html",
+    "2025-dem-council-3": "026955_1.html",
+    "2025-dem-council-4": "026921_1.html",
+    "2025-dem-council-5": "027025_1.html",
+    "2025-dem-council-7": "026947_1.html",
+    "2025-dem-council-8": "026927_1.html",
+    "2025-dem-council-10": "027101_1.html",
+    "2025-dem-council-11": "026989_1.html",
+    "2025-dem-council-12": "026928_1.html",
+    "2025-dem-council-13": "026988_1.html",
+    "2025-dem-council-14": "026933_1.html",
+    "2025-dem-council-16": "027058_1.html",
+    "2025-dem-council-17": "026938_1.html",
+    "2025-dem-council-19": "026957_1.html",
+    "2025-dem-council-21": "026932_1.html",
+    "2025-dem-council-25": "027075_1.html",
+    "2025-dem-council-28": "026939_1.html",
+    "2025-dem-council-30": "026943_1.html",
+    "2025-dem-council-33": "027078_1.html",
+    "2025-dem-council-35": "026919_1.html",
+    "2025-dem-council-36": "026924_1.html",
+    "2025-dem-council-38": "027007_1.html",
+    "2025-dem-council-39": "026925_1.html",
+    "2025-dem-council-41": "026952_1.html",
+    "2025-dem-council-46": "026936_1.html",
+    "2025-dem-council-47": "026999_1.html",
+    "2025-dem-council-49": "026956_1.html",
+    "2025-rep-comptroller": "026935_1.html",
+    "2025-rep-council-48": "027131_1.html",
+    "2025-rep-council-51": "026937_1.html",
 }
 NUMBER = re.compile(r"^[\d,]+$")
 
@@ -196,20 +208,78 @@ def first_choices(cvr):
             mark = row[column].strip()
             if mark.lower() == "overvote":
                 break
-            if mark and mark.lower() != "skipped":
+            if mark and mark.lower() not in ("skipped", "undervote"):
                 counts[key("Write-in" if mark.lower() in ("writein", "write-in", "write in") else mark)] += 1
                 break
     return counts
 
 
+def code(contest):
+    """The contest's code in the Board's export, from its page's name ("024306_1.html": 24306)."""
+    return CONTESTS[contest].split("_")[0].zfill(6)[1:]
+
+
+def extract(data, year):
+    """Writes DATA/<contest>.csv for each of the year's contests from the Board's export, in one pass: the ballots
+    that rank anyone in it, with the precinct and the candidates' names (the export has their ids)."""
+    folder = os.path.join(data, year)
+    os.makedirs(folder, exist_ok=True)
+    archive = fetch(os.path.join(folder, os.path.basename(EXPORTS[year])), EXPORT.format(path=EXPORTS[year]))
+    books = []
+    with zipfile.ZipFile(archive) as z:
+        for name in z.namelist():
+            # The workbooks, at the top or in one folder (2021's), unpacked into FOLDER.
+            if name.endswith(".xlsx"):
+                books.append(os.path.basename(name))
+                if not os.path.exists(os.path.join(folder, books[-1])):
+                    with z.open(name) as packed, open(os.path.join(folder, books[-1]), "wb") as out:
+                        shutil.copyfileobj(packed, out)
+    names = {}
+    for book in books:
+        if "CandidacyID" in book:
+            for row in csv.reader(open(sheets(os.path.join(folder, book))[0], encoding="utf-8")):
+                names[row[0].strip()] = row[1].strip()
+    wanted = {code(contest): contest for contest in CONTESTS if contest.startswith(year)}
+    files, writers, widths = {}, {}, {}
+    for book in sorted(books):
+        if "CandidacyID" in book:
+            continue
+        for sheet in sheets(os.path.join(folder, book)):
+            reader = csv.reader(open(sheet, encoding="utf-8"))
+            columns = {}
+            for i, header in enumerate(next(reader)):
+                match = CHOICE.search(header)
+                if match and match.group(2) in wanted:
+                    columns.setdefault(wanted[match.group(2)], []).append((int(match.group(1)), i))
+            columns = {contest: [i for _, i in sorted(cells)] for contest, cells in columns.items()}
+            for contest, cells in columns.items():
+                if contest not in writers:
+                    files[contest] = open(os.path.join(data, contest + ".csv.part"), "w", newline="", encoding="utf-8")
+                    writers[contest], widths[contest] = csv.writer(files[contest]), len(cells)
+                    writers[contest].writerow(["Precinct"] + [f"rank{n}" for n in range(1, len(cells) + 1)])
+            for row in reader:
+                for contest, cells in columns.items():
+                    marks = [row[i].strip() for i in cells]
+                    if any(mark and mark.lower() != "undervote" for mark in marks):
+                        marks += [""] * (widths[contest] - len(marks))
+                        writers[contest].writerow([row[1]] + [names.get(mark, mark) for mark in marks])
+    for contest, out in files.items():
+        out.close()
+        os.replace(out.name, os.path.join(data, contest + ".csv"))
+
+
 def check(data, contest, jar):
-    file_id, page = CONTESTS[contest]
+    page = CONTESTS[contest]
     year = contest[:4]
     local = fetch(os.path.join(data, contest + ".html"), ROUNDS.format(year=year, date=DATES[year], page=page))
     # A row with no figures (2021's District 16, a candidate removed from the count) has no votes.
     totals = {key(name): votes for name, votes in official_rounds(local).items() if votes}
     blt = os.path.join(data, contest + ".blt")
-    cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+    cvr = os.path.join(data, contest + ".csv")
+    if not os.path.exists(cvr):
+        extract(data, year)
+    if not os.path.exists(cvr):
+        return False, f"{contest}: no columns for contest {code(contest)} in the Board's {year} export"
     if not os.path.exists(blt):
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest], check=True)
     ours, error = count(jar, blt)

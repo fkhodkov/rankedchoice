@@ -68,14 +68,20 @@ def table_rows(path):
             yield [re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", c))).strip()
                    for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)]
         return
+    for sheet in sheets(path):
+        yield from csv.reader(open(sheet, encoding="utf-8", errors="ignore"))
+
+
+def sheets(path):
+    """A spreadsheet's sheets, as CSV files next to it, "<name>-<sheet>.csv" (converted with LibreOffice's soffice
+    the first time)."""
     stem = os.path.splitext(path)[0]
-    if not glob.glob(stem + "-*.csv"):
+    if not glob.glob(glob.escape(stem) + "-*.csv"):
         # Every sheet (the last option), comma-separated, UTF-8.
         subprocess.run(["soffice", "--headless", "--convert-to",
                         "csv:Text - txt - csv (StarCalc):44,34,76,1,,0,false,true,false,false,false,-1",
                         "--outdir", os.path.dirname(path) or ".", path], check=True, capture_output=True)
-    for sheet in sorted(glob.glob(stem + "-*.csv")):
-        yield from csv.reader(open(sheet, encoding="utf-8", errors="ignore"))
+    return sorted(glob.glob(glob.escape(stem) + "-*.csv"))
 
 
 def pdf_text(path):

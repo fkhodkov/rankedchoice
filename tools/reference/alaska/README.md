@@ -15,6 +15,13 @@ Senate contests).
   the elimination order and the winner. Where the record differs from the Division's count by a
   few votes, each round's largest difference is reported; such a contest passes on the same
   eliminations and winner.
+- FairVote's 2022 records are the Division's own: its Dominion cast vote record export of the
+  2022 general election (`results/22GENR/rcv/CVR_Export.zip`, as the Internet Archive kept it on
+  23 December 2022) and of the August special, read anew (each session's adjudicated version; at
+  each ranking the marks that are unambiguous or adjudicated votes), give every one of the 13
+  contests exactly the figures FairVote's records do, including the four short of every round
+  and the special. The 2024 export the Archive kept, dated 30 November 2024, isn't the set
+  counted: its US House first round is 4,035 votes over the Division's, every candidate higher.
 
 ```sh
 mvn package -DskipTests

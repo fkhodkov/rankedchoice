@@ -653,10 +653,10 @@
   {
    "contest": "2023-rep-council-13",
    "ok": true,
-   "matched": 0,
+   "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2023-rep-council-13: 0 of 3 official rounds match to the vote (largest differences by round: [1, 1, 1]); eliminations the same; elected the same"
+   "line": "2023-rep-council-13: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
   },
   {
    "contest": "2023-rep-council-20",
@@ -909,10 +909,10 @@
   {
    "contest": "2025-dem-council-35",
    "ok": true,
-   "matched": 0,
+   "matched": 1,
    "rounds": 1,
    "winners_same": true,
-   "line": "2025-dem-council-35: 0 of 1 official rounds match to the vote (largest differences by round: [33]); eliminations the same; elected the same"
+   "line": "2025-dem-council-35: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
   },
   {
    "contest": "2025-dem-council-36",
@@ -969,6 +969,14 @@
    "rounds": 1,
    "winners_same": true,
    "line": "2025-dem-council-49: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
+  },
+  {
+   "contest": "2025-rep-comptroller",
+   "ok": true,
+   "matched": 1,
+   "rounds": 1,
+   "winners_same": true,
+   "line": "2025-rep-comptroller: 1 of 1 official rounds match to the vote; eliminations the same; elected the same"
   },
   {
    "contest": "2025-rep-council-48",
