@@ -23,6 +23,10 @@ publish (nor did the Internet Archive keep any); both were decided in round 1.
   prints a round that changes nothing where a candidate first passes 50%. `check.py` requires
   every later official round to be one of this count's rounds, in order, with the same candidates
   continuing, and the same winner, and reports each round's largest difference in votes.
+- First choices are checked against each contest's totals only: the Board publishes results by
+  election district ("ED Level") just for the contests it doesn't count by ranked choice
+  (district attorney, district leaders, judges), none for mayor, council or the other ranked
+  ones, in 2021, 2023 or 2025.
 - Names are compared by their letters, initials left out ("Selvena N. Brooks-Powers" in the
   record, "Selvena Brooks-Powers" on the page).
 
