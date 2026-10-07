@@ -486,9 +486,10 @@ settings: IRV, no winners by threshold, unresolved write-ins excluded, overvotes
   short of every round now match every round. Maine's counts don't read repeats this way: there
   it puts 8 contests off, by up to 293 votes.
 - **The rounds.** In 21 contests every official round matches this count's to the vote. 2024's
-  House District 28 is 3 votes a candidate off in both rounds: the record holds 7 more first
-  choices than the Division's first round (3, 2 and 2 a candidate), and no reading changes a
-  first round. The August 2022 special is checked against its official report of 2 September,
+  House District 28 is 3 votes a candidate off in both rounds: the record holds ballots the
+  Division didn't count, 8,923 (those ranking only write-ins aside) to the report's 8,908, 7 more
+  first choices (3, 2 and 2 a candidate) and 8 more blanks, and no reading changes a first
+  round. The August 2022 special is checked against its official report of 2 September,
   as the Internet Archive kept it from the 3rd; against the unofficial one of 31 August, which
   the Archive also kept, the record was 120 first-round votes over (28 to 54 a candidate), the
   ballots counted between the two. The record is the Division's own: its
@@ -1037,7 +1038,9 @@ pairs, 10 fresh JVM runs each) found the CPO-STV bug above and nothing else.
 ## Not validated
 
 The gaps below were checked again in October 2026, against what each election authority then
-published; none had begun to publish what would close them.
+published; none had begun to publish what would close them. On 7 October 2026 every difference
+the official counts put down to the ballot record was reviewed against the standard above
+(other readings tried, the record shown to differ); two aren't shown, and are listed last.
 
 - **ERS76** — no surviving copy of the 1976 rulebook or any election published under it was
   found; the preset is ERS97's settings ("believed similar", not verified).
@@ -1061,3 +1064,12 @@ published; none had begun to publish what would close them.
 - **Imperiali quota** — hand-derived only (see above).
 - **Cambridge STV's rounds for 2019–2023** — the ballot records don't mark overvotes; the
   winners are checked (see above).
+- **Two differences put down to the record without that being shown.** Maine's 2018 Democratic
+  primary for governor: 3 ballots the State's count exhausts by undervotes in the last round go
+  to Janet Mills here; every other round of nine contests matches in every candidate and cause,
+  and the readings tried that exhaust more ballots put other rounds off. Minneapolis's 2009
+  Board of Estimate: Becker has 16,727 here against 16,728 in the first round only, every later
+  figure matching. In both the eliminations and winners match; neither has been compared with
+  the State's or the City's own ballot record. The others (Oakland, New York 2021,
+  Alaska 2024, Maine 2026) are shown by ballot totals or the authority's own records (see
+  above).
