@@ -112,7 +112,9 @@ def arguments(contest):
 
 def check(data, contest, jar):
     file_id, stamp, path = arguments(contest)
-    rounds, eliminated, elected, moves = report(fetch(os.path.join(data, contest + ".pdf"),
+    # Named by its capture, so pointing a contest at another copy (as the August 2022 special was, from the
+    # unofficial report to the official one) fetches it anew.
+    rounds, eliminated, elected, moves = report(fetch(os.path.join(data, f"{contest}-{stamp}.pdf"),
                                                ARCHIVE.format(stamp=stamp, path=path)))
     blt = os.path.join(data, contest + ".blt")
     if not os.path.exists(blt):
