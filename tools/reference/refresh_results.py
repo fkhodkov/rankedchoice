@@ -6,7 +6,8 @@ DATA_ROOT holds a directory per checker, named as its results file is (alameda, 
 minneapolis, portland, eastpointe, albany, aec, nsw, cambridge, scotland). A checker runs only if its directory is
 there, and is reported as skipped otherwise; most fetch what they need into an empty one, while aec, nsw and portland
 need their data saved there first (see each tool's README), and scotland needs scot-elex/, official.json,
-official-stages.json and reports/ in it. NSW needs openpyxl, and is skipped without it.
+official-stages.json and reports/ in it. NSW needs openpyxl, and is skipped without it: the checkers run with the
+Python running this, so run it with one that has openpyxl (a virtual environment's, say) to include NSW.
 
 Each checker writes results/<name>.json with --results; a checker that finds differences still writes its results,
 and the refresh goes on. Then, unless --no-java or --only, the ACT's and Ireland's fixture tests write act.json and

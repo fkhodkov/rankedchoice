@@ -39,6 +39,9 @@ python3 -m unittest discover -s tools/reference/tests   # the Python tests alone
   `refresh_results.py`, and that VALIDATION.md's generated table matches the committed results.
 - The reference checkers need `target/rankedchoice-0.1.0-SNAPSHOT.jar` (`mvn -o -q package
   -DskipTests`); some need LibreOffice (`soffice`), `pdftotext`, or `openpyxl` (NSW).
+  `refresh_results.py` runs the checkers with its own Python and skips NSW where that lacks
+  `openpyxl`: run it with a virtual environment's (`python3 -m venv ...; .../pip install
+  openpyxl`) to include NSW.
 
 ## Validation is the point
 
