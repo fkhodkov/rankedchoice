@@ -72,7 +72,8 @@ OpenSTV, CRAN packages), or a hand-derived case. When adding or changing a metho
 - A contest short of every round that no difference names shows up as "unexplained", and the
   generator says so. Explain it in `jurisdictions.json` (with the evidence in VALIDATION.md); don't
   silence it.
-- `tools/reference/refresh_results.py DATA_ROOT` reruns everything (`--dry-run` first).
+- `tools/reference/refresh_results.py DATA_ROOT` reruns everything (`--dry-run` first);
+  `--compare` reruns without writing anything and lists how the results would change.
 
 ### Reference tools
 
@@ -80,8 +81,13 @@ OpenSTV, CRAN packages), or a hand-derived case. When adding or changing a metho
   `tools/reference/rcvcheck.py` (download, name keys, counting, round matching, summary lines,
   command line) and `tools/reference/cvr_to_blt.py` (rank-column ballot records, an option per
   ballot rule: `--overvote`, `--skipped`, `--repeat`, `--write-in`). Use them rather than copying.
-- When refactoring a checker or converter, record its full output (or BLT files) before, and diff
-  after: identical is the bar.
+- When refactoring a checker, a converter or the engine, `refresh_results.py DATA_ROOT --compare`
+  is the check: it reruns the checkers on their records converted afresh (the cached BLT files
+  left out), into a temporary directory, and diffs every contest with the committed results,
+  changing nothing. Identical is the bar; where a change is meant to move results, every
+  difference it lists should be one you expect. A full run takes about an hour (`--only` for the
+  checkers a change touches); a checker whose committed results include a failure exits 1 and
+  is still compared.
 - Data (ballot records, official reports) isn't committed: checkers fetch it into a data directory
   given on the command line. Downloads go to a temporary name and are renamed when complete.
 - Where an authority's site turns scripted requests away (Alaska's, San Francisco's), use the

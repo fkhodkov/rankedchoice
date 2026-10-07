@@ -47,6 +47,39 @@ class Plan(unittest.TestCase):
         self.assertEqual(names, ["maine", "results page", "VALIDATION.md table"])
         self.assertNotIn("act, ireland", [name for name, _, _ in refresh_results.steps(self.root.name, java=False)])
 
+    def test_compare_writes_elsewhere_and_rebuilds_nothing(self):
+        plan = refresh_results.steps(self.root.name, results_dir="/elsewhere", page=False)
+        names = [name for name, _, _ in plan]
+        self.assertNotIn("results page", names)
+        self.assertNotIn("VALIDATION.md table", names)
+        self.assertEqual(dict((n, c) for n, c, _ in plan)["maine"][-1], "/elsewhere/maine.json")
+        self.assertIn("-Dresults.dir=/elsewhere", dict((n, c) for n, c, _ in plan)["act, ireland"])
+
+
+class Compare(unittest.TestCase):
+
+    def test_the_copy_leaves_out_the_cached_blt_files(self):
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as work:
+            os.makedirs(os.path.join(root, "maine"))
+            for name in ("a.csv", "a.blt", "a.pdf"):
+                open(os.path.join(root, "maine", name), "w").close()
+            open(os.path.join(root, "notes.txt"), "w").close()
+            refresh_results.shadow(root, os.path.join(work, "copy"))
+            self.assertEqual(sorted(os.listdir(os.path.join(work, "copy"))), ["maine"])
+            self.assertEqual(sorted(os.listdir(os.path.join(work, "copy", "maine"))), ["a.csv", "a.pdf"])
+            self.assertTrue(os.path.islink(os.path.join(work, "copy", "maine", "a.csv")))
+
+    def test_results_differ_contest_by_contest_the_date_aside(self):
+        def results(*contests, date="2026-10-01"):
+            return {"checker": "x", "date": date, "contests": [
+                {"contest": c, "ok": True, "line": f"{c}: {line}"} for c, line in contests]}
+        committed = results(("a", "2 of 2"), ("b", "1 of 1"))
+        self.assertEqual(refresh_results.differences(committed, results(("a", "2 of 2"), ("b", "1 of 1"),
+                                                                         date="2026-10-07")), [])
+        lines = refresh_results.differences(committed, results(("a", "1 of 2"), ("c", "3 of 3")))
+        self.assertEqual(lines, ["  a: line changed", "    was: a: 2 of 2", "    now: a: 1 of 2",
+                                 "  b: no longer checked (was: b: 1 of 1)", "  c: new: c: 3 of 3"])
+
 
 if __name__ == "__main__":
     unittest.main()
