@@ -379,7 +379,8 @@ about 45 s, 16 / 8 about a minute.
   why (`--only` for some checkers, `--dry-run` to see the plan). `--compare` changes nothing:
   it reruns the checkers on their records converted afresh and lists every contest whose result
   differs from the committed one, to check that a refactor of the engine, a checker or the
-  converter leaves the results as they were.
+  converter leaves the results as they were. `--refetch` downloads again every file saved before
+  its address was recorded, which is otherwise trusted.
 - [`tools/reference/tests`](tools/reference/tests) — tests of those, on small made-up ballots
   and counts (every converter option; round matching with several defeated at once, repeated
   rounds and rounds out of order; the summary lines; the pass-report parser; the results page's

@@ -52,9 +52,11 @@ def fetch(path, url, attempts=3, headers=None):
     """Downloads to a temporary name first, so a failed or cut-off download leaves nothing behind. A file already
     there is reused if it came from the same address: each file's address is kept in .sources.json beside it, and
     one fetched from another (a contest pointed at a corrected report, say) is downloaded again. A file there before
-    the index was kept is reused, and its address recorded. HEADERS replace the default request headers."""
+    the index was kept is trusted: reused, and its address recorded; with RCVCHECK_REFETCH=1 in the environment
+    (refresh_results.py --refetch) it is downloaded again instead, once. HEADERS replace the default request headers."""
     known = sources(os.path.dirname(os.path.abspath(path))).get(os.path.basename(path))
-    if os.path.exists(path) and os.path.getsize(path) > 0 and known in (None, url):
+    trusted = known == url or (known is None and os.environ.get("RCVCHECK_REFETCH") != "1")
+    if os.path.exists(path) and os.path.getsize(path) > 0 and trusted:
         remember(path, url)
         return path
     for attempt in range(attempts):

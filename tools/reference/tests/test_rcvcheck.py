@@ -232,6 +232,20 @@ class Fetch(unittest.TestCase):
         self.assertEqual(open(self.local).read(), "official")
         self.assertEqual(rcvcheck.sources(self.data), {"report.txt": self.sources[1]})
 
+    def test_refetch_replaces_a_file_from_before_the_index(self):
+        with open(self.local, "w") as out:
+            out.write("cached")
+        os.environ["RCVCHECK_REFETCH"] = "1"
+        try:
+            rcvcheck.fetch(self.local, self.sources[1])
+            self.assertEqual(open(self.local).read(), "official")
+            with open(self.local, "w") as out:
+                out.write("kept")       # recorded now: not fetched again
+            rcvcheck.fetch(self.local, self.sources[1])
+            self.assertEqual(open(self.local).read(), "kept")
+        finally:
+            del os.environ["RCVCHECK_REFETCH"]
+
     def test_a_file_from_before_the_index_is_kept_and_recorded(self):
         with open(self.local, "w") as out:
             out.write("cached")

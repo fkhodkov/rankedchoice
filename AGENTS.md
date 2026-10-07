@@ -97,6 +97,10 @@ OpenSTV, CRAN packages), or a hand-derived case. When adding or changing a metho
   fetches again when a checker asks for the file from another address, so pointing a contest at
   a corrected report needs no manual step. Make a derived file (a BLT from its record, CSVs
   from a spreadsheet) again when `rcvcheck.stale(target, *sources)` says a source is newer.
+  A file saved before `.sources.json` was kept has no address on record, and is trusted to be
+  what's asked for; `refresh_results.py --refetch` (or `RCVCHECK_REFETCH=1` for one checker)
+  downloads such files again instead, once. That's why San Francisco's and Alaska's reports keep
+  their capture's timestamp in their names: an old copy can't be taken for a new one.
 - Where an authority's site turns scripted requests away (Alaska's, San Francisco's), use the
   Internet Archive's copies; don't work around bot protection.
 - Dataverse refuses requests without a User-Agent header. The Internet Archive's index

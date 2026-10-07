@@ -1,6 +1,6 @@
 """Refresh every checker's results, then the results page and VALIDATION.md's Official counts table.
 
-usage: refresh_results.py DATA_ROOT [--only NAME ...] [--no-java] [--dry-run] [--compare] [--jar PATH]
+usage: refresh_results.py DATA_ROOT [--only NAME ...] [--no-java] [--dry-run] [--compare] [--refetch] [--jar PATH]
 
 DATA_ROOT holds a directory per checker, named as its results file is (alameda, sanfrancisco, nyc, alaska, maine,
 minneapolis, portland, eastpointe, albany, aec, nsw, cambridge, scotland). A checker runs only if its directory is
@@ -19,6 +19,10 @@ DATA_ROOT made of links to its files, less the BLT files the checkers cache next
 converted afresh, with the converter as it is now), write their results to a temporary directory, and each is compared
 contest by contest with the committed one. The page and the table aren't rebuilt. It exits 1 if any result differs or
 a checker that ran wrote none.
+
+--refetch downloads again every file a checker fetches that was saved before rcvcheck.fetch kept each file's address
+(in .sources.json): those are otherwise trusted to be what the checker asks for. Once fetched, a file's address is
+recorded, so it costs one full download; what's derived from it is remade (rcvcheck.stale).
 """
 import argparse
 import importlib.util
@@ -176,8 +180,12 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="print what would run")
     parser.add_argument("--compare", action="store_true",
                         help="rerun on freshly converted records, compare with the committed results, change nothing")
+    parser.add_argument("--refetch", action="store_true",
+                        help="download again every file saved before its address was recorded")
     parser.add_argument("--jar", default=DEFAULT_JAR)
     args = parser.parse_args()
+    if args.refetch:
+        os.environ["RCVCHECK_REFETCH"] = "1"     # the checkers inherit it
     if args.compare:
         with tempfile.TemporaryDirectory(prefix="refresh-compare-") as work:
             copy, results_dir = os.path.join(work, "data"), os.path.join(work, "results")
