@@ -573,7 +573,11 @@ ballots the State publishes itself. The State's "RCV Summary Reports" give every
   the State's count leaves those 3 with no further choice. The readings tried that exhaust more
   ballots (skips counted over the whole ballot, eliminated candidates not breaking a run of them;
   repeats as skips) put the governor primary's rounds 2 to 4 off for Cote and Mills, or by
-  hundreds. Whether the record or a rule touching no other ballot in nine contests differs isn't
+  hundreds. The record is the State's own: its cast vote record of the primary (five
+  spreadsheets, `govd-1.xlsx` to `govd-5.xlsx`, published beside the report and kept by the
+  Internet Archive) holds the same 132,250 ballots as FairVote's copy, ranking for ranking. So the
+  difference lies between the State's published ballots and its count: 3 ballots the published
+  record reads otherwise, or a rule touching no other ballot in nine contests; which isn't
   shown.
 - **2024**: the report is a scanned page with no text; its figures are written into `check.py`.
   Its one round starts after the write-ins are eliminated, which is this count's second.
@@ -1067,9 +1071,13 @@ the official counts put down to the ballot record was reviewed against the stand
 - **Two differences put down to the record without that being shown.** Maine's 2018 Democratic
   primary for governor: 3 ballots the State's count exhausts by undervotes in the last round go
   to Janet Mills here; every other round of nine contests matches in every candidate and cause,
-  and the readings tried that exhaust more ballots put other rounds off. Minneapolis's 2009
+  the readings tried that exhaust more ballots put other rounds off, and the State's own
+  published cast vote record is FairVote's copy ballot for ballot, so the State's published
+  ballots and its count differ, by 3 ballots or a rule. Minneapolis's 2009
   Board of Estimate: Becker has 16,727 here against 16,728 in the first round only, every later
-  figure matching. In both the eliminations and winners match; neither has been compared with
-  the State's or the City's own ballot record. The others (Oakland, New York 2021,
+  figure matching; no ballot-level data of the City's own for 2009 was found to compare with,
+  on its results pages or in the Internet Archive's copies of its old election pages (which keep
+  its 2013 cast vote records, but only 2009's summaries). In both the eliminations and winners
+  match. The others (Oakland, New York 2021,
   Alaska 2024, Maine 2026) are shown by ballot totals or the authority's own records (see
   above).
