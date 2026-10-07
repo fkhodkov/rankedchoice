@@ -4,7 +4,9 @@ pass-report parser, on small made-up counts.
 python3 -m unittest discover -s tools/reference/tests
 """
 import os
+import pathlib
 import sys
+import tempfile
 import unittest
 from decimal import Decimal
 
@@ -166,6 +168,57 @@ class Transfers(unittest.TestCase):
 
     def test_nothing_to_compare_says_nothing(self):
         self.assertEqual(rcvcheck.transfer_line([("D", {"A": 1})], TRANSFERS, name_key), "")
+
+
+class Fetch(unittest.TestCase):
+    """The download cache: a file is reused while it comes from the same address, fetched again from another."""
+
+    def setUp(self):
+        self.work = tempfile.TemporaryDirectory()
+        self.sources = []
+        for n, text in enumerate(("unofficial", "official")):
+            path = os.path.join(self.work.name, f"source{n}.txt")
+            with open(path, "w") as out:
+                out.write(text)
+            self.sources.append(pathlib.Path(path).as_uri())
+        self.data = os.path.join(self.work.name, "data")
+        os.makedirs(self.data)
+        self.local = os.path.join(self.data, "report.txt")
+
+    def tearDown(self):
+        self.work.cleanup()
+
+    def test_the_same_address_reuses_another_fetches_again(self):
+        rcvcheck.fetch(self.local, self.sources[0])
+        with open(self.local, "w") as out:
+            out.write("kept")       # what's there is reused, not fetched again
+        rcvcheck.fetch(self.local, self.sources[0])
+        self.assertEqual(open(self.local).read(), "kept")
+        rcvcheck.fetch(self.local, self.sources[1])
+        self.assertEqual(open(self.local).read(), "official")
+        self.assertEqual(rcvcheck.sources(self.data), {"report.txt": self.sources[1]})
+
+    def test_a_file_from_before_the_index_is_kept_and_recorded(self):
+        with open(self.local, "w") as out:
+            out.write("cached")
+        rcvcheck.fetch(self.local, self.sources[1])
+        self.assertEqual(open(self.local).read(), "cached")
+        self.assertEqual(rcvcheck.sources(self.data), {"report.txt": self.sources[1]})
+
+
+class Stale(unittest.TestCase):
+
+    def test_missing_or_older_than_a_source(self):
+        with tempfile.TemporaryDirectory() as work:
+            record, blt = os.path.join(work, "a.csv"), os.path.join(work, "a.blt")
+            open(record, "w").close()
+            self.assertTrue(rcvcheck.stale(blt, record))
+            open(blt, "w").close()
+            os.utime(record, (1000, 1000))
+            os.utime(blt, (2000, 2000))
+            self.assertFalse(rcvcheck.stale(blt, record))
+            os.utime(record, (3000, 3000))      # the record fetched again since
+            self.assertTrue(rcvcheck.stale(blt, record))
 
 
 class PassReport(unittest.TestCase):

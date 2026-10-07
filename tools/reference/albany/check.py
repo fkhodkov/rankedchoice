@@ -24,7 +24,7 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import (DATAVERSE, count, fetch, main, name_key as key, threshold_line,  # noqa: E402
+from rcvcheck import (DATAVERSE, count, fetch, main, name_key as key, stale, threshold_line,  # noqa: E402
                       unmatched_rounds)
 
 ROOT = os.path.join(HERE, "..", "..", "..")
@@ -90,8 +90,8 @@ def check(data, contest, jar):
     seats, rounds, elected, gone = report(fetch(os.path.join(data, contest + ".xml"),
                                           REPORT.format(election=election, race=race)))
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
-        cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+    cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+    if stale(blt, cvr):
         # An overvote ends the ballot; a skipped ranking or a write-in is passed over.
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", str(seats), "--title", "Albany"], check=True)
     rules = ["--config", CONFIG_2022] if contest.endswith("2022") else ["--ruleset", "albany"]

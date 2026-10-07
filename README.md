@@ -355,7 +355,9 @@ about 45 s, 16 / 8 about a minute.
   ranking, and a write-in do. The checkers below for Alameda, San Francisco, Alaska, New York,
   Maine, Minneapolis, Eastpointe and Albany use it.
 - [`tools/reference/rcvcheck.py`](tools/reference/rcvcheck.py) — what the checkers of US
-  ranked-choice counts share: downloading, matching names, counting, and matching each official
+  ranked-choice counts share: downloading (each file's address kept in `.sources.json`, so a file
+  asked for from another address is fetched again, and what's made from it remade), matching
+  names, counting, comparing transfers, and matching each official
   round with one of this count's, in order, to the vote for the single-seat ones (Alameda, San
   Francisco, Alaska, New York, Maine) and to the official decimal places for the multi-seat ones
   (Minneapolis, Portland, Eastpointe, Albany).

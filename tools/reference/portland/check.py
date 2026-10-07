@@ -22,7 +22,7 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import count, fetch, main, threshold_line, unmatched_rounds  # noqa: E402
+from rcvcheck import count, fetch, main, stale, threshold_line, unmatched_rounds  # noqa: E402
 
 REPORT = "a18a5db1-04a2-4123-8ccb-de12b485f135"    # the County's final results, 2 December 2024
 SUMMARY = ("https://mcdcselectionsrcvprdst.z5.web.core.windows.net/{report}_City of Portland Councilor District {n}/"
@@ -37,7 +37,7 @@ def official(data, n):
 
 def check(data, n, jar):
     blt = os.path.join(data, f"d{n}.blt")
-    if not os.path.exists(blt):
+    if stale(blt, os.path.join(data, f"d{n}-cvr.csv")):
         subprocess.run([sys.executable, os.path.join(HERE, "cvr_to_blt.py"), os.path.join(data, f"d{n}-cvr.csv"), blt],
                        check=True)
     ours, error = count(jar, blt, ["--ruleset", "portland"])

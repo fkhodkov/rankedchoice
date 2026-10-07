@@ -93,6 +93,10 @@ OpenSTV, CRAN packages), or a hand-derived case. When adding or changing a metho
   is still compared.
 - Data (ballot records, official reports) isn't committed: checkers fetch it into a data directory
   given on the command line. Downloads go to a temporary name and are renamed when complete.
+  Use `rcvcheck.fetch`: it records each file's address in the directory's `.sources.json` and
+  fetches again when a checker asks for the file from another address, so pointing a contest at
+  a corrected report needs no manual step. Make a derived file (a BLT from its record, CSVs
+  from a spreadsheet) again when `rcvcheck.stale(target, *sources)` says a source is newer.
 - Where an authority's site turns scripted requests away (Alaska's, San Francisco's), use the
   Internet Archive's copies; don't work around bot protection.
 - Dataverse refuses requests without a User-Agent header. The Internet Archive's index

@@ -45,7 +45,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pdf_text,  # noqa: E402
-                      summary, table_rows, winner)
+                      stale, summary, table_rows, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 SITE = "https://www.maine.gov/sos/sites/maine.gov.sos/files/"
@@ -220,11 +220,12 @@ def summary_2026(path):
 def ballots_2026(data, contest):
     """Every export of a 2026 contest's ballots, fetched and joined into one CSV file; its path."""
     joined = os.path.join(data, contest + ".csv")
-    if os.path.exists(joined):
+    parts = [fetch(os.path.join(data, f"{contest}-part{n}.xlsx"), SITE + "inline-files/" + export)
+             for n, export in enumerate(STATE_2026[contest][1], 1)]
+    if not stale(joined, *parts):
         return joined
     header, rows = None, []
-    for n, export in enumerate(STATE_2026[contest][1], 1):
-        part = fetch(os.path.join(data, f"{contest}-part{n}.xlsx"), SITE + "inline-files/" + export)
+    for part, export in zip(parts, STATE_2026[contest][1]):
         sheet = list(table_rows(part))
         if header is None:
             header = sheet[0]
@@ -287,9 +288,9 @@ def check(data, contest, jar):
         causes = exhausted_by_cause(local) if not local.endswith(".pdf") else {}
     totals = {key(name): votes for name, votes in totals.items()}
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
-        cvr = ballots_2026(data, contest) if contest in STATE_2026 else \
-            fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=CONTESTS[contest][0]))
+    cvr = ballots_2026(data, contest) if contest in STATE_2026 else \
+        fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=CONTESTS[contest][0]))
+    if stale(blt, cvr):
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end",
                         "--write-in", "candidate"], check=True)
     ours, error = count(jar, blt)

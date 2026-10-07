@@ -40,7 +40,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
-                      pdf_text, sheets, summary, table_rows, transfer_line, winner)
+                      pdf_text, sheets, stale, summary, table_rows, transfer_line, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 RESULTS = "sfelections.org/results/"
@@ -261,7 +261,7 @@ def check(data, contest, jar):
     totals = {key(name): votes for name, votes in official_rounds(local).items()}
     blt = os.path.join(data, contest + ".blt")
     cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
-    if not os.path.exists(blt):
+    if stale(blt, cvr):
         # Before 2015, the reports count write-ins of no qualified candidate as a candidate, WRITE-IN.
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest]
                        + (["--write-in", "candidate", "--write-in-name", "WRITE-IN"] if contest < "2015" else []),

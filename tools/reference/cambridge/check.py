@@ -26,17 +26,16 @@ import re
 import subprocess
 import sys
 import unicodedata
-import urllib.request
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from rcvcheck import record, write_results  # noqa: E402
+from rcvcheck import fetch as rcvcheck_fetch, record, stale, write_results  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 # The Civic Journal's server turns away requests that don't look like a browser's.
 HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0",
-           "Accept": "*/*", "Accept-Language": "en-US,en;q=0.5"}
+           "Accept": "*/*", "Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "identity"}
 SUFFIXES = {"jr", "jr."}
 NOT_CANDIDATES = ("total", "quota", "invalid", "exhaust", "november", "candidate", "city council", "page",
                   "cambridge")
@@ -44,10 +43,7 @@ LAST_WITH_ROUNDS = 2017
 
 
 def fetch(path, url):
-    if not os.path.exists(path):
-        request = urllib.request.Request(url, headers=HEADERS)
-        open(path, "wb").write(urllib.request.urlopen(request, timeout=300).read())
-    return path
+    return rcvcheck_fetch(path, url, headers=HEADERS)
 
 
 def words(text):
@@ -139,7 +135,7 @@ def check(data, contest, official, jar):
     year = int(contest.split("-")[1])
     csv_path = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=official["dataverseFile"]))
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
+    if stale(blt, csv_path):
         subprocess.run([sys.executable, os.path.join(HERE, "cvr_to_blt.py"), csv_path, blt,
                         "--seats", str(official["seats"])], check=True)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "-m", "cambridge", "--report-format", "json"],

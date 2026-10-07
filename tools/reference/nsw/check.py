@@ -23,7 +23,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import nsw_to_blt  # noqa: E402
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from rcvcheck import record, write_results  # noqa: E402
+from rcvcheck import record, stale, write_results  # noqa: E402
 
 DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "target",
                            "rankedchoice-0.1.0-SNAPSHOT.jar")
@@ -50,7 +50,7 @@ def check(name, data, jar):
     """(name, what's wrong or None, its result for the results page, None where there are no counts)."""
     blt = os.path.join(data, name + ".blt")
     try:
-        if not os.path.exists(blt):
+        if stale(blt, os.path.join(data, name + ".zip"), os.path.join(data, name + ".xlsx")):
             text = nsw_to_blt.convert(os.path.join(data, name + ".zip"), os.path.join(data, name + ".xlsx"))
             open(blt, "w").write(text)
         counts, elected, excluded = official(os.path.join(data, name + ".xlsx"))

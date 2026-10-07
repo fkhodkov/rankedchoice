@@ -34,7 +34,8 @@ import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import count, fetch, main, match_rounds, name_key, sheets, summary, table_rows, winner  # noqa: E402
+from rcvcheck import (count, fetch, main, match_rounds, name_key, sheets, stale, summary, table_rows,  # noqa: E402
+                      winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 ROUNDS = "https://www.vote.nyc/sites/default/files/pdf/election_results/{year}/{date}Primary%20Election/rcv/{page}"
@@ -276,11 +277,13 @@ def check(data, contest, jar):
     totals = {key(name): votes for name, votes in official_rounds(local).items() if votes}
     blt = os.path.join(data, contest + ".blt")
     cvr = os.path.join(data, contest + ".csv")
-    if not os.path.exists(cvr):
+    os.makedirs(os.path.join(data, year), exist_ok=True)
+    archive = fetch(os.path.join(data, year, os.path.basename(EXPORTS[year])), EXPORT.format(path=EXPORTS[year]))
+    if stale(cvr, archive):
         extract(data, year)
     if not os.path.exists(cvr):
         return False, f"{contest}: no columns for contest {code(contest)} in the Board's {year} export"
-    if not os.path.exists(blt):
+    if stale(blt, cvr):
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest], check=True)
     ours, error = count(jar, blt)
     if error:

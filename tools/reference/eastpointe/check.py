@@ -25,7 +25,7 @@ from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import DATAVERSE, count, fetch, main, threshold_line, unmatched_rounds  # noqa: E402
+from rcvcheck import DATAVERSE, count, fetch, main, stale, threshold_line, unmatched_rounds  # noqa: E402
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 CONTESTS = {
@@ -47,8 +47,8 @@ def check(data, contest, jar):
     file_id, page = CONTESTS[contest]
     official = summary(fetch(os.path.join(data, contest + ".html"), page))
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
-        cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+    cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+    if stale(blt, cvr):
         # As RCTab was set: a skipped ranking or a write-in is passed over, but two in a row end the ballot; an
         # overvote ends it, and so does a candidate ranked again ("exhaust on duplicate candidate").
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", "2", "--title", contest, "--skipped", "two-end",

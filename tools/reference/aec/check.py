@@ -25,7 +25,7 @@ import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-from rcvcheck import record, write_results  # noqa: E402
+from rcvcheck import record, stale, write_results  # noqa: E402
 
 DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "target",
                            "rankedchoice-0.1.0-SNAPSHOT.jar")
@@ -63,7 +63,7 @@ def check(data, event, state, jar):
     prefs = os.path.join(data, f"aec-senate-formalpreferences-{event}-{state}.zip")
     blt = os.path.join(data, f"{event}-{state}.blt")
     counts, seats, elected = official(os.path.join(data, f"SenateDopDownload-{event}.zip"), state)
-    if not os.path.exists(blt):
+    if stale(blt, prefs, os.path.join(data, f"SenateDopDownload-{event}.zip")):
         subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "aec_to_blt.py"),
                         prefs, blt, "--seats", str(seats), "--dop", os.path.join(data, f"SenateDopDownload-{event}.zip")],
                        check=True)

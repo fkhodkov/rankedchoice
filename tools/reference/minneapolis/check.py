@@ -147,8 +147,8 @@ def count(blt, jar, rules):
 def check_older(data, contest, jar):
     seats, file_id, official = OLDER[contest]
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
-        cvr = fetch(data, contest + "-fairvote.csv", DATAVERSE.format(id=file_id))
+    cvr = fetch(data, contest + "-fairvote.csv", DATAVERSE.format(id=file_id))
+    if rcvcheck.stale(blt, cvr):
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--seats", str(seats), "--title", contest] + READING
                        + ["--write-in-name", "Write-ins"], check=True)
     if isinstance(official, list):
@@ -225,8 +225,9 @@ def check(data, contest, jar):
         return check_older(data, contest, jar)
     seats, cvr, pdf = CONTESTS[contest]
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
-        subprocess.run([sys.executable, CONVERTER, fetch(data, cvr), blt, "--seats", str(seats), "--title", contest]
+    record = fetch(data, cvr)
+    if rcvcheck.stale(blt, record):
+        subprocess.run([sys.executable, CONVERTER, record, blt, "--seats", str(seats), "--title", contest]
                        + READING + ["--write-in-name", "Undeclared Write-ins"], check=True)
     ours, error = rcvcheck.count(jar, blt, ["--ruleset", "minneapolis"])
     if error:

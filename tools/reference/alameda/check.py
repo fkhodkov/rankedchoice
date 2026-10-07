@@ -41,7 +41,7 @@ from decimal import Decimal
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, fetch, main, match_rounds, name_key as key, pass_report,  # noqa: E402
-                      pdf_text, summary, transfer_line, winner)
+                      pdf_text, stale, summary, transfer_line, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 REPORT = "https://alamedacountyca.gov/rovresults/rcv/{election}/{race}/RcvDetailedReport.xml"
@@ -266,7 +266,7 @@ def check(data, contest, jar):
                                                           REPORT.format(election=election, race=race)))
     cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
+    if stale(blt, cvr):
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest], check=True)
     ours, error = count(jar, blt)
     if error:
@@ -305,7 +305,7 @@ def check_pass_report(data, contest, jar):
     totals = {key(name): votes for name, votes in pass_report(pdf_text(pdf)).items()}
     cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
+    if stale(blt, cvr):
         # Write-ins are a candidate where the report gives them votes; where it doesn't (Berkeley's 2012 mayoral
         # race, with a qualified write-in), they are passed over.
         given = totals.get(key("Write-In"), [0])[0]

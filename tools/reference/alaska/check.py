@@ -27,7 +27,7 @@ import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import DATAVERSE, count, fetch, main, name_key, pdf_text, transfer_line  # noqa: E402
+from rcvcheck import DATAVERSE, count, fetch, main, name_key, pdf_text, stale, transfer_line  # noqa: E402
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 ARCHIVE = "https://web.archive.org/web/{stamp}id_/https://www.elections.alaska.gov/results/{path}"
@@ -117,8 +117,8 @@ def check(data, contest, jar):
     rounds, eliminated, elected, moves = report(fetch(os.path.join(data, f"{contest}-{stamp}.pdf"),
                                                ARCHIVE.format(stamp=stamp, path=path)))
     blt = os.path.join(data, contest + ".blt")
-    if not os.path.exists(blt):
-        cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+    cvr = fetch(os.path.join(data, contest + ".csv"), DATAVERSE.format(id=file_id))
+    if stale(blt, cvr):
         # An unresolved write-in is passed over; two skipped rankings in a row end the ballot, a candidate ranked again
         # (or a write-in after a write-in) counting as one; an overvote ends it.
         subprocess.run([sys.executable, CONVERTER, cvr, blt, "--title", contest, "--skipped", "two-end",

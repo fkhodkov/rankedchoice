@@ -27,13 +27,40 @@ DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..
 DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=original"
 
 
-def fetch(path, url, attempts=3):
-    """Downloads to a temporary name first, so a failed or cut-off download leaves nothing behind."""
-    if os.path.exists(path) and os.path.getsize(path) > 0:
+SOURCES = ".sources.json"
+
+
+def sources(directory):
+    """{file name: the address it was fetched from}, kept in DIRECTORY/.sources.json."""
+    try:
+        return json.load(open(os.path.join(directory, SOURCES), encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def remember(path, url):
+    directory, name = os.path.split(os.path.abspath(path))
+    known = sources(directory)
+    if known.get(name) != url:
+        known[name] = url
+        with open(os.path.join(directory, SOURCES) + ".part", "w", encoding="utf-8") as out:
+            json.dump(known, out, indent=1, sort_keys=True)
+        os.replace(os.path.join(directory, SOURCES) + ".part", os.path.join(directory, SOURCES))
+
+
+def fetch(path, url, attempts=3, headers=None):
+    """Downloads to a temporary name first, so a failed or cut-off download leaves nothing behind. A file already
+    there is reused if it came from the same address: each file's address is kept in .sources.json beside it, and
+    one fetched from another (a contest pointed at a corrected report, say) is downloaded again. A file there before
+    the index was kept is reused, and its address recorded. HEADERS replace the default request headers."""
+    known = sources(os.path.dirname(os.path.abspath(path))).get(os.path.basename(path))
+    if os.path.exists(path) and os.path.getsize(path) > 0 and known in (None, url):
+        remember(path, url)
         return path
     for attempt in range(attempts):
         try:
-            request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept-Encoding": "identity"})
+            request = urllib.request.Request(url, headers=headers or {"User-Agent": "Mozilla/5.0",
+                                                                      "Accept-Encoding": "identity"})
             with urllib.request.urlopen(request, timeout=900) as response, open(path + ".part", "wb") as out:
                 while chunk := response.read(1 << 20):
                     out.write(chunk)
@@ -44,6 +71,7 @@ def fetch(path, url, attempts=3):
                     shutil.copyfileobj(packed, out)
                 os.replace(path + ".unpacked", path + ".part")
             os.replace(path + ".part", path)
+            remember(path, url)
             return path
         except OSError:
             if attempt == attempts - 1:
@@ -74,11 +102,19 @@ def table_rows(path):
         yield from csv.reader(open(sheet, encoding="utf-8", errors="ignore"))
 
 
+def stale(target, *sources_of_it):
+    """Whether TARGET, made from SOURCES_OF_IT (a BLT file from its record, say), must be made again: it isn't there,
+    or a source is newer, fetched again since."""
+    return not os.path.exists(target) or any(os.path.getmtime(source) > os.path.getmtime(target)
+                                             for source in sources_of_it)
+
+
 def sheets(path):
     """A spreadsheet's sheets, as CSV files next to it, "<name>-<sheet>.csv" (converted with LibreOffice's soffice
-    the first time)."""
+    the first time, and again if the spreadsheet is fetched again)."""
     stem = os.path.splitext(path)[0]
-    if not glob.glob(glob.escape(stem) + "-*.csv"):
+    converted = glob.glob(glob.escape(stem) + "-*.csv")
+    if not converted or any(stale(sheet, path) for sheet in converted):
         # Every sheet (the last option), comma-separated, UTF-8.
         subprocess.run(["soffice", "--headless", "--convert-to",
                         "csv:Text - txt - csv (StarCalc):44,34,76,1,,0,false,true,false,false,false,-1",

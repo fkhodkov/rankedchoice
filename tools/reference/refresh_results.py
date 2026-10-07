@@ -88,7 +88,7 @@ def shadow(data_root, copy):
             if entry.endswith(".blt"):
                 continue
             if os.path.isfile(path) and os.path.getsize(path) < SMALL:
-                shutil.copyfile(path, os.path.join(copy, name, entry))
+                shutil.copy2(path, os.path.join(copy, name, entry))     # times kept, for rcvcheck.stale
             else:
                 os.symlink(path, os.path.join(copy, name, entry))
 
