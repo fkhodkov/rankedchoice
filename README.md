@@ -47,6 +47,10 @@ Checkstyle (`checkstyle.xml`: 4-space indentation, 120 columns, imports grouped 
 third-party, then this project's), and fails on any violation; `.editorconfig` sets the same
 for editors.
 
+There's no hosted CI. Instead, `git config core.hooksPath .githooks` turns on a pre-commit hook
+that runs `mvn -o -q verify` on the staged files alone, in a temporary copy, and refuses the
+commit if the build fails (about 30 seconds; `git commit --no-verify` skips it once).
+
 ## STV building blocks
 
 A classic STV ruleset is a combination of independent choices:
@@ -453,4 +457,5 @@ src/main/java/info/fkhodkov/rankedchoice/
 src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)
 src/test/resources/testdata/   real and reference elections (see VALIDATION.md)
 tools/                         VoteKit mock elections, order sensitivity, reference scorer
+.githooks/pre-commit           the build, run on every commit (see Quick start)
 ```

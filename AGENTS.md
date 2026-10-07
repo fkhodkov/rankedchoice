@@ -27,6 +27,10 @@ mvn -o -q verify -DskipPythonTests      # where python3 isn't installed
 python3 -m unittest discover -s tools/reference/tests   # the Python tests alone, in a second
 ```
 
+- The pre-commit hook (`.githooks/pre-commit`, on with `git config core.hooksPath .githooks`)
+  runs the same `mvn -o -q verify` on the staged files in a temporary copy and refuses the commit
+  if it fails. It stands in for CI, which this repository doesn't have: don't skip it with
+  `--no-verify`; fix the build.
 - Checkstyle runs in `validate` and fails the build on any violation: 120 columns, no tabs, no star
   or unused imports, imports grouped static, `java`, third-party, then this project's. Its messages
   may come in the system's locale. `.editorconfig` sets the same for editors; Python keeps to 120

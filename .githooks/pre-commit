@@ -1,0 +1,18 @@
+#!/bin/sh
+# Builds and tests the commit being made, as a CI server would: `mvn -o -q verify` (Checkstyle,
+# Java tests, Python tests, jar) on the staged files alone, in a temporary copy, so unstaged
+# changes and untracked files can't make it pass. Turned on by `git config core.hooksPath
+# .githooks`; skipped, once, by `git commit --no-verify`.
+set -e
+copy=$(mktemp -d "${TMPDIR:-/tmp}/rankedchoice-commit.XXXXXX")
+trap 'rm -rf "$copy"' EXIT INT TERM
+git checkout-index --all --prefix="$copy/"
+options=
+command -v python3 >/dev/null 2>&1 || options=-DskipPythonTests
+echo "pre-commit: building the staged files (mvn -o -q verify${options:+ $options})..." >&2
+if ! (cd "$copy" && mvn -o -q verify $options) >"$copy/build.log" 2>&1; then
+    tail -n 60 "$copy/build.log" >&2
+    echo "pre-commit: the build fails on the staged files; commit refused (git commit --no-verify to skip)" >&2
+    exit 1
+fi
+echo "pre-commit: build passes" >&2
