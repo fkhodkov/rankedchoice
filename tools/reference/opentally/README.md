@@ -17,6 +17,9 @@ an independent STV counter (in Rust) with presets for many real rule sets.
   differ after a tie OpenTally broke at random, where this project uses declared order, and
   those OpenTally crashes on.
 
+The checks recorded in VALIDATION.md used revision 3d4c415, still OpenTally's latest on 8 October
+2026 (`git -C opentally checkout 3d4c415` to match them if it moves on).
+
 ```sh
 git clone https://yingtongli.me/git/OpenTally opentally
 (cd opentally && cargo build --release)

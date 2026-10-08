@@ -750,13 +750,14 @@ Gregory counter:
 
 ## OpenTally
 
-[OpenTally](https://yingtongli.me/git/OpenTally) is an independent STV counter with presets for
-many real rule sets, each option documented against its legislation. `tools/reference/opentally`
-counts the same 200 seeded random elections (5–12 candidates, 1–5 seats, 30–600 voters) with
-OpenTally and with this project, preset by preset, and matches every round to an OpenTally
-stage: every candidate's votes, and the votes set aside (exhausted plus lost) to within 10⁻⁹.
-OpenTally breaks a tie it can't settle backwards at random, where this project uses declared
-order, so elections that differ after such a tie are counted apart.
+[OpenTally](https://yingtongli.me/git/OpenTally) (revision 3d4c415, still its latest in October
+2026) is an independent STV counter with presets for many real rule sets, each option documented
+against its legislation. `tools/reference/opentally` counts the same 200 seeded random elections
+(5–12 candidates, 1–5 seats, 30–600 voters) with OpenTally and with this project, preset by
+preset, and matches every round to an OpenTally stage: every candidate's votes, and the votes
+set aside (exhausted plus lost) to within 10⁻⁹. OpenTally breaks a tie it can't settle backwards
+at random, where this project uses declared order, so elections that differ after such a tie are
+counted apart.
 
 | This project | OpenTally | Every round matches | After a random tie | Otherwise |
 |---|---|---|---|---|
@@ -860,8 +861,9 @@ on some single-seat elections in a log message, which the tool reports apart.
 
 ## Meek and Warren
 
-`MeekCounter` follows droop's Meek rule ([jklundell/droop](https://github.com/jklundell/droop),
-`meek arithmetic=fixed defeat_batch=none`) in the same fixed-point arithmetic, and droop's
+`MeekCounter` follows droop's Meek rule ([jklundell/droop](https://github.com/jklundell/droop)
+at revision cf58293, May 2020, still its latest in October 2026; `meek arithmetic=fixed
+defeat_batch=none`) in the same fixed-point arithmetic, and droop's
 `warren` rule for Warren's method.
 
 - **Against droop.** 144 elections (MapLibre plus 143 synthetic: the four tied-ballot sets
@@ -1115,6 +1117,9 @@ The gaps below were checked again in October 2026, against what each election au
 published; none had begun to publish what would close them. On 7 October 2026 every difference
 the official counts put down to the ballot record was reviewed against the standard above
 (other readings tried, the record shown to differ); two aren't shown, and are listed last.
+On 8 October 2026 the other implementations were checked for newer revisions: OpenTally
+(3d4c415), droop (cf58293) and OpenSTV (2a267a4) are still at the ones these checks used, and
+pyRCV2's last (4dff302, deprecating it) reproduces every count sheet it made for the fixtures.
 
 - **ERS76** — no surviving copy of the 1976 rulebook or any election published under it was
   found; the preset is ERS97's settings ("believed similar", not verified).

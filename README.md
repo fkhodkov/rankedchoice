@@ -447,22 +447,27 @@ about 45 s, 16 / 8 about a minute.
 src/main/java/info/fkhodkov/rankedchoice/
 ├── core/
 │   ├── model/     Candidate, Ballot
-│   ├── ballot/    BltParser, CsvBallotParser
+│   ├── ballot/    BltParser, CsvBallotParser, ParsedElection, ParsedBallots, BallotParseException,
+│   │              NumberedLine (line numbers for errors; a leading byte order mark dropped)
 │   ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
 │   ├── report/    ReportMarkup (CSV quoting, HTML escaping and page, JSON writer)
 │   └── util/      Fraction (exact rational arithmetic)
 ├── stv/
 │   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota,
 │   │              RoundedUpQuota
-│   ├── transfer/  TransferMethod, FractionalTransfer, WigmTransfer, LastParcelTransfer,
-│   │              LastParcelDeferredRoundingTransfer, HeldParcel
+│   ├── transfer/  TransferMethod, HeldParcel; FractionalTransfer, TruncatedFractionalTransfer
+│   │              (Portland), WigmTransfer, LastParcelTransfer, LastParcelDeferredRoundingTransfer,
+│   │              LastParcelSelection, UnweightedInclusiveTransfer (Senate),
+│   │              UnweightedExclusiveTransfer (Tasmania), WeightedInclusiveTransfer (WA),
+│   │              WeightedTransferableTransfer (NSW councils)
 │   ├── rounding/  RoundingRule, Exact, TruncateDecimal
 │   ├── tiebreak/  TieBreakRule, DeclaredOrderTieBreak, PreviousRoundVotesTieBreak,
 │   │              FirstPreferenceCountTieBreak, SeededRandomTieBreak
 │   ├── config/    StvRulesetParser (the quota/transfer/rounding/tiebreak strings)
-│   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport
+│   ├── report/    StvTextReport, StvCsvReport, StvJsonReport, StvHtmlReport, ReportFormatting
 │   ├── meek/      MeekCounter, MeekRuleset, KeepRule, FixedPoint (Meek and Warren)
-│   └── StvCounter, StvRuleset, StvResult, RoundRecord, RoundAction, TiedRankingPolicy,
+│   └── StvCounter, StvCounterValidation, StvRuleset, StvResult, RoundRecord, RoundAction,
+│       ExclusionOrder (the order an exclusion's papers move in), TiedRankingPolicy,
 │       BallotFormality, InformalBallots (tied rankings and short ballots, for every engine)
 ├── cambridge/     CambridgeCounter, CambridgeRuleset
 ├── qpq/           QpqCounter, QpqRuleset, QpqResult, QpqRoundRecord, QpqAction, QpqTextReport,
@@ -471,13 +476,23 @@ src/main/java/info/fkhodkov/rankedchoice/
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport, SchulzeReports
 ├── schulzestv/    SchulzeStvCounter, SchulzeStvResult, SchulzeStvTextReport, SchulzeStvReports,
 │                  SchulzeProportionalRanking, SchulzeProportionalResult, SchulzeProportionalReports,
-│                  LargeCommitteeSupport (supports for committees past the closed form)
+│                  LargeCommitteeSupport (supports for committees past the closed form),
+│                  Shares, LongDoubleMap (a completion's shares, dense or sparse)
 ├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
 │                  BordaResult, BordaTextReport, BordaReports
 └── cli/           Main
 
 src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)
 src/test/resources/testdata/   real and reference elections (see VALIDATION.md)
-tools/                         VoteKit mock elections, order sensitivity, benchmarks, reference checkers
+tools/
+├── votekit/                   VoteKit mock elections, compared across every method
+├── order-sensitivity/         how much ballot order changes a Cambridge STV count
+├── benchmark/                 large synthetic elections and the Performance figures
+└── reference/                 the independent checks (see VALIDATION.md)
+    ├── <place>/check.py       one jurisdiction's official counts (README.md lays out their data)
+    ├── opentally/, pyrcv2/, schulze_stv/, cpo_stv.py   checks against other implementations
+    ├── rcvcheck.py, cvr_to_blt.py, refresh_results.py, results_page.py   shared pieces
+    ├── results/               every checker's results, the results page, jurisdictions.json
+    └── tests/                 the Python tests, line length and pyflakes included
 .githooks/pre-commit           the build, run on every commit (see Quick start)
 ```

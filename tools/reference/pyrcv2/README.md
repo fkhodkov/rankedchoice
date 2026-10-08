@@ -16,6 +16,10 @@ runs as ordinary Python.
   10-place reports of exact values; `--combined` compares exhausted plus lost as one total;
   `--tolerance X` allows differences up to X.
 
+pyRCV2 is no longer developed: its last revision, 4dff302 (27 December 2025), adds notices that it's
+deprecated in favour of OpenTally. That revision reproduces every count sheet in the fixtures
+(`testdata/ers97/pyrcv2`, `testdata/aec/pyrcv2`) byte for byte (rechecked 8 October 2026).
+
 ```sh
 git clone https://yingtongli.me/git/pyRCV2 pyrcv2
 mvn package -DskipTests
