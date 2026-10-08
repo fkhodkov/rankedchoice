@@ -284,86 +284,22 @@ public final class QpqCounter {
                 stageNumber++;
                 boolean restartedThisStage = restartPending;
                 if (restartPending) {
-                    for (Candidate candidate : elected) {
-                        isHopeful[indexOf.get(candidate)] = true;
-                    }
-                    hopeful.addAll(elected);
-                    elected.clear();
-                    for (int b = 0; b < rankings.length; b++) {
-                        int[] ranking = rankings[b];
-                        int first = firstNotExcluded[b];
-                        while (first < ranking.length && isExcluded[ranking[first]]) {
-                            first++;
-                        }
-                        firstNotExcluded[b] = first;
-                        next[b] = first;
-                        credit[b] = Fraction.ZERO;
-                        advance(b);
-                    }
+                    restart(hopeful, elected);
                     restartPending = false;
                 }
-
-                long[] vc = new long[candidates.size()];
-                long va = 0;
-                List<Map<Fraction, BigInteger>> heldByCredit = new ArrayList<>(candidates.size());
-                for (int c = 0; c < candidates.size(); c++) {
-                    heldByCredit.add(null);
-                }
-                Map<Fraction, BigInteger> exhaustedByCredit = new LinkedHashMap<>();
-                for (int b = 0; b < rankings.length; b++) {
-                    int h = holder[b];
-                    boolean hasCredit = credit[b].signum() != 0;
-                    if (h < 0) {
-                        if (hasCredit) {
-                            exhaustedByCredit.merge(credit[b], BigInteger.valueOf(counts[b]), BigInteger::add);
-                        }
-                    } else {
-                        va += counts[b];
-                        vc[h] += counts[b];
-                        if (hasCredit) {
-                            if (heldByCredit.get(h) == null) {
-                                heldByCredit.set(h, new LinkedHashMap<>());
-                            }
-                            heldByCredit.get(h).merge(credit[b], BigInteger.valueOf(counts[b]), BigInteger::add);
-                        }
-                    }
-                }
-
-                Map<Candidate, Fraction> quotients = new LinkedHashMap<>();
-                for (Candidate candidate : hopeful) {
-                    int c = indexOf.get(candidate);
-                    Fraction tc = heldByCredit.get(c) == null ? Fraction.ZERO : weightedTotal(heldByCredit.get(c));
-                    quotients.put(candidate, Fraction.of(vc[c]).divide(Fraction.ONE.add(tc)));
-                }
-                Fraction quota = Fraction.of(va)
-                        .divide(Fraction.of(seats + 1L).subtract(weightedTotal(exhaustedByCredit)));
+                Tally tally = tally();
+                Map<Candidate, Fraction> quotients = quotients(hopeful, tally);
+                Fraction quota = Fraction.of(tally.active())
+                        .divide(Fraction.of(seats + 1L).subtract(weightedTotal(tally.exhaustedByCredit())));
 
                 Candidate highest = pickExtreme(hopeful, quotients, true, tieBreak);
                 if (quotients.get(highest).compareTo(quota) > 0) {
-                    elected.add(highest);
-                    hopeful.remove(highest);
-                    int h = indexOf.get(highest);
-                    isHopeful[h] = false;
-                    Fraction newCredit = Fraction.ONE.divide(quotients.get(highest));
-                    for (int b = 0; b < rankings.length; b++) {
-                        if (holder[b] == h) {
-                            credit[b] = newCredit;
-                            advance(b);
-                        }
-                    }
+                    elect(highest, quotients.get(highest), hopeful, elected);
                     rounds.add(new QpqRoundRecord(
                             stageNumber, quotients, quota, new QpqAction.Elected(highest), restartedThisStage));
                 } else {
                     Candidate lowest = pickExtreme(hopeful, quotients, false, tieBreak);
-                    hopeful.remove(lowest);
-                    int l = indexOf.get(lowest);
-                    isHopeful[l] = false;
-                    isExcluded[l] = true;
-                    for (int b = 0; b < rankings.length; b++) {
-                        if (holder[b] == l) {
-                            advance(b);
-                        }
-                    }
+                    exclude(lowest, hopeful);
                     rounds.add(new QpqRoundRecord(
                             stageNumber, quotients, quota, new QpqAction.Excluded(lowest), restartedThisStage));
                     restartPending = true;
@@ -374,6 +310,106 @@ public final class QpqCounter {
                 elected.addAll(hopeful);
             }
             return new QpqResult(List.copyOf(elected), rounds, formal.informal());
+        }
+
+        /**
+         * Starts the count again after an exclusion: everyone elected is hopeful once more, and every
+         * ballot goes back to its first preference not yet excluded, with no credit.
+         */
+        private void restart(Set<Candidate> hopeful, Set<Candidate> elected) {
+            for (Candidate candidate : elected) {
+                isHopeful[indexOf.get(candidate)] = true;
+            }
+            hopeful.addAll(elected);
+            elected.clear();
+            for (int b = 0; b < rankings.length; b++) {
+                int[] ranking = rankings[b];
+                int first = firstNotExcluded[b];
+                while (first < ranking.length && isExcluded[ranking[first]]) {
+                    first++;
+                }
+                firstNotExcluded[b] = first;
+                next[b] = first;
+                credit[b] = Fraction.ZERO;
+                advance(b);
+            }
+        }
+
+        /**
+         * A stage's ballots: each candidate's votes, the active votes in all, and the ballots carrying
+         * credit, by credit, for each candidate (null where none) and among the exhausted.
+         */
+        private record Tally(long[] votes, long active, List<Map<Fraction, BigInteger>> heldByCredit,
+                Map<Fraction, BigInteger> exhaustedByCredit) {
+        }
+
+        private Tally tally() {
+            long[] votes = new long[candidates.size()];
+            long active = 0;
+            List<Map<Fraction, BigInteger>> heldByCredit = new ArrayList<>(candidates.size());
+            for (int c = 0; c < candidates.size(); c++) {
+                heldByCredit.add(null);
+            }
+            Map<Fraction, BigInteger> exhaustedByCredit = new LinkedHashMap<>();
+            for (int b = 0; b < rankings.length; b++) {
+                int h = holder[b];
+                boolean hasCredit = credit[b].signum() != 0;
+                if (h < 0) {
+                    if (hasCredit) {
+                        exhaustedByCredit.merge(credit[b], BigInteger.valueOf(counts[b]), BigInteger::add);
+                    }
+                } else {
+                    active += counts[b];
+                    votes[h] += counts[b];
+                    if (hasCredit) {
+                        if (heldByCredit.get(h) == null) {
+                            heldByCredit.set(h, new LinkedHashMap<>());
+                        }
+                        heldByCredit.get(h).merge(credit[b], BigInteger.valueOf(counts[b]), BigInteger::add);
+                    }
+                }
+            }
+            return new Tally(votes, active, heldByCredit, exhaustedByCredit);
+        }
+
+        /** Each hopeful candidate's quotient: their votes over one plus the credit their ballots carry. */
+        private Map<Candidate, Fraction> quotients(Set<Candidate> hopeful, Tally tally) {
+            Map<Candidate, Fraction> quotients = new LinkedHashMap<>();
+            for (Candidate candidate : hopeful) {
+                int c = indexOf.get(candidate);
+                Map<Fraction, BigInteger> held = tally.heldByCredit().get(c);
+                Fraction credits = held == null ? Fraction.ZERO : weightedTotal(held);
+                quotients.put(candidate, Fraction.of(tally.votes()[c]).divide(Fraction.ONE.add(credits)));
+            }
+            return quotients;
+        }
+
+        /** Elects a candidate: their ballots take credit of one over their quotient and move on. */
+        private void elect(Candidate candidate, Fraction quotient, Set<Candidate> hopeful, Set<Candidate> elected) {
+            elected.add(candidate);
+            hopeful.remove(candidate);
+            int h = indexOf.get(candidate);
+            isHopeful[h] = false;
+            Fraction newCredit = Fraction.ONE.divide(quotient);
+            for (int b = 0; b < rankings.length; b++) {
+                if (holder[b] == h) {
+                    credit[b] = newCredit;
+                    advance(b);
+                }
+            }
+        }
+
+        /** Excludes a candidate for good: their ballots move on (the count restarts at the next stage). */
+        private void exclude(Candidate candidate, Set<Candidate> hopeful) {
+            hopeful.remove(candidate);
+            int l = indexOf.get(candidate);
+            isHopeful[l] = false;
+            isExcluded[l] = true;
+            for (int b = 0; b < rankings.length; b++) {
+                if (holder[b] == l) {
+                    advance(b);
+                }
+            }
         }
 
         /** Moves ballot {@code b} on to its next hopeful preference, or marks it exhausted. */
