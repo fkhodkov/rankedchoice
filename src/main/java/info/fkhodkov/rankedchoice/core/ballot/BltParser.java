@@ -136,29 +136,100 @@ public final class BltParser {
     private record RawBallot(BigInteger count, int[] ids) {
     }
 
+    /**
+     * A ballot line, read in one pass over its characters rather than with regular expressions
+     * (most of the parse's time went on {@code split}): tokens are separated by whitespace as
+     * {@code \\s+} matches it, and a token that's a plain candidate number is read in place. Any
+     * other token goes through {@link #tiedIds}, which reads it exactly as the line's tokens
+     * always were, quirks and error messages included.
+     */
     private static RawBallot parseBallotLine(NumberedLine line, int numCandidates) {
-        String[] tokens = line.text().split("\\s+");
-        if (tokens.length < 2 || !tokens[tokens.length - 1].equals("0")) {
+        String text = line.text();
+        int[] bounds = tokenBounds(text);
+        int tokens = bounds.length / 2;
+        if (tokens < 2 || !isZero(text, bounds[2 * tokens - 2], bounds[2 * tokens - 1])) {
             throw new BallotParseException(
-                    "Line " + line.number() + ": ballot line must end with a '0' terminator: '" + line.text() + "'");
+                    "Line " + line.number() + ": ballot line must end with a '0' terminator: '" + text + "'");
         }
-        BigInteger count = parseCount(tokens[0], line.number());
-        int[] ids = new int[tokens.length - 2];
+        BigInteger count = parseCount(text.substring(bounds[0], bounds[1]), line.number());
+        int[] ids = new int[tokens - 2];
         int length = 0;
-        for (int i = 1; i < tokens.length - 1; i++) {
-            String[] tied = tokens[i].split("=");
-            for (int t = 0; t < tied.length; t++) {
+        for (int i = 1; i < tokens - 1; i++) {
+            int id = plainNumber(text, bounds[2 * i], bounds[2 * i + 1]);
+            int[] tied = id > 0 ? null : tiedIds(text.substring(bounds[2 * i], bounds[2 * i + 1]), line.number());
+            for (int t = 0; t < (tied == null ? 1 : tied.length); t++) {
+                int member = tied == null ? id : tied[t];
                 if (length == ids.length) {
                     ids = Arrays.copyOf(ids, ids.length * 2);
                 }
-                int id = parseInt(tied[t], "candidate id", line.number());
-                if (id < 1 || id > numCandidates) {
-                    throw new BallotParseException("Line " + line.number() + ": candidate id out of range: " + id);
+                if (member < 1 || member > numCandidates) {
+                    throw new BallotParseException("Line " + line.number() + ": candidate id out of range: " + member);
                 }
-                ids[length++] = t == 0 ? id : -id;
+                ids[length++] = t == 0 ? member : -member;
             }
         }
         return new RawBallot(count, length == ids.length ? ids : Arrays.copyOf(ids, length));
+    }
+
+    /** Where each whitespace-separated token starts and ends: start, end, start, end, .... */
+    private static int[] tokenBounds(String text) {
+        int[] bounds = new int[16];
+        int length = 0;
+        int i = 0;
+        while (i < text.length()) {
+            while (i < text.length() && isSpace(text.charAt(i))) {
+                i++;
+            }
+            if (i == text.length()) {
+                break;
+            }
+            int start = i;
+            while (i < text.length() && !isSpace(text.charAt(i))) {
+                i++;
+            }
+            if (length + 2 > bounds.length) {
+                bounds = Arrays.copyOf(bounds, bounds.length * 2);
+            }
+            bounds[length++] = start;
+            bounds[length++] = i;
+        }
+        return Arrays.copyOf(bounds, length);
+    }
+
+    /** Whether the token is exactly "0", the end of a ballot line. */
+    private static boolean isZero(String text, int start, int end) {
+        return end - start == 1 && text.charAt(start) == '0';
+    }
+
+    /** The characters regex {@code \\s} matches. */
+    private static boolean isSpace(char c) {
+        return c == ' ' || c == '\t' || c == '\n' || c == '\u000B' || c == '\f' || c == '\r';
+    }
+
+    /** The token as a positive number of at most 9 digits, or 0 if it's anything else. */
+    private static int plainNumber(String text, int start, int end) {
+        if (end - start > 9) {
+            return 0;
+        }
+        int value = 0;
+        for (int i = start; i < end; i++) {
+            char c = text.charAt(i);
+            if (c < '0' || c > '9') {
+                return 0;
+            }
+            value = value * 10 + (c - '0');
+        }
+        return value;
+    }
+
+    /** A token that isn't a plain number, as the line's tokens were always read: "2=3" is 2 tied with 3. */
+    private static int[] tiedIds(String token, int lineNumber) {
+        String[] tied = token.split("=");
+        int[] ids = new int[tied.length];
+        for (int t = 0; t < tied.length; t++) {
+            ids[t] = parseInt(tied[t], "candidate id", lineNumber);
+        }
+        return ids;
     }
 
     private static boolean isWithdrawnLine(String line) {

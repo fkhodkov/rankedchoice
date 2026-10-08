@@ -185,4 +185,27 @@ class BltParserTest {
         assertThat(election.seats()).isEqualTo(2);
         assertThat(election.candidates()).hasSize(4);
     }
+
+    /**
+     * Ballot lines are read by scanning their characters, and must read as they did when split
+     * with regular expressions: any whitespace separates tokens, leading zeros are allowed, a
+     * trailing "=" is dropped, and an empty name in a tie is refused.
+     */
+    @Test
+    void readsBallotLinesAsTheRegularExpressionSplitDid() {
+        String header = "3 1\n";
+        String names = "0\n\"A\"\n\"B\"\n\"C\"\n";
+        ParsedElection spaced = BltParser.parse(makeLines(header + "5\t1  002\t 3 0\n" + names));
+        assertThat(spaced.ballots().getFirst().ranking()).extracting(rank -> rank.iterator().next().id())
+                .containsExactly("1", "2", "3");
+        ParsedElection trailing = BltParser.parse(makeLines(header + "5 2= 3 0\n" + names));
+        assertThat(trailing.ballots().getFirst().ranking()).hasSize(2);
+        assertThatThrownBy(() -> BltParser.parse(makeLines(header + "5 =3 1 0\n" + names)))
+                .isInstanceOf(BallotParseException.class).hasMessage("Line 2: invalid candidate id: ''");
+        assertThatThrownBy(() -> BltParser.parse(makeLines(header + "5 1 a 0\n" + names)))
+                .isInstanceOf(BallotParseException.class).hasMessage("Line 2: invalid candidate id: 'a'");
+        assertThatThrownBy(() -> BltParser.parse(makeLines(header + "5 1 2 3\n" + names)))
+                .isInstanceOf(BallotParseException.class)
+                .hasMessage("Line 2: ballot line must end with a '0' terminator: '5 1 2 3'");
+    }
 }
