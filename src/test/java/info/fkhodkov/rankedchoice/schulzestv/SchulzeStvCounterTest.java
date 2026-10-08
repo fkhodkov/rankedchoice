@@ -27,6 +27,21 @@ class SchulzeStvCounterTest {
         return new Ballot(ranks, BigInteger.valueOf(count));
     }
 
+    /**
+     * With no ballots at all (not even blank ones) every support is 0, as with only blank
+     * ballots, and the proportional ranking falls back on its tie-break: the declared order.
+     */
+    @Test
+    void noBallotsAtAllGiveEverySupportZero() {
+        SchulzeStvResult committee = SchulzeStvCounter.count(List.of(A, B, C), List.of(), 2);
+        assertThat(committee.supports()).allSatisfy(s -> assertThat(s.support()).isEqualTo(Fraction.ZERO));
+
+        SchulzeProportionalResult list = SchulzeProportionalRanking.count(List.of(A, B, C), List.of());
+        assertThat(list.ranking()).containsExactly(A, B, C);
+        assertThat(list.places()).allSatisfy(place -> assertThat(place.comparisons().values())
+                .allSatisfy(row -> assertThat(row.values()).containsOnly(Fraction.ZERO)));
+    }
+
     private static Fraction support(SchulzeStvResult result, Set<Candidate> committee, Candidate against) {
         return result.supports().stream()
                 .filter(support -> support.committee().equals(committee) && support.against().equals(against))

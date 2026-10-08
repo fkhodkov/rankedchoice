@@ -40,6 +40,9 @@ public final class SchulzeMethod {
 
     /** Runs the strongest-path computation and ranking directly from an already-known {@code d} matrix. */
     public static SchulzeResult fromMatrix(List<Candidate> candidates, Map<Candidate, Map<Candidate, BigInteger>> d) {
+        if (candidates.isEmpty()) {
+            throw new IllegalArgumentException("there must be at least one candidate");
+        }
         Map<Candidate, Map<Candidate, BigInteger>> p = strongestPaths(candidates, d);
         List<Set<Candidate>> ranking = rank(candidates, p);
         return new SchulzeResult(d, p, ranking);

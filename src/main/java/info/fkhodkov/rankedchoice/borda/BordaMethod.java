@@ -12,7 +12,8 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
 /**
  * A positional-scoring count: every ballot contributes points to each candidate it ranks,
  * per {@link BordaScoringRule}, and candidates are ordered by total score. A candidate a
- * ballot doesn't rank at all gets nothing from it.
+ * ballot doesn't rank at all gets nothing from it, and one not in {@code candidates} (withdrawn)
+ * is passed over, as if the ballot didn't rank them: the candidates after them move up.
  *
  * <p>Candidates tied for the same rank on a ballot (this project's {@link Ballot} model
  * supports tie groups directly) each receive the <em>average</em> of the scores their tied
@@ -32,6 +33,9 @@ public final class BordaMethod {
     }
 
     public static BordaResult count(List<Candidate> candidates, List<Ballot> ballots, BordaScoringRule rule) {
+        if (candidates.isEmpty()) {
+            throw new IllegalArgumentException("there must be at least one candidate");
+        }
         Map<Candidate, Fraction> scores = new LinkedHashMap<>();
         for (Candidate candidate : candidates) {
             scores.put(candidate, Fraction.ZERO);
@@ -43,7 +47,12 @@ public final class BordaMethod {
                 continue;
             }
             int position = 0;
-            for (Set<Candidate> rank : ballot.ranking()) {
+            for (Set<Candidate> ranked : ballot.ranking()) {
+                // A withdrawn candidate is passed over: they take no position and score nothing.
+                List<Candidate> rank = ranked.stream().filter(scores::containsKey).toList();
+                if (rank.isEmpty()) {
+                    continue;
+                }
                 int groupSize = rank.size();
                 Fraction sumOfWeights = Fraction.ZERO;
                 for (int offset = 0; offset < groupSize; offset++) {

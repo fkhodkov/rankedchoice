@@ -299,7 +299,10 @@ public final class SchulzeStvCounter {
      * the same exact figure; the closed form's 2^M subsets are quicker for small committees.
      */
     static Fraction support(Reduced reduced, int k) {
-        int size = reduced.levels().length == 0 ? 0 : reduced.levels()[0].length;
+        if (reduced.levels().length == 0) {
+            return Fraction.ZERO; // no ballots at all, so no support
+        }
+        int size = reduced.levels()[0].length;
         return size - 1 <= CLOSED_FORM_SEATS
                 ? closedFormSupport(reduced, k)
                 : LargeCommitteeSupport.of(reduced.levels(), reduced.counts(), k);

@@ -1,6 +1,7 @@
 package info.fkhodkov.rankedchoice.borda;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -143,6 +144,27 @@ class BordaMethodTest {
         BordaResult result = BordaMethod.count(List.of(a, b), ballots, ClassicBorda.INSTANCE);
 
         assertThat(result.scores()).isEqualTo(Map.of(a, Fraction.of(3), b, Fraction.ZERO));
+    }
+
+    @Test
+    void aWithdrawnCandidateIsPassedOverAndTheOnesAfterThemMoveUp() {
+        // B is withdrawn: on the ballots below, C is first among the two standing, then second.
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Ballot tiedWithWithdrawn = new Ballot(List.of(Set.of(a, b), Set.of(c)), BigInteger.ONE);
+        List<Ballot> ballots = List.of(ballot(3, b, c), ballot(2, a, b, c), tiedWithWithdrawn);
+
+        BordaResult result = BordaMethod.count(List.of(a, c), ballots, ClassicBorda.INSTANCE);
+
+        assertThat(result.scores()).isEqualTo(Map.of(a, Fraction.of(3), c, Fraction.of(3)));
+    }
+
+    @Test
+    void refusesACountWithNoCandidates() {
+        assertThatThrownBy(() -> BordaMethod.count(List.of(), List.of(), ClassicBorda.INSTANCE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("there must be at least one candidate");
     }
 
     private static Ballot ballot(int count, Candidate... ranking) {

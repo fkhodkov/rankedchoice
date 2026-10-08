@@ -915,7 +915,8 @@ Two constituencies of Nauru's 2019 parliamentary election, Anabar and Boe
 public, but Dowdall scoring depends only on each candidate's own (rank, count) totals, so a
 ballot set rebuilt to match each published table must reproduce the official scores — and does,
 exactly. Plus hand-derived cases for modified Borda, partial ballots, a three-way tie, a single
-candidate and a blank ballot (`BordaMethodTest`).
+candidate, a blank ballot and a withdrawn candidate, who is passed over so that those after them
+move up (`BordaMethodTest`).
 
 ## CPO-STV
 

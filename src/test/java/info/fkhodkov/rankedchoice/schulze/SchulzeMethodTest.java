@@ -1,6 +1,7 @@
 package info.fkhodkov.rankedchoice.schulze;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -132,6 +133,13 @@ class SchulzeMethodTest {
         assertThat(result.pairwiseWins().get(b).get(c)).isEqualTo(BigInteger.valueOf(10));
         assertThat(result.pairwiseWins().get(c).get(a)).isEqualTo(BigInteger.ZERO);
         assertThat(result.ranking()).containsExactly(Set.of(a, b), Set.of(c));
+    }
+
+    @Test
+    void refusesACountWithNoCandidates() {
+        assertThatThrownBy(() -> SchulzeMethod.count(List.of(), List.of()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("there must be at least one candidate");
     }
 
     @Test
