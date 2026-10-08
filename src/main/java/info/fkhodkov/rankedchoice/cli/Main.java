@@ -1,6 +1,7 @@
 package info.fkhodkov.rankedchoice.cli;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -20,6 +21,7 @@ import info.fkhodkov.rankedchoice.borda.ClassicBorda;
 import info.fkhodkov.rankedchoice.borda.DowdallScoring;
 import info.fkhodkov.rankedchoice.cambridge.CambridgeCounter;
 import info.fkhodkov.rankedchoice.cambridge.CambridgeRuleset;
+import info.fkhodkov.rankedchoice.core.ballot.BallotParseException;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.CsvBallotParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedBallots;
@@ -231,8 +233,20 @@ public final class Main implements Callable<Integer> {
         } catch (IOException e) {
             System.err.println("Error: failed to read or write a file: " + e.getMessage());
             return 1;
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | IllegalStateException | UnsupportedOperationException
+                | UncheckedIOException | BallotParseException e) {
+            // What the count refuses on purpose: its message says what's wrong with the input.
             System.err.println("Error: " + e.getMessage());
+            return 1;
+        } catch (RuntimeException e) {
+            // Anything else (a null, an index out of range, an overflow) is a fault in this program.
+            System.err.println("Error: an internal fault, please report it: " + e);
+            return 1;
+        } catch (OutOfMemoryError e) {
+            // The count's own structures are gone once it unwinds, so there's room to say so.
+            System.err.println("Error: the count ran out of memory (Java's heap is "
+                    + Runtime.getRuntime().maxMemory() / (1024 * 1024) + " MB); give it more with java -Xmx, "
+                    + "e.g. java -Xmx8g -jar ...");
             return 1;
         }
     }

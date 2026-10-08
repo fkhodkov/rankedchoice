@@ -314,7 +314,8 @@ mark, as spreadsheets' "CSV UTF-8" files do.
 ## Performance
 
 End to end through the command line (JVM startup and parsing included) on a 14-core machine,
-with every voter casting a distinct ballot ranking about 5 candidates:
+with every voter casting a distinct ballot ranking about 5 candidates (`tools/benchmark` makes
+the elections and reruns every figure here; single runs vary by up to a third, more on a busy machine):
 
 | Method | 20 candidates, 5 seats, 100k voters | 20 / 5, 1M voters | 100 / 20, 100k voters |
 |---|---|---|---|
@@ -330,8 +331,12 @@ with every voter casting a distinct ballot ranking about 5 candidates:
 At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 3.8 s
 (27 s), Schulze 1.7 s (11 s), `scottish` 6.9 s (16 s), `ers97` 8.9 s (26 s), QPQ 37 s (68 s), Meek
 63 s (135 s), Warren 75 s (193 s). CPO-STV grows with the number of committee pairs instead:
-10 candidates / 3 seats takes about 9 s at 100k voters, 12 / 4 about 34 s at 10k. Every method
-counts 1M ballots within a 256 MB heap.
+10 candidates / 3 seats takes about 9 s at 100k voters, 12 / 4 about 34 s at 10k.
+
+Within a 256 MB heap every method counts the 20-candidate, 1M-voter election above, and Borda,
+Schulze, `scottish`, `ers97` and QPQ the 300-candidate one at 5 preferences; Meek and Warren need
+more there, and at 40 preferences so do `scottish`, `ers97` and QPQ. Java's default heap is a
+quarter of the machine's memory; a count that runs out says so and suggests `java -Xmx`.
 
 Schulze STV's cost grows with the number of contests of seats + 1 candidates, and with how many
 distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 60 take
@@ -345,6 +350,8 @@ about 45 s, 16 / 8 about a minute.
   [VoteKit](https://github.com/mggg/VoteKit) and compare how every method fills the seats.
 - [`tools/order-sensitivity`](tools/order-sensitivity/README.md) — measure how much ballot
   order changes a Cambridge STV count.
+- [`tools/benchmark`](tools/benchmark/README.md) — generate large elections and time every
+  method on them: the figures under [Performance](#performance).
 - `tools/reference/cpo_stv.py` — an independent CPO-STV scorer used to check this one.
 - [`tools/reference/schulze_stv`](tools/reference/schulze_stv/README.md) — check Schulze STV
   and the Schulze proportional ranking against Schulze's own program and published figures, and
@@ -469,6 +476,6 @@ src/main/java/info/fkhodkov/rankedchoice/
 
 src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)
 src/test/resources/testdata/   real and reference elections (see VALIDATION.md)
-tools/                         VoteKit mock elections, order sensitivity, reference scorer
+tools/                         VoteKit mock elections, order sensitivity, benchmarks, reference checkers
 .githooks/pre-commit           the build, run on every commit (see Quick start)
 ```
