@@ -55,12 +55,39 @@ OpenSTV, CRAN packages), or a hand-derived case. When adding or changing a metho
   only fit one way is a finding; a guess is labelled as one. A difference may be put down to the
   ballot record ("looks like the record's") only after the other plausible readings of the
   ballots have been tried and named, and when it runs both ways (some candidates over, others
-  under) with the same eliminations and winners.
+  under) with the same eliminations and winners, or the ballot totals show it (more or fewer
+  ballots than the count's). Better still, show it: see below.
 - Name the gaps. VALIDATION.md's "Not validated" section lists what has no independent check and
   why, dated when it was last rechecked.
 - Real-election fixtures live in `src/test/resources/testdata/<place>/`, each directory with a
   README saying where the ballots and official figures come from and how they were converted.
   They're data: kept byte for byte (`.editorconfig` leaves them alone), never reformatted.
+
+### When an official count doesn't match
+
+What settled the differences that once looked like the record's (VALIDATION.md has each case):
+
+- Look past the round totals. Reports list each elimination's transfers by destination, or
+  each round's exhausted ballots, sometimes by cause; the checkers compare them
+  (`rcvcheck.transfer_line`, `rcvcheck.exhausted_line`). A gap that moves ballots from one
+  destination to another within an elimination is a rule read differently (Alaska's repeated
+  rankings, found from one ballot ranked Bye four times); a gap that runs one way, every figure
+  short or over, is ballots missing or extra (Oakland, counted in the reports' totals).
+- Count the ballots. The record's rows against the report's total (candidates, blanks,
+  exhausted, overvotes) show missing or extra ballots outright.
+- Read the report's status. An archived report may be the unofficial one, or captured before
+  certification (Alaska's August 2022 special, San Francisco's 2024 pages); look for a later
+  capture, or for the certified figures elsewhere (San Francisco's statement of vote).
+- Find the authority's own record. Where FairVote's copy is a conversion, the authority's export
+  (New York's Board, Alaska's Division, Maine's State) shows whether the gap is the copy's; if
+  they agree, the gap lies between the authority's published ballots and its count.
+- Check the report's own arithmetic: a round whose figures don't add up to the ballots counted,
+  or a candidate off their own transfers, is the report's slip (Eastpointe 2021).
+- Narrow a gap to the ballots it is. A few votes is usually a few ballots of one shape; find
+  them in the record and say what they are (Maine 2018's 3, Minneapolis 2009's one).
+- Try a rule everywhere it could apply. A reading that fixes one jurisdiction may break another
+  (repeats as skips fix Alaska and put Maine off); run `refresh_results.py --compare` and make
+  sure every line it changes is one you expect.
 
 ### Official results, the results page and VALIDATION.md's table
 
