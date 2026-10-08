@@ -65,6 +65,8 @@ OpenSTV, CRAN packages), or a hand-derived case. When adding or changing a metho
   why, dated when it was last rechecked.
 - Real-election fixtures live in `src/test/resources/testdata/<place>/`, each directory with a
   README saying where the ballots and official figures come from and how they were converted.
+  `FixtureReadmeTest` fails the build when a directory has none, or its README doesn't name
+  each file in it (by name, by name without extensions, or by a pattern like `<contest>.blt`).
   They're data: kept byte for byte (`.editorconfig` leaves them alone), never reformatted.
 
 ### When an official count doesn't match
