@@ -174,6 +174,68 @@ class QpqCounterTest {
         assertThat(result.rounds()).isEmpty();
     }
 
+    /**
+     * The count runs on {@code long} vote counts when the total fits, and on {@link BigInteger}
+     * ones when it doesn't: two implementations of one rule, and no real election is big enough to
+     * reach the second. So 200 random elections (3 to 7 candidates, 1 to 3 seats, truncated
+     * rankings) are counted as they are and with every count multiplied by 10^18, which takes the
+     * total past {@code long}. Credits are 1/quotient, so a candidate's credit total is unchanged
+     * by the scaling, and every quotient and quota is exactly 10^18 times the small count's: the
+     * two must agree on that, on every stage's action and restart, and on the winners.
+     */
+    @Test
+    void theLongAndBigIntegerCountsAgree() {
+        BigInteger scale = BigInteger.TEN.pow(18);
+        Fraction scaleFraction = Fraction.of(scale);
+        java.util.Random random = new java.util.Random(20261008);
+        int stages = 0;
+        for (int election = 0; election < 200; election++) {
+            int candidateCount = 3 + random.nextInt(5);
+            List<Candidate> candidates = new ArrayList<>();
+            for (int i = 0; i < candidateCount; i++) {
+                candidates.add(Candidate.of("C" + i));
+            }
+            int seats = 1 + random.nextInt(Math.min(3, candidates.size() - 1));
+            List<Ballot> small = new ArrayList<>();
+            List<Ballot> large = new ArrayList<>();
+            int shapes = 5 + random.nextInt(20);
+            for (int shape = 0; shape < shapes; shape++) {
+                List<Candidate> pool = new ArrayList<>(candidates);
+                java.util.Collections.shuffle(pool, random);
+                List<Set<Candidate>> ranks = new ArrayList<>();
+                for (Candidate candidate : pool.subList(0, 1 + random.nextInt(pool.size()))) {
+                    ranks.add(Set.of(candidate));
+                }
+                BigInteger count = BigInteger.valueOf(1 + random.nextInt(50));
+                small.add(new Ballot(ranks, count));
+                large.add(new Ballot(ranks, count.multiply(scale)));
+            }
+            QpqRuleset ruleset = new QpqRuleset(new DeclaredOrderTieBreak(candidates));
+
+            QpqResult expected = QpqCounter.count(candidates, small, seats, ruleset);
+            QpqResult actual = QpqCounter.count(candidates, large, seats, ruleset);
+
+            String context = "election " + election;
+            assertThat(actual.electedInOrder()).as(context).isEqualTo(expected.electedInOrder());
+            assertThat(actual.rounds()).as(context).hasSameSizeAs(expected.rounds());
+            for (int i = 0; i < expected.rounds().size(); i++) {
+                QpqRoundRecord want = expected.rounds().get(i);
+                QpqRoundRecord got = actual.rounds().get(i);
+                String stage = context + ", stage " + (i + 1);
+                assertThat(got.action()).as(stage).isEqualTo(want.action());
+                assertThat(got.restarted()).as(stage).isEqualTo(want.restarted());
+                assertThat(got.quota()).as(stage).isEqualTo(want.quota().multiply(scaleFraction));
+                assertThat(got.quotients().keySet()).as(stage).containsExactlyElementsOf(want.quotients().keySet());
+                for (Map.Entry<Candidate, Fraction> quotient : want.quotients().entrySet()) {
+                    assertThat(got.quotients().get(quotient.getKey())).as(stage)
+                            .isEqualTo(quotient.getValue().multiply(scaleFraction));
+                }
+            }
+            stages += expected.rounds().size();
+        }
+        assertThat(stages).as("stages compared").isGreaterThan(900);
+    }
+
     @Test
     void rejectsTiedRankings() {
         List<Ballot> ballots = List.of(new Ballot(List.of(Set.of(A, B)), BigInteger.ONE));

@@ -1021,6 +1021,14 @@ tied rankings match both as well. Hand-derived cases (`QpqCounterTest`) include 
 restart-and-re-election mechanic, which caught a real bug: a final "elect every remaining
 hopeful" step didn't check whether the seats were already filled.
 
+The count has two implementations: one on `long` vote counts, and one on `BigInteger` counts for
+totals too large for a `long`, which no real election reaches. The external checks above only
+exercise the first. `QpqCounterTest` counts 200 random elections (932 stages) both as they are
+and with every count ×10¹⁸. It requires the same winners, actions and restarts, and every quota
+and quotient exactly 10¹⁸ times the original. Faults planted in either path (ignoring exhausted
+credit, ignoring held credit, electing at a quotient equal to the quota, not resetting credit on
+a restart) all make it fail.
+
 ## Cambridge STV
 
 `CambridgeCounter` follows OpenSTV's `CambridgeSTV` (OpenSTV 1.7,
