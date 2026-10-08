@@ -148,14 +148,14 @@ public final class CambridgeCounter {
                 indexOf.put(candidates.get(c), c);
             }
             List<int[]> distinct = new ArrayList<>();
-            List<Long> counts = new ArrayList<>();
+            List<Long> copies = new ArrayList<>();
             long total = 0;
             for (Ballot ballot : formal.ballots()) {
                 // Ballots here never hold a tie (split is refused; the other policies remove ties).
                 // A candidate this count doesn't know about can never receive a vote: dropped.
                 distinct.add(ballot.ranking().stream().map(rank -> indexOf.get(rank.iterator().next()))
                         .filter(java.util.Objects::nonNull).mapToInt(Integer::intValue).toArray());
-                counts.add(ballot.count().longValueExact());
+                copies.add(ballot.count().longValueExact());
                 total += ballot.count().longValueExact();
             }
             if (total > Integer.MAX_VALUE / 2) {
@@ -170,7 +170,7 @@ public final class CambridgeCounter {
             this.rankingOf = new int[ballotCount];
             int b = 0;
             for (int r = 0; r < rankings.length; r++) {
-                for (long copy = 0; copy < counts.get(r); copy++) {
+                for (long copy = 0; copy < copies.get(r); copy++) {
                     rankingOf[b++] = r;
                 }
             }

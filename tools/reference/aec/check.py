@@ -80,7 +80,7 @@ def check(data, event, state, jar):
         tallies = {key(n): float(v) for n, v in rnd["tallies"].items()}
         hit = None
         for i in range(start, len(counts)):
-            number, figures = counts[i]
+            _, figures = counts[i]
             if (all(figures["votes"].get(k) == v for k, v in tallies.items())
                     and figures["exhausted"] == float(rnd["exhaustedVotes"])
                     and figures["loss"] == float(rnd["roundingLoss"])):

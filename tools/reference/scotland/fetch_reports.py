@@ -31,7 +31,7 @@ def links(html, base):
 
 def pdf_from(url):
     """The PDF at url, or the first PDF a download page there links to."""
-    data, kind = get(url)
+    data, _ = get(url)
     if data[:4] == b"%PDF":
         return data
     for href, _ in links(data.decode("utf-8", "replace"), url):
@@ -50,7 +50,7 @@ def main():
     while queue:
         url, depth = queue.pop(0)
         try:
-            data, kind = get(url)
+            data, _ = get(url)
         except Exception as e:  # noqa: BLE001 -- report and carry on
             print(f"{url}: {e}", flush=True)
             continue

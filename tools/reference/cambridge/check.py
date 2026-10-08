@@ -140,7 +140,7 @@ def sheet_totals(pdf, part=None):
                 continue
             row = series.setdefault(name, {})
             for centre, value in figures:
-                k, c = min(cols, key=lambda col: abs(col[1] - centre))
+                k, c = min(cols, key=lambda col, at=centre: abs(col[1] - at))
                 if abs(c - centre) < spacing / 4:
                     row.setdefault(k, value)
         last = max(last, max(columns))

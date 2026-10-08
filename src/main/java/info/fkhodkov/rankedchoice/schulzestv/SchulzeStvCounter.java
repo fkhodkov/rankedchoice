@@ -846,10 +846,8 @@ public final class SchulzeStvCounter {
             }
             List<Integer> unbeaten = new ArrayList<>();
             for (int x = 0; x < targets.length; x++) {
-                if (x == current) {
-                    unbeaten.add(x);
-                } else if (from[x].compareTo(to[x]) == 0
-                        && beaterOf(x, widest(x, false), widest(x, true)) < 0) {
+                if (x == current || (from[x].compareTo(to[x]) == 0
+                        && beaterOf(x, widest(x, false), widest(x, true)) < 0)) {
                     unbeaten.add(x);
                 }
             }

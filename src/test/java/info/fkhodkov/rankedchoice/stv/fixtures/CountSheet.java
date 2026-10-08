@@ -46,6 +46,7 @@ record CountSheet(List<Stage> stages) {
             String value = line.substring(colon + 2);
             switch (name) {
                 case "comment", "votes required" -> {
+                    // Notes for the reader, not figures: skipped.
                 }
                 case "non-transferable" -> nonTransferable = decimal(value);
                 default -> votes.put(name, decimal(value));
