@@ -40,10 +40,11 @@ public final class CpoStvReports {
         result.outcomeScores().keySet().forEach(outcome -> byNames.put(names(outcome), outcome));
         List<Score> scores = new ArrayList<>();
         for (List<String> outcome : rankedOutcomes(result)) {
-            Map<Set<Candidate>, Fraction> row = result.outcomeScores().get(byNames.get(outcome));
-            if (row == null) {
-                continue;
+            Set<Candidate> candidates = byNames.get(outcome);
+            if (candidates == null) {
+                continue; // a single possible outcome: nothing to compare it with
             }
+            Map<Set<Candidate>, Fraction> row = result.outcomeScores().get(candidates);
             for (Map.Entry<Set<Candidate>, Fraction> entry : row.entrySet()) {
                 scores.add(new Score(outcome, names(entry.getKey()), entry.getValue().toDecimalString()));
             }

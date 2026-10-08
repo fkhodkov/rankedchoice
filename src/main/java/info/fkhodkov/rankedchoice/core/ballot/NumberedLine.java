@@ -10,9 +10,17 @@ import java.util.stream.Stream;
  */
 record NumberedLine(int number, String text) {
 
-    /** Numbers a (sequential) stream of raw lines by their position, 1-based. */
+    /**
+     * Numbers a (sequential) stream of raw lines by their position, 1-based, leaving out a UTF-8
+     * byte order mark at the start of the first (spreadsheets' "CSV UTF-8" files have one).
+     */
     static Stream<NumberedLine> number(Stream<String> lines) {
         AtomicInteger counter = new AtomicInteger(0);
-        return lines.map(line -> new NumberedLine(counter.incrementAndGet(), line));
+        return lines.map(line -> {
+            int number = counter.incrementAndGet();
+            return new NumberedLine(number, number == 1 && line.startsWith(BYTE_ORDER_MARK) ? line.substring(1) : line);
+        });
     }
+
+    private static final String BYTE_ORDER_MARK = "\uFEFF";
 }

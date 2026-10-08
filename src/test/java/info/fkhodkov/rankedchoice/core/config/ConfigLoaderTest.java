@@ -106,4 +106,25 @@ class ConfigLoaderTest {
         assertThatThrownBy(() -> ConfigLoader.load(tempDir.resolve("nope.yaml")))
                 .isInstanceOf(UncheckedIOException.class);
     }
+
+    /** A setting the file gets wrong is described in the config's own terms, not Jackson's Java types. */
+    @Test
+    void saysWhatSettingIsWrongInTheConfigsOwnTerms() throws Exception {
+        assertRefused("", "isn't a valid config: it's empty");
+        assertRefused("# only a comment\n", "isn't a valid config: it's empty");
+        assertRefused("- quota\n- droop\n", "it should be a list of 'setting: value' lines");
+        assertRefused("seats: two\n", "'seats' should be a whole number, got 'two'");
+        assertRefused("seats: 2.5\n", "'seats' should be a whole number, got '2.5'");
+        assertRefused("quota: [droop]\n", "'quota' should be a single value");
+        assertRefused("batchExclusion: 1\n", "'batchExclusion' should be true or false, got '1'");
+        assertRefused("Quota: droop\n", "unknown setting 'Quota'; the settings are batchExclusion, ");
+    }
+
+    private void assertRefused(String yaml, String message) throws Exception {
+        Path file = tempDir.resolve("config.yaml");
+        Files.writeString(file, yaml);
+        assertThatThrownBy(() -> ConfigLoader.load(file)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(message)
+                .hasMessageNotContaining("java.lang").hasMessageNotContaining("info.fkhodkov");
+    }
 }

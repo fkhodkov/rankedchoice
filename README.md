@@ -275,7 +275,9 @@ count,rank1,rank2,rank3
 7,Bob,Alice=Carol,
 ```
 
-A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
+A blank cell ends the ranking; `A=B` is a tie; a double-quoted cell or name may hold a `,` or
+`=` (`"Smith, Jr."`, `"X=Y"=Z` is X=Y tied with Z). Both formats may start with a UTF-8 byte order
+mark, as spreadsheets' "CSV UTF-8" files do.
 
 ## Limitations
 

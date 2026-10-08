@@ -178,4 +178,11 @@ class BltParserTest {
         assertThat(election.ballots()).containsExactly(
                 new Ballot(List.of(Set.of(new Candidate("1", "Only Candidate"))), BigInteger.valueOf(3)));
     }
+
+    @Test
+    void skipsAByteOrderMarkBeforeTheHeader() {
+        ParsedElection election = BltParser.parse(makeLines("\uFEFF" + SAMPLE));
+        assertThat(election.seats()).isEqualTo(2);
+        assertThat(election.candidates()).hasSize(4);
+    }
 }

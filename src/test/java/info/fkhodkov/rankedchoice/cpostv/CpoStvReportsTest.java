@@ -47,4 +47,19 @@ class CpoStvReportsTest {
                 .contains("<p>Winning outcome: {A, B}</p>")
                 .contains("<h2>Scores</h2>");
     }
+
+    /** As many seats as candidates: one possible outcome, nothing to compare it with. */
+    @Test
+    void aSingleOutcomeReportsTheWinnerWithNoScores() {
+        CpoStvResult result = CpoStvCounter.count(List.of(A, B),
+                List.of(new Ballot(List.of(Set.of(A), Set.of(B)), BigInteger.TWO)), 2,
+                new CpoStvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE));
+
+        CpoStvReports.Report report = CpoStvReports.toReport(result);
+        assertThat(report.winners()).containsExactly(List.of("A", "B"));
+        assertThat(report.scores()).isEmpty();
+        assertThat(CpoStvReports.csv(result).lines())
+                .containsExactly("outcome,place,against,score,informal_ballots", "\"A, B\",1,,,0");
+        assertThat(CpoStvReports.html(result)).contains("<p>Winning outcome: {A, B}</p>").doesNotContain("Scores");
+    }
 }

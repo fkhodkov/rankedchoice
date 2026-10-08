@@ -54,8 +54,8 @@ public final class CsvBallotParser {
         }
 
         NumberedLine headerLine = cursor.next();
-        List<String> header = splitCsvLine(headerLine.text());
-        if (header.isEmpty() || !header.getFirst().trim().equalsIgnoreCase("count")) {
+        List<List<String>> header = splitCsvLine(headerLine);
+        if (!String.join("=", header.getFirst()).trim().equalsIgnoreCase("count")) {
             throw new BallotParseException(
                 "Line " + headerLine.number() + ": CSV header must start with a 'count' column, got: '"
                 + headerLine.text() + "'");
@@ -78,15 +78,15 @@ public final class CsvBallotParser {
     private static Ballot parseLine(NumberedLine rowLine, Map<String, Candidate> candidatesByName,
             Map<Candidate, Set<Candidate>> alone) {
         int lineNumber = rowLine.number();
-        Iterator<String> cells = splitCsvLine(rowLine.text()).iterator();
-        BigInteger count = parseCount(cells.next(), lineNumber);
+        Iterator<List<String>> cells = splitCsvLine(rowLine).iterator();
+        BigInteger count = parseCount(String.join("=", cells.next()), lineNumber);
 
         List<Set<Candidate>> ranking = new ArrayList<>();
         while (cells.hasNext()) {
-            String cell = cells.next().trim();
-            if (cell.isEmpty()) {
+            List<String> parts = cells.next();
+            if (isBlank(parts)) {
                 cells.forEachRemaining(remaining -> {
-                    if (!remaining.isBlank()) {
+                    if (!isBlank(remaining)) {
                         throw new BallotParseException(
                             "Row " + lineNumber + ": ranking has a gap (a blank cell followed by a preference)");
                     }
@@ -94,17 +94,25 @@ public final class CsvBallotParser {
                 break;
             }
             Set<Candidate> rank = new LinkedHashSet<>();
-            for (String name : cell.split("=")) {
+            for (String name : parts) {
                 String trimmedName = name.trim();
                 if (trimmedName.isEmpty()) {
-                    throw new BallotParseException(
-                        "Row " + lineNumber + ": empty candidate name in tie group '" + cell + "'");
+                    throw new BallotParseException("Row " + lineNumber + ": empty candidate name in tie group '"
+                        + String.join("=", parts) + "'");
                 }
-                rank.add(candidatesByName.computeIfAbsent(trimmedName, Candidate::of));
+                if (!rank.add(candidatesByName.computeIfAbsent(trimmedName, Candidate::of))) {
+                    throw new BallotParseException("Row " + lineNumber + ": candidate '" + trimmedName
+                        + "' named twice in tie group '" + String.join("=", parts) + "'");
+                }
             }
             ranking.add(rank.size() == 1 ? alone.computeIfAbsent(rank.iterator().next(), Set::of) : rank);
         }
         return new Ballot(ranking, count);
+    }
+
+    /** A cell with nothing in it but spaces: the end of a ranking. */
+    private static boolean isBlank(List<String> parts) {
+        return parts.size() == 1 && parts.getFirst().isBlank();
     }
 
     private static BigInteger parseCount(String token, int lineNumber) {
@@ -122,40 +130,51 @@ public final class CsvBallotParser {
         }
     }
 
-    private static List<String> splitCsvLine(String line) {
-        State state = State.start();
-        for (int i = 0; i < line.length(); i++) {
-            char c = line.charAt(i);
-            state = switch (state.quoteState) {
-                case UNQUOTED -> switch (c) {
-                    case '"' -> new State(QuoteState.QUOTED, state.current, state.cells);
-                    case ',' -> state.addCurrent();
-                    default -> new State(QuoteState.UNQUOTED, state.current.append(c), state.cells);
-                };
-                case QUOTED -> c == '"'
-                    ? new State(QuoteState.QUOTE_PENDING, state.current, state.cells)
-                    : new State(QuoteState.QUOTED, state.current.append(c), state.cells);
-                case QUOTE_PENDING -> switch (c) {
-                    case '"' -> new State(QuoteState.QUOTED, state.current.append(c), state.cells);
-                    case ',' -> state.addCurrent();
-                    default -> new State(QuoteState.UNQUOTED, state.current.append(c), state.cells);
-                };
-            };
+    /**
+     * A line's cells, each as its parts between unquoted {@code =} signs (one part where there's
+     * no tie). A quoted {@code ,} or {@code =} is part of a name.
+     */
+    private static List<List<String>> splitCsvLine(NumberedLine line) {
+        List<List<String>> cells = new ArrayList<>();
+        List<String> parts = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        QuoteState state = QuoteState.UNQUOTED;
+        String text = line.text();
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (state == QuoteState.QUOTED) {
+                if (c == '"') {
+                    state = QuoteState.QUOTE_PENDING;
+                } else {
+                    current.append(c);
+                }
+                continue;
+            }
+            if (c == '"') {
+                if (state == QuoteState.QUOTE_PENDING) {
+                    current.append('"'); // an escaped quote, "" inside quotes
+                }
+                state = QuoteState.QUOTED;
+                continue;
+            }
+            state = QuoteState.UNQUOTED;
+            if (c == ',' || c == '=') {
+                parts.add(current.toString());
+                current.setLength(0);
+                if (c == ',') {
+                    cells.add(parts);
+                    parts = new ArrayList<>();
+                }
+            } else {
+                current.append(c);
+            }
         }
-        state.addCurrent();
-        return state.cells;
-    }
-
-    private record State(QuoteState quoteState, StringBuilder current, List<String> cells) {
-        static State start() {
-            return new State(QuoteState.UNQUOTED, new StringBuilder(), new ArrayList<>());
+        if (state == QuoteState.QUOTED) {
+            throw new BallotParseException("Line " + line.number() + ": a quoted cell is never closed");
         }
-
-        State addCurrent() {
-            cells.add(current.toString());
-            current.setLength(0);
-            return new State(QuoteState.UNQUOTED, current, cells);
-        }
+        parts.add(current.toString());
+        cells.add(parts);
+        return cells;
     }
 
     /**

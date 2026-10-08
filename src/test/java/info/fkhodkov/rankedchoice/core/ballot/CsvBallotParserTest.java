@@ -138,4 +138,39 @@ class CsvBallotParserTest {
         Stream<String> lines = makeLines("");
         assertThatThrownBy(() -> CsvBallotParser.parse(lines)).isInstanceOf(BallotParseException.class);
     }
+
+    @Test
+    void aQuotedEqualsSignIsPartOfANameAndAnUnquotedOneSplitsATie() {
+        String csv = """
+                count,rank1,rank2
+                1,"X=Y","P"=Q
+                """;
+
+        Ballot ballot = CsvBallotParser.parse(makeLines(csv)).ballots().getFirst();
+        assertThat(ballot.firstPreference()).containsExactly(Candidate.of("X=Y"));
+        assertThat(ballot.lastPreference()).containsExactlyInAnyOrder(Candidate.of("P"), Candidate.of("Q"));
+    }
+
+    @Test
+    void refusesAnEmptyOrRepeatedNameInATieGroup() {
+        Stream<String> empty = makeLines("count,rank1\n1,A=\n");
+        assertThatThrownBy(() -> CsvBallotParser.parse(empty)).isInstanceOf(BallotParseException.class)
+                .hasMessage("Row 2: empty candidate name in tie group 'A='");
+        Stream<String> repeated = makeLines("count,rank1\n1,A= A\n");
+        assertThatThrownBy(() -> CsvBallotParser.parse(repeated)).isInstanceOf(BallotParseException.class)
+                .hasMessage("Row 2: candidate 'A' named twice in tie group 'A= A'");
+    }
+
+    @Test
+    void refusesAQuotedCellThatIsNeverClosed() {
+        Stream<String> lines = makeLines("count,rank1,rank2\n1,\"Smith, Jr.,Doe\n");
+        assertThatThrownBy(() -> CsvBallotParser.parse(lines)).isInstanceOf(BallotParseException.class)
+                .hasMessage("Line 2: a quoted cell is never closed");
+    }
+
+    @Test
+    void skipsAByteOrderMarkBeforeTheHeader() {
+        ParsedBallots parsed = CsvBallotParser.parse(makeLines("\uFEFFcount,rank1\n2,Alice\n"));
+        assertThat(parsed.candidates()).containsExactly(Candidate.of("Alice"));
+    }
 }
