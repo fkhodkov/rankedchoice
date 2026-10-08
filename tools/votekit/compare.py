@@ -151,7 +151,7 @@ def main():
                 slate, seats_won = part.rsplit(" ", 1)
                 mean[slate] += int(seats_won) * n / max(counted, 1)
         print(f"{METHODS[method][0]}")
-        print(f"  mean seats: " + ", ".join(f"{s} {mean[s]:.2f}" for s in slates))
+        print("  mean seats: " + ", ".join(f"{s} {mean[s]:.2f}" for s in slates))
         if misallocated:
             print(f"  seats misallocated vs first preferences: mean {sum(misallocated) / len(misallocated):.2f},"
                   f" worst {max(misallocated):.2f}")
