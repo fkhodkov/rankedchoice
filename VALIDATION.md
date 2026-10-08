@@ -901,6 +901,13 @@ that fixture checks the strongest-path computation and ranking against the real 
 than replaying ballots. No real election with a published genuine cycle was found, so the cycle
 case is hand-derived.
 
+The pairwise matrix is counted in `long`s when the counts fit, and in `BigInteger`s when they
+don't. No fixture or external check reaches the second way, since no real election is big
+enough. `ScaledCountsTest` counts 200 random elections, with tied and truncated rankings, both
+as they are and with every ballot's count ×10¹⁹. It requires every pairwise figure and path
+strength to be exactly 10¹⁹ times the original, and the same ranking. A tie counted as a win in
+either way makes it fail.
+
 ## Borda
 
 Two constituencies of Nauru's 2019 parliamentary election, Anabar and Boe
@@ -968,6 +975,12 @@ Two conventions had to be settled from the program, not the paper. Completion is
 contest, over its M+1 candidates only. In the database's letter format, a candidate named twice
 on a ballot ties everyone ranked since their first mention with them. Reading those ballots any
 other way changes the supports of the 7 elections that have them.
+
+Ballots are grouped in `long` counts when the total fits, and in `BigInteger` counts when it
+doesn't, which no real election reaches. `ScaledCountsTest` counts 100 random elections (3,845
+supports) and 100 proportional rankings both as they are and with every count ×10¹⁹. It
+requires the same committees, winners and lists, and every support and comparison exactly 10¹⁹
+times the original. A fault planted in either grouping makes it fail.
 
 ## Schulze proportional ranking
 
