@@ -69,11 +69,14 @@ def find(names, name):
     return found[0] if len(found) == 1 else None
 
 
-def sheet_totals(pdf):
+def sheet_totals(pdf, part=None):
     """{candidate: [votes after count 1, after count 2, ...]} from a count sheet. A row reads votes,
     then (change, votes) per count; a count that didn't change a candidate may give the votes once,
-    a new page may repeat the last votes, and other columns (the order elected) are passed over."""
+    a new page may repeat the last votes, and other columns (the order elected) are passed over.
+    Where the file holds more than one count (the 2013 Council's original count and its recount),
+    PART names the one to read: only pages whose text has it are."""
     text = subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, text=True, check=True).stdout
+    text = "\f".join(page for page in text.split("\f") if part is None or part in page)
     pages = {}
     for line in text.splitlines():
         match = re.match(r'^\s*([A-Za-z][^\d]*?[A-Za-z.)"])\s+(-?\d.*)$', line)
@@ -155,7 +158,7 @@ def check(data, contest, official, jar):
     counts = unmatched = None
     if year <= LAST_WITH_ROUNDS:
         sheet = fetch(os.path.join(data, contest + ".pdf"), official["sheet"])
-        counts, unmatched = match_counts(ours, sheet_totals(sheet))
+        counts, unmatched = match_counts(ours, sheet_totals(sheet, official.get("part")))
         line += f"; {counts - len(unmatched)} of {counts} official counts match a round of this count"
         if unmatched:
             line += f" (first unmatched: count {unmatched[0]})"

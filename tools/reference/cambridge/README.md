@@ -8,7 +8,8 @@ RCV cast vote records has (22; https://doi.org/10.7910/DVN/STVUET).
   the order the City counted them in (a Cambridge count depends on it). A skipped or overvoted
   ranking is passed over, as the City does; a candidate ranked again counts once.
 - `official.json` gives each election's quota and winners, from the official count sheets the
-  Cambridge Civic Journal keeps (`sheet`), and its Dataverse file.
+  Cambridge Civic Journal keeps (`sheet`), and its Dataverse file. The 2013 Council's sheet holds
+  the original count and the recount; `part` names the one the record matches (the original).
 - `check.py` fetches each record and sheet, converts and counts the record, and checks it: for
   2001–2017, every official count's votes against a round of this count, the quota and the
   winners; for 2019–2023, whose records don't mark overvotes, the winners only.

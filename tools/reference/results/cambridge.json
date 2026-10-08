@@ -1,6 +1,6 @@
 {
  "checker": "cambridge",
- "date": "2026-10-06",
+ "date": "2026-10-08",
  "contests": [
   {
    "contest": "council-2001",
@@ -85,10 +85,10 @@
   {
    "contest": "council-2013",
    "ok": true,
-   "matched": 34,
-   "rounds": 34,
+   "matched": 17,
+   "rounds": 17,
    "winners_same": true,
-   "line": "council-2013: quota 1775 (official 1775); 34 of 34 official counts match a round of this count; the same 9 elected"
+   "line": "council-2013: quota 1775 (official 1775); 17 of 17 official counts match a round of this count; the same 9 elected"
   },
   {
    "contest": "school-2013",
