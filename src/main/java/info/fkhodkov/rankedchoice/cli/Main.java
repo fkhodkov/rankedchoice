@@ -249,6 +249,7 @@ public final class Main implements Callable<Integer> {
                 minimumPreferences != null ? minimumPreferences : fileConfig.minimumPreferences();
         int effectiveMinimumPreferences = configuredMinimumPreferences == null ? 0 : configuredMinimumPreferences;
 
+        requireFile(input, "input file");
         String resolvedFormat = firstNonNull(format, fileConfig.format());
         String inputFormat = resolvedFormat != null ? resolvedFormat.toLowerCase(Locale.ROOT) : inferFormat(input);
 
@@ -561,7 +562,7 @@ public final class Main implements Callable<Integer> {
             throw new IllegalArgumentException("--config and --ruleset are mutually exclusive; pass only one");
         }
         if (config != null) {
-            return ConfigLoader.load(config);
+            return ConfigLoader.load(requireFile(config, "config file"));
         }
         if (rulesetName != null) {
             boolean known = BUNDLED_RULESETS.stream().anyMatch(preset -> preset.name().equals(rulesetName));
@@ -610,6 +611,17 @@ public final class Main implements Callable<Integer> {
         }
         throw new IllegalArgumentException(
                 "Cannot infer format from file name '" + path + "'; pass --format explicitly");
+    }
+
+    /** The path, if it names a file that exists; otherwise a clear error naming what it was meant to be. */
+    private static Path requireFile(Path path, String what) {
+        if (Files.isDirectory(path)) {
+            throw new IllegalArgumentException("The " + what + " " + path + " is a directory, not a file");
+        }
+        if (!Files.exists(path)) {
+            throw new IllegalArgumentException("The " + what + " " + path + " doesn't exist");
+        }
+        return path;
     }
 
     /** A path's file name, lower-cased, or "" for one that has none (a root, such as "/"). */

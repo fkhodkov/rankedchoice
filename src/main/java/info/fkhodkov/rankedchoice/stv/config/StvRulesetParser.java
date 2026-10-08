@@ -169,7 +169,8 @@ public final class StvRulesetParser {
             case "hare" -> HareQuota.INSTANCE;
             case "hagenbach-bischoff" -> HagenbachBischoffQuota.INSTANCE;
             case "imperiali" -> ImperialiQuota.INSTANCE;
-            default -> throw new IllegalArgumentException("Unknown quota: '" + value + "'");
+            default -> throw new IllegalArgumentException("Unknown quota: '" + value
+                    + "'; expected droop, hare, hagenbach-bischoff, imperiali, or droop-rounded:N");
         };
     }
 
@@ -192,7 +193,10 @@ public final class StvRulesetParser {
             case "weighted-transferable" -> WeightedTransferableTransfer.INSTANCE;
             case "weighted-inclusive" -> WeightedInclusiveTransfer.INSTANCE;
             case "fractional-truncated" -> TruncatedFractionalTransfer.INSTANCE;
-            default -> throw new IllegalArgumentException("Unknown transfer method: '" + value + "'");
+            default -> throw new IllegalArgumentException("Unknown transfer method: '" + value
+                    + "'; expected fractional, fractional-truncated, wigm, last-parcel, "
+                    + "last-parcel-deferred-rounding, unweighted-inclusive, unweighted-exclusive:N, "
+                    + "weighted-inclusive, or weighted-transferable");
         };
     }
 
@@ -204,7 +208,7 @@ public final class StvRulesetParser {
         if (normalized.startsWith("truncate:")) {
             return new TruncateDecimal(parsePlaces(normalized, "truncate:"));
         }
-        throw new IllegalArgumentException("Unknown rounding rule: '" + value + "'");
+        throw new IllegalArgumentException("Unknown rounding rule: '" + value + "'; expected exact or truncate:N");
     }
 
     public static TieBreakRule parseTieBreak(String value, List<Candidate> declaredOrder) {
@@ -226,7 +230,8 @@ public final class StvRulesetParser {
             case "previous-round" -> new PreviousRoundVotesTieBreak(requireFallback(fallback, token));
             case "first-preference" ->
                 new FirstPreferenceCountTieBreak(requireFallback(fallback, token));
-            default -> throw new IllegalArgumentException("Unknown tie-break rule: '" + token + "'");
+            default -> throw new IllegalArgumentException("Unknown tie-break rule: '" + token
+                    + "'; expected declared, previous-round, first-preference, or seeded-random:N");
         };
 
     }

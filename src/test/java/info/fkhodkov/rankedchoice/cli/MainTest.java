@@ -119,13 +119,64 @@ class MainTest {
     }
 
     @Test
-    void aPathWithNoFileNameFailsWithTheSameMessage() {
-        Path root = tempDir.getRoot();
-
-        int exitCode = new CommandLine(new Main()).execute("--input", root.toString());
+    void aMissingInputFileIsNamedAsMissing() {
+        int exitCode = new CommandLine(new Main()).execute("--input", tempDir.resolve("absent.blt").toString());
 
         assertThat(exitCode).isOne();
-        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("Cannot infer format");
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("input file").contains("doesn't exist");
+    }
+
+    @Test
+    void aDirectoryAsInputIsNamedAsADirectory() {
+        int exitCode = new CommandLine(new Main()).execute("--input", tempDir.toString(), "--format", "blt");
+
+        assertThat(exitCode).isOne();
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("is a directory, not a file");
+    }
+
+    @Test
+    void aRootPathIsADirectoryToo() {
+        int exitCode = new CommandLine(new Main()).execute("--input", tempDir.getRoot().toString());
+
+        assertThat(exitCode).isOne();
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("is a directory, not a file");
+    }
+
+    @Test
+    void aMissingConfigFileIsNamedAsMissing() throws Exception {
+        Path ballots = tempDir.resolve("election.blt");
+        Files.writeString(ballots, "2 1\n1 1 0\n0\n\"A\"\n\"B\"\n");
+
+        int exitCode = new CommandLine(new Main()).execute("--input", ballots.toString(),
+                "--config", tempDir.resolve("absent.yaml").toString());
+
+        assertThat(exitCode).isOne();
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("config file").contains("doesn't exist");
+    }
+
+    @Test
+    void aConfigThatIsntYamlSaysWhereItGoesWrong() throws Exception {
+        Path ballots = tempDir.resolve("election.blt");
+        Files.writeString(ballots, "2 1\n1 1 0\n0\n\"A\"\n\"B\"\n");
+        Path broken = tempDir.resolve("broken.yaml");
+        Files.writeString(broken, "quota: droop\ntransfer: [\n");
+
+        int exitCode = new CommandLine(new Main()).execute("--input", ballots.toString(),
+                "--config", broken.toString());
+
+        assertThat(exitCode).isOne();
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("isn't a valid config").contains("line ");
+    }
+
+    @Test
+    void anUnknownQuotaListsTheKnownOnes() throws Exception {
+        Path ballots = tempDir.resolve("election.blt");
+        Files.writeString(ballots, "2 1\n1 1 0\n0\n\"A\"\n\"B\"\n");
+
+        int exitCode = new CommandLine(new Main()).execute("--input", ballots.toString(), "--quota", "imaginary");
+
+        assertThat(exitCode).isOne();
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("Unknown quota").contains("expected droop");
     }
 
     /**
