@@ -31,11 +31,12 @@ import shutil
 import subprocess
 import sys
 import zipfile
+from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
-from rcvcheck import (count, fetch, main, match_rounds, name_key, sheets, stale, summary, table_rows,  # noqa: E402
-                      winner)
+from rcvcheck import (count, exhausted_line, fetch, main, match_rounds, name_key, sheets, stale, summary,  # noqa: E402
+                      table_rows, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 ROUNDS = "https://www.vote.nyc/sites/default/files/pdf/election_results/{year}/{date}Primary%20Election/rcv/{page}"
@@ -198,6 +199,15 @@ def official_rounds(path):
     return totals
 
 
+def inactive_ballots(path):
+    """[inactive ballots after round 1, 2, ...] from the page's "Inactive ballots" row (every third cell, as the
+    candidates' votes; round 1's is blank on some pages), or [] where there's none."""
+    for cells in table_rows(path):
+        if cells and cells[0] == "Inactive ballots":
+            return [int(v.replace(",", "")) if NUMBER.match(v) else 0 for v in cells[1::3]]
+    return []
+
+
 def first_choices(cvr):
     """The record's first choices per candidate (by key), read as the converter reads the ballots, but with
     write-ins as one candidate."""
@@ -294,7 +304,13 @@ def check(data, contest, jar):
     exact, gaps = match_rounds(totals, ours, key, first=1)
     exact, gaps = exact + (gap == 0), [gap] + gaps
     same = [key(name) for name in ours["electedInOrder"]] == [winner(totals)]
-    return None not in gaps and same, summary(contest, exact, gaps, same, ours["electedInOrder"])
+    # Inactive ballots from the Board's round 2 on, this count's first: past round 2's (the ballots that rank no one,
+    # or only write-ins, never come into this count), against this count's exhausted votes.
+    inactive, rounds = inactive_ballots(local), max(len(votes) for votes in totals.values())
+    exhausted = exhausted_line([({name: Decimal(votes[k]) for name, votes in totals.items() if len(votes) > k},
+                                 Decimal(inactive[k]), None) for k in range(1, min(rounds, len(inactive)))],
+                               ours, lambda figures, name: figures.get(key(name)), past_first=True)
+    return None not in gaps and same, summary(contest, exact, gaps, same, ours["electedInOrder"]) + exhausted
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 {
  "checker": "nyc",
- "date": "2026-10-06",
+ "date": "2026-10-08",
  "contests": [
   {
    "contest": "2021-dem-mayor",
@@ -8,7 +8,7 @@
    "matched": 8,
    "rounds": 8,
    "winners_same": true,
-   "line": "2021-dem-mayor: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-mayor: 8 of 8 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (7 rounds)"
   },
   {
    "contest": "2021-dem-public-advocate",
@@ -24,7 +24,7 @@
    "matched": 10,
    "rounds": 10,
    "winners_same": true,
-   "line": "2021-dem-comptroller: 10 of 10 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-comptroller: 10 of 10 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (9 rounds)"
   },
   {
    "contest": "2021-dem-borough-president-bronx",
@@ -32,7 +32,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2021-dem-borough-president-bronx: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-borough-president-bronx: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2021-dem-borough-president-brooklyn",
@@ -40,7 +40,7 @@
    "matched": 11,
    "rounds": 11,
    "winners_same": true,
-   "line": "2021-dem-borough-president-brooklyn: 11 of 11 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-borough-president-brooklyn: 11 of 11 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (10 rounds)"
   },
   {
    "contest": "2021-dem-borough-president-manhattan",
@@ -48,7 +48,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "2021-dem-borough-president-manhattan: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-borough-president-manhattan: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "2021-dem-borough-president-queens",
@@ -56,7 +56,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2021-dem-borough-president-queens: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-borough-president-queens: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2021-dem-borough-president-richmond",
@@ -64,7 +64,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2021-dem-borough-president-richmond: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-borough-president-richmond: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2021-dem-council-1",
@@ -72,7 +72,7 @@
    "matched": 8,
    "rounds": 8,
    "winners_same": true,
-   "line": "2021-dem-council-1: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-1: 8 of 8 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (7 rounds)"
   },
   {
    "contest": "2021-dem-council-2",
@@ -88,7 +88,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "2021-dem-council-3: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-3: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "2021-dem-council-5",
@@ -96,7 +96,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2021-dem-council-5: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-5: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2021-dem-council-6",
@@ -112,7 +112,7 @@
    "matched": 13,
    "rounds": 13,
    "winners_same": true,
-   "line": "2021-dem-council-7: 13 of 13 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-7: 13 of 13 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (12 rounds)"
   },
   {
    "contest": "2021-dem-council-8",
@@ -136,7 +136,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2021-dem-council-10: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-10: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2021-dem-council-11",
@@ -144,7 +144,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2021-dem-council-11: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-11: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2021-dem-council-12",
@@ -152,7 +152,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2021-dem-council-12: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-12: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2021-dem-council-13",
@@ -168,7 +168,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2021-dem-council-14: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-14: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2021-dem-council-15",
@@ -176,7 +176,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "2021-dem-council-15: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-15: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "2021-dem-council-16",
@@ -200,7 +200,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2021-dem-council-18: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-18: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2021-dem-council-19",
@@ -208,7 +208,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2021-dem-council-19: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-19: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2021-dem-council-20",
@@ -216,7 +216,7 @@
    "matched": 8,
    "rounds": 8,
    "winners_same": true,
-   "line": "2021-dem-council-20: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-20: 8 of 8 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (7 rounds)"
   },
   {
    "contest": "2021-dem-council-21",
@@ -232,7 +232,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2021-dem-council-22: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-22: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2021-dem-council-23",
@@ -240,7 +240,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2021-dem-council-23: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-23: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2021-dem-council-24",
@@ -256,7 +256,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "2021-dem-council-25: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-25: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "2021-dem-council-26",
@@ -264,7 +264,7 @@
    "matched": 15,
    "rounds": 15,
    "winners_same": true,
-   "line": "2021-dem-council-26: 15 of 15 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-26: 15 of 15 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (14 rounds)"
   },
   {
    "contest": "2021-dem-council-27",
@@ -272,7 +272,7 @@
    "matched": 13,
    "rounds": 13,
    "winners_same": true,
-   "line": "2021-dem-council-27: 13 of 13 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-27: 13 of 13 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (12 rounds)"
   },
   {
    "contest": "2021-dem-council-28",
@@ -288,7 +288,7 @@
    "matched": 8,
    "rounds": 8,
    "winners_same": true,
-   "line": "2021-dem-council-29: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-29: 8 of 8 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (7 rounds)"
   },
   {
    "contest": "2021-dem-council-30",
@@ -312,7 +312,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2021-dem-council-32: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-32: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2021-dem-council-33",
@@ -320,7 +320,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "2021-dem-council-33: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-33: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "2021-dem-council-34",
@@ -336,7 +336,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2021-dem-council-35: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-35: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2021-dem-council-36",
@@ -344,7 +344,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2021-dem-council-36: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-36: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2021-dem-council-37",
@@ -352,7 +352,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2021-dem-council-37: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-37: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2021-dem-council-38",
@@ -360,7 +360,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2021-dem-council-38: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-38: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2021-dem-council-39",
@@ -368,7 +368,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2021-dem-council-39: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-39: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2021-dem-council-40",
@@ -376,7 +376,7 @@
    "matched": 10,
    "rounds": 10,
    "winners_same": true,
-   "line": "2021-dem-council-40: 10 of 10 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-40: 10 of 10 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (9 rounds)"
   },
   {
    "contest": "2021-dem-council-41",
@@ -392,7 +392,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2021-dem-council-42: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-42: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2021-dem-council-45",
@@ -408,7 +408,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "2021-dem-council-46: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-46: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "2021-dem-council-47",
@@ -416,7 +416,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2021-dem-council-47: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-47: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2021-dem-council-48",
@@ -424,7 +424,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2021-dem-council-48: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-48: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2021-dem-council-49",
@@ -432,7 +432,7 @@
    "matched": 9,
    "rounds": 9,
    "winners_same": true,
-   "line": "2021-dem-council-49: 9 of 9 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-dem-council-49: 9 of 9 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (8 rounds)"
   },
   {
    "contest": "2021-con-council-19",
@@ -464,7 +464,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2021-rep-council-15: 2 of 2 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2021-rep-council-15: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (1 rounds)"
   },
   {
    "contest": "2021-rep-council-19",
@@ -528,7 +528,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2023-dem-council-9: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2023-dem-council-9: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2023-dem-council-10",
@@ -568,7 +568,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2023-dem-council-19: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2023-dem-council-19: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2023-dem-council-22",
@@ -656,7 +656,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2023-rep-council-13: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2023-rep-council-13: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2023-rep-council-20",
@@ -704,7 +704,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2025-dem-mayor: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-mayor: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2025-dem-public-advocate",
@@ -720,7 +720,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2025-dem-comptroller: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-comptroller: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2025-dem-borough-president-bronx",
@@ -744,7 +744,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2025-dem-borough-president-manhattan: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-borough-president-manhattan: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2025-dem-council-1",
@@ -752,7 +752,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2025-dem-council-1: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-1: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2025-dem-council-2",
@@ -760,7 +760,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2025-dem-council-2: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-2: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2025-dem-council-3",
@@ -776,7 +776,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2025-dem-council-4: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-4: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2025-dem-council-5",
@@ -800,7 +800,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "2025-dem-council-8: 7 of 7 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-8: 7 of 7 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (6 rounds)"
   },
   {
    "contest": "2025-dem-council-10",
@@ -832,7 +832,7 @@
    "matched": 6,
    "rounds": 6,
    "winners_same": true,
-   "line": "2025-dem-council-13: 6 of 6 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-13: 6 of 6 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (5 rounds)"
   },
   {
    "contest": "2025-dem-council-14",
@@ -856,7 +856,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2025-dem-council-17: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-17: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2025-dem-council-19",
@@ -872,7 +872,7 @@
    "matched": 4,
    "rounds": 4,
    "winners_same": true,
-   "line": "2025-dem-council-21: 4 of 4 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-21: 4 of 4 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (3 rounds)"
   },
   {
    "contest": "2025-dem-council-25",
@@ -888,7 +888,7 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "2025-dem-council-28: 5 of 5 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-28: 5 of 5 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (4 rounds)"
   },
   {
    "contest": "2025-dem-council-30",
@@ -896,7 +896,7 @@
    "matched": 3,
    "rounds": 3,
    "winners_same": true,
-   "line": "2025-dem-council-30: 3 of 3 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-30: 3 of 3 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2025-dem-council-33",
@@ -944,7 +944,7 @@
    "matched": 8,
    "rounds": 8,
    "winners_same": true,
-   "line": "2025-dem-council-41: 8 of 8 official rounds match to the vote; eliminations the same; elected the same"
+   "line": "2025-dem-council-41: 8 of 8 official rounds match to the vote; eliminations the same; elected the same; exhausted votes the official ones (7 rounds)"
   },
   {
    "contest": "2025-dem-council-46",

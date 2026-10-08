@@ -27,6 +27,8 @@ publish (nor did the Internet Archive keep any); both were decided in round 1.
   election district ("ED Level") just for the contests it doesn't count by ranked choice
   (district attorney, district leaders, judges), none for mayor, council or the other ranked
   ones, in 2021, 2023 or 2025.
+- From the Board's round 2 on (this count's first), each round's inactive ballots, less round
+  2's, are compared with this count's exhausted votes.
 - Names are compared by their letters, initials left out ("Selvena N. Brooks-Powers" in the
   record, "Selvena Brooks-Powers" on the page).
 

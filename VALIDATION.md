@@ -56,7 +56,7 @@ lists every contest whose result would change.
 | Maine (2018–2026) | 16 | `irv` | every round in 12; the eliminations and the winner in all 16 |
 | Ireland, Dáil (2002) | 3 |  | first preferences and the TDs returned in all 3 |
 
-From the checks last run on 2026-10-07 (`tools/reference/refresh_results.py`).
+From the checks last run on 2026-10-08 (`tools/reference/refresh_results.py`).
 <!-- End of the generated table. -->
 
 Where a round doesn't match, it's because the ballot record isn't quite the set of ballots the
@@ -552,8 +552,9 @@ Frank Morano 58.9%), so there are no later rounds to check.
   Board's first round in three, and in District 9 one short with votes moved both ways (6 under to
   5 over a candidate). The eliminations and the winners still match. Names are compared without
   initials (the record's "Selvena N. Brooks-Powers" is the page's "Selvena
-  Brooks-Powers"). Three are fixtures (`NycIrvFixtureTest`): both mayoral primaries and 2023's
-  District 9.
+  Brooks-Powers"). From the Board's round 2 on, each round's inactive ballots, less round 2's,
+  are this count's exhausted votes too, in all 55 contests past round 1 whose rounds match. Three
+  are fixtures (`NycIrvFixtureTest`): both mayoral primaries and 2023's District 9.
 - **FairVote's copies**: until October 2026 the ballots came from FairVote's single-winner
   collection, which has 123 of these primaries. Its copies give the four 2021 contests the same
   figures, but two others differed from the Board's records: 2023's District 13 Republican council
