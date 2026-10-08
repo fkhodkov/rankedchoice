@@ -130,12 +130,13 @@ public final class MeekCounter {
             for (int i = 0; i < candidates.size(); i++) {
                 indexOf.put(candidates.get(i), i);
             }
-            BigInteger ballotCount = BigInteger.ZERO;
+            // Checked before any count is taken as a long: within the limit, every count fits.
+            BigInteger ballotCount = ballots.stream().map(Ballot::count).reduce(BigInteger.ZERO, BigInteger::add);
+            fixed.requireRoomFor(ballotCount);
             Map<RankingKey, Integer> seen = new LinkedHashMap<>();
             List<int[][]> distinct = new ArrayList<>();
             List<Long> counts = new ArrayList<>();
             for (Ballot ballot : ballots) {
-                ballotCount = ballotCount.add(ballot.count());
                 int[][] ranking = indexed(ballot.ranking());
                 long multiplier = ballot.count().longValueExact();
                 Integer at = seen.putIfAbsent(new RankingKey(ranking), distinct.size());
@@ -146,7 +147,6 @@ public final class MeekCounter {
                     counts.set(at, Math.addExact(counts.get(at), multiplier));
                 }
             }
-            fixed.requireRoomFor(ballotCount);
             this.totalVotes = fixed.of(ballotCount);
             this.omega = fixed.tenToTheMinus(fixed.places() * 2 / 3);
             this.rankings = distinct.toArray(int[][][]::new);

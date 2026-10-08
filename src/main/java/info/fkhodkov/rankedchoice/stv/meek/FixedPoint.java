@@ -48,12 +48,15 @@ final class FixedPoint {
         BigInteger limit = BigInteger.valueOf(Long.MAX_VALUE / 2 / scale);
         if (totalVotes.compareTo(limit) > 0) {
             int maxPlaces = places;
-            while (maxPlaces > 1 && totalVotes.compareTo(
+            while (maxPlaces > 0 && totalVotes.compareTo(
                     BigInteger.valueOf(Long.MAX_VALUE / 2).divide(BigInteger.TEN.pow(maxPlaces))) > 0) {
                 maxPlaces--;
             }
+            String advice = maxPlaces > 0 ? "use a precision of " + maxPlaces + " or fewer"
+                    : "no precision leaves room for them (the least, 1, allows at most "
+                            + Long.MAX_VALUE / 2 / 10 + ")";
             throw new IllegalArgumentException(totalVotes + " votes is too many to count at " + places
-                    + " decimal places (at most " + limit + "); use a precision of " + maxPlaces + " or fewer");
+                    + " decimal places (at most " + limit + "); " + advice);
         }
     }
 

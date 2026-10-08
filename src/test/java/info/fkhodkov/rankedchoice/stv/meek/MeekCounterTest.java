@@ -1,6 +1,7 @@
 package info.fkhodkov.rankedchoice.stv.meek;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -200,6 +201,30 @@ class MeekCounterTest {
         assertThat(meek.rounds().get(2).exhaustedVotes()).isEqualTo(Fraction.of(14_166_666_670L, 1_000_000_000));
         assertThat(warren.rounds().get(2).exhaustedVotes()).isEqualTo(Fraction.of(19_874_175_510L, 1_000_000_000));
         assertThat(warren.quota()).isEqualTo(Fraction.of(20_031_456_123L, 1_000_000_000));
+    }
+
+    /**
+     * A count past the fixed-point limit is refused with the limit, even where one ballot's count,
+     * or the sum of two, is past a {@code long}.
+     */
+    @Test
+    void refusesTooManyVotesBeforeTakingAnyCountAsALong() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        List<Candidate> candidates = List.of(a, b);
+        BigInteger pastLong = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
+        BigInteger half = BigInteger.valueOf(Long.MAX_VALUE / 2 + 1);
+        List<List<Ballot>> elections = List.of(
+                List.of(new Ballot(List.of(Set.of(a)), pastLong)),
+                List.of(new Ballot(List.of(Set.of(a)), half), new Ballot(List.of(Set.of(a)), half)));
+        for (KeepRule keepRule : KeepRule.values()) {
+            for (List<Ballot> ballots : elections) {
+                assertThatThrownBy(() -> MeekCounter.count(candidates, ballots, 1, ruleset(candidates, keepRule)))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(pastLong + " votes is too many to count at 9 decimal places")
+                        .hasMessageContaining("no precision leaves room for them");
+            }
+        }
     }
 
     private static MeekRuleset ruleset(List<Candidate> candidates, KeepRule keepRule) {

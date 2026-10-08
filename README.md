@@ -191,7 +191,7 @@ its name, `hare-clark-qpq` is classic STV, unrelated to the QPQ method.
 | `--tiebreak` | Fallback chain, e.g. `previous-round,declared`. Not used by `cpo-stv`, `schulze`, `borda`. |
 | `--tied-rankings` | `reject\|split\|truncate\|skip` — see [above](#tied-rankings-and-short-ballots). |
 | `--minimum-preferences` | Minimum preferences for a ballot to count — see [above](#tied-rankings-and-short-ballots). |
-| `--precision` | Decimal places a `meek`/`warren` count works to; default 9 (droop's default). Changes the count itself, not just the report. An electorate too large for the chosen precision (about 4.6 billion votes at 9 places, 4.6 million at 12) is refused, naming the highest precision that fits. |
+| `--precision` | Decimal places a `meek`/`warren` count works to; default 9 (droop's default). Changes the count itself, not just the report. An electorate too large for the chosen precision (about 4.6 billion votes at 9 places, 4.6 million at 12) is refused, naming the highest precision that fits; past about 4.6 × 10^17 votes (the limit at 1 place), none does. |
 | `--borda-scoring` | `classic\|dowdall` for `--method borda`; default `classic`. |
 
 Every flag overrides the config file or ruleset, field by field. A flag the chosen method has
@@ -288,6 +288,10 @@ A blank cell ends the ranking; `A=B` is a tie; cells may be double-quoted.
   against real counts (no ballot data is published; they're checked against OpenTally instead); Cambridge STV's
   rounds for 2019–2023 (those years' ballot records don't mark overvotes). See
   [VALIDATION.md](VALIDATION.md#not-validated).
+- **Meek and Warren** work in 64-bit fixed point: about 4.6 billion votes at the default 9
+  places, fewer at more (see `--precision`). **Cambridge STV** transfers ballots one by one and
+  takes at most 1,073,741,823. Larger counts are refused with the limit. Every other method
+  counts in exact integers of any size.
 - **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at
   50,000 committees and 20 seats; near that cap it needs about 320 MB of heap.
 - **Schulze STV compares links by margin**, as the paper's worked example does. Schulze's own

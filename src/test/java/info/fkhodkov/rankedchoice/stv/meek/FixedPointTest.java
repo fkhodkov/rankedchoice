@@ -60,4 +60,15 @@ class FixedPointTest {
                 .hasMessageContaining("1000000 votes is too many to count at 15 decimal places (at most 4611)")
                 .hasMessageContaining("use a precision of 12 or fewer");
     }
+
+    @Test
+    void saysWhenNoPrecisionLeavesRoom() {
+        new FixedPoint(1).requireRoomFor(BigInteger.valueOf(Long.MAX_VALUE / 2 / 10));
+
+        assertThatThrownBy(() -> new FixedPoint(9).requireRoomFor(BigInteger.valueOf(9_000_000_000_000_000_000L)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("9000000000000000000 votes is too many to count at 9 decimal places")
+                .hasMessageContaining("no precision leaves room for them (the least, 1, allows at most "
+                        + "461168601842738790)");
+    }
 }

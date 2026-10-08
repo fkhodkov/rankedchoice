@@ -147,19 +147,22 @@ public final class CambridgeCounter {
             for (int c = 0; c < n; c++) {
                 indexOf.put(candidates.get(c), c);
             }
+            // Checked before any count is taken as a long: within the limit, every count fits.
+            BigInteger allBallots = formal.ballots().stream().map(Ballot::count)
+                    .reduce(BigInteger.ZERO, BigInteger::add);
+            if (allBallots.compareTo(BigInteger.valueOf(Integer.MAX_VALUE / 2)) > 0) {
+                throw new IllegalArgumentException(allBallots + " ballots is too many to count one by one (at most "
+                        + Integer.MAX_VALUE / 2 + ")");
+            }
+            long total = allBallots.longValueExact();
             List<int[]> distinct = new ArrayList<>();
             List<Long> copies = new ArrayList<>();
-            long total = 0;
             for (Ballot ballot : formal.ballots()) {
                 // Ballots here never hold a tie (split is refused; the other policies remove ties).
                 // A candidate this count doesn't know about can never receive a vote: dropped.
                 distinct.add(ballot.ranking().stream().map(rank -> indexOf.get(rank.iterator().next()))
                         .filter(java.util.Objects::nonNull).mapToInt(Integer::intValue).toArray());
                 copies.add(ballot.count().longValueExact());
-                total += ballot.count().longValueExact();
-            }
-            if (total > Integer.MAX_VALUE / 2) {
-                throw new IllegalArgumentException(total + " ballots is too many to count one by one");
             }
             if (total < (long) BATCH_CUTOFF * seats) {
                 throw new IllegalArgumentException("Cambridge STV needs at least " + BATCH_CUTOFF

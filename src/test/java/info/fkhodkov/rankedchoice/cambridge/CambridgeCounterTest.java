@@ -86,6 +86,28 @@ class CambridgeCounterTest {
                 .hasMessageContaining("Cambridge STV has no defined rule for splitting");
     }
 
+    /**
+     * Ballots are counted one by one, so a count past the limit is refused with the limit, even
+     * where one ballot's count, or the sum of two, is past a {@code long}.
+     */
+    @Test
+    void refusesTooManyBallotsBeforeTakingAnyCountAsALong() {
+        BigInteger pastLong = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
+        BigInteger half = BigInteger.valueOf(Long.MAX_VALUE / 2 + 1);
+        List<List<Ballot>> elections = List.of(
+                List.of(new Ballot(List.of(Set.of(A)), BigInteger.valueOf(Integer.MAX_VALUE / 2 + 1))),
+                List.of(new Ballot(List.of(Set.of(A)), pastLong)),
+                List.of(new Ballot(List.of(Set.of(A)), half), new Ballot(List.of(Set.of(B)), half)));
+        List<String> totals = List.of(String.valueOf(Integer.MAX_VALUE / 2 + 1), pastLong.toString(),
+                pastLong.toString());
+        for (int i = 0; i < elections.size(); i++) {
+            List<Ballot> ballots = elections.get(i);
+            assertThatThrownBy(() -> CambridgeCounter.count(CANDIDATES, ballots, 2, ruleset()))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(totals.get(i) + " ballots is too many to count one by one (at most 1073741823)");
+        }
+    }
+
     private static CambridgeRuleset ruleset() {
         return new CambridgeRuleset(new DeclaredOrderTieBreak(CANDIDATES));
     }
