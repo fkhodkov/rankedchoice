@@ -204,6 +204,16 @@ class ExhaustedLine(unittest.TestCase):
                                                  ignore=("Write-ins",)),
                          "; exhausted votes the official ones (1 rounds)")
 
+    def test_a_run_of_rounds_the_matching_cant_tell_apart(self):
+        # Two write-ins go one a round here, together officially: the figures match the second round of the run.
+        run = counted(({"Ann": "12", "W1": "1", "W2": "1"}, "0", "0"), ({"Ann": "12", "W2": "1"}, "0", "0"),
+                      ({"Ann": "12"}, "1", "0"))
+        official = [({"Ann": Decimal(12)}, Decimal(0), None), ({"Ann": Decimal(12)}, Decimal(1), None)]
+        self.assertEqual(rcvcheck.exhausted_line(official, run, ignore=("W1", "W2")),
+                         "; exhausted votes DIFFER in official rounds [2]")
+        self.assertEqual(rcvcheck.exhausted_line(official, run, ignore=("W1", "W2"), runs=True),
+                         "; exhausted votes the official ones (2 rounds)")
+
     def test_rounds_not_in_this_count_are_left_out(self):
         other = {"Ann": Decimal(11), "Bob": Decimal(9), "Cy": Decimal(3)}
         self.assertEqual(rcvcheck.exhausted_line([(FIRST, Decimal(0), None), (other, Decimal(0), None)], EXHAUSTING),

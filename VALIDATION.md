@@ -1038,14 +1038,20 @@ hopeful" step didn't check whether the seats were already filled.
   records (https://doi.org/10.7910/DVN/STVUET) has the ballots of all 22 City Council and School
   Committee elections from 2001 to 2023, in the order the City counted them. Against the
   official count sheets the Cambridge Civic Journal keeps of each:
-  - **2001–2017, all 16 elections**: every one of the 187 official counts is a round of this
-    count, every candidate's votes to the vote, at the official quota, with the same winners.
-    The 2013 Council's sheet holds two counts, the original of 15 November and the recount of
-    2–12 December; the record is the original's (its 17,846 ballots, to the recount's 17,851),
-    and all 17 of its counts match, where none of the recount's does. (Until October 2026 the
-    checker read the two as one sheet of 34 counts.) The sheets' "Exhausted" rows aren't
-    compared: a count that changes nothing gives one figure where the others give two, so the
-    row can't be read without its columns' positions, which vary from sheet to sheet.
+  - **2001–2017, all 16 elections**: every one of the 184 official counts is a round of this
+    count, every candidate's votes to the vote, at the official quota, with the same winners,
+    and in every one the sheet's exhausted ballots are this count's exhausted votes. The sheets
+    are read by the PDF's own coordinates: each table's Total row gives every count's change
+    and total, and their centres mark the count's columns, since a count that changes nothing
+    may give a row one figure where the others give two. The 2013 Council's sheet holds two
+    counts, the original of 15 November and the recount of 2–12 December; the record is the
+    original's (its 17,846 ballots, to the recount's 17,851), and all 17 of its counts match,
+    where none of the recount's does. The 2005 and 2007 Council sheets add a later vacancy's
+    recount (other ballots), left out. (Until October 2026 the checker read the sheets as runs
+    of figures, and counted 204: the 2013 recount's 17, a vacancy recount each in 2005 and
+    2007, and a misread write-in row in 2015's School Committee.) This count defeats write-ins
+    one a round where the City may take them together, so a count's exhausted figure may be
+    any of those rounds', in order.
     Which ballots a surplus moves depends on their order, so this checks the Cincinnati
     transfer, starting at the n-th ballot, against the real counts: the same ballots in reverse
     order fail from the first surplus on. The City passes over an overvoted ranking; ending the

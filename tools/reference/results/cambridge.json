@@ -8,7 +8,7 @@
    "matched": 14,
    "rounds": 14,
    "winners_same": true,
-   "line": "council-2001: quota 1713 (official 1713); 14 of 14 official counts match a round of this count; the same 9 elected"
+   "line": "council-2001: quota 1713 (official 1713); 14 of 14 official counts match a round of this count; exhausted votes the official ones (14 rounds); the same 9 elected"
   },
   {
    "contest": "council-2003",
@@ -16,7 +16,7 @@
    "matched": 13,
    "rounds": 13,
    "winners_same": true,
-   "line": "council-2003: quota 2009 (official 2009); 13 of 13 official counts match a round of this count; the same 9 elected"
+   "line": "council-2003: quota 2009 (official 2009); 13 of 13 official counts match a round of this count; exhausted votes the official ones (13 rounds); the same 9 elected"
   },
   {
    "contest": "school-2003",
@@ -24,15 +24,15 @@
    "matched": 5,
    "rounds": 5,
    "winners_same": true,
-   "line": "school-2003: quota 2672 (official 2672); 5 of 5 official counts match a round of this count; the same 6 elected"
+   "line": "school-2003: quota 2672 (official 2672); 5 of 5 official counts match a round of this count; exhausted votes the official ones (4 rounds); the same 6 elected"
   },
   {
    "contest": "council-2005",
    "ok": true,
-   "matched": 12,
-   "rounds": 12,
+   "matched": 11,
+   "rounds": 11,
    "winners_same": true,
-   "line": "council-2005: quota 1608 (official 1608); 12 of 12 official counts match a round of this count; the same 9 elected"
+   "line": "council-2005: quota 1608 (official 1608); 11 of 11 official counts match a round of this count; exhausted votes the official ones (11 rounds); the same 9 elected"
   },
   {
    "contest": "school-2005",
@@ -40,15 +40,15 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "school-2005: quota 2211 (official 2211); 7 of 7 official counts match a round of this count; the same 6 elected"
+   "line": "school-2005: quota 2211 (official 2211); 7 of 7 official counts match a round of this count; exhausted votes the official ones (7 rounds); the same 6 elected"
   },
   {
    "contest": "council-2007",
    "ok": true,
-   "matched": 11,
-   "rounds": 11,
+   "matched": 10,
+   "rounds": 10,
    "winners_same": true,
-   "line": "council-2007: quota 1364 (official 1364); 11 of 11 official counts match a round of this count; the same 9 elected"
+   "line": "council-2007: quota 1364 (official 1364); 10 of 10 official counts match a round of this count; exhausted votes the official ones (10 rounds); the same 9 elected"
   },
   {
    "contest": "school-2007",
@@ -56,7 +56,7 @@
    "matched": 7,
    "rounds": 7,
    "winners_same": true,
-   "line": "school-2007: quota 1897 (official 1897); 7 of 7 official counts match a round of this count; the same 6 elected"
+   "line": "school-2007: quota 1897 (official 1897); 7 of 7 official counts match a round of this count; exhausted votes the official ones (7 rounds); the same 6 elected"
   },
   {
    "contest": "council-2009",
@@ -64,7 +64,7 @@
    "matched": 17,
    "rounds": 17,
    "winners_same": true,
-   "line": "council-2009: quota 1596 (official 1596); 17 of 17 official counts match a round of this count; the same 9 elected"
+   "line": "council-2009: quota 1596 (official 1596); 17 of 17 official counts match a round of this count; exhausted votes the official ones (17 rounds); the same 9 elected"
   },
   {
    "contest": "council-2011",
@@ -72,7 +72,7 @@
    "matched": 14,
    "rounds": 14,
    "winners_same": true,
-   "line": "council-2011: quota 1585 (official 1585); 14 of 14 official counts match a round of this count; the same 9 elected"
+   "line": "council-2011: quota 1585 (official 1585); 14 of 14 official counts match a round of this count; exhausted votes the official ones (14 rounds); the same 9 elected"
   },
   {
    "contest": "school-2011",
@@ -80,7 +80,7 @@
    "matched": 8,
    "rounds": 8,
    "winners_same": true,
-   "line": "school-2011: quota 2185 (official 2185); 8 of 8 official counts match a round of this count; the same 6 elected"
+   "line": "school-2011: quota 2185 (official 2185); 8 of 8 official counts match a round of this count; exhausted votes the official ones (8 rounds); the same 6 elected"
   },
   {
    "contest": "council-2013",
@@ -88,7 +88,7 @@
    "matched": 17,
    "rounds": 17,
    "winners_same": true,
-   "line": "council-2013: quota 1775 (official 1775); 17 of 17 official counts match a round of this count; the same 9 elected"
+   "line": "council-2013: quota 1775 (official 1775); 17 of 17 official counts match a round of this count; exhausted votes the official ones (17 rounds); the same 9 elected"
   },
   {
    "contest": "school-2013",
@@ -96,7 +96,7 @@
    "matched": 8,
    "rounds": 8,
    "winners_same": true,
-   "line": "school-2013: quota 2371 (official 2371); 8 of 8 official counts match a round of this count; the same 6 elected"
+   "line": "school-2013: quota 2371 (official 2371); 8 of 8 official counts match a round of this count; exhausted votes the official ones (8 rounds); the same 6 elected"
   },
   {
    "contest": "council-2015",
@@ -104,15 +104,15 @@
    "matched": 15,
    "rounds": 15,
    "winners_same": true,
-   "line": "council-2015: quota 1786 (official 1786); 15 of 15 official counts match a round of this count; the same 9 elected"
+   "line": "council-2015: quota 1786 (official 1786); 15 of 15 official counts match a round of this count; exhausted votes the official ones (15 rounds); the same 9 elected"
   },
   {
    "contest": "school-2015",
    "ok": true,
-   "matched": 11,
-   "rounds": 11,
+   "matched": 10,
+   "rounds": 10,
    "winners_same": true,
-   "line": "school-2015: quota 2400 (official 2400); 11 of 11 official counts match a round of this count; the same 6 elected"
+   "line": "school-2015: quota 2400 (official 2400); 10 of 10 official counts match a round of this count; exhausted votes the official ones (10 rounds); the same 6 elected"
   },
   {
    "contest": "council-2017",
@@ -120,7 +120,7 @@
    "matched": 19,
    "rounds": 19,
    "winners_same": true,
-   "line": "council-2017: quota 2253 (official 2253); 19 of 19 official counts match a round of this count; the same 9 elected"
+   "line": "council-2017: quota 2253 (official 2253); 19 of 19 official counts match a round of this count; exhausted votes the official ones (19 rounds); the same 9 elected"
   },
   {
    "contest": "school-2017",
@@ -128,7 +128,7 @@
    "matched": 9,
    "rounds": 9,
    "winners_same": true,
-   "line": "school-2017: quota 2959 (official 2959); 9 of 9 official counts match a round of this count; the same 6 elected"
+   "line": "school-2017: quota 2959 (official 2959); 9 of 9 official counts match a round of this count; exhausted votes the official ones (9 rounds); the same 6 elected"
   },
   {
    "contest": "council-2019",

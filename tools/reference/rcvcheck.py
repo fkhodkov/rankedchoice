@@ -246,13 +246,15 @@ def unmatched_rounds(official, ours, figure=dict.get):
     return unmatched
 
 
-def exhausted_line(official, ours, figure=dict.get, past_first=False, ignore=()):
+def exhausted_line(official, ours, figure=dict.get, past_first=False, ignore=(), runs=False):
     """Whether, in each official round that is a round of this count (every candidate on the official figure,
     figure(figures, name) finding it), the votes no longer with a candidate are this count's: OFFICIAL is
     [(figures, exhausted, remainders or None)] by round, compared with this count's exhausted votes and rounding loss.
     With past_first, the first round's exhausted figure is taken off every round's (votes a count reports exhausted
     from the start, such as ballots whose first ranking is an overvote, that never come into this one). Candidates
-    named in IGNORE aren't matched (a record's lumped write-ins, where the count lists each)."""
+    named in IGNORE aren't matched (a record's lumped write-ins, where the count lists each). With runs, where
+    several rounds in a row agree with an official round (the candidates IGNORE leaves out going one a round, the
+    official count taking them together), its figures need only be one of those rounds', in order."""
     start, compared, off, remainders = 0, 0, [], False
     base = official[0][1] if past_first and official else 0
     for k, (figures, exhausted, remainder) in enumerate(official):
@@ -261,6 +263,14 @@ def exhausted_line(official, ours, figure=dict.get, past_first=False, ignore=())
             if name not in ignore)), None)
         if hit is None:
             continue
+        if runs:
+            run = [hit]
+            while run[-1] + 1 < len(ours["rounds"]) and all(
+                    figure(figures, name) == Decimal(votes)
+                    for name, votes in ours["rounds"][run[-1] + 1]["tallies"].items() if name not in ignore):
+                run.append(run[-1] + 1)
+            hit = next((i for i in run if exhausted - base == Decimal(ours["rounds"][i]["exhaustedVotes"])
+                        and (remainder is None or remainder == Decimal(ours["rounds"][i]["roundingLoss"]))), hit)
         start, compared, mine = hit, compared + 1, ours["rounds"][hit]
         remainders |= remainder is not None
         if (exhausted - base != Decimal(mine["exhaustedVotes"])
