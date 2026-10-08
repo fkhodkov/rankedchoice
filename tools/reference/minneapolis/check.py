@@ -53,7 +53,8 @@ OLDER = {
     "bet-2013": (2, 11620388, ["CAROL J. BECKER", "DAVID B WHEELER"]),
 }
 CONTESTS = {
-    "park-2017": (3, "2017-Park-Board-At-Large-Ballot-Records.csv", "2017-Park-Board-At-Large-Race-Results-Summary.pdf"),
+    "park-2017": (3, "2017-Park-Board-At-Large-Ballot-Records.csv",
+                  "2017-Park-Board-At-Large-Race-Results-Summary.pdf"),
     "park-2021": (3, "2021-Park-AL-Cast-Vote-Record.csv", "2021-Park-Board-At-Large-Round-Results-Summary.pdf"),
     "park-2025": (3, "2025-Park-At-Large-CVR.csv", "2025-Park-At-Large-RCV-Tabulation-Summary.pdf"),
     "bet-2017": (2, "2017-Board-of-Estimate-and-Taxation-Ballot-Records.csv",
@@ -71,7 +72,8 @@ SINGLE = {
     "ward-5-2017": (1, "2017-Council-Ward-5-CVR.csv", "2017-Ward-5-RCV-Tabulation-Summary.pdf"),
     "ward-6-2017": (1, "2017-Ward-6-Ballot-Records.csv", "2017-Ward-6-Race-Results-Summary.pdf"),
     "ward-9-2017": (1, "2017-Ward-9-Ballot-Records-.csv", "2017-Ward-9-Race-Results-Summary.pdf"),
-    "park-district-1-2017": (1, "2017-Park-Board-District-1-Ballot-Records.csv", "2017-Park-Board-District-1-Results-Summary.pdf"),
+    "park-district-1-2017": (1, "2017-Park-Board-District-1-Ballot-Records.csv",
+                             "2017-Park-Board-District-1-Results-Summary.pdf"),
     "park-district-3-2017": (1, "2017-Park-District-3-CVR.csv", "2017-Park-District-3-RCV-Tabulation-Summary.pdf"),
     "park-district-6-2017": (1, "2017-Park-District-6-CVR.csv", "2017-Park-District-6-RCV-Tabulation-Summary.pdf"),
     "ward-1-2021": (1, "2021-Ward-1-Cast-Vote-Record.csv", "2021-Council-Ward-1-Round-Results-Summary.pdf"),
@@ -80,11 +82,16 @@ SINGLE = {
     "ward-3-2021": (1, "2021-Ward-3-Cast-Vote-Record.csv", "2021-Council-Ward-3-Round-Results-Summary.pdf"),
     "ward-5-2021": (1, "2021-Ward-5-Cast-Vote-Record.csv", "2021-Council-Ward-5-Round-Results-Summary.pdf"),
     "mayor-2021": (1, "2021-Mayor-Cast-Vote-Record.csv", "2021-Mayor-Round-Results-Summary.pdf"),
-    "park-district-2-2021": (1, "2021-Park-2-Cast-Vote-Record.csv", "2021-Park-Board-District-2-Round-Results-Summary.pdf"),
-    "park-district-3-2021": (1, "2021-Park-3-Cast-Vote-Record.csv", "2021-Park-Board-District-3-Round-Results-Summary.pdf"),
-    "park-district-4-2021": (1, "2021-Park-4-Cast-Vote-Record.csv", "2021-Park-Board-District-4-Round-Results-Summary.pdf"),
-    "park-district-5-2021": (1, "2021-Park-5-Cast-Vote-Record.csv", "2021-Park-Board-District-5-Round-Results-Summary.pdf"),
-    "park-district-6-2021": (1, "2021-Park-6-Cast-Vote-Record.csv", "2021-Park-Board-District-6-Round-Results-Summary.pdf"),
+    "park-district-2-2021": (1, "2021-Park-2-Cast-Vote-Record.csv",
+                             "2021-Park-Board-District-2-Round-Results-Summary.pdf"),
+    "park-district-3-2021": (1, "2021-Park-3-Cast-Vote-Record.csv",
+                             "2021-Park-Board-District-3-Round-Results-Summary.pdf"),
+    "park-district-4-2021": (1, "2021-Park-4-Cast-Vote-Record.csv",
+                             "2021-Park-Board-District-4-Round-Results-Summary.pdf"),
+    "park-district-5-2021": (1, "2021-Park-5-Cast-Vote-Record.csv",
+                             "2021-Park-Board-District-5-Round-Results-Summary.pdf"),
+    "park-district-6-2021": (1, "2021-Park-6-Cast-Vote-Record.csv",
+                             "2021-Park-Board-District-6-Round-Results-Summary.pdf"),
     "ward-6-2023": (1, "2023-Ward-6-Cast-Vote-Record.csv", "2023-Ward-6-Summary-Sheet.pdf"),
     "ward-7-2023": (1, "2023-Ward-7-Cast-Vote-Record.csv", "2023-Ward-7-Summary-Sheet.pdf"),
     "ward-8-2023": (1, "2023-Ward-8-Cast-Vote-Record.csv", "2023-Ward-8-Summary-Sheet.pdf"),
@@ -159,7 +166,8 @@ def check_older(data, contest, jar):
     if isinstance(official, list):
         line = f"{contest}: winners only"
         ok = True
-        for label, rules in (("the 2006 rules", ["--config", CONFIG_2009]), ("minneapolis", ["--ruleset", "minneapolis"])):
+        for label, rules in (("the 2006 rules", ["--config", CONFIG_2009]),
+                             ("minneapolis", ["--ruleset", "minneapolis"])):
             elected = sorted(count(blt, jar, rules)["electedInOrder"])
             same = elected == sorted(official)
             ok = ok and same

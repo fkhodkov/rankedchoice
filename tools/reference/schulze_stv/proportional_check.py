@@ -143,7 +143,8 @@ def main():
     args = parser.parse_args()
     elections = args.elections or sorted(
         name[:-len("_list.dat")] for name in os.listdir(args.schulze3)
-        if name.endswith("_list.dat") and os.path.exists(os.path.join(args.schulze3, name[:-len("_list.dat")] + ".dat")))
+        if name.endswith("_list.dat")
+        and os.path.exists(os.path.join(args.schulze3, name[:-len("_list.dat")] + ".dat")))
     failed = 0
     for election in elections:
         ok, line = check(args.schulze3, election, args.jar, args.timeout)

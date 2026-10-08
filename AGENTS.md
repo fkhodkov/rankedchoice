@@ -34,7 +34,7 @@ python3 -m unittest discover -s tools/reference/tests   # the Python tests alone
 - Checkstyle runs in `validate` and fails the build on any violation: 120 columns, no tabs, no star
   or unused imports, imports grouped static, `java`, third-party, then this project's. Its messages
   may come in the system's locale. `.editorconfig` sets the same for editors; Python keeps to 120
-  columns too.
+  columns too, which `tools/reference/tests/test_line_length.py` checks under `tools/`.
 - The Python tests check `tools/reference/cvr_to_blt.py`, `rcvcheck.py`, the results page and
   `refresh_results.py`, and that VALIDATION.md's generated table matches the committed results.
 - The reference checkers need `target/rankedchoice-0.1.0-SNAPSHOT.jar` (`mvn -o -q package

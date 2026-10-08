@@ -101,11 +101,14 @@ for election, reports in (
             "oakland-2010-council-6": (11593453, "oakland/city_councilmember_district_6/"
                                                  "november-2-2010-rcv-oakland-city-council-district-6-pass-report.pdf"),
             "oakland-2010-school-2": (11593487, "oakland/school_director_district_2/"
-                                                "november-2-2010-rcv-oakland-school-director-district-2-pass-report.pdf"),
+                                                "november-2-2010-rcv-oakland-school-director-"
+                                                "district-2-pass-report.pdf"),
             "oakland-2010-school-4": (11593471, "oakland/school_director_district_4/"
-                                                "november-2-2010-rcv-oakland-school-director-district-4-pass-report.pdf"),
+                                                "november-2-2010-rcv-oakland-school-director-"
+                                                "district-4-pass-report.pdf"),
             "oakland-2010-school-6": (11593447, "oakland/school_director_district_6/"
-                                                "november-2-2010-rcv-oakland-school-director-district-6-pass-report.pdf"),
+                                                "november-2-2010-rcv-oakland-school-director-"
+                                                "district-6-pass-report.pdf"),
             "san-leandro-2010-mayor": (11593619, "san_leandro/mayor/november-2-2010-pass-report-san-leandro-mayor.pdf"),
             "san-leandro-2010-council-1": (11593634, "san_leandro/city_councilmember_district_1/"
                                                      "nov-2-2010-pass-report-san-leandro-council-mem-dist-1.pdf"),
@@ -288,7 +291,8 @@ def check(data, contest, jar):
     same_order = ours_eliminated[:len(eliminated)] == eliminated
     same = [key(name) for name in ours["electedInOrder"]] == elected
     line = (f"{contest}: {exact} of {len(rounds)} official rounds match to the vote"
-            + (f" (round 1 against the record's first rankings, {int(suspended)} ballots suspended)" if suspended else "")
+            + (f" (round 1 against the record's first rankings, {int(suspended)} ballots suspended)"
+               if suspended else "")
             + (f"; the record differs by up to {int(worst)} votes a candidate" if worst else "")
             + f"; eliminations in {'the same' if same_order else 'A DIFFERENT'} order"
             + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder'])}"

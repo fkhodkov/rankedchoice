@@ -142,26 +142,30 @@ footer.notes { border-top: 1px solid var(--rule); padding-top: 18px; display: fl
   <div>
     <div class="label">rankedchoice · validation against official counts</div>
     <h1>Real elections, recounted from their ballots</h1>
-    <p class="lede">The calculator is run on the published ballots of real elections, under each jurisdiction's own rules, and every official round is compared with its count: candidate by candidate, to the precision the official count gives.</p>
+    <p class="lede">The calculator is run on the published ballots of real elections, under each jurisdiction's own
+      rules, and every official round is compared with its count: candidate by candidate, to the precision the
+      official count gives.</p>
   </div>
   <div>
     <div class="tally">
       <div><strong>1,716</strong><span>contests in 15 jurisdictions</span></div>
       <div><strong>1,715</strong><span>elect the official winners</span></div>
     </div>
-    <p class="stamp">1 contest elects differently: see Known differences. Checks run up to 2026-10-08, at commit f4fa778.</p>
+    <p class="stamp">1 contest elects differently: see Known differences. Checks run up to 2026-10-08, at commit f93d955.</p>
   </div>
 </header>
 
 <section aria-labelledby="register-h">
   <header>
     <h2 id="register-h">Jurisdictions</h2>
-    <p>"Every round" means every candidate's votes in every official round, at the official precision. Where a contest falls short, the reason is under <a href="#differences">Known differences</a>.</p>
+    <p>"Every round" means every candidate's votes in every official round, at the official precision. Where a contest
+      falls short, the reason is under <a href="#differences">Known differences</a>.</p>
   </header>
   <div class="register">
     <table>
       <thead>
-        <tr><th>Jurisdiction</th><th class="num">Contests</th><th>Ruleset</th><th>Checked against</th><th>Result</th></tr>
+        <tr><th>Jurisdiction</th><th class="num">Contests</th><th>Ruleset</th><th>Checked against</th>
+          <th>Result</th></tr>
       </thead>
       <tbody>
 <tr class="group"><td colspan="5">Australia</td></tr>
@@ -193,7 +197,8 @@ footer.notes { border-top: 1px solid var(--rule); padding-top: 18px; display: fl
 <section id="differences" aria-labelledby="differences-h">
   <header>
     <h2 id="differences-h">Known differences</h2>
-    <p>Every figure that doesn't match, by cause. In each the same candidates are eliminated, in the same order, and the same candidates win, unless it says otherwise.</p>
+    <p>Every figure that doesn't match, by cause. In each the same candidates are eliminated, in the same order, and
+      the same candidates win, unless it says otherwise.</p>
   </header>
   <div class="causes">
 <div class="cause"><h3>The ballot record isn&#x27;t quite the ballots counted</h3><p class="why">A few votes a candidate apart from the first round on, some over and some under, under every reading of the ballots tried.</p><ul><li>Alameda County: 4 Oakland contests of 2024–2025, 1–7 votes a candidate short. The record lacks ballots the County counted: its reports have 8 more for the 2024 citywide races, 2 more in District 7 and 13 more for the 2025 mayor, every candidate at or over the record, and their transfers are the record&#x27;s or a ballot over.</li><li>Alaska: 2024&#x27;s House District 28, 3 votes a candidate in both rounds. The record holds ballots the Division didn&#x27;t count: 8,923 (those ranking only write-ins aside) to the report&#x27;s 8,908, 7 more first choices (3, 2 and 2 a candidate) and 8 more blanks, and its transfers are 2 ballots over, none moved.</li><li>New York City: 4 primaries of 2021, 2–19 votes a candidate. The Board&#x27;s own published ballots give these figures, so they aren&#x27;t quite the ballots it counted: their first choices are 2, 2 and 14 short of the Board&#x27;s first round in three, and in District 9 one short with votes moved both ways (up to 6 a candidate).</li><li>Maine: the 2018 Democratic primary for governor, Janet Mills 3 votes higher in the last round: 3 ballots the State&#x27;s count exhausts by undervotes go to her here. Every other round of the nine 2018–2020 contests matches in every candidate and every cause of exhaustion, so it&#x27;s these 3 ballots read differently, in the record or by a rule touching nothing else. The State&#x27;s own published cast vote record is FairVote&#x27;s copy ballot for ballot.</li><li>Maine: the 2026 Democratic primaries for Congress in the 2nd District and for governor, and the Republican primary for governor, 3–17 votes a candidate. Their published exports aren&#x27;t quite the ballots the State counted: their first rankings differ from the State&#x27;s own tally of first choices in 9, 13 and 17 places (14, 38 and 27 ballots), where the two primaries that match every round agree with it in every place.</li><li>Minneapolis: 2009 Board of Estimate, Becker 16,727 here against 16,728; every later round matches. One ballot with no later choice is hers in the City&#x27;s count and a write-in in the record (226 write-ins to 225; the exhausted votes differ by its share), perhaps a write-in of her name.</li></ul></div>
@@ -206,7 +211,8 @@ footer.notes { border-top: 1px solid var(--rule); padding-top: 18px; display: fl
 <section class="rules" aria-labelledby="rules-h">
   <header>
     <h2 id="rules-h">How US ranked-choice counts read ballots</h2>
-    <p>The rules that differ between the US counts, each found by matching the official rounds. One converter reads them all, one option per rule; Portland's ballot record has a different shape and its own converter.</p>
+    <p>The rules that differ between the US counts, each found by matching the official rounds. One converter reads
+      them all, one option per rule; Portland's ballot record has a different shape and its own converter.</p>
   </header>
   <div class="register">
     <table>
@@ -216,8 +222,11 @@ footer.notes { border-top: 1px solid var(--rule); padding-top: 18px; display: fl
 </section>
 
 <footer class="notes">
-  <p>Ballots come from the jurisdictions themselves, from FairVote's collections of cast vote records (Harvard Dataverse), and for Scotland from MGGG's scot-elex. Official results come from each election authority's own reports, or the Internet Archive's copies where the authority no longer publishes them.</p>
-  <p>The full evidence for every figure, and the scripts that reproduce each check, are in the project's VALIDATION.md and tools/reference.</p>
+  <p>Ballots come from the jurisdictions themselves, from FairVote's collections of cast vote records (Harvard
+    Dataverse), and for Scotland from MGGG's scot-elex. Official results come from each election authority's own
+    reports, or the Internet Archive's copies where the authority no longer publishes them.</p>
+  <p>The full evidence for every figure, and the scripts that reproduce each check, are in the project's VALIDATION.md
+    and tools/reference.</p>
 </footer>
 
 </div>

@@ -130,7 +130,8 @@ def main():
     args = parser.parse_args()
     os.makedirs(args.work, exist_ok=True)
     for ruleset in CORE:
-        text = open(os.path.join(HERE, "..", "..", "..", "src", "main", "resources", "rulesets", ruleset + ".yaml")).read()
+        text = open(os.path.join(HERE, "..", "..", "..", "src", "main", "resources", "rulesets",
+                                 ruleset + ".yaml")).read()
         open(os.path.join(args.work, ruleset + "-core.yaml"), "w").write(
             text.replace("electAsTheyStand: true", "electAsTheyStand: false"))
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count()) as pool:

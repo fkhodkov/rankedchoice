@@ -139,7 +139,8 @@ def check(data, contest, jar):
     line = (f"{contest}: {exact} of {len(rounds)} official rounds match to the vote"
             + (f" (largest differences by round: {gaps})" if any(gaps) else "")
             + f"; eliminations in {'the same' if same_order else 'A DIFFERENT'} order"
-            + f"; elected {'the same' if same else 'DIFFERENTLY: ' + str(ours['electedInOrder']) + ' vs ' + str(elected)}"
+            + ("; elected the same" if same
+               else f"; elected DIFFERENTLY: {ours['electedInOrder']} vs {elected}")
             + transfer_line(moves, ours, name_key))
     return same_order and same, line
 

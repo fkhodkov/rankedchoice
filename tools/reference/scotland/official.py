@@ -48,7 +48,8 @@ def wikipedia_pages(cache):
     os.makedirs(cache, exist_ok=True)
     for year in ("2007", "2012", "2017", "2022"):
         _, text = page(f"{year} Scottish local elections")
-        for link in sorted(set(re.findall(r"\[\[(" + year + r" [^\]|#]*?(?:[Cc]ouncil|Siar)[^\]|#]*? election)", text))):
+        pattern = r"\[\[(" + year + r" [^\]|#]*?(?:[Cc]ouncil|Siar)[^\]|#]*? election)"
+        for link in sorted(set(re.findall(pattern, text))):
             path = os.path.join(cache, f"{year}__{link.replace('/', '_')}.wiki")
             if not os.path.exists(path):
                 result = page(link)

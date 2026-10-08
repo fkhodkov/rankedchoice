@@ -35,7 +35,8 @@ class Record(unittest.TestCase):
         self.assertEqual(rcvcheck.record("x", True, "x: 3 of 4 official rounds match to the vote; eliminations the "
                                                     "same; elected the same"),
                          {"contest": "x", "ok": True, "matched": 3, "rounds": 4, "winners_same": True,
-                          "line": "x: 3 of 4 official rounds match to the vote; eliminations the same; elected the same"})
+                          "line": "x: 3 of 4 official rounds match to the vote; eliminations the same; "
+                                  "elected the same"})
         multi = rcvcheck.record("1", True, "District 1: quota 1 (official 1); 15 of 16 official rounds match a round "
                                            "of this count; elected the same")
         self.assertEqual((multi["matched"], multi["rounds"]), (15, 16))

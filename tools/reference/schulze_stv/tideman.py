@@ -4,10 +4,11 @@ optionally write it as BLT.
 usage: tideman.py ELECTION.dat OUT.blt [--names]
 
 The header gives M (seats), C (candidates), N (voters) and F (format), then BEGIN, one line per
-voter, END. Format 1: a voter id, then each candidate's rank (99 = unranked). Format 2: a
-voter id, then candidates in order of preference, as letters (or numbers, from 1, past 26). In format 2, a candidate named a
-second time ties with them everyone ranked since their first mention; that's how Schulze's own
-program (singl01g.cpp) reads it, and what reproduces his published figures.
+voter, END. Format 1: a voter id, then each candidate's rank (99 = unranked). Format 2: a voter
+id, then candidates in order of preference, as letters (or numbers, from 1, past 26). In format
+2, a candidate named a second time ties with them everyone ranked since their first mention;
+that's how Schulze's own program (singl01g.cpp) reads it, and what reproduces his published
+figures.
 
 Candidates are named A, B, ... when there are at most 26, else 1, 2, ..., as Schulze's program
 prints them; with --names, by the "# 1 Name" comment lines the Pirate Party files have. The
