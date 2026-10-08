@@ -543,7 +543,7 @@ public final class Main implements Callable<Integer> {
         if (output == null) {
             return "text";
         }
-        String name = output.getFileName().toString().toLowerCase(Locale.ROOT);
+        String name = fileName(output);
         if (name.endsWith(".csv")) {
             return "csv";
         }
@@ -601,7 +601,7 @@ public final class Main implements Callable<Integer> {
     }
 
     private static String inferFormat(Path path) {
-        String name = path.getFileName().toString().toLowerCase(Locale.ROOT);
+        String name = fileName(path);
         if (name.endsWith(".blt")) {
             return "blt";
         }
@@ -609,6 +609,12 @@ public final class Main implements Callable<Integer> {
             return "csv";
         }
         throw new IllegalArgumentException(
-                "Cannot infer format from file name '" + path.getFileName() + "'; pass --format explicitly");
+                "Cannot infer format from file name '" + path + "'; pass --format explicitly");
+    }
+
+    /** A path's file name, lower-cased, or "" for one that has none (a root, such as "/"). */
+    private static String fileName(Path path) {
+        Path name = path.getFileName();
+        return name == null ? "" : name.toString().toLowerCase(Locale.ROOT);
     }
 }

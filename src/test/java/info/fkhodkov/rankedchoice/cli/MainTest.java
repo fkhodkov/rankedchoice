@@ -118,6 +118,16 @@ class MainTest {
         assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("Cannot infer format");
     }
 
+    @Test
+    void aPathWithNoFileNameFailsWithTheSameMessage() {
+        Path root = tempDir.getRoot();
+
+        int exitCode = new CommandLine(new Main()).execute("--input", root.toString());
+
+        assertThat(exitCode).isOne();
+        assertThat(capturedErr.toString(StandardCharsets.UTF_8)).contains("Cannot infer format");
+    }
+
     /**
      * hare-clark-qpq elects Z, not X: X's 5 ballots rank only X, and Tasmanian law requires at
      * least 2 preferences with 3 candidates (Electoral Act 2004 s.102(2), via the preset's
