@@ -113,15 +113,24 @@ def stale(target, *sources_of_it):
 
 def sheets(path):
     """A spreadsheet's sheets, as CSV files next to it, "<name>-<sheet>.csv" (converted with LibreOffice's soffice
-    the first time, and again if the spreadsheet is fetched again)."""
+    the first time, and again if the spreadsheet is fetched again). Another spreadsheet whose name is this one's, a
+    hyphen and more ("2019-mayor-20241118.xlsx" beside "2019-mayor.xlsx") has sheets of its own, left out."""
     stem = os.path.splitext(path)[0]
-    converted = glob.glob(glob.escape(stem) + "-*.csv")
-    if not converted or any(stale(sheet, path) for sheet in converted):
+    longer = [os.path.splitext(other)[0] for other in glob.glob(glob.escape(stem) + "-*")
+              if other.lower().endswith((".xls", ".xlsx"))]
+
+    def converted():
+        return sorted(sheet for sheet in glob.glob(glob.escape(stem) + "-*.csv")
+                      if not any(sheet.startswith(other + "-") for other in longer))
+
+    found = converted()
+    if not found or any(stale(sheet, path) for sheet in found):
         # Every sheet (the last option), comma-separated, UTF-8.
         subprocess.run(["soffice", "--headless", "--convert-to",
                         "csv:Text - txt - csv (StarCalc):44,34,76,1,,0,false,true,false,false,false,-1",
                         "--outdir", os.path.dirname(path) or ".", path], check=True, capture_output=True)
-    return sorted(glob.glob(glob.escape(stem) + "-*.csv"))
+        found = converted()
+    return found
 
 
 def pdf_text(path):

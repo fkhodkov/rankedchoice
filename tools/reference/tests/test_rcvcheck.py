@@ -270,6 +270,19 @@ class Fetch(unittest.TestCase):
         self.assertEqual(rcvcheck.sources(self.data), {"report.txt": self.sources[1]})
 
 
+class Sheets(unittest.TestCase):
+
+    def test_another_spreadsheets_sheets_are_left_out(self):
+        with tempfile.TemporaryDirectory() as work:
+            for name in ("2019-mayor.xlsx", "2019-mayor-20241118.xlsx"):
+                open(os.path.join(work, name), "w").close()
+                os.utime(os.path.join(work, name), (1000, 1000))
+            for name in ("2019-mayor-Report.csv", "2019-mayor-20241118-Report.csv"):
+                open(os.path.join(work, name), "w").close()
+            found = rcvcheck.sheets(os.path.join(work, "2019-mayor.xlsx"))
+            self.assertEqual([os.path.basename(sheet) for sheet in found], ["2019-mayor-Report.csv"])
+
+
 class Stale(unittest.TestCase):
 
     def test_missing_or_older_than_a_source(self):
@@ -303,7 +316,8 @@ class PassReport(unittest.TestCase):
                                 "Write-In            Eliminated in pass 1.     0            0.00%\n"
                                 "                                  Continuing Ballots          1000\n"
                                 "   Exhausted by Over Votes                    8\n"
-                                "   Exhausted Ballots                          4\n                   Total Ballots   1042\n")
+                                "   Exhausted Ballots                          4\n"
+                                "                   Total Ballots   1042\n")
         self.assertEqual(rcvcheck.pass_exhausted(report), [7, 12])
 
 
