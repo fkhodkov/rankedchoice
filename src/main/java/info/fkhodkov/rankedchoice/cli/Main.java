@@ -222,6 +222,10 @@ public final class Main implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        // Made before the count: once memory has run out, building it might fail too.
+        String outOfMemory = "Error: the count ran out of memory (Java's heap is "
+                + Runtime.getRuntime().maxMemory() / (1024 * 1024) + " MB); give it more with java -Xmx, "
+                + "e.g. java -Xmx8g -jar ...";
         try {
             String report = runCount();
             if (output != null) {
@@ -243,10 +247,7 @@ public final class Main implements Callable<Integer> {
             System.err.println("Error: an internal fault, please report it: " + e);
             return 1;
         } catch (OutOfMemoryError e) {
-            // The count's own structures are gone once it unwinds, so there's room to say so.
-            System.err.println("Error: the count ran out of memory (Java's heap is "
-                    + Runtime.getRuntime().maxMemory() / (1024 * 1024) + " MB); give it more with java -Xmx, "
-                    + "e.g. java -Xmx8g -jar ...");
+            System.err.println(outOfMemory);
             return 1;
         }
     }

@@ -14,7 +14,8 @@ python3 tools/benchmark/run.py DATA_DIR --heap 256m     # the same within a 256 
 four minutes; later runs reuse them), runs each method once on each with `java -jar`, JVM start-up
 and parsing included, and prints Markdown tables. A whole run takes about a quarter of an hour,
 most of it Meek and Warren on 300 candidates. A count that fails shows its error in place of a
-time: within `--heap 256m`, Meek and Warren run out of memory at 300 candidates.
+time: within `--heap 256m`, every method but Borda and Schulze runs out of memory on the
+300-candidate election at 40 preferences.
 
 `generate.py CANDIDATES SEATS VOTERS OUT.blt [--mean-length N] [--seed S]` makes one election:
 every voter their own ballot line, candidate i weighted 1/i^0.8, each voter ranking a geometric

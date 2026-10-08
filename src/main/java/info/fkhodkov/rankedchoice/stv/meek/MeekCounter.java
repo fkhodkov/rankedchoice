@@ -114,9 +114,11 @@ public final class MeekCounter {
         private final KeepRule keepRule;
         private final long totalVotes;
         private final long omega;
-        // Every distinct ranking once, as candidate indices (rank -> tied members), and how many
-        // ballots cast it: the form the per-iteration distribution walks, built once.
-        private final int[][][] rankings;
+        // Every distinct ranking once, as candidate indices, and how many ballots cast it: the form
+        // the per-iteration distribution walks, built once. Each ranking is one flat array, every
+        // rank's members in turn with its last stored as ~index (see indexed), not an array per
+        // rank: a million ballots ranking 40 would otherwise be 40 million arrays, about 1 GB.
+        private final int[][] rankings;
         private final long[] multipliers;
         // Indexed like `candidates`; the count's only record of each candidate's state.
         private final State[] states;
@@ -134,10 +136,10 @@ public final class MeekCounter {
             BigInteger ballotCount = ballots.stream().map(Ballot::count).reduce(BigInteger.ZERO, BigInteger::add);
             fixed.requireRoomFor(ballotCount);
             Map<RankingKey, Integer> seen = new LinkedHashMap<>();
-            List<int[][]> distinct = new ArrayList<>();
+            List<int[]> distinct = new ArrayList<>();
             List<Long> counts = new ArrayList<>();
             for (Ballot ballot : ballots) {
-                int[][] ranking = indexed(ballot.ranking());
+                int[] ranking = indexed(ballot.ranking());
                 long multiplier = ballot.count().longValueExact();
                 Integer at = seen.putIfAbsent(new RankingKey(ranking), distinct.size());
                 if (at == null) {
@@ -149,7 +151,7 @@ public final class MeekCounter {
             }
             this.totalVotes = fixed.of(ballotCount);
             this.omega = fixed.tenToTheMinus(fixed.places() * 2 / 3);
-            this.rankings = distinct.toArray(int[][][]::new);
+            this.rankings = distinct.toArray(int[][]::new);
             this.multipliers = counts.stream().mapToLong(Long::longValue).toArray();
             this.states = new State[candidates.size()];
             this.keepFactors = new long[candidates.size()];
@@ -158,31 +160,36 @@ public final class MeekCounter {
         }
 
         /**
-         * A ranking as candidate indices. A candidate this count doesn't know about (e.g.
+         * A ranking as candidate indices, flat: each rank's members in increasing order, the last
+         * of them stored as {@code ~index} (negative, so it marks where the rank ends), so a rank
+         * of one candidate c is just {@code ~c}. A candidate this count doesn't know about (e.g.
          * withdrawn) can never be standing, so it's dropped here — along with a rank left with
          * nobody in it, which the distribution would only have skipped over anyway.
          */
-        private int[][] indexed(List<Set<Candidate>> ranking) {
-            List<int[]> ranks = new ArrayList<>(ranking.size());
+        private int[] indexed(List<Set<Candidate>> ranking) {
+            int[] flat = new int[ranking.stream().mapToInt(Set::size).sum()];
+            int length = 0;
             for (Set<Candidate> rank : ranking) {
                 int[] members = rank.stream().filter(indexOf::containsKey).mapToInt(indexOf::get).sorted().toArray();
                 if (members.length > 0) {
-                    ranks.add(members);
+                    System.arraycopy(members, 0, flat, length, members.length);
+                    length += members.length;
+                    flat[length - 1] = ~flat[length - 1];
                 }
             }
-            return ranks.toArray(int[][]::new);
+            return length == flat.length ? flat : Arrays.copyOf(flat, length);
         }
 
         /** An indexed ranking with value equality, for merging identical ballots. */
-        private record RankingKey(int[][] ranking) {
+        private record RankingKey(int[] ranking) {
             @Override
             public boolean equals(Object other) {
-                return other instanceof RankingKey(int[][] otherRanking) && Arrays.deepEquals(ranking, otherRanking);
+                return other instanceof RankingKey(int[] otherRanking) && Arrays.equals(ranking, otherRanking);
             }
 
             @Override
             public int hashCode() {
-                return Arrays.deepHashCode(ranking);
+                return Arrays.hashCode(ranking);
             }
         }
 
@@ -359,21 +366,28 @@ public final class MeekCounter {
          * passes nothing on — exactly what either keep rule computes for a keep factor of 1 — so
          * that case skips the multiplication.
          */
-        private void distribute(int[][] ranking, int index, long weight, long multiplier, long[] votes,
+        private void distribute(int[] ranking, int from, long weight, long multiplier, long[] votes,
                 long[] passFactors) {
-            for (int i = index; i < ranking.length && weight > 0; i++) {
-                int[] rank = ranking[i];
+            int start = from;
+            while (start < ranking.length && weight > 0) {
+                int last = start; // the rank's last member, the one stored as ~index
+                while (ranking[last] >= 0) {
+                    last++;
+                }
+                int next = last + 1;
                 int standing = 0;
-                for (int candidate : rank) {
-                    if (states[candidate] != State.EXCLUDED) {
+                for (int j = start; j <= last; j++) {
+                    if (states[member(ranking[j])] != State.EXCLUDED) {
                         standing++;
                     }
                 }
                 if (standing == 0) {
+                    start = next;
                     continue;
                 }
                 long share = fixed.divideDown(weight, standing);
-                for (int candidate : rank) {
+                for (int j = start; j <= last; j++) {
+                    int candidate = member(ranking[j]);
                     if (states[candidate] == State.EXCLUDED) {
                         continue;
                     }
@@ -395,7 +409,7 @@ public final class MeekCounter {
                     }
                     votes[candidate] = Math.addExact(votes[candidate], Math.multiplyExact(kept, multiplier));
                     if (standing > 1) {
-                        distribute(ranking, i + 1, passedOn, multiplier, votes, passFactors);
+                        distribute(ranking, next, passedOn, multiplier, votes, passFactors);
                     } else {
                         weight = passedOn;
                     }
@@ -403,7 +417,13 @@ public final class MeekCounter {
                 if (standing > 1) {
                     return;
                 }
+                start = next;
             }
+        }
+
+        /** A candidate index as {@link #indexed} stores it, the last of its rank as {@code ~index}. */
+        private static int member(int stored) {
+            return stored < 0 ? ~stored : stored;
         }
 
         private Candidate lowestHopeful(Distribution distribution, long surplus, TieBreakRule tieBreak,

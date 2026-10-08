@@ -333,10 +333,12 @@ At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Bo
 63 s (135 s), Warren 75 s (193 s). CPO-STV grows with the number of committee pairs instead:
 10 candidates / 3 seats takes about 9 s at 100k voters, 12 / 4 about 34 s at 10k.
 
-Within a 256 MB heap every method counts the 20-candidate, 1M-voter election above, and Borda,
-Schulze, `scottish`, `ers97` and QPQ the 300-candidate one at 5 preferences; Meek and Warren need
-more there, and at 40 preferences so do `scottish`, `ers97` and QPQ. Java's default heap is a
-quarter of the machine's memory; a count that runs out says so and suggests `java -Xmx`.
+Memory: every method counts the 20-candidate, 1M-voter election above, and the 300-candidate
+one at 5 preferences, within a 256 MB heap. At 40 preferences the 300-candidate count needs
+256 MB for Borda and Schulze, 384 MB for `scottish` and `ers97`, 512 MB for Cambridge STV, Meek
+and Warren, and 1 GB for QPQ (the smallest of 256, 384, 512, 768 MB, 1 GB, ... that worked). About
+230 MB of that is the ballots as read. Java's default heap is a quarter of the machine's memory;
+a count that runs out says so and suggests `java -Xmx`.
 
 Schulze STV's cost grows with the number of contests of seats + 1 candidates, and with how many
 distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 60 take
