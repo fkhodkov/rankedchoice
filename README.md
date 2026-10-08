@@ -373,7 +373,8 @@ about 45 s, 16 / 8 about a minute.
   and the script reports it. VALIDATION.md's Official counts table is generated the same way
   (`--validation write`), and the Python tests fail when it no longer matches the results.
 - [`tools/reference/refresh_results.py`](tools/reference/refresh_results.py) — refresh all of it in
-  one go: given a data root with a directory per checker (`alameda/`, `nyc/`, `aec/`,
+  one go ([`tools/reference/README.md`](tools/reference/README.md) lays out the data it needs):
+  given a data root with a directory per checker (`alameda/`, `nyc/`, `aec/`,
   `scotland/`, …), it runs every checker whose directory is there, then the ACT's and Ireland's
   fixture tests, then rebuilds the page and VALIDATION.md's table, and says which it skipped and
   why (`--only` for some checkers, `--dry-run` to see the plan). `--compare` changes nothing:

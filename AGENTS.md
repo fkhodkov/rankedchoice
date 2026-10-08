@@ -123,7 +123,8 @@ What settled the differences that once looked like the record's (VALIDATION.md h
   checkers a change touches); a checker whose committed results include a failure exits 1 and
   is still compared.
 - Data (ballot records, official reports) isn't committed: checkers fetch it into a data directory
-  given on the command line. Downloads go to a temporary name and are renamed when complete.
+  given on the command line. `tools/reference/README.md` lays out a whole data root: which
+  checkers fill their own directory, which need files saved first, and the programs needed. Downloads go to a temporary name and are renamed when complete.
   Use `rcvcheck.fetch`: it records each file's address in the directory's `.sources.json` and
   fetches again when a checker asks for the file from another address, so pointing a contest at
   a corrected report needs no manual step. Make a derived file (a BLT from its record, CSVs
