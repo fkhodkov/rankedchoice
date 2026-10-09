@@ -1,6 +1,6 @@
 """Time every method end to end through the command line, as README's Performance section reports.
 
-usage: run.py DATA_DIR [--jar JAR] [--heap 256m] [--only small|large] [--limit SECONDS]
+usage: run.py DATA_DIR [--jar JAR] [--heap 256m | --find-heap] [--only small|large] [--limit SECONDS]
 
 Generates the elections into DATA_DIR with generate.py (once; later runs reuse them), then runs
 each method on each with `java -jar`, JVM start-up and parsing included, and prints the times as
@@ -10,6 +10,11 @@ at 100k); "large" is its 300-candidate, 33-seat, 1M-voter line, at mean ranking 
 many seconds (default 300) and shows it as "over" them: exact STV never finishes the 300-candidate
 election at 40 preferences (README's Limitations says why). Single runs vary by up to a third,
 more on a busy machine.
+
+--find-heap prints each count's smallest heap instead of its time: the first of 256 MB, 384 MB,
+512 MB, 768 MB, 1 GB, ... it finishes in, as README's memory figures are. A heap that runs out
+moves on to the next; so does one that hits --limit, since a count just short of memory can spend
+minutes collecting garbage, but a second limit in a row ends the search ("over" the limit).
 """
 import argparse
 import os
@@ -62,21 +67,44 @@ def timed(jar, heap, limit, path, method_args):
         return f"over {limit} s"
     seconds = time.perf_counter() - start
     if result.returncode != 0:
-        lines = result.stderr.strip().splitlines()
+        # The error, not a warning printed before it (exact STV's on growing fractions).
+        lines = [line for line in result.stderr.strip().splitlines() if not line.startswith("Warning:")]
         return "failed: " + (lines[0] if lines else f"exit {result.returncode}")
     return f"{seconds:.1f} s"
 
 
-def table(jar, heap, limit, data_dir, sizes, methods):
+# -Xmx values for --find-heap, smallest first.
+HEAPS = ["256m", "384m", "512m", "768m", "1g", "1536m", "2g", "3g", "4g"]
+
+
+def smallest_heap(jar, limit, path, method_args):
+    """The first of HEAPS the count finishes in, or why none did."""
+    timed_out = False
+    for heap in HEAPS:
+        outcome = timed(jar, heap, limit, path, method_args)
+        if outcome.startswith("over"):
+            if timed_out:
+                return outcome
+            timed_out = True
+        elif "ran out of memory" in outcome or "OutOfMemoryError" in outcome:
+            timed_out = False
+        elif outcome.startswith("failed"):
+            return outcome
+        else:
+            return heap.replace("m", " MB").replace("g", " GB")
+    return f"over {HEAPS[-1].replace('g', ' GB')}"
+
+
+def table(measure, data_dir, sizes, methods):
     header = [f"{c} candidates, {s} seats, {v // 1000:,}k voters, length {m}" for c, s, v, m in sizes]
     rows = ["| Method | " + " | ".join(header) + " |", "|---" * (len(sizes) + 1) + "|"]
     paths = [election(data_dir, *size) for size in sizes]
     for name in methods:
-        times = []
+        cells = []
         for path in paths:
-            times.append(timed(jar, heap, limit, path, METHODS[name]))
-            print(f"{name}, {os.path.basename(path)}: {times[-1]}", file=sys.stderr)
-        rows.append(f"| {name} | " + " | ".join(times) + " |")
+            cells.append(measure(path, METHODS[name]))
+            print(f"{name}, {os.path.basename(path)}: {cells[-1]}", file=sys.stderr)
+        rows.append(f"| {name} | " + " | ".join(cells) + " |")
     return "\n".join(rows)
 
 
@@ -84,17 +112,25 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("data_dir")
     parser.add_argument("--jar", default=JAR)
-    parser.add_argument("--heap", help="the JVM's -Xmx, e.g. 256m")
+    heap = parser.add_mutually_exclusive_group()
+    heap.add_argument("--heap", help="the JVM's -Xmx, e.g. 256m")
+    heap.add_argument("--find-heap", action="store_true", help="print each count's smallest heap, not its time")
     parser.add_argument("--only", choices=["small", "large"])
     parser.add_argument("--limit", type=int, default=300, help="seconds a count may take (default 300)")
     args = parser.parse_args()
     if not os.path.exists(args.jar):
         parser.error(f"no jar at {args.jar}: build it with mvn -o -q package -DskipTests")
     os.makedirs(args.data_dir, exist_ok=True)
+    if args.find_heap:
+        def measure(path, method_args):
+            return smallest_heap(args.jar, args.limit, path, method_args)
+    else:
+        def measure(path, method_args):
+            return timed(args.jar, args.heap, args.limit, path, method_args)
     if args.only != "large":
-        print(table(args.jar, args.heap, args.limit, args.data_dir, SMALL, SMALL_METHODS) + "\n")
+        print(table(measure, args.data_dir, SMALL, SMALL_METHODS) + "\n")
     if args.only != "small":
-        print(table(args.jar, args.heap, args.limit, args.data_dir, LARGE, LARGE_METHODS) + "\n")
+        print(table(measure, args.data_dir, LARGE, LARGE_METHODS) + "\n")
 
 
 if __name__ == "__main__":
