@@ -327,14 +327,14 @@ the elections and reruns every figure here; single runs vary by up to a third, m
 | STV (fractional, exact) | 0.6 s | 2.0 s | 1.2 s |
 | STV (`scottish`, WIGM) | 0.7 s | 2.1 s | 1.0 s |
 | STV (`ers97`, last parcel) | 0.7 s | 2.1 s | 1.2 s |
-| QPQ | 0.7 s | 2.1 s | 1.6 s |
+| QPQ | 0.7 s | 1.7 s | 1.0 s |
 | Cambridge STV | 0.5 s | 1.4 s | 0.5 s |
 | Meek / Warren | 0.8 / 0.9 s | 2.9 / 2.9 s | 1.8 / 1.9 s |
 
 At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 1.5 s (8.9 s),
 Schulze 1.4 s (9.6 s), fractional STV 26 s exact (never finishes at 40: see
 [Limitations](#limitations)) and 7.8 s with `--rounding truncate:9` (15 s), `scottish` 7.4 s (13 s),
-`ers97` 9.9 s (14 s), QPQ 37 s (61 s), Cambridge STV 2.0 s (7.6 s), Meek 44 s (76 s), Warren 47 s
+`ers97` 9.9 s (14 s), QPQ 15 s (27 s), Cambridge STV 2.0 s (7.6 s), Meek 44 s (76 s), Warren 47 s
 (86 s). CPO-STV grows with the number of committee pairs instead: 10 candidates / 3 seats takes
 about 9 s at 100k voters, 12 / 4 about 34 s at 10k.
 

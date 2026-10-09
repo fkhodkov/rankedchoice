@@ -221,6 +221,16 @@ public final class QpqCounter {
      * resumes from there rather than re-walking from the first preference. Elected credits stay
      * exact {@link Fraction}s, grouped by value as in {@link #weightedTotal}; most ballots carry
      * none at all.
+     *
+     * <p>Each candidate's ballots are kept in a list, and the totals a stage needs (votes,
+     * active votes, ballots by credit) are kept up to date as ballots move, so an election or an
+     * exclusion touches only the ballots it moves: scanning every ballot each stage, with
+     * thousands of stages once exclusions restart the count, was most of a large count's time.
+     * A ballot leaves a candidate only when they're elected or excluded, all of their ballots at
+     * once, so each list is singly linked through the ballots, one {@code int} a ballot: lists of
+     * arrays, grown by doubling, took 20 MB more at a million ballots, and the count is close to
+     * its heap there. A ballot's credit is an index into the credits given since the last
+     * restart, at most one per seat.
      */
     private static final class IndexedCount {
         private final List<Candidate> candidates;
@@ -232,9 +242,20 @@ public final class QpqCounter {
         private final int[] firstNotExcluded;
         private final int[] next;
         private final int[] holder;
-        private final Fraction[] credit;
         private final boolean[] isHopeful;
         private final boolean[] isExcluded;
+        // Which of creditValues each ballot carries (-1 for none).
+        private final int[] creditOf;
+        private final List<Fraction> creditValues = new ArrayList<>();
+        // Each candidate's ballots: firstHeld[c], then nextHeld of each in turn, -1 ending it.
+        private final int[] firstHeld;
+        private final int[] nextHeld;
+        // Running totals: votes per candidate; active votes; ballots per (holder, credit), at
+        // holder * seats + credit; exhausted ballots per credit.
+        private final long[] votes;
+        private long active;
+        private final long[] heldByCredit;
+        private final long[] exhaustedByCredit;
 
         IndexedCount(List<Candidate> candidates, List<Ballot> ballots, int seats, TieBreakRule tieBreak) {
             this.candidates = candidates;
@@ -243,8 +264,33 @@ public final class QpqCounter {
             for (int c = 0; c < candidates.size(); c++) {
                 indexOf.put(candidates.get(c), c);
             }
-            // Identical rankings merged, keyed by the int[] itself: keying them by a List<Integer>
-            // boxed every candidate number, about 600 MB for a million ballots ranking 40.
+            Merged merged = merge(ballots, indexOf);
+            this.rankings = merged.rankings();
+            this.counts = merged.counts();
+            int b = rankings.length;
+            this.firstNotExcluded = new int[b];
+            this.next = new int[b];
+            this.holder = new int[b];
+            this.isHopeful = new boolean[candidates.size()];
+            this.isExcluded = new boolean[candidates.size()];
+            this.creditOf = new int[b];
+            this.firstHeld = new int[candidates.size()];
+            this.nextHeld = new int[b];
+            this.votes = new long[candidates.size()];
+            this.heldByCredit = new long[candidates.size() * seats];
+            this.exhaustedByCredit = new long[seats];
+        }
+
+        /** Identical rankings merged: each distinct one, and how many ballots gave it. */
+        private record Merged(int[][] rankings, long[] counts) {
+        }
+
+        /**
+         * Merges identical rankings, keyed by the int[] itself: keying them by a List<Integer> boxed
+         * every candidate number, about 600 MB for a million ballots ranking 40. A method of its own
+         * so the map is garbage once it returns, before the count's own arrays are allocated.
+         */
+        private static Merged merge(List<Ballot> ballots, Map<Candidate, Integer> indexOf) {
             Map<RankingKey, Integer> seen = new HashMap<>();
             List<int[]> distinct = new ArrayList<>();
             long[] distinctCounts = new long[16];
@@ -267,15 +313,7 @@ public final class QpqCounter {
                     distinctCounts[at] += ballot.count().longValueExact();
                 }
             }
-            this.rankings = distinct.toArray(int[][]::new);
-            this.counts = Arrays.copyOf(distinctCounts, distinct.size());
-            int b = rankings.length;
-            this.firstNotExcluded = new int[b];
-            this.next = new int[b];
-            this.holder = new int[b];
-            this.credit = new Fraction[b];
-            this.isHopeful = new boolean[candidates.size()];
-            this.isExcluded = new boolean[candidates.size()];
+            return new Merged(distinct.toArray(int[][]::new), Arrays.copyOf(distinctCounts, distinct.size()));
         }
 
         /** A ranking with value equality, for merging identical ballots. */
@@ -342,17 +380,39 @@ public final class QpqCounter {
             }
             hopeful.addAll(elected);
             elected.clear();
+            creditValues.clear();
+            Arrays.fill(firstHeld, -1);
+            Arrays.fill(votes, 0);
+            active = 0;
+            Arrays.fill(heldByCredit, 0);
+            Arrays.fill(exhaustedByCredit, 0);
             for (int b = 0; b < rankings.length; b++) {
-                int[] ranking = rankings[b];
-                int first = firstNotExcluded[b];
-                while (first < ranking.length && isExcluded[ranking[first]]) {
-                    first++;
-                }
-                firstNotExcluded[b] = first;
-                next[b] = first;
-                credit[b] = Fraction.ZERO;
-                advance(b);
+                reset(b);
             }
+        }
+
+        /** Sends ballot {@code b} to its first preference not yet excluded, with no credit. */
+        private void reset(int b) {
+            int[] ranking = rankings[b];
+            int first = firstNotExcluded[b];
+            while (first < ranking.length && isExcluded[ranking[first]]) {
+                first++;
+            }
+            firstNotExcluded[b] = first;
+            next[b] = first;
+            creditOf[b] = -1;
+            advance(b);
+            join(b);
+        }
+
+        /** Moves ballot {@code b} on from a candidate elected or excluded. */
+        private void moveOn(int b, int newCredit) {
+            leave(b);
+            if (newCredit >= 0) {
+                creditOf[b] = newCredit;
+            }
+            advance(b);
+            join(b);
         }
 
         /**
@@ -364,32 +424,27 @@ public final class QpqCounter {
         }
 
         private Tally tally() {
-            long[] votes = new long[candidates.size()];
-            long active = 0;
-            List<Map<Fraction, BigInteger>> heldByCredit = new ArrayList<>(candidates.size());
+            List<Map<Fraction, BigInteger>> held = new ArrayList<>(candidates.size());
             for (int c = 0; c < candidates.size(); c++) {
-                heldByCredit.add(null);
-            }
-            Map<Fraction, BigInteger> exhaustedByCredit = new LinkedHashMap<>();
-            for (int b = 0; b < rankings.length; b++) {
-                int h = holder[b];
-                boolean hasCredit = credit[b].signum() != 0;
-                if (h < 0) {
-                    if (hasCredit) {
-                        exhaustedByCredit.merge(credit[b], BigInteger.valueOf(counts[b]), BigInteger::add);
-                    }
-                } else {
-                    active += counts[b];
-                    votes[h] += counts[b];
-                    if (hasCredit) {
-                        if (heldByCredit.get(h) == null) {
-                            heldByCredit.set(h, new LinkedHashMap<>());
+                Map<Fraction, BigInteger> byCredit = null;
+                for (int k = 0; k < creditValues.size(); k++) {
+                    long count = heldByCredit[c * seats + k];
+                    if (count != 0) {
+                        if (byCredit == null) {
+                            byCredit = new LinkedHashMap<>();
                         }
-                        heldByCredit.get(h).merge(credit[b], BigInteger.valueOf(counts[b]), BigInteger::add);
+                        byCredit.merge(creditValues.get(k), BigInteger.valueOf(count), BigInteger::add);
                     }
                 }
+                held.add(byCredit);
             }
-            return new Tally(votes, active, heldByCredit, exhaustedByCredit);
+            Map<Fraction, BigInteger> exhausted = new LinkedHashMap<>();
+            for (int k = 0; k < creditValues.size(); k++) {
+                if (exhaustedByCredit[k] != 0) {
+                    exhausted.merge(creditValues.get(k), BigInteger.valueOf(exhaustedByCredit[k]), BigInteger::add);
+                }
+            }
+            return new Tally(votes.clone(), active, held, exhausted);
         }
 
         /** Each hopeful candidate's quotient: their votes over one plus the credit their ballots carry. */
@@ -410,13 +465,14 @@ public final class QpqCounter {
             hopeful.remove(candidate);
             int h = indexOf.get(candidate);
             isHopeful[h] = false;
-            Fraction newCredit = Fraction.ONE.divide(quotient);
-            for (int b = 0; b < rankings.length; b++) {
-                if (holder[b] == h) {
-                    credit[b] = newCredit;
-                    advance(b);
-                }
+            int newCredit = creditValues.size();
+            creditValues.add(Fraction.ONE.divide(quotient));
+            // Saving each next first: moving a ballot on links it into another list.
+            for (int b = firstHeld[h], following; b >= 0; b = following) {
+                following = nextHeld[b];
+                moveOn(b, newCredit);
             }
+            firstHeld[h] = -1;
         }
 
         /** Excludes a candidate for good: their ballots move on (the count restarts at the next stage). */
@@ -425,11 +481,45 @@ public final class QpqCounter {
             int l = indexOf.get(candidate);
             isHopeful[l] = false;
             isExcluded[l] = true;
-            for (int b = 0; b < rankings.length; b++) {
-                if (holder[b] == l) {
-                    advance(b);
-                }
+            for (int b = firstHeld[l], following; b >= 0; b = following) {
+                following = nextHeld[b];
+                moveOn(b, -1);
             }
+            firstHeld[l] = -1;
+        }
+
+        /** Takes ballot {@code b} out of the running totals (its holder's list is emptied after). */
+        private void leave(int b) {
+            int h = holder[b];
+            if (h < 0) {
+                if (creditOf[b] >= 0) {
+                    exhaustedByCredit[creditOf[b]] -= counts[b];
+                }
+                return;
+            }
+            votes[h] -= counts[b];
+            active -= counts[b];
+            if (creditOf[b] >= 0) {
+                heldByCredit[h * seats + creditOf[b]] -= counts[b];
+            }
+        }
+
+        /** Adds ballot {@code b} to its holder's list and the running totals. */
+        private void join(int b) {
+            int h = holder[b];
+            if (h < 0) {
+                if (creditOf[b] >= 0) {
+                    exhaustedByCredit[creditOf[b]] += counts[b];
+                }
+                return;
+            }
+            votes[h] += counts[b];
+            active += counts[b];
+            if (creditOf[b] >= 0) {
+                heldByCredit[h * seats + creditOf[b]] += counts[b];
+            }
+            nextHeld[b] = firstHeld[h];
+            firstHeld[h] = b;
         }
 
         /** Moves ballot {@code b} on to its next hopeful preference, or marks it exhausted. */
