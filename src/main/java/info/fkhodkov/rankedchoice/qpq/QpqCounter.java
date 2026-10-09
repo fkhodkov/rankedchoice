@@ -2,6 +2,8 @@ package info.fkhodkov.rankedchoice.qpq;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -241,9 +243,11 @@ public final class QpqCounter {
             for (int c = 0; c < candidates.size(); c++) {
                 indexOf.put(candidates.get(c), c);
             }
-            Map<List<Integer>, Integer> seen = new LinkedHashMap<>();
+            // Identical rankings merged, keyed by the int[] itself: keying them by a List<Integer>
+            // boxed every candidate number, about 600 MB for a million ballots ranking 40.
+            Map<RankingKey, Integer> seen = new HashMap<>();
             List<int[]> distinct = new ArrayList<>();
-            List<Long> distinctCounts = new ArrayList<>();
+            long[] distinctCounts = new long[16];
             for (Ballot ballot : ballots) {
                 if (ballot.isBlank()) {
                     continue;
@@ -252,16 +256,19 @@ public final class QpqCounter {
                 // A candidate this count doesn't know about can never be hopeful: dropped.
                 int[] ranking = ballot.ranking().stream().map(rank -> indexOf.get(rank.iterator().next()))
                         .filter(java.util.Objects::nonNull).mapToInt(Integer::intValue).toArray();
-                Integer at = seen.putIfAbsent(java.util.Arrays.stream(ranking).boxed().toList(), distinct.size());
+                Integer at = seen.putIfAbsent(new RankingKey(ranking), distinct.size());
                 if (at == null) {
+                    if (distinct.size() == distinctCounts.length) {
+                        distinctCounts = Arrays.copyOf(distinctCounts, distinctCounts.length * 2);
+                    }
+                    distinctCounts[distinct.size()] = ballot.count().longValueExact();
                     distinct.add(ranking);
-                    distinctCounts.add(ballot.count().longValueExact());
                 } else {
-                    distinctCounts.set(at, distinctCounts.get(at) + ballot.count().longValueExact());
+                    distinctCounts[at] += ballot.count().longValueExact();
                 }
             }
             this.rankings = distinct.toArray(int[][]::new);
-            this.counts = distinctCounts.stream().mapToLong(Long::longValue).toArray();
+            this.counts = Arrays.copyOf(distinctCounts, distinct.size());
             int b = rankings.length;
             this.firstNotExcluded = new int[b];
             this.next = new int[b];
@@ -271,9 +278,22 @@ public final class QpqCounter {
             this.isExcluded = new boolean[candidates.size()];
         }
 
+        /** A ranking with value equality, for merging identical ballots. */
+        private record RankingKey(int[] ranking) {
+            @Override
+            public boolean equals(Object other) {
+                return other instanceof RankingKey(int[] otherRanking) && Arrays.equals(ranking, otherRanking);
+            }
+
+            @Override
+            public int hashCode() {
+                return Arrays.hashCode(ranking);
+            }
+        }
+
         QpqResult run(BallotFormality.FormalBallots formal) {
             Set<Candidate> hopeful = new LinkedHashSet<>(candidates);
-            java.util.Arrays.fill(isHopeful, true);
+            Arrays.fill(isHopeful, true);
             // See the LinkedHashSet note in countInBigIntegers.
             Set<Candidate> elected = new LinkedHashSet<>();
             List<QpqRoundRecord> rounds = new ArrayList<>();

@@ -335,8 +335,8 @@ At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Bo
 
 Memory: every method counts the 20-candidate, 1M-voter election above, and the 300-candidate
 one at 5 preferences, within a 256 MB heap. At 40 preferences the 300-candidate count needs
-256 MB for Borda and Schulze, 384 MB for `scottish` and `ers97`, 512 MB for Cambridge STV, Meek
-and Warren, and 1 GB for QPQ (the smallest of 256, 384, 512, 768 MB, 1 GB, ... that worked). About
+256 MB for Borda and Schulze, 384 MB for `scottish` and `ers97`, and 512 MB for Cambridge STV,
+QPQ, Meek and Warren (the smallest of 256, 384, 512, 768 MB, 1 GB, ... that worked). About
 230 MB of that is the ballots as read. Java's default heap is a quarter of the machine's memory;
 a count that runs out says so and suggests `java -Xmx`.
 
