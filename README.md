@@ -281,11 +281,14 @@ mark, as spreadsheets' "CSV UTF-8" files do.
 
 ## Limitations
 
-- **Exact arithmetic can be slow.** With `--rounding exact` (the default), fractional transfers
-  compound into ever larger fractions when ballots pass through many elected candidates — 300
-  candidates, 33 seats and 40 preferences per ballot stalls even at 20,000 voters. The count
-  warns on stderr when this starts; `--rounding truncate:9` keeps it bounded, and every bundled
-  preset rounds anyway.
+- **Exact arithmetic can be slow.** With `--rounding exact` (the default), each surplus roughly
+  doubles the size of the fractions on the ballots it moves: the transfer ratio's denominator is
+  the elected candidate's exact tally, as large as everything they hold. In the 300-candidate,
+  33-seat, 1M-voter count at 40 preferences, ballot values' denominators reach 91, 239, 532,
+  1,048, 2,226 and 4,577 bits as the 5th to 10th candidates are elected, and the 11th's surplus
+  didn't finish in 5 minutes; the same count stalls even at 20,000 voters. At 5 preferences fewer
+  ballots go that deep and it finishes in 29 s. The count warns on stderr when this starts;
+  `--rounding truncate:9` keeps it bounded, and every bundled preset rounds anyway.
 - **Not validated:** `ers76` (no data to check against); `hare-clark-qpq`, `vic-lc` and `wa-lc`
   against real counts (no ballot data is published; they're checked against OpenTally instead); Cambridge STV's
   rounds for 2019–2023 (those years' ballot records don't mark overvotes). See
@@ -329,13 +332,14 @@ the elections and reruns every figure here; single runs vary by up to a third, m
 | Meek / Warren | 1.6 / 1.7 s | 4.8 / 5.7 s | 6.4 / 7.2 s |
 
 At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 3.8 s
-(27 s), Schulze 1.7 s (11 s), `scottish` 6.9 s (16 s), `ers97` 8.9 s (26 s), QPQ 37 s (68 s), Meek
+(27 s), Schulze 1.7 s (11 s), fractional STV 29 s exact (never finishes at 40: see
+[Limitations](#limitations)) and 12 s with `--rounding truncate:9` (20 s), `scottish` 6.9 s (16 s), `ers97` 8.9 s (26 s), QPQ 37 s (68 s), Meek
 63 s (135 s), Warren 75 s (193 s). CPO-STV grows with the number of committee pairs instead:
 10 candidates / 3 seats takes about 9 s at 100k voters, 12 / 4 about 34 s at 10k.
 
 Memory: every method counts the 20-candidate, 1M-voter election above, and the 300-candidate
 one at 5 preferences, within a 256 MB heap. At 40 preferences the 300-candidate count needs
-256 MB for Borda and Schulze, 384 MB for `scottish` and `ers97`, and 512 MB for Cambridge STV,
+256 MB for Borda and Schulze, 384 MB for fractional STV at `truncate:9`, `scottish` and `ers97`, and 512 MB for Cambridge STV,
 QPQ, Meek and Warren (the smallest of 256, 384, 512, 768 MB, 1 GB, ... that worked). About
 230 MB of that is the ballots as read. Java's default heap is a quarter of the machine's memory;
 a count that runs out says so and suggests `java -Xmx`.
