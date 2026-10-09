@@ -331,18 +331,19 @@ the elections and reruns every figure here; single runs vary by up to a third, m
 | Cambridge STV | 1.3 s | 3.7 s | — |
 | Meek / Warren | 1.6 / 1.7 s | 4.8 / 5.7 s | 6.4 / 7.2 s |
 
-At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 3.8 s
-(27 s), Schulze 1.7 s (11 s), fractional STV 29 s exact (never finishes at 40: see
-[Limitations](#limitations)) and 12 s with `--rounding truncate:9` (20 s), `scottish` 6.9 s (16 s), `ers97` 8.9 s (26 s), QPQ 37 s (68 s), Meek
-63 s (135 s), Warren 75 s (193 s). CPO-STV grows with the number of committee pairs instead:
-10 candidates / 3 seats takes about 9 s at 100k voters, 12 / 4 about 34 s at 10k.
+At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 3.8 s (27 s),
+Schulze 1.7 s (11 s), fractional STV 29 s exact (never finishes at 40: see
+[Limitations](#limitations)) and 12 s with `--rounding truncate:9` (20 s), `scottish` 6.9 s (16 s),
+`ers97` 8.9 s (26 s), QPQ 37 s (68 s), Cambridge STV 2.6 s (9.0 s), Meek 63 s (135 s), Warren 75 s
+(193 s). CPO-STV grows with the number of committee pairs instead: 10 candidates / 3 seats takes
+about 9 s at 100k voters, 12 / 4 about 34 s at 10k.
 
-Memory: every method counts the 20-candidate, 1M-voter election above, and the 300-candidate
-one at 5 preferences, within a 256 MB heap. At 40 preferences the 300-candidate count needs
-256 MB for Borda and Schulze, 384 MB for fractional STV at `truncate:9`, `scottish` and `ers97`, and 512 MB for Cambridge STV,
-QPQ, Meek and Warren (the smallest of 256, 384, 512, 768 MB, 1 GB, ... that worked). About
-230 MB of that is the ballots as read. Java's default heap is a quarter of the machine's memory;
-a count that runs out says so and suggests `java -Xmx`.
+Memory: every method counts the 20-candidate, 1M-voter election above, and the 300-candidate one at
+5 preferences, within a 256 MB heap. At 40 preferences the 300-candidate count needs 256 MB for
+Borda and Schulze, 384 MB for fractional STV at `truncate:9`, `scottish` and `ers97`, and 512 MB for
+Cambridge STV, QPQ, Meek and Warren (the smallest of 256, 384, 512, 768 MB, 1 GB, ... that worked).
+About 230 MB of that is the ballots as read. Java's default heap is a quarter of the machine's
+memory; a count that runs out says so and suggests `java -Xmx`.
 
 Schulze STV's cost grows with the number of contests of seats + 1 candidates, and with how many
 distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 60 take

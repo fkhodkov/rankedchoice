@@ -38,7 +38,8 @@ SMALL = [(20, 5, 100_000, 5), (20, 5, 1_000_000, 5), (100, 20, 100_000, 5)]
 LARGE = [(300, 33, 1_000_000, 5), (300, 33, 1_000_000, 40)]
 SMALL_METHODS = [name for name in METHODS if "truncate" not in name]
 LARGE_METHODS = ["Borda", "Schulze", "STV (fractional, exact)", "STV (fractional, `truncate:9`)",
-                 "STV (`scottish`, WIGM)", "STV (`ers97`, last parcel)", "QPQ", "Meek", "Warren"]
+                 "STV (`scottish`, WIGM)", "STV (`ers97`, last parcel)", "QPQ", "Cambridge STV", "Meek",
+                 "Warren"]
 
 
 def election(data_dir, candidates, seats, voters, mean_length):
