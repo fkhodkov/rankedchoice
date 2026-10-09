@@ -1,6 +1,8 @@
 package info.fkhodkov.rankedchoice.borda;
 
+import java.math.BigInteger;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,17 +39,31 @@ public final class BordaMethod {
             throw new IllegalArgumentException("there must be at least one candidate");
         }
         Map<Candidate, Fraction> scores = new LinkedHashMap<>();
+        Map<Candidate, Integer> indexOf = new HashMap<>();
         for (Candidate candidate : candidates) {
             scores.put(candidate, Fraction.ZERO);
+            indexOf.put(candidate, indexOf.size());
         }
 
         int totalCandidates = candidates.size();
+        // How many votes each candidate has at each untied position, scored once at the end: per
+        // ballot, exact fractions spent most of the count's time reducing by greatest common divisors.
+        BigInteger[] votesAt = new BigInteger[totalCandidates * totalCandidates];
         for (Ballot ballot : ballots) {
             if (ballot.isBlank()) {
                 continue;
             }
             int position = 0;
             for (Set<Candidate> ranked : ballot.ranking()) {
+                if (ranked.size() == 1) {
+                    Integer index = indexOf.get(ranked.iterator().next());
+                    if (index != null) {
+                        int at = index * totalCandidates + position;
+                        votesAt[at] = votesAt[at] == null ? ballot.count() : votesAt[at].add(ballot.count());
+                        position++;
+                    }
+                    continue;
+                }
                 // A withdrawn candidate is passed over: they take no position and score nothing.
                 List<Candidate> rank = ranked.stream().filter(scores::containsKey).toList();
                 if (rank.isEmpty()) {
@@ -64,6 +80,16 @@ public final class BordaMethod {
                     scores.merge(candidate, perCandidate, Fraction::add);
                 }
                 position += groupSize;
+            }
+        }
+        for (Candidate candidate : candidates) {
+            int index = indexOf.get(candidate);
+            for (int position = 0; position < totalCandidates; position++) {
+                BigInteger votes = votesAt[index * totalCandidates + position];
+                if (votes != null) {
+                    scores.merge(candidate, rule.weight(position, totalCandidates).multiply(Fraction.of(votes)),
+                            Fraction::add);
+                }
             }
         }
 
