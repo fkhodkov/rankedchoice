@@ -287,7 +287,7 @@ mark, as spreadsheets' "CSV UTF-8" files do.
   33-seat, 1M-voter count at 40 preferences, ballot values' denominators reach 91, 239, 532,
   1,048, 2,226 and 4,577 bits as the 5th to 10th candidates are elected, and the 11th's surplus
   didn't finish in 5 minutes; the same count stalls even at 20,000 voters. At 5 preferences fewer
-  ballots go that deep and it finishes in 29 s. The count warns on stderr when this starts;
+  ballots go that deep and it finishes in under 30 s. The count warns on stderr when this starts;
   `--rounding truncate:9` keeps it bounded, and every bundled preset rounds anyway.
 - **Not validated:** `ers76` (no data to check against); `hare-clark-qpq`, `vic-lc` and `wa-lc`
   against real counts (no ballot data is published; they're checked against OpenTally instead); Cambridge STV's
@@ -322,20 +322,20 @@ the elections and reruns every figure here; single runs vary by up to a third, m
 
 | Method | 20 candidates, 5 seats, 100k voters | 20 / 5, 1M voters | 100 / 20, 100k voters |
 |---|---|---|---|
-| Borda | 0.7 s | 4.4 s | — |
-| Schulze | 0.5 s | 1.4 s | 0.7 s |
-| STV (fractional, exact) | 1.1 s | 3.5 s | 1.8 s |
-| STV (`scottish`, WIGM) | 1.4 s | 3.7 s | 1.6 s |
-| STV (`ers97`, last parcel) | 1.6 s | 3.7 s | 1.5 s |
-| QPQ | 1.3 s | 3.8 s | 2.1 s |
-| Cambridge STV | 1.3 s | 3.7 s | — |
-| Meek / Warren | 1.6 / 1.7 s | 4.8 / 5.7 s | 6.4 / 7.2 s |
+| Borda | 0.6 s | 4.5 s | 0.9 s |
+| Schulze | 0.5 s | 1.1 s | 0.4 s |
+| STV (fractional, exact) | 0.6 s | 2.0 s | 1.2 s |
+| STV (`scottish`, WIGM) | 0.7 s | 2.1 s | 1.0 s |
+| STV (`ers97`, last parcel) | 0.7 s | 2.1 s | 1.2 s |
+| QPQ | 0.7 s | 2.1 s | 1.6 s |
+| Cambridge STV | 0.5 s | 1.4 s | 0.5 s |
+| Meek / Warren | 0.8 / 0.9 s | 2.9 / 2.9 s | 1.8 / 1.9 s |
 
-At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 3.8 s (27 s),
-Schulze 1.7 s (11 s), fractional STV 29 s exact (never finishes at 40: see
-[Limitations](#limitations)) and 12 s with `--rounding truncate:9` (20 s), `scottish` 6.9 s (16 s),
-`ers97` 8.9 s (26 s), QPQ 37 s (68 s), Cambridge STV 2.6 s (9.0 s), Meek 63 s (135 s), Warren 75 s
-(193 s). CPO-STV grows with the number of committee pairs instead: 10 candidates / 3 seats takes
+At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 3.3 s (21 s),
+Schulze 1.4 s (9.6 s), fractional STV 26 s exact (never finishes at 40: see
+[Limitations](#limitations)) and 7.8 s with `--rounding truncate:9` (15 s), `scottish` 7.4 s (13 s),
+`ers97` 9.9 s (14 s), QPQ 37 s (61 s), Cambridge STV 2.0 s (7.6 s), Meek 44 s (76 s), Warren 47 s
+(86 s). CPO-STV grows with the number of committee pairs instead: 10 candidates / 3 seats takes
 about 9 s at 100k voters, 12 / 4 about 34 s at 10k.
 
 Memory: every method counts the 20-candidate, 1M-voter election above, and the 300-candidate one at
