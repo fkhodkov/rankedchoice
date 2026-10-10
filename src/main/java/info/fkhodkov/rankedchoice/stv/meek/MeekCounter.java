@@ -123,6 +123,16 @@ public final class MeekCounter {
         // Indexed like `candidates`; the count's only record of each candidate's state.
         private final State[] states;
         private final long[] keepFactors;
+        // Bumped on every change of state; the ballots are sorted again when it no longer matches.
+        private int statesVersion;
+        // Between changes of state only keep factors change, and a ballot whose first rank with
+        // anyone standing has only hopeful candidates gives them its whole value whatever those are:
+        // such ballots are summed once into fixedVotes, and each pass walks only the rest, in
+        // movingBallots (by chunk, as distribute splits them). On a 300-candidate count about 60%
+        // of the ballots a pass would visit are fixed.
+        private int splitVersion = -1;
+        private long[] fixedVotes;
+        private int[][] movingBallots;
 
         Count(List<Candidate> candidates, List<Ballot> ballots, int seats, FixedPoint fixed, KeepRule keepRule) {
             this.candidates = candidates;
@@ -199,6 +209,7 @@ public final class MeekCounter {
 
         private void setState(Candidate candidate, State state) {
             states[indexOf.get(candidate)] = state;
+            statesVersion++;
         }
 
         StvResult run(MeekRuleset ruleset, BallotFormality.FormalBallots formal) {
@@ -305,34 +316,58 @@ public final class MeekCounter {
         }
 
         private Distribution distribute() {
-            long[] votes = new long[candidates.size()];
             long[] passFactors = new long[candidates.size()];
             for (int c = 0; c < candidates.size(); c++) {
                 passFactors[c] = fixed.one() - keepFactors[c];
             }
-            if (rankings.length < PARALLEL_THRESHOLD) {
-                for (int b = 0; b < rankings.length; b++) {
-                    distribute(rankings[b], 0, fixed.one(), multipliers[b], votes, passFactors);
-                }
-            } else {
-                // Each ballot's contribution is independent and every sum is an exact integer, so
-                // summing chunks on separate cores and adding them up gives the same totals.
-                int chunks = Math.min(rankings.length / (PARALLEL_THRESHOLD / 4),
-                        4 * Runtime.getRuntime().availableProcessors());
-                long[][] partial = new long[chunks][];
-                IntStream.range(0, chunks).parallel().forEach(chunk -> {
-                    long[] chunkVotes = new long[candidates.size()];
+            // After a change of state, this pass walks every ballot and sorts them as it goes (see
+            // movingBallots); until the next, passes walk only the moving ones.
+            boolean resplit = splitVersion != statesVersion;
+            int chunks = !resplit ? movingBallots.length : rankings.length < PARALLEL_THRESHOLD ? 1 : Math.min(
+                    rankings.length / (PARALLEL_THRESHOLD / 4), 4 * Runtime.getRuntime().availableProcessors());
+            // Each ballot's contribution is independent and every sum is an exact integer, so
+            // summing chunks on separate cores and adding them up gives the same totals.
+            long[][] partial = new long[chunks][];
+            long[][] partialFixed = new long[chunks][];
+            int[][] moving = new int[chunks][];
+            IntStream.range(0, chunks).parallel().forEach(chunk -> {
+                long[] chunkVotes = new long[candidates.size()];
+                if (resplit) {
+                    long[] chunkFixed = new long[candidates.size()];
                     int from = (int) ((long) rankings.length * chunk / chunks);
                     int to = (int) ((long) rankings.length * (chunk + 1) / chunks);
+                    int[] chunkMoving = new int[to - from];
+                    int count = 0;
                     for (int b = from; b < to; b++) {
+                        if (!addIfFixed(b, chunkFixed)) {
+                            chunkMoving[count++] = b;
+                            distribute(rankings[b], 0, fixed.one(), multipliers[b], chunkVotes, passFactors);
+                        }
+                    }
+                    partialFixed[chunk] = chunkFixed;
+                    moving[chunk] = Arrays.copyOf(chunkMoving, count);
+                } else {
+                    for (int b : movingBallots[chunk]) {
                         distribute(rankings[b], 0, fixed.one(), multipliers[b], chunkVotes, passFactors);
                     }
-                    partial[chunk] = chunkVotes;
-                });
-                for (long[] chunkVotes : partial) {
-                    for (int c = 0; c < votes.length; c++) {
-                        votes[c] = Math.addExact(votes[c], chunkVotes[c]);
+                }
+                partial[chunk] = chunkVotes;
+            });
+            if (resplit) {
+                long[] fixedSum = new long[candidates.size()];
+                for (long[] chunkFixed : partialFixed) {
+                    for (int c = 0; c < fixedSum.length; c++) {
+                        fixedSum[c] = Math.addExact(fixedSum[c], chunkFixed[c]);
                     }
+                }
+                fixedVotes = fixedSum;
+                movingBallots = moving;
+                splitVersion = statesVersion;
+            }
+            long[] votes = fixedVotes.clone();
+            for (long[] chunkVotes : partial) {
+                for (int c = 0; c < votes.length; c++) {
+                    votes[c] = Math.addExact(votes[c], chunkVotes[c]);
                 }
             }
             Map<Candidate, Long> byCandidate = new LinkedHashMap<>();
@@ -345,6 +380,45 @@ public final class MeekCounter {
             }
             long quota = fixed.divideDown(held, seats + 1) + fixed.epsilon();
             return new Distribution(byCandidate, totalVotes - held, quota);
+        }
+
+        /**
+         * If ballot {@code b}'s first rank with anyone standing has only hopeful candidates, adds
+         * what it gives them to {@code votes}, exactly as {@link #distribute(int[], int, long, long,
+         * long[], long[])} would (the weight split evenly, rounded down, and all of it kept), and
+         * says so; a ballot with nobody standing gives nothing and counts as fixed too.
+         */
+        private boolean addIfFixed(int b, long[] votes) {
+            int[] ranking = rankings[b];
+            int start = 0;
+            while (start < ranking.length) {
+                int last = start;
+                while (ranking[last] >= 0) {
+                    last++;
+                }
+                int standing = 0;
+                for (int j = start; j <= last; j++) {
+                    State state = states[member(ranking[j])];
+                    if (state == State.ELECTED) {
+                        return false;
+                    }
+                    if (state == State.HOPEFUL) {
+                        standing++;
+                    }
+                }
+                if (standing > 0) {
+                    long kept = Math.multiplyExact(fixed.divideDown(fixed.one(), standing), multipliers[b]);
+                    for (int j = start; j <= last; j++) {
+                        int candidate = member(ranking[j]);
+                        if (states[candidate] == State.HOPEFUL) {
+                            votes[candidate] = Math.addExact(votes[candidate], kept);
+                        }
+                    }
+                    return true;
+                }
+                start = last + 1;
+            }
+            return true;
         }
 
         /**
