@@ -35,7 +35,8 @@ Requires Java 25 and Maven, and Python 3 for the tests of the reference tools.
 
 ```sh
 mvn package
-java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input examples/wikipedia-andrea-brad-carter-delilah.blt
+java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar \
+    --input library/src/test/resources/testdata/wikipedia/wikipedia-andrea-brad-carter-delilah.blt
 java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input election.blt --ruleset scottish
 java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input election.blt --method meek --report-format html --output result.html
 ```

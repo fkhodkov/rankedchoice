@@ -21,7 +21,7 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  * Droop quota — {@link QuotaTest} unit-tests the arithmetic of {@code hare}, {@code
  * hagenbach-bischoff}, and {@code imperiali} in isolation, but none of the three is exercised
  * end-to-end through {@link StvCounter}. This fixture closes that gap for Hagenbach-Bischoff,
- * using {@code examples/wikipedia-andrea-brad-carter-delilah.blt} — a ballot-level
+ * using {@code testdata/wikipedia/wikipedia-andrea-brad-carter-delilah.blt} — a ballot-level
  * reconstruction of Wikipedia's "Counting single transferable votes" worked example, whose
  * own narrative computes the quota as a plain {@code 57/(2+1) = 19}, i.e. Hagenbach-Bischoff
  * (unrounded, no "+1"), not the standard Droop quota this project defaults to. See that file's
@@ -33,8 +33,8 @@ class HagenbachBischoffQuotaFixtureTest {
 
     @Test
     void reproducesTheWikipediaWorkedExampleUnderItsOwnQuotaFormula() {
-        ParsedElection election =
-                BltParser.parse(Path.of("../examples/wikipedia-andrea-brad-carter-delilah.blt"));
+        ParsedElection election = BltParser.parse(
+                Path.of("src/test/resources/testdata/wikipedia/wikipedia-andrea-brad-carter-delilah.blt"));
         List<Candidate> candidates = election.candidates();
 
         StvRuleset ruleset = StvRulesetParser.parse("hagenbach-bischoff", null, null, null, candidates);

@@ -19,7 +19,7 @@ max_line_length = 120
 indent_size = 2
 
 # Election data and expected results are fixtures: keep them byte for byte.
-[{library/src/test/resources/testdata/**,examples/**,*.blt,*.csv}]
+[{library/src/test/resources/testdata/**,*.blt,*.csv}]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
