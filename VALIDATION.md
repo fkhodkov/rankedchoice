@@ -18,10 +18,10 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 | [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (60 elections) | ballot-order sensitivity measured |
 | [QPQ](#qpq) | | droop and OpenSTV | hand-derived cases |
 | [CPO-STV](#cpo-stv) | (never used in a public election) | an independent count written from the rules | hand-derived cases |
-| [Schulze](#schulze) | a Debian General Resolution's pairwise tally | | Wikipedia's example; hand-derived cases |
+| [Schulze](#schulze) | a Debian General Resolution's pairwise tally | OpenSTV (500 elections, every pairwise figure and strongest path) | Wikipedia's example; hand-derived cases |
 | [Schulze STV](#schulze-stv) | (never used in a public election) | Schulze's own program and its 315,112 published supports; an independent count from the paper | the paper's worked example |
 | [Schulze proportional ranking](#schulze-proportional-ranking) | | Schulze's own program's published lists (every comparison it prints, while the lists agree) | the paper's worked example |
-| [Borda](#borda) | Nauru's 2019 election, two constituencies (scores) | | hand-derived cases |
+| [Borda](#borda) | Nauru's 2019 election, two constituencies (scores) | OpenSTV (500 elections, every score) | hand-derived cases |
 
 **Official counts**: how closely each jurisdiction's counts are reproduced, from its ballots. How
 the US ranked-choice counts differ in reading ballots (overvotes, skipped rankings, write-ins)
@@ -904,6 +904,24 @@ that fixture checks the strongest-path computation and ranking against the real 
 than replaying ballots. No real election with a published genuine cycle was found, so the cycle
 case is hand-derived.
 
+Against OpenSTV 1.7's Condorcet count (`tools/reference/openstv`), whose default completion,
+Schwartz sequential dropping, is the beatpath method on winning votes: 500 seeded random
+elections of 3-8 candidates, weighted ballots, rankings cut short, a withdrawn candidate in some,
+small enough that 49 have a pairwise cycle and 12 of those end in a tie. Every pairwise figure,
+every strongest-path strength and the winners match; where the dropping leaves several
+candidates, they are exactly this project's first place.
+
+That check found a bug, fixed on 10 October 2026. The ranking was by how many others each
+candidate beats on strongest paths, on the claim that the relation is a total preorder. Schulze
+proves it transitive, not that much: a candidate nobody beats can beat fewer others than another
+candidate nobody beats, and so came below first place, though both are Schulze winners. 7 of the
+500 elections showed it. First place is now every candidate nobody beats, and each later place
+every candidate beaten only by those above; `SchulzeMethodTest` has a three-candidate case
+(A ties B, B ties C, A beats C) that the old ranking fails. On Tideman's and the Pirate Party
+elections in Schulze's archive the ranking changed in 11 of 70. Schulze STV uses it only to
+break ties, and none of its committees, potential winners or supports changed; the proportional
+ranking's effect is under [Schulze proportional ranking](#schulze-proportional-ranking).
+
 The pairwise matrix is counted in `long`s when the counts fit, and in `BigInteger`s when they
 don't. No fixture or external check reaches the second way, since no real election is big
 enough. `ScaledCountsTest` counts 200 random elections, with tied and truncated rankings, both
@@ -920,6 +938,11 @@ ballot set rebuilt to match each published table must reproduce the official sco
 exactly. Plus hand-derived cases for modified Borda, partial ballots, a three-way tie, a single
 candidate, a blank ballot and a withdrawn candidate, who is passed over so that those after them
 move up (`BordaMethodTest`).
+
+Against OpenSTV 1.7's Borda count without ballot completion (`tools/reference/openstv`): the
+same 500 random elections as Schulze's, every candidate's score equal. Both give n-1 points for
+a first preference down to 0, none to an unranked candidate, and count n without the withdrawn.
+OpenSTV has no tied ranks, so the tied-rank rule is checked only by hand-derived cases.
 
 ## CPO-STV
 
@@ -998,7 +1021,7 @@ H to 6 decimals, then who took it.
 - **Every comparison.** H depends only on who's already placed, so wherever the two lists agree
   on the places so far, every value of H can be compared. In the 64 Tideman elections counted
   (A13 and A23, of 26 and 29 candidates and mostly short ballots, didn't finish within 30 and 15
-  minutes, and aren't checked), all 29,148 comparisons published for those places match, to the
+  minutes, and aren't checked), all 28,750 comparisons published for those places match, to the
   6 decimals they're given in; so do the 2,920 of the Berlin Pirates' 2011 convention (29
   candidates, 106 ballots). The two larger Pirate conventions, Berlin 2013 (46 candidates) and
   Sweden 2014 (63), weren't run to the end.
@@ -1014,6 +1037,12 @@ H to 6 decimals, then who took it.
   in the files themselves: A10, A12, A33 and A67 hold two or three runs of the program, and they
   don't all agree. The program also gives the first place to the top of its single-winner
   ranking, where the paper runs Stage 3 for it too; no list parts there.
+- **The October 2026 fix to the single-winner ranking** (see [Schulze](#schulze)) changed the
+  tie-break ranking of 6 of the lists' elections and one list, A33's. It parts from the program at
+  place 5 now (ours F, his H, both among the six candidates unbeaten on his printed H, by margin
+  and by winning votes), where it parted at place 8 before (ours F, his N); the comparisons
+  checked there fell from 1,608 to 1,210, the 28,750 above. Every other list and comparison is
+  as it was.
 - **Supports past the closed form.** For committees of over 20 members, the support's
   minimising set is found by a minimum cut (Dinkelbach's method) in double precision, then the
   support computed exactly at it (`LargeCommitteeSupport`). On 400 random contests of up to 9

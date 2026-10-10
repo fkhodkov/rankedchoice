@@ -2,12 +2,13 @@ package info.fkhodkov.rankedchoice.schulze;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 
@@ -21,13 +22,15 @@ import info.fkhodkov.rankedchoice.core.model.Candidate;
  * weight whenever {@code a} beats {@code b}, not the margin between them) — the variant
  * Schulze's own paper and the Debian project's devotee implementation treat as the default.
  *
- * <p>{@code a} beats {@code b} in the final ranking iff {@code p[a][b] > p[b][a]}; this
- * relation is a proven total preorder (transitive, with no cycles), so ranking candidates by
- * how many others they beat this way — and grouping equal counts together as ties — reproduces
- * the same order as a full pairwise comparison of {@code p}, without needing a separate sort
- * comparator. Verified against Wikipedia's worked 5-candidate example
- * ({@link SchulzeMethodTest}) and against a real Debian General Resolution's published pairwise
- * matrix ({@link SchulzeDebianGr2004002FixtureTest}).
+ * <p>{@code a} beats {@code b} in the final ranking iff {@code p[a][b] > p[b][a]}. Schulze proves
+ * this relation transitive, but not that candidates neither of which beats the other rank alike:
+ * {@code a} may beat {@code c} while {@code b} beats neither. So the ranking isn't by how many
+ * others each candidate beats, which could put a candidate nobody beats below first. First place
+ * is every candidate nobody beats, the paper's winners; each later place, every candidate beaten
+ * only by those placed above. Verified against Wikipedia's worked 5-candidate example
+ * ({@link SchulzeMethodTest}), a real Debian General Resolution's published pairwise matrix
+ * ({@link SchulzeDebianGr2004002FixtureTest}), and OpenSTV's Condorcet count
+ * ({@code tools/reference/openstv}).
  */
 public final class SchulzeMethod {
 
@@ -102,22 +105,48 @@ public final class SchulzeMethod {
         return result;
     }
 
+    /**
+     * The ranking by {@code p}. As beating is transitive, a candidate's place is one below the
+     * lowest place of those who beat it, and those who beat it are beaten by fewer candidates
+     * than it is, so placing candidates in order of how many beat them places every one's
+     * beaters first.
+     */
     private static List<Set<Candidate>> rank(List<Candidate> candidates, Map<Candidate, Map<Candidate, BigInteger>> p) {
-        Map<Candidate, Integer> wins = new LinkedHashMap<>();
-        for (Candidate a : candidates) {
-            int count = 0;
-            for (Candidate b : candidates) {
-                if (!a.equals(b) && p.get(a).get(b).compareTo(p.get(b).get(a)) > 0) {
-                    count++;
+        int n = candidates.size();
+        boolean[][] beats = new boolean[n][n];
+        int[] beatenBy = new int[n];
+        for (int a = 0; a < n; a++) {
+            Candidate candidateA = candidates.get(a);
+            for (int b = 0; b < n; b++) {
+                Candidate candidateB = candidates.get(b);
+                if (a != b && p.get(candidateA).get(candidateB).compareTo(p.get(candidateB).get(candidateA)) > 0) {
+                    beats[a][b] = true;
+                    beatenBy[b]++;
                 }
             }
-            wins.put(a, count);
         }
-
-        Map<Integer, Set<Candidate>> groups = new TreeMap<>(java.util.Comparator.reverseOrder());
-        for (Candidate candidate : candidates) {
-            groups.computeIfAbsent(wins.get(candidate), _ -> new LinkedHashSet<>()).add(candidate);
+        Integer[] order = new Integer[n];
+        for (int c = 0; c < n; c++) {
+            order[c] = c;
         }
-        return new ArrayList<>(groups.values());
+        Arrays.sort(order, Comparator.comparingInt(c -> beatenBy[c]));
+        int[] place = new int[n];
+        int places = 0;
+        for (int c : order) {
+            for (int a = 0; a < n; a++) {
+                if (beats[a][c]) {
+                    place[c] = Math.max(place[c], place[a] + 1);
+                }
+            }
+            places = Math.max(places, place[c] + 1);
+        }
+        List<Set<Candidate>> ranking = new ArrayList<>();
+        for (int k = 0; k < places; k++) {
+            ranking.add(new LinkedHashSet<>());
+        }
+        for (int c = 0; c < n; c++) {
+            ranking.get(place[c]).add(candidates.get(c));
+        }
+        return ranking;
     }
 }

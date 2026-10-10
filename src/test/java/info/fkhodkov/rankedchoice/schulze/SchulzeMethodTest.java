@@ -136,6 +136,27 @@ class SchulzeMethodTest {
     }
 
     @Test
+    void everyCandidateNobodyBeatsSharesFirstPlaceEvenIfAnotherBeatsMore() {
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        // A-B 5:5 and B-C 5:5 are ties, A beats C 6:4: p[A][C] = 6 and every other path is 0. A
+        // beats one candidate and B none, but nobody beats either, so both are Schulze winners;
+        // ranking by how many each beats put A first alone and B level with C, whom A beats.
+        List<Ballot> ballots = List.of(
+                ballot(4, a, c, b),
+                ballot(2, b, a, c),
+                ballot(3, b, c, a),
+                ballot(1, c, a, b));
+
+        SchulzeResult result = SchulzeMethod.count(List.of(a, b, c), ballots);
+
+        assertThat(result.strongestPaths().get(a).get(c)).isEqualTo(BigInteger.valueOf(6));
+        assertThat(result.strongestPaths().get(b).get(a)).isEqualTo(BigInteger.ZERO);
+        assertThat(result.ranking()).containsExactly(Set.of(a, b), Set.of(c));
+    }
+
+    @Test
     void refusesACountWithNoCandidates() {
         assertThatThrownBy(() -> SchulzeMethod.count(List.of(), List.of()))
                 .isInstanceOf(IllegalArgumentException.class)

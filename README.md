@@ -24,8 +24,8 @@ design.
 | CPO-STV | `cpo-stv` | Tideman's: every possible committee compared with every other | hand-worked cases; an independent implementation (4,830 scores) |
 | Schulze STV | `schulze-stv` | Schulze's: committees one swap apart compared by how well each could split the voters into separate quotas, then a beatpath | Schulze's own program and published figures on Tideman's 65 elections; the paper's worked example |
 | Schulze proportional ranking | `schulze-proportional` | Schulze's: a party list built place by place, each candidate compared by how strongly the list so far plus them would hold against each other candidate, then a beatpath | every comparison behind Schulze's own program's published lists for Tideman's elections, to 6 decimals; the paper's worked example |
-| Schulze | `schulze` | Condorcet beatpath ranking (winning votes) | Wikipedia's example, a Debian vote's published tally |
-| Borda | `borda` | Positional scoring: classic, or Dowdall (Nauru) via `--borda-scoring`; tied ranks share their positions' points | Nauru 2019, two constituencies |
+| Schulze | `schulze` | Condorcet beatpath ranking (winning votes) | OpenSTV on 500 elections, every pairwise figure and strongest path; Wikipedia's example, a Debian vote's published tally |
+| Borda | `borda` | Positional scoring: classic, or Dowdall (Nauru) via `--borda-scoring`; tied ranks share their positions' points | Nauru 2019, two constituencies; OpenSTV on 500 elections, every score |
 
 IRV is STV with one seat.
 
@@ -442,6 +442,9 @@ about 45 s, 16 / 8 about a minute.
   and official distributions of preferences into the ACT test fixtures.
 - [`tools/reference/opentally`](tools/reference/opentally/README.md) — count random elections with
   OpenTally under each matching preset and compare every round with this project's.
+- [`tools/reference/openstv`](tools/reference/openstv/README.md) — count random elections by
+  Schulze and Borda with OpenSTV and compare every pairwise figure, strongest path, winner and
+  score with this project's.
 - [`tools/reference/pyrcv2`](tools/reference/pyrcv2/README.md) — count an election with pyRCV2
   (ERS97, exact Gregory, Scottish or Senate) and compare it with this one, round by round.
 - [`tools/reference/scotland`](tools/reference/scotland/README.md) — count every Scottish council
@@ -496,7 +499,7 @@ tools/
 ├── benchmark/                 large synthetic elections and the Performance figures
 └── reference/                 the independent checks (see VALIDATION.md)
     ├── <place>/check.py       one jurisdiction's official counts (README.md lays out their data)
-    ├── opentally/, pyrcv2/, schulze_stv/, cpo_stv.py   checks against other implementations
+    ├── opentally/, openstv/, pyrcv2/, schulze_stv/, cpo_stv.py   checks against other implementations
     ├── rcvcheck.py, cvr_to_blt.py, refresh_results.py, results_page.py   shared pieces
     ├── results/               every checker's results, the results page, jurisdictions.json
     └── tests/                 the Python tests, line length and pyflakes included
