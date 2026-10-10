@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.model.SingletonRanking;
 
 /**
  * Parses the de facto ".blt" ballot format used by tools such as OpenSTV:
@@ -101,25 +102,34 @@ public final class BltParser {
             withdrawn.add(requireCandidate(byId, entry.getKey(), entry.getValue()));
         }
 
-        // One immutable set per candidate, shared by every rank naming that candidate alone --
-        // most ranks do, and Ballot keeps an already-immutable set as it is.
-        List<Set<Candidate>> alone = candidates.stream().map(Set::of).toList();
+        // A ballot with no tied ranks keeps its candidates' indices (SingletonRanking); a tied
+        // rank is a set of its own, and every other rank the table's shared one-candidate set.
+        SingletonRanking.Table table = new SingletonRanking.Table(candidates);
         List<Ballot> ballots = new ArrayList<>(rawBallots.size());
         for (int b = 0; b < rawBallots.size(); b++) {
             RawBallot raw = rawBallots.get(b);
             rawBallots.set(b, null); // let each raw line go as soon as its ballot exists
-            List<Set<Candidate>> ranking = new ArrayList<>();
             int[] ids = raw.ids();
-            for (int i = 0; i < ids.length; i++) {
-                if (i + 1 < ids.length && ids[i + 1] < 0) {
-                    Set<Candidate> tied = new LinkedHashSet<>();
-                    tied.add(candidates.get(ids[i] - 1));
-                    while (i + 1 < ids.length && ids[i + 1] < 0) {
-                        tied.add(candidates.get(-ids[++i] - 1));
+            List<Set<Candidate>> ranking;
+            if (Arrays.stream(ids).allMatch(id -> id > 0)) {
+                int[] indices = new int[ids.length];
+                for (int i = 0; i < ids.length; i++) {
+                    indices[i] = ids[i] - 1;
+                }
+                ranking = table.ranking(indices);
+            } else {
+                ranking = new ArrayList<>();
+                for (int i = 0; i < ids.length; i++) {
+                    if (i + 1 < ids.length && ids[i + 1] < 0) {
+                        Set<Candidate> tied = new LinkedHashSet<>();
+                        tied.add(candidates.get(ids[i] - 1));
+                        while (i + 1 < ids.length && ids[i + 1] < 0) {
+                            tied.add(candidates.get(-ids[++i] - 1));
+                        }
+                        ranking.add(tied);
+                    } else {
+                        ranking.add(table.alone(ids[i] - 1));
                     }
-                    ranking.add(tied);
-                } else {
-                    ranking.add(alone.get(ids[i] - 1));
                 }
             }
             ballots.add(new Ballot(ranking, raw.count()));

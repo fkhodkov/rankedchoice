@@ -10,6 +10,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.model.SingletonRanking;
 
 class BltParserTest {
 
@@ -117,6 +118,36 @@ class BltParserTest {
         assertThatThrownBy(() -> BltParser.parse(lines))
                 .isInstanceOf(BallotParseException.class)
                 .hasMessageContaining("Line 4:");
+    }
+
+    @Test
+    void keepsUntiedRankingsCompactlyAndEqualToTheListsTheyStandFor() {
+        ParsedElection election = BltParser.parse(makeLines(SAMPLE));
+        Candidate alice = new Candidate("1", "Alice");
+        Candidate bob = new Candidate("2", "Bob");
+
+        Ballot second = election.ballots().get(1);
+        assertThat(second.ranking()).isInstanceOf(SingletonRanking.class);
+        assertThat(second.ranking()).isEqualTo(List.of(Set.of(bob), Set.of(alice)))
+                .hasSameHashCodeAs(List.of(Set.of(bob), Set.of(alice)));
+        assertThat(second).isEqualTo(new Ballot(List.of(Set.of(bob), Set.of(alice)), BigInteger.TWO));
+        assertThat(election.ballots().getFirst().ranking()).isNotInstanceOf(SingletonRanking.class);
+    }
+
+    @Test
+    void candidateRankedTwiceThrows() {
+        String bad = """
+                3 1
+                1 2 3 2 0
+                0
+                "A"
+                "B"
+                "C"
+                """;
+        var lines = makeLines(bad);
+        assertThatThrownBy(() -> BltParser.parse(lines))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("candidate 2 appears more than once in the same ballot");
     }
 
     @Test

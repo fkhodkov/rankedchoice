@@ -23,21 +23,24 @@ public record Ballot(List<Set<Candidate>> ranking, BigInteger count) {
             throw new IllegalArgumentException("count must be positive, got: " + count);
         }
 
-        List<Set<Candidate>> copy = new ArrayList<>(ranking.size());
-        Set<Candidate> seen = new HashSet<>();
-        for (Set<Candidate> rank : ranking) {
-            if (rank == null || rank.isEmpty()) {
-                throw new IllegalArgumentException("a ranking cannot contain an empty rank");
-            }
-            for (Candidate candidate : rank) {
-                if (!seen.add(candidate)) {
-                    throw new IllegalArgumentException(
-                            "candidate " + candidate.id() + " appears more than once in the same ballot");
+        // A SingletonRanking is immutable and checked as it's made, and kept as it is.
+        if (!(ranking instanceof SingletonRanking)) {
+            List<Set<Candidate>> copy = new ArrayList<>(ranking.size());
+            Set<Candidate> seen = new HashSet<>();
+            for (Set<Candidate> rank : ranking) {
+                if (rank == null || rank.isEmpty()) {
+                    throw new IllegalArgumentException("a ranking cannot contain an empty rank");
                 }
+                for (Candidate candidate : rank) {
+                    if (!seen.add(candidate)) {
+                        throw new IllegalArgumentException(
+                                "candidate " + candidate.id() + " appears more than once in the same ballot");
+                    }
+                }
+                copy.add(Set.copyOf(rank));
             }
-            copy.add(Set.copyOf(rank));
+            ranking = List.copyOf(copy);
         }
-        ranking = List.copyOf(copy);
     }
 
     /** True if this ballot ranks no candidates at all (a blank ballot). */
