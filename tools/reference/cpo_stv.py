@@ -7,7 +7,7 @@ sorted candidate names; score an exact fraction "n/d"), e.g. dumped from this pr
 CpoStvResult.outcomeScores(). Prints how many match, any mismatches, and the outcome (if any)
 that beats every other head to head.
 
-Used to check src/test/resources/testdata/cpostv/near-tie-cycle.blt: all 4,830 pairwise scores
+Used to check library/src/test/resources/testdata/cpostv/near-tie-cycle.blt: all 4,830 pairwise scores
 match CpoStvCounter exactly.
 
 Rules (Tideman's CPO-STV, as this project documents them): Droop quota floor(N/(s+1))+1 over

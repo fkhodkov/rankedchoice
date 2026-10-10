@@ -27,6 +27,13 @@ mvn -o -q verify -DskipPythonTests      # where python3 isn't installed
 python3 -m unittest discover -s tools/reference/tests   # the Python tests alone, in a second
 ```
 
+- Three Maven modules under the root's `pom.xml`: `common` (the `core` package: model, ballot
+  readers, config, `Fraction`, report markup), `library` (every counting method, its reports, the
+  bundled rulesets and the real-election fixtures; depends on `common` alone) and `cli`
+  (`Main`, shaded into the runnable jar). Run Maven from the root: Checkstyle reads the root's
+  `checkstyle.xml` from there. One module's tests: `mvn -o -q -pl library -am test -Dtest=...
+  -Dsurefire.failIfNoSpecifiedTests=false`. The library's tests run in `library/`, so a fixture
+  path is `src/test/resources/...` and a root file `../examples/...`.
 - The pre-commit hook (`.githooks/pre-commit`, on with `git config core.hooksPath .githooks`)
   runs the same `mvn -o -q verify` on the staged files in a temporary copy and refuses the commit
   if it fails. It stands in for CI, which this repository doesn't have: don't skip it with
@@ -41,7 +48,7 @@ python3 -m unittest discover -s tools/reference/tests   # the Python tests alone
   pre-commit hook to enforce it.
 - The Python tests check `tools/reference/cvr_to_blt.py`, `rcvcheck.py`, the results page and
   `refresh_results.py`, and that VALIDATION.md's generated table matches the committed results.
-- The reference checkers need `target/rankedchoice-0.1.0-SNAPSHOT.jar` (`mvn -o -q package
+- The reference checkers need `cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar` (`mvn -o -q package
   -DskipTests`); some need LibreOffice (`soffice`), `pdftotext`, or `openpyxl` (NSW).
   `refresh_results.py` runs the checkers with its own Python and skips NSW where that lacks
   `openpyxl`: run it with a virtual environment's (`python3 -m venv ...; .../pip install
@@ -63,7 +70,7 @@ OpenSTV, CRAN packages), or a hand-derived case. When adding or changing a metho
   ballots than the count's). Better still, show it: see below.
 - Name the gaps. VALIDATION.md's "Not validated" section lists what has no independent check and
   why, dated when it was last rechecked.
-- Real-election fixtures live in `src/test/resources/testdata/<place>/`, each directory with a
+- Real-election fixtures live in `library/src/test/resources/testdata/<place>/`, each directory with a
   README saying where the ballots and official figures come from and how they were converted.
   `FixtureReadmeTest` fails the build when a directory has none, or its README doesn't name
   each file in it (by name, by name without extensions, or by a pattern like `<contest>.blt`).

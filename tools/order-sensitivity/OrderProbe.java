@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  *
  * <p>usage (from the project root, after mvn package -DskipTests):
  * <pre>
- *   java -cp target/rankedchoice-0.1.0-SNAPSHOT.jar tools/order-sensitivity/OrderProbe.java \
+ *   java -cp cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar tools/order-sensitivity/OrderProbe.java \
  *       [--json] [--save DIR] SHUFFLES FILE.blt...
  * </pre>
  * {@code --json} prints one JSON object per election instead of text. {@code --save DIR} writes,

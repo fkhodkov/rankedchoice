@@ -8,7 +8,7 @@ collection of proportional RCV cast vote records (https://doi.org/10.7910/DVN/ST
 results from the County's Dominion "RCV Detailed Report" (published under
 https://alamedacountyca.gov/rovresults/rcv/), both fetched into DATA_DIR. The ballots are
 converted (../cvr_to_blt.py) and counted, the 2024 contests with the `albany` ruleset and the 2022
-ones with src/test/resources/testdata/albany/albany-2022.yaml (the County's settings then: the
+ones with library/src/test/resources/testdata/albany/albany-2022.yaml (the County's settings then: the
 threshold recomputed each round, 6 decimal places), and every official round's tallies must be one
 of this count's rounds, in order, every candidate to the report's decimal places, at the official
 first threshold, with the same candidates elected. The CVR and the report spell some names
@@ -29,7 +29,7 @@ from rcvcheck import (DATAVERSE, count, exhausted_line, fetch, main, name_key as
 
 ROOT = os.path.join(HERE, "..", "..", "..")
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
-CONFIG_2022 = os.path.join(ROOT, "src", "test", "resources", "testdata", "albany", "albany-2022.yaml")
+CONFIG_2022 = os.path.join(ROOT, "library", "src", "test", "resources", "testdata", "albany", "albany-2022.yaml")
 REPORT = "https://alamedacountyca.gov/rovresults/rcv/{election}/Albany/{race}/RcvDetailedReport.xml"
 # contest: (Dataverse file id, County election id, race)
 CONTESTS = {

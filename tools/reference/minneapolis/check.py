@@ -19,7 +19,7 @@ round isn't in the summary.
   `minneapolis` ruleset.
 - 2009: FairVote's collection of the records (https://doi.org/10.7910/DVN/STVUET), and the City's
   summaries as Excel files, read with LibreOffice (soffice); counted with the 2006 ordinance's
-  rules alone (src/test/resources/testdata/minneapolis/minneapolis-2009.yaml), without the
+  rules alone (library/src/test/resources/testdata/minneapolis/minneapolis-2009.yaml), without the
   rankings test the later counts add. The summaries name candidates by surname, and some
   spellings differ from the records' ("Wahlstedt", "Wahstedt"), so names are matched loosely.
   The records lump every write-in as one, where the summaries list each; they're left out.
@@ -43,7 +43,7 @@ CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 # An overvote or a skipped ranking is passed over; write-ins are one candidate, named as the City's results do.
 READING = ["--overvote", "skip", "--write-in", "candidate"]
 FILES = "https://vote.minneapolismn.gov/media/-www-content-assets/documents/archive/elections/"
-CONFIG_2009 = os.path.join(HERE, "..", "..", "..", "src", "test", "resources", "testdata", "minneapolis",
+CONFIG_2009 = os.path.join(HERE, "..", "..", "..", "library", "src", "test", "resources", "testdata", "minneapolis",
                            "minneapolis-2009.yaml")
 # 2009 and 2013: (seats, FairVote's Dataverse file, the City's Excel summary or the winners).
 OLDER = {

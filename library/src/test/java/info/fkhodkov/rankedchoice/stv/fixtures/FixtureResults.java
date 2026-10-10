@@ -15,8 +15,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  * A real-election fixture test's results, in the shape the reference checkers write with {@code --results}, for
  * {@code tools/reference/results_page.py}: each contest, whether it checks out, how many rounds match out of how
  * many, whether the same candidates are elected, and a line saying so. Written only when the system property
- * {@code results.dir} names a directory:
- * {@code mvn test -Dtest=ActOfficialDistributionTest -Dresults.dir=tools/reference/results}.
+ * {@code results.dir} names a directory, relative to the repository's root (which the library's
+ * build passes as {@code repository.root}):
+ * {@code mvn -pl library -am test -Dtest=ActOfficialDistributionTest -Dsurefire.failIfNoSpecifiedTests=false
+ * -Dresults.dir=tools/reference/results}.
  */
 final class FixtureResults {
 
@@ -49,6 +51,7 @@ final class FixtureResults {
         file.put("date", LocalDate.now().toString());
         file.put("contests", RESULTS.get(checker));
         String json = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).writeValueAsString(file);
-        Files.writeString(Path.of(directory, checker + ".json"), json + "\n");
+        Path root = Path.of(System.getProperty("repository.root", ".."));
+        Files.writeString(root.resolve(directory).resolve(checker + ".json"), json + "\n");
     }
 }

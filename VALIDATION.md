@@ -4,7 +4,7 @@ How each counting method and building block has been checked, against what, and 
 precision. The aim throughout is to check against something independent of this project's
 own engine: official counts of real elections, independent implementations of the same
 method (OpenSTV, droop, CRAN packages, pyRCV2), or, where neither exists, hand-derived cases.
-Tests named below are under `src/test/java`, fixtures under `src/test/resources/testdata/`.
+Tests named below are under `library/src/test/java`, fixtures under `library/src/test/resources/testdata/`.
 
 ## At a glance
 

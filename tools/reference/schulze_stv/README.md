@@ -67,7 +67,8 @@ older single-winner ranking (A34).
 ## The independent count
 
 ```sh
-java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar -i election.blt -m schulze-stv --report-format json > report.json
+java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar -i election.blt -m schulze-stv \
+    --report-format json > report.json
 python3 tools/reference/schulze_stv/schulze_stv.py election.blt report.json
 ```
 

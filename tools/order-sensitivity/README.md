@@ -8,7 +8,7 @@ the committees Scottish STV and Meek elect (neither depends on order).
 
 ```sh
 mvn package -DskipTests
-java -cp target/rankedchoice-0.1.0-SNAPSHOT.jar tools/order-sensitivity/OrderProbe.java 200 election.blt
+java -cp cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar tools/order-sensitivity/OrderProbe.java 200 election.blt
 ```
 
 `--json` prints one JSON object per election; `--save DIR` writes, for each committee seen, the

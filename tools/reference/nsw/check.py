@@ -25,8 +25,8 @@ import nsw_to_blt  # noqa: E402
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from rcvcheck import record, stale, write_results  # noqa: E402
 
-DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "target",
-                           "rankedchoice-0.1.0-SNAPSHOT.jar")
+DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "cli", "target",
+                           "rankedchoice-cli-0.1.0-SNAPSHOT.jar")
 
 def official(dop_path):
     """[(count, {candidate: votes}, votes lost)], the councillors elected, and who was excluded, in order."""

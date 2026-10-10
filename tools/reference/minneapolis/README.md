@@ -15,7 +15,7 @@ seats) and the Board of Estimate and Taxation (2 seats), and its single-seat rac
   it, and matches every official round to a round of this count, every candidate to 4 decimal
   places, with the threshold and the candidates elected. 2017–2025 are counted with
   `minneapolis` and their PDF summaries read with `pdftotext` (poppler-utils); 2009 with the 2006
-  ordinance's rules alone (`src/test/resources/testdata/minneapolis/minneapolis-2009.yaml`) and
+  ordinance's rules alone (`library/src/test/resources/testdata/minneapolis/minneapolis-2009.yaml`) and
   its Excel summaries read with LibreOffice (`soffice`); for 2013, only the winners, both ways.
   It also compares each matched round's "Exhausted" row with this count's exhausted votes (for
   2009, the write-ins left out of the matching, as the record lumps them).

@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import count  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "cli", "target", "rankedchoice-cli-0.1.0-SNAPSHOT.jar")
 COMPARE = os.path.join(HERE, "..", "pyrcv2", "compare.py")
 
 OURS = {
@@ -130,7 +130,7 @@ def main():
     args = parser.parse_args()
     os.makedirs(args.work, exist_ok=True)
     for ruleset in CORE:
-        text = open(os.path.join(HERE, "..", "..", "..", "src", "main", "resources", "rulesets",
+        text = open(os.path.join(HERE, "..", "..", "..", "library", "src", "main", "resources", "rulesets",
                                  ruleset + ".yaml")).read()
         open(os.path.join(args.work, ruleset + "-core.yaml"), "w").write(
             text.replace("electAsTheyStand: true", "electAsTheyStand: false"))

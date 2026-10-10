@@ -35,9 +35,9 @@ Requires Java 25 and Maven, and Python 3 for the tests of the reference tools.
 
 ```sh
 mvn package
-java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input examples/wikipedia-andrea-brad-carter-delilah.blt
-java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input election.blt --ruleset scottish
-java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input election.blt --method meek --report-format html --output result.html
+java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input examples/wikipedia-andrea-brad-carter-delilah.blt
+java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input election.blt --ruleset scottish
+java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input election.blt --method meek --report-format html --output result.html
 ```
 
 `mvn test` runs the test suite, including the real-election fixtures, and then the Python tests of
@@ -216,7 +216,7 @@ tiebreak: previous-round,declared
 reportFormat: json
 ```
 
-Bundled rulesets are the same thing, shipped in `src/main/resources/rulesets/`. Precedence is
+Bundled rulesets are the same thing, shipped in `library/src/main/resources/rulesets/`. Precedence is
 always flag, then config or ruleset, then built-in default. `batchExclusion`, `deferSurpluses`,
 `votesRequired`, `surplusOrder`, `electAsTheyStand`, `electSureWinners`, `exclusionOrder`,
 `simultaneousSurpluses`, `mathematicalElimination`, `rankingsElimination` and `quotaEachRound`
@@ -388,8 +388,8 @@ about 45 s, 16 / 8 about a minute.
   cause. Every checker it draws on (the US ones, `aec`, `nsw`, `cambridge`, and Scotland's
   `check.py`, `stage_report.py` and `stages.py`) writes its results with `--results
   tools/reference/results/<name>.json`, and so do the ACT's and Ireland's fixture tests, asked to
-  (`mvn test -Dtest='ActOfficialDistributionTest,Irish2002GeneralElectionFixtureTest'
-  -Dresults.dir=tools/reference/results`); the causes and the rules table are in
+  (`mvn -pl library -am test -Dtest='ActOfficialDistributionTest,Irish2002GeneralElectionFixtureTest'
+  -Dsurefire.failIfNoSpecifiedTests=false -Dresults.dir=tools/reference/results`); the causes and the rules table are in
   `results/jurisdictions.json`. A difference no cause names shows on the page as unexplained,
   and the script reports it. VALIDATION.md's Official counts table is generated the same way
   (`--validation write`), and the Python tests fail when it no longer matches the results.
@@ -455,15 +455,23 @@ about 45 s, 16 / 8 about a minute.
 
 ## Project layout
 
+Three Maven modules, built together from the root: `common` (what every method shares),
+`library` (the counting methods, which depend on `common` alone) and `cli` (the command line,
+packaged with both and its own dependencies into one runnable jar,
+`cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar`). Each module's tests sit beside its code; the
+real-election fixtures are the library's.
+
 ```
-src/main/java/info/fkhodkov/rankedchoice/
-├── core/
-│   ├── model/     Candidate, Ballot
-│   ├── ballot/    BltParser, CsvBallotParser, ParsedElection, ParsedBallots, BallotParseException,
-│   │              NumberedLine (line numbers for errors; a leading byte order mark dropped)
-│   ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
-│   ├── report/    ReportMarkup (CSV quoting, HTML escaping and page, JSON writer)
-│   └── util/      Fraction (exact rational arithmetic)
+common/src/main/java/info/fkhodkov/rankedchoice/
+└── core/
+    ├── model/     Candidate, Ballot, SingletonRanking (an untied ranking as candidate indices)
+    ├── ballot/    BltParser, CsvBallotParser, ParsedElection, ParsedBallots, BallotParseException,
+    │              NumberedLine (line numbers for errors; a leading byte order mark dropped)
+    ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
+    ├── report/    ReportMarkup (CSV quoting, HTML escaping and page, JSON writer)
+    └── util/      Fraction (exact rational arithmetic)
+
+library/src/main/java/info/fkhodkov/rankedchoice/
 ├── stv/
 │   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota,
 │   │              RoundedUpQuota
@@ -490,12 +498,14 @@ src/main/java/info/fkhodkov/rankedchoice/
 │                  SchulzeProportionalRanking, SchulzeProportionalResult, SchulzeProportionalReports,
 │                  LargeCommitteeSupport (supports for committees past the closed form),
 │                  Shares, LongDoubleMap (a completion's shares, dense or sparse)
-├── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
-│                  BordaResult, BordaTextReport, BordaReports
-└── cli/           Main
+└── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
+                   BordaResult, BordaTextReport, BordaReports
+library/src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)
+library/src/test/resources/testdata/   real and reference elections (see VALIDATION.md)
 
-src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)
-src/test/resources/testdata/   real and reference elections (see VALIDATION.md)
+cli/src/main/java/info/fkhodkov/rankedchoice/
+└── cli/           Main (picocli)
+
 tools/
 ├── votekit/                   VoteKit mock elections, compared across every method
 ├── order-sensitivity/         how much ballot order changes a Cambridge STV count

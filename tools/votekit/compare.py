@@ -41,8 +41,8 @@ METHODS = {
     "schulze": ("Schulze, top-ranked", ["--method", "schulze"]),
     "borda": ("Borda, top-ranked", ["--method", "borda"]),
 }
-DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "target",
-                           "rankedchoice-0.1.0-SNAPSHOT.jar")
+DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "cli", "target",
+                           "rankedchoice-cli-0.1.0-SNAPSHOT.jar")
 
 
 def winners(method, report, seats):

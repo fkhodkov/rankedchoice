@@ -9,7 +9,7 @@ Albany's multi-seat City Council and Board of Education contests of 2022 and 202
   overvote ends the ballot, a skipped ranking or an unqualified write-in is passed over.
 - `check.py` fetches each contest's record from Dataverse and the County's "RCV Detailed Report"
   XML, converts and counts it (2024 with `albany`, 2022 with the County's settings then,
-  `src/test/resources/testdata/albany/albany-2022.yaml`), and matches every official round to a
+  `library/src/test/resources/testdata/albany/albany-2022.yaml`), and matches every official round to a
   round of this count, every candidate to the report's decimal places, with the first threshold
   and the candidates elected. In each matched round it also compares the votes no longer with a
   candidate: the report's exhausted votes and overvotes past the first round's with this count's

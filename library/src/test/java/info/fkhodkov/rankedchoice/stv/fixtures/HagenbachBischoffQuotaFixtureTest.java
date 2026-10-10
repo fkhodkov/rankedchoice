@@ -34,7 +34,7 @@ class HagenbachBischoffQuotaFixtureTest {
     @Test
     void reproducesTheWikipediaWorkedExampleUnderItsOwnQuotaFormula() {
         ParsedElection election =
-                BltParser.parse(Path.of("examples/wikipedia-andrea-brad-carter-delilah.blt"));
+                BltParser.parse(Path.of("../examples/wikipedia-andrea-brad-carter-delilah.blt"));
         List<Candidate> candidates = election.candidates();
 
         StvRuleset ruleset = StvRulesetParser.parse("hagenbach-bischoff", null, null, null, candidates);

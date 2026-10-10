@@ -84,7 +84,7 @@ public final class Main implements Callable<Integer> {
             new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                     null, null, null, null, null, null, null);
 
-    /** One bundled preset shipped as a YAML resource under {@code src/main/resources/rulesets/}. */
+    /** One bundled preset shipped as a YAML resource under {@code library/src/main/resources/rulesets/}. */
     private record BundledRuleset(String name, String description) {
     }
 

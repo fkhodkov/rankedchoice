@@ -10,7 +10,7 @@ runs as ordinary Python.
   `scottish` or `senate`. It fixes two pyRCV2 bugs on the way (stage results stored without copying, so
   its "backwards" tie-break never saw an earlier stage's votes) and prints every stage as JSON,
   or with `--sheet` as the count-sheet files `Ers97ModelElectionFixtureTest` reads
-  (`src/test/resources/testdata/ers97/pyrcv2`).
+  (`library/src/test/resources/testdata/ers97/pyrcv2`).
 - `compare.py` matches each round of this project's count to a pyRCV2 stage: every candidate's
   votes, the votes exhausted and the loss by fraction. `--exact` allows for this project's
   10-place reports of exact values; `--combined` compares exhausted plus lost as one total;
@@ -23,7 +23,8 @@ deprecated in favour of OpenTally. That revision reproduces every count sheet in
 ```sh
 git clone https://yingtongli.me/git/pyRCV2 pyrcv2
 mvn package -DskipTests
-java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar -i election.blt --ruleset ers97 --report-format json > ours.json
+java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar -i election.blt --ruleset ers97 \
+    --report-format json > ours.json
 python3 tools/reference/pyrcv2/count.py pyrcv2 election.blt --preset ers97 > pyrcv2.json
 python3 tools/reference/pyrcv2/compare.py ours.json pyrcv2.json
 ```

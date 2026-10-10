@@ -11,7 +11,7 @@ an independent STV counter (in Rust) with presets for many real rule sets.
   preset for, built from its options, for `hare-clark-qpq`), `nswlg` (for `nsw-lg`), `viclc` and
   `wa` (for `vic-lc` and `wa-lc`, without early election, like `senate`), and `meek06`/`meeknz`
   (for `meek`). With `--sheet`, a count sheet as `OpenTallyFixtureTest` reads
-  (`src/test/resources/testdata/opentally`).
+  (`library/src/test/resources/testdata/opentally`).
 - `check.py` writes 200 seeded random elections (the same every time), counts each both ways and
   compares them round by round (for Meek, the winners only). It counts apart the elections that
   differ after a tie OpenTally broke at random, where this project uses declared order, and

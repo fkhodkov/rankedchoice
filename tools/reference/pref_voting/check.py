@@ -38,7 +38,7 @@ from pref_voting.profiles_with_ties import ProfileWithTies
 from pref_voting.scoring_methods import symmetric_borda_scores
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "cli", "target", "rankedchoice-cli-0.1.0-SNAPSHOT.jar")
 
 
 def election(seed, complete):

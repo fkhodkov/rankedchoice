@@ -36,7 +36,7 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..", "..")
 RESULTS = os.path.join(HERE, "results")
-DEFAULT_JAR = os.path.join(ROOT, "target", "rankedchoice-0.1.0-SNAPSHOT.jar")
+DEFAULT_JAR = os.path.join(ROOT, "cli", "target", "rankedchoice-cli-0.1.0-SNAPSHOT.jar")
 SINGLE = ["alameda", "sanfrancisco", "nyc", "alaska", "maine", "minneapolis", "portland", "eastpointe", "albany",
           "aec", "nsw", "cambridge"]
 SMALL = 64 * 1024        # --compare copies files under this size rather than linking them
@@ -68,7 +68,8 @@ def steps(data_root, only=None, java=True, jar=DEFAULT_JAR, python=sys.executabl
         plan.append((name, [python, os.path.join(HERE, name, "check.py"), directory, "--jar", jar,
                             "--results", os.path.join(results_dir, name + ".json")], skip))
     if java and not only:
-        plan.append(("act, ireland", ["mvn", "-q", "test", f"-Dtest={JAVA_TESTS}", "-DskipPythonTests",
+        plan.append(("act, ireland", ["mvn", "-q", "-pl", "library", "-am", "test", f"-Dtest={JAVA_TESTS}",
+                                      "-Dsurefire.failIfNoSpecifiedTests=false", "-DskipPythonTests",
                                       f"-Dresults.dir={results_dir}"], None))
     if page:
         plan.append(("results page", [python, os.path.join(HERE, "results_page.py")], None))

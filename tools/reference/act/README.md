@@ -29,9 +29,10 @@ cd ..
 Then, for each electorate (`act_table.py` needs `openpyxl`):
 
 ```sh
-python3 tools/reference/act/act_to_blt.py act2020 Yerrabi src/test/resources/testdata/act/act-2020-yerrabi.blt
+python3 tools/reference/act/act_to_blt.py act2020 Yerrabi library/src/test/resources/testdata/act/act-2020-yerrabi.blt
 python3 tools/reference/act/act_table.py act2020/table2_Yerrabi.xlsx \
-    src/test/resources/testdata/act/act-2020-yerrabi.blt src/test/resources/testdata/act/act-2020-yerrabi.official.txt
+    library/src/test/resources/testdata/act/act-2020-yerrabi.blt \
+    library/src/test/resources/testdata/act/act-2020-yerrabi.official.txt
 ```
 
 Every round of the `act-hare-clark` count of all five electorates matches an official count

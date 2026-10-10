@@ -14,7 +14,7 @@ preferences for every councillor count of the 2024 ordinary council elections (e
   vote, and the councillors elected. Counts that diverge only after a tie for exclusion the
   Commission decided by lot are counted apart.
 - `nsw_table.py` writes a count's official figures as the CSV the test fixtures read
-  (`src/test/resources/testdata/nsw`).
+  (`library/src/test/resources/testdata/nsw`).
 
 ```sh
 python3 tools/reference/nsw/download.py LG2401 lg2401

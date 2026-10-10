@@ -18,7 +18,7 @@ mvn package -DskipTests        # the comparison runs the CLI jar
 
 ```sh
 .venv-votekit/bin/python tools/votekit/generate.py tools/votekit/scenarios/two-parties.json out.blt --seed 7
-java -jar target/rankedchoice-0.1.0-SNAPSHOT.jar --input out.blt --method meek
+java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input out.blt --method meek
 ```
 
 A scenario (see `generate.py`'s docstring and `scenarios/`) describes voter **blocs** and
