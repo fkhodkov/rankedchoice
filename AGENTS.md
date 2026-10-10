@@ -30,7 +30,10 @@ python3 -m unittest discover -s tools/reference/tests   # the Python tests alone
 - Three Maven modules under the root's `pom.xml`: `common` (the `core` package: model, ballot
   readers, config, `Fraction`, report markup), `library` (every counting method, its reports, the
   bundled rulesets and the real-election fixtures; depends on `common` alone) and `cli`
-  (`Main`, shaded into the runnable jar). Run Maven from the root: Checkstyle reads the root's
+  (`Main`, shaded into the runnable jar). A count by any method goes through the library's
+  `count.Tabulator` (options, rulesets, the method's dispatch and its reports); `Main` only reads
+  the command line and files and writes the report, so a new method or option belongs in
+  `Tabulator`. Run Maven from the root: Checkstyle reads the root's
   `checkstyle.xml` from there. One module's tests: `mvn -o -q -pl library -am test -Dtest=...
   -Dsurefire.failIfNoSpecifiedTests=false`. The library's tests run in `library/`, so a fixture
   path is `src/test/resources/...`.

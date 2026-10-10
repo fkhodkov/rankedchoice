@@ -473,6 +473,9 @@ common/src/main/java/info/fkhodkov/rankedchoice/
     └── util/      Fraction (exact rational arithmetic)
 
 library/src/main/java/info/fkhodkov/rankedchoice/
+├── count/         Tabulator (a count by any method, from CountOptions and a config or ruleset),
+│                  Tabulation, ReportFormat, Election (a ballot file read), Rulesets (the bundled
+│                  presets): what the command line counts through
 ├── stv/
 │   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota,
 │   │              RoundedUpQuota
@@ -505,7 +508,7 @@ library/src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.ya
 library/src/test/resources/testdata/   real and reference elections (see VALIDATION.md)
 
 cli/src/main/java/info/fkhodkov/rankedchoice/
-└── cli/           Main (picocli)
+└── cli/           Main (picocli: the flags, files and exit codes, over count/)
 
 tools/
 ├── votekit/                   VoteKit mock elections, compared across every method
