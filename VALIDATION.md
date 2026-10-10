@@ -18,10 +18,10 @@ Tests named below are under `src/test/java`, fixtures under `src/test/resources/
 | [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (60 elections) | ballot-order sensitivity measured |
 | [QPQ](#qpq) | | droop and OpenSTV | hand-derived cases |
 | [CPO-STV](#cpo-stv) | (never used in a public election) | an independent count written from the rules | hand-derived cases |
-| [Schulze](#schulze) | a Debian General Resolution's pairwise tally | OpenSTV (500 elections, every pairwise figure and strongest path) | Wikipedia's example; hand-derived cases |
+| [Schulze](#schulze) | a Debian General Resolution's pairwise tally | OpenSTV (500 elections, every pairwise figure and strongest path); pref_voting (500 with tied rankings) | Wikipedia's example; hand-derived cases |
 | [Schulze STV](#schulze-stv) | (never used in a public election) | Schulze's own program and its 315,112 published supports; an independent count from the paper | the paper's worked example |
 | [Schulze proportional ranking](#schulze-proportional-ranking) | | Schulze's own program's published lists (every comparison it prints, while the lists agree) | the paper's worked example |
-| [Borda](#borda) | Nauru's 2019 election, two constituencies (scores) | OpenSTV (500 elections, every score) | hand-derived cases |
+| [Borda](#borda) | Nauru's 2019 election, two constituencies (scores) | OpenSTV (500 elections, every score); pref_voting (500 with tied rankings) | hand-derived cases |
 
 **Official counts**: how closely each jurisdiction's counts are reproduced, from its ballots. How
 the US ranked-choice counts differ in reading ballots (overvotes, skipped rankings, write-ins)
@@ -922,6 +922,14 @@ elections in Schulze's archive the ranking changed in 11 of 70. Schulze STV uses
 break ties, and none of its committees, potential winners or supports changed; the proportional
 ranking's effect is under [Schulze proportional ranking](#schulze-proportional-ranking).
 
+OpenSTV's ballots can't hold tied rankings, so the tie rules are checked against pref_voting
+1.18.2 (`tools/reference/pref_voting`), whose profiles take them: 500 more random elections, each
+rank tied with the next three times in ten, rankings cut short, a withdrawn candidate in some (497
+have a tie). Every pairwise figure matches pref_voting's supports under its extended strict
+preference (ranked over unranked, unranked tied), the whole beat-path defeat relation on winning
+votes matches the one this project's strongest paths give, and the winners match its first
+place. The jar from before the fix above fails 2 of them, on the winners.
+
 The pairwise matrix is counted in `long`s when the counts fit, and in `BigInteger`s when they
 don't. No fixture or external check reaches the second way, since no real election is big
 enough. `ScaledCountsTest` counts 200 random elections, with tied and truncated rankings, both
@@ -942,7 +950,14 @@ move up (`BordaMethodTest`).
 Against OpenSTV 1.7's Borda count without ballot completion (`tools/reference/openstv`): the
 same 500 random elections as Schulze's, every candidate's score equal. Both give n-1 points for
 a first preference down to 0, none to an unranked candidate, and count n without the withdrawn.
-OpenSTV has no tied ranks, so the tied-rank rule is checked only by hand-derived cases.
+OpenSTV has no tied ranks; pref_voting 1.18.2 (`tools/reference/pref_voting`) checks that rule.
+On 500 random elections whose ballots rank every candidate, with ties, every score equals
+(pref_voting's symmetric Borda score + N(n-1))/2: on such a ballot a candidate tied with k-1
+others after p candidates scores the average of positions p to p+k-1, n-1-p-(k-1)/2, and the
+symmetric score is n-p-k-p. A planted fault, a tied candidate scoring the group's first position,
+fails all 500. A ballot both tied and cut short isn't compared: pref_voting gives unranked
+candidates a share of the last places, where this project and OpenSTV give none; hand-derived
+cases cover it.
 
 ## CPO-STV
 

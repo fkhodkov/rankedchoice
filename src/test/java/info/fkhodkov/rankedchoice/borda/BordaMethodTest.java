@@ -109,6 +109,22 @@ class BordaMethodTest {
     }
 
     @Test
+    void aTieOnABallotCutShortSharesItsPositionsAndTheUnrankedStillScoreNothing() {
+        // 4 candidates, positions worth 3,2,1,0: A and B tied first share (3+2)/2, C third gets
+        // 1, and D, left off, gets nothing rather than a share of the last place.
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Candidate c = Candidate.of("C");
+        Candidate d = Candidate.of("D");
+        Ballot ballot = new Ballot(List.of(Set.of(a, b), Set.of(c)), BigInteger.TWO);
+
+        BordaResult result = BordaMethod.count(List.of(a, b, c, d), List.of(ballot), ClassicBorda.INSTANCE);
+
+        assertThat(result.scores()).isEqualTo(Map.of(a, Fraction.of(5), b, Fraction.of(5), c, Fraction.of(2),
+                d, Fraction.ZERO));
+    }
+
+    @Test
     void aThreeWayTieAveragesAllThreeSpannedPositions() {
         // 3 candidates all tied in one single rank group -- classic Borda weights for a
         // 3-candidate field are 2,1,0, so the tied average is (2+1+0)/3 = 1 each.
