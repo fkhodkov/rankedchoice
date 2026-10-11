@@ -229,6 +229,17 @@ The `server` module counts elections over HTTP, through the same library code as
 line, so its reports are the command line's byte for byte. It uses the JDK's own HTTP server, and
 needs nothing besides the library.
 
+At `/` it serves a page for counting by hand: paste or open a BLT or CSV file, or try one of five
+examples, choose a method (the page shows only the options that method takes, from
+`/api/methods`) and count. The HTML report shows in a frame that can't run scripts, and the text,
+CSV, JSON and HTML reports download from there; a refused count's message shows under the field
+it's about. It's plain HTML, CSS and JavaScript (`server/src/main/resources/static/`), with no
+build step and nothing fetched from elsewhere. Four of the examples are copies of the library's
+fixtures, whose READMEs say where they come from (Wikipedia's worked example, Orkney 2022's
+Kirkwall East ward, Nauru 2019's Boe, Tideman's A53); the fifth, a CSV with tied rankings, is made
+up for the demo. `DemoServerTest` counts every example and fails if a copy no longer matches its
+fixture.
+
 ```sh
 mvn package -DskipTests
 java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar      # http://127.0.0.1:8080/
@@ -545,7 +556,8 @@ cli/src/main/java/info/fkhodkov/rankedchoice/
 
 server/src/main/java/info/fkhodkov/rankedchoice/
 └── server/        DemoServer (the JDK's HTTP server, over count/), CountRequest, Limits
-server/src/main/resources/static/   the page the server serves at /
+server/src/main/resources/static/   the page the server serves at / (index.html, style.css, app.js)
+                                    and its examples (examples/, listed in examples.json)
 
 tools/
 ├── votekit/                   VoteKit mock elections, compared across every method

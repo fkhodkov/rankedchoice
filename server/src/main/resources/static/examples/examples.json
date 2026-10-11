@@ -1,0 +1,32 @@
+[
+  {
+    "file": "wikipedia-andrea-brad-carter-delilah.blt",
+    "title": "Wikipedia's worked example",
+    "about": "Andrea, Brad, Carter and Delilah for 2 seats, 57 voters: ballots rebuilt from the round totals of Wikipedia's \"Counting single transferable votes\" article.",
+    "options": {"method": "stv"}
+  },
+  {
+    "file": "orkney-2022-ward1-kirkwall-east.blt",
+    "title": "Orkney 2022, Kirkwall East",
+    "about": "A real Scottish council ward, 5 candidates for 4 seats, counted by the Scottish rules: the ballots from MGGG's scot-elex collection.",
+    "options": {"method": "stv", "ruleset": "scottish"}
+  },
+  {
+    "file": "nauru-2019-boe.blt",
+    "title": "Nauru 2019, Boe",
+    "about": "Nauru's Dowdall Borda count, 5 candidates for 2 seats: ballots built to match the published table of ranks, so they reproduce the official scores.",
+    "options": {"method": "borda", "bordaScoring": "dowdall"}
+  },
+  {
+    "file": "tideman-a53.blt",
+    "title": "Tideman's A53 by Schulze STV",
+    "about": "10 candidates for 4 seats from Tideman's collection: the worked example of Schulze's paper.",
+    "options": {"method": "schulze-stv"}
+  },
+  {
+    "file": "tied-rankings.csv",
+    "title": "Tied rankings, by Meek's method",
+    "about": "Made up for the demo: 50 voters, some ranking candidates equally (\"Ash=Cedar\"), 2 seats; Meek's method splits a tied ballot between them.",
+    "options": {"method": "meek", "seats": 2}
+  }
+]

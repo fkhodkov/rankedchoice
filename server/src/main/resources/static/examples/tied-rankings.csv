@@ -1,0 +1,7 @@
+count,rank1,rank2,rank3,rank4
+14,Ash,Birch,Cedar,
+11,Birch,Ash=Cedar,,
+9,Cedar,Dogwood,Birch,
+8,Dogwood,Cedar=Birch,Ash,
+5,Ash=Dogwood,Birch,,
+3,Elm,Cedar,,

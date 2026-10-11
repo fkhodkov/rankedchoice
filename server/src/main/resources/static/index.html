@@ -4,16 +4,87 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ranked-choice counter</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/app.js" defer></script>
 </head>
 <body>
-<h1>Ranked-choice counter</h1>
-<p>This server counts elections through the rankedchoice library. Its API:</p>
-<ul>
-<li><code>GET /api/methods</code>: the methods and the options each takes, the bundled rulesets, the report
-formats and the server's limits.</li>
-<li><code>POST /api/count</code> with JSON such as
-<code>{"ballots": "&lt;a BLT or CSV file's text&gt;", "method": "stv", "ruleset": "scottish",
-"reportFormat": "html"}</code>: the report.</li>
-</ul>
+<header class="page-header">
+  <h1>Ranked-choice counter</h1>
+  <p>Count an election by classic STV and the rulesets of real jurisdictions, Meek, Warren, Cambridge STV,
+    QPQ, CPO-STV, Schulze, Schulze STV, the Schulze proportional ranking or Borda. Every count runs on
+    this server, through the same code as the command line.</p>
+</header>
+
+<main class="layout">
+  <form id="count-form" class="panel" novalidate>
+    <fieldset>
+      <legend>Ballots</legend>
+      <div class="field">
+        <label for="example">Try an example</label>
+        <select id="example">
+          <option value="">Choose one…</option>
+        </select>
+        <p class="hint" id="example-about"></p>
+      </div>
+      <div class="field">
+        <label for="ballots">Ballot file, BLT or CSV</label>
+        <textarea id="ballots" name="ballots" rows="12" spellcheck="false" autocomplete="off"
+          aria-describedby="ballots-hint"></textarea>
+        <p class="hint" id="ballots-hint">Paste a ballot file or open one. A CSV starts with a
+          <code>count</code> column, then one column a rank; <code>A=B</code> ranks two equally.</p>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="file">Open a file</label>
+          <input type="file" id="file" accept=".blt,.csv,.txt,text/plain,text/csv">
+        </div>
+        <div class="field">
+          <label for="format">Format</label>
+          <select id="format" name="format">
+            <option value="">From the text</option>
+            <option value="blt">BLT</option>
+            <option value="csv">CSV</option>
+          </select>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Method</legend>
+      <div class="field">
+        <label for="method">Counting method</label>
+        <select id="method" name="method"></select>
+        <p class="hint" id="method-about"></p>
+      </div>
+      <div id="options"></div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" id="count">Count</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+
+  <section class="panel result" aria-labelledby="result-title">
+    <div class="result-head">
+      <h2 id="result-title">Report</h2>
+      <div class="downloads" id="downloads" hidden>
+        <span>Download</span>
+        <button type="button" data-format="text">Text</button>
+        <button type="button" data-format="csv">CSV</button>
+        <button type="button" data-format="json">JSON</button>
+        <button type="button" data-format="html">HTML</button>
+      </div>
+    </div>
+    <div id="error" class="message error" role="alert" hidden></div>
+    <div id="warning" class="message warning" hidden></div>
+    <p id="placeholder" class="placeholder">Choose an example or paste ballots, then count.</p>
+    <iframe id="report" title="The count's report" sandbox="" hidden></iframe>
+  </section>
+</main>
+
+<footer class="page-footer">
+  <p id="limits"></p>
+</footer>
 </body>
 </html>

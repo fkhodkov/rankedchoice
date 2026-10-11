@@ -293,6 +293,7 @@ public final class DemoServer {
                 case "html" -> "text/html";
                 case "css" -> "text/css";
                 case "js" -> "text/javascript";
+                case "json" -> "application/json";
                 case "blt", "csv", "txt" -> "text/plain";
                 default -> "application/octet-stream";
             };

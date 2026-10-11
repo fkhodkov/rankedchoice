@@ -8,10 +8,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -207,11 +212,52 @@ class DemoServerTest {
 
         assertThat(page.statusCode()).isEqualTo(200);
         assertThat(page.headers().firstValue("Content-Type")).hasValue("text/html; charset=utf-8");
-        assertThat(page.body()).contains("/api/count");
+        assertThat(page.body()).contains("<form id=\"count-form\"", "/app.js", "/style.css");
+        assertThat(get("/app.js").headers().firstValue("Content-Type")).hasValue("text/javascript; charset=utf-8");
+        assertThat(get("/app.js").body()).contains("/api/count", "/api/methods", "/examples/examples.json");
+        assertThat(get("/style.css").statusCode()).isEqualTo(200);
         assertThat(get("/nothing.html").statusCode()).isEqualTo(404);
         assertThat(get("/../pom.xml").statusCode()).isEqualTo(404);
         assertThat(get("/static/index.html").statusCode()).isEqualTo(404);
         assertThat(get("/info/fkhodkov/rankedchoice/server/DemoServer.class").statusCode()).isEqualTo(404);
+    }
+
+    /**
+     * Every example the page offers is served, counts with the options it's offered with, and, where
+     * it's a copy of a library fixture, is still that fixture byte for byte.
+     */
+    @Test
+    void everyExampleIsServedAndCountsAndMatchesItsFixture() throws Exception {
+        start(Limits.DEFAULT);
+        HttpResponse<String> manifest = get("/examples/examples.json");
+        assertThat(manifest.headers().firstValue("Content-Type")).hasValue("application/json; charset=utf-8");
+        JsonNode examples = JSON.readTree(manifest.body());
+        assertThat(examples).hasSizeGreaterThanOrEqualTo(5);
+        Path fixtures = Path.of("../library/src/test/resources/testdata");
+        int copies = 0;
+
+        for (JsonNode example : examples) {
+            String file = example.get("file").asText();
+            HttpResponse<String> ballots = get("/examples/" + file);
+            assertThat(ballots.statusCode()).as(file).isEqualTo(200);
+            try (Stream<Path> found = Files.walk(fixtures)) {
+                List<Path> fixture = found.filter(path -> path.getFileName().toString().equals(file)).toList();
+                if (!fixture.isEmpty()) {
+                    assertThat(ballots.body()).as(file).isEqualTo(Files.readString(fixture.getFirst()));
+                    copies++;
+                }
+            }
+            Map<String, Object> request = new LinkedHashMap<>();
+            request.put("ballots", ballots.body());
+            request.put("reportFormat", "html");
+            example.get("options").fields().forEachRemaining(option -> request.put(option.getKey(),
+                    option.getValue().isNumber() ? option.getValue().asInt() : option.getValue().asText()));
+            HttpResponse<String> counted = count(request);
+            assertThat(counted.statusCode()).as(file + ": " + counted.body()).isEqualTo(200);
+            assertThat(example.get("title").asText()).isNotBlank();
+            assertThat(example.get("about").asText()).isNotBlank();
+        }
+        assertThat(copies).isEqualTo(4);
     }
 
     @Test
