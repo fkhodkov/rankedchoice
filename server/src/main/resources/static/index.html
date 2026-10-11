@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ranked-choice counter</title>
+</head>
+<body>
+<h1>Ranked-choice counter</h1>
+<p>This server counts elections through the rankedchoice library. Its API:</p>
+<ul>
+<li><code>GET /api/methods</code>: the methods and the options each takes, the bundled rulesets, the report
+formats and the server's limits.</li>
+<li><code>POST /api/count</code> with JSON such as
+<code>{"ballots": "&lt;a BLT or CSV file's text&gt;", "method": "stv", "ruleset": "scottish",
+"reportFormat": "html"}</code>: the report.</li>
+</ul>
+</body>
+</html>

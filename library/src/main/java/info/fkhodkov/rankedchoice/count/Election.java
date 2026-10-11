@@ -27,6 +27,20 @@ public record Election(List<Candidate> candidates, List<Ballot> ballots, Integer
         };
     }
 
+    /**
+     * Reads ballots given as text, as {@code blt} or {@code csv}. A null format is taken from the
+     * text: CSV when its first non-blank line starts with a {@code count} column, BLT otherwise.
+     */
+    public static Election parse(String text, String format) {
+        String resolved = format != null ? format.toLowerCase(Locale.ROOT) : sniffFormat(text);
+        return switch (resolved) {
+            case "blt" -> of(BltParser.parse(text.lines()));
+            case "csv" -> of(CsvBallotParser.parse(text.lines()));
+            default -> throw new IllegalArgumentException(
+                    "Unsupported format '" + resolved + "'; expected 'blt' or 'csv'");
+        };
+    }
+
     public static Election of(ParsedElection election) {
         List<Candidate> standing = election.candidates().stream()
                 .filter(candidate -> !election.withdrawnCandidates().contains(candidate))
@@ -36,6 +50,15 @@ public record Election(List<Candidate> candidates, List<Ballot> ballots, Integer
 
     public static Election of(ParsedBallots ballots) {
         return new Election(ballots.candidates(), ballots.ballots(), null);
+    }
+
+    private static String sniffFormat(String text) {
+        String first = text.lines().map(String::strip)
+                .map(line -> line.startsWith("\uFEFF") ? line.substring(1) : line)
+                .filter(line -> !line.isEmpty())
+                .findFirst().orElse("");
+        String head = first.toLowerCase(Locale.ROOT);
+        return head.equals("count") || head.startsWith("count,") || head.startsWith("\"count\"") ? "csv" : "blt";
     }
 
     private static String inferFormat(Path path) {

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigInteger;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +93,28 @@ class TabulatorTest {
                 .hasMessage("--seats is required for CSV input");
         assertThat(Tabulator.of(method("borda"), null).count(election, warning -> { }).report(ReportFormat.TEXT))
                 .contains("A");
+    }
+
+    @Test
+    void readsBallotsFromTextTakingTheFormatFromTheTextWhenNotGiven() throws Exception {
+        String blt = Files.readString(WIKIPEDIA);
+        String csv = "\uFEFFCount,rank1,rank2\n3,A,B\n2,B,\n";
+
+        assertThat(Election.parse(blt, null)).isEqualTo(Election.read(WIKIPEDIA, null));
+        Election fromCsv = Election.parse(csv, null);
+        assertThat(fromCsv.candidates()).extracting(Candidate::name).containsExactly("A", "B");
+        assertThat(fromCsv.seats()).isNull();
+        assertThatThrownBy(() -> Election.parse(blt, "xml"))
+                .hasMessage("Unsupported format 'xml'; expected 'blt' or 'csv'");
+    }
+
+    @Test
+    void listsEveryMethodWithTheOptionsItRefuses() {
+        assertThat(Tabulator.METHODS).extracting(Tabulator.Method::name).containsExactly("stv", "meek", "warren",
+                "cambridge", "qpq", "cpo-stv", "schulze-stv", "schulze-proportional", "schulze", "borda");
+        assertThat(Tabulator.unusedOptions("Meek")).containsKeys("--quota", "--transfer");
+        assertThat(Tabulator.unusedOptions("stv")).doesNotContainKey("--quota");
+        assertThat(Tabulator.unusedOptions("nope")).isEmpty();
     }
 
     @Test

@@ -223,6 +223,38 @@ always flag, then config or ruleset, then built-in default. `batchExclusion`, `d
 `simultaneousSurpluses`, `mathematicalElimination`, `rankingsElimination` and `quotaEachRound`
 have no flags: they're treated as fixed properties of a ruleset.
 
+## Demo server
+
+The `server` module counts elections over HTTP, through the same library code as the command
+line, so its reports are the command line's byte for byte. It uses the JDK's own HTTP server, and
+needs nothing besides the library.
+
+```sh
+mvn package -DskipTests
+java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar      # http://127.0.0.1:8080/
+java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar --port 9000 --bind 0.0.0.0
+```
+
+- `GET /api/methods`: the methods with the options each takes, the bundled rulesets, the report
+  formats and the server's limits, as JSON.
+- `POST /api/count`: JSON with the ballot file's text (`ballots`, BLT or CSV, `format` taken from
+  the text when left out), `reportFormat` (text by default) and any of the command line's options,
+  named in camel case (`method`, `ruleset`, `seats`, `quota`, `transfer`, `rounding`, `tiebreak`,
+  `tiedRankings`, `minimumPreferences`, `precision`, `bordaScoring`). The answer is the report, in
+  its own content type; a warning (exact STV's on growing figures) comes in `X-Count-Warning`.
+  A count the library refuses is a 400 with `{"error": ...}`, the command line's message with
+  options named as the request names them.
+
+```sh
+curl -X POST localhost:8080/api/count -d '{"ballots": "2 1\n3 1 2 0\n2 2 0\n0\n\"A\"\n\"B\"\n", "method": "meek"}'
+```
+
+A public demo can't let one request take the machine, so the server reads at most 5 MB a
+request (413 past that), runs at most half the processors' worth of counts at once (503 while
+every place is taken), and waits 30 seconds for each (504). A count can't be stopped partway, so
+one past its 30 seconds still runs to its end, holding its place; the cap on counts at once is
+what bounds the work. Large counts belong to the command line.
+
 ## Reports
 
 Every method reports as text, CSV, JSON or a self-contained HTML page, with the same figures in
@@ -456,10 +488,11 @@ about 45 s, 16 / 8 about a minute.
 
 ## Project layout
 
-Three Maven modules, built together from the root: `common` (what every method shares),
-`library` (the counting methods, which depend on `common` alone) and `cli` (the command line,
+Four Maven modules, built together from the root: `common` (what every method shares),
+`library` (the counting methods, which depend on `common` alone), `cli` (the command line,
 packaged with both and its own dependencies into one runnable jar,
-`cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar`). Each module's tests sit beside its code; the
+`cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar`) and `server` (the [demo server](#demo-server),
+another runnable jar, `server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar`). Each module's tests sit beside its code; the
 real-election fixtures are the library's.
 
 ```
@@ -509,6 +542,10 @@ library/src/test/resources/testdata/   real and reference elections (see VALIDAT
 
 cli/src/main/java/info/fkhodkov/rankedchoice/
 └── cli/           Main (picocli: the flags, files and exit codes, over count/)
+
+server/src/main/java/info/fkhodkov/rankedchoice/
+└── server/        DemoServer (the JDK's HTTP server, over count/), CountRequest, Limits
+server/src/main/resources/static/   the page the server serves at /
 
 tools/
 ├── votekit/                   VoteKit mock elections, compared across every method

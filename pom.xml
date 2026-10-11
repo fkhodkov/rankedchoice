@@ -14,11 +14,13 @@
 
   <!-- common: the election model, ballot readers, configuration, exact fractions and report markup
        that every method shares; library: the counting methods, their reports and the bundled
-       rulesets; cli: the command line, built into one runnable jar. -->
+       rulesets; cli: the command line, built into one runnable jar; server: a demo web server
+       counting elections online through the library, also one runnable jar. -->
   <modules>
     <module>common</module>
     <module>library</module>
     <module>cli</module>
+    <module>server</module>
   </modules>
 
   <properties>

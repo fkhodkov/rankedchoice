@@ -65,6 +65,23 @@ import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
  */
 public final class Tabulator {
 
+    /** A counting method, by the name the options give it, and what it is. */
+    public record Method(String name, String description) {
+    }
+
+    /** Every method, the default (classic STV) first. */
+    public static final List<Method> METHODS = List.of(
+            new Method("stv", "Classic STV: a quota, surplus transfers and exclusions, by the rules chosen"),
+            new Method("meek", "Meek's method: every ballot recounted each round against converging keep factors"),
+            new Method("warren", "Warren's method: Meek's count, but an elected candidate takes a flat amount"),
+            new Method("cambridge", "Cambridge STV: whole ballots, surpluses by the Cincinnati method"),
+            new Method("qpq", "Woodall's Quota Preferential by Quotient: whole votes, quotients, restarts"),
+            new Method("cpo-stv", "Tideman's CPO-STV: every possible committee compared with every other"),
+            new Method("schulze-stv", "Schulze STV: committees compared by how well they split the voters"),
+            new Method("schulze-proportional", "The Schulze proportional ranking: a party list, place by place"),
+            new Method("schulze", "Schulze: a Condorcet beatpath ranking of every candidate"),
+            new Method("borda", "Borda: positional scores, classic or Dowdall"));
+
     private static final ElectionConfig EMPTY_CONFIG =
             new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null,
                     null, null, null, null, null, null, null);
@@ -124,6 +141,14 @@ public final class Tabulator {
                     "--borda-scoring", "only borda uses it"),
             "schulze", nonStvUnused("--borda-scoring", "only borda uses it"),
             "borda", nonStvUnused(null, null));
+
+    /**
+     * The options (by their command-line names, {@code --quota} and so on) the method refuses,
+     * each with why; none for an unknown method.
+     */
+    public static Map<String, String> unusedOptions(String method) {
+        return UNUSED_OPTIONS.getOrDefault(method.toLowerCase(Locale.ROOT), Map.of());
+    }
 
     private final CountOptions options;
     private final ElectionConfig config;
