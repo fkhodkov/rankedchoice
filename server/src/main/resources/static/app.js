@@ -234,7 +234,17 @@ function applyRuleset() {
 
 function buildExamples() {
   const select = $("example");
-  examples.forEach((example, i) => select.append(new Option(example.title, String(i))));
+  const groups = new Map();
+  examples.forEach((example, i) => {
+    const name = example.group || "Examples";
+    if (!groups.has(name)) {
+      const group = document.createElement("optgroup");
+      group.label = name;
+      groups.set(name, group);
+      select.append(group);
+    }
+    groups.get(name).append(new Option(example.title, String(i)));
+  });
 }
 
 async function loadExample() {

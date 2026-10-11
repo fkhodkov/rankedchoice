@@ -1,0 +1,75 @@
+# The Electoral Reform Society's own worked "model election" from the 3rd edition of "How to
+# conduct an election by the Single Transferable Vote" (the ERS97 rulebook itself): 11
+# candidates, 6 seats, 753 valid votes. Ballot-level data reconstructed and verified against
+# the rulebook's own hand-computed count sheet by Lee Yingtong Li, bundled as a correctness
+# test fixture (tests/data/ers97.blt + tests/data/ers97.csv) in pyRCV2
+# (https://yingtongli.me/git/pyRCV2, GNU AGPLv3) -- an independent, third-party STV
+# implementation. This is that same file, converted to add the trailing "0" ballot terminator
+# our BltParser requires (pyRCV2's own BLT reader doesn't need it).
+#
+# Cross-checked against the rulebook's own count sheet (as reproduced in pyRCV2's
+# tests/data/ers97.csv): quota 107.58, first preferences Smith 134 / Duke 105 / Prince 91 /
+# Freeman 90 / Carpenter 81 / Baron 64 / Abbot 59 / Vicar 55 / Wright 27 / Glazier 24 / Monk
+# 23; Smith elected stage 1 (surplus 26.42). Round 2 (after Smith's surplus is transferred)
+# matches the rulebook's stage 2 exactly for every candidate. Round 3 (after Monk is fully
+# eliminated) matches the rulebook's stage 4 exactly, including Duke's tally of 108.68 -- this
+# specifically exercises the "exclusion by value, largest value-group first, with newly
+# quota-crossing candidates frozen mid-elimination" rule (see
+# info.fkhodkov.rankedchoice.stv.StvCounter's class javadoc): Duke crosses quota partway
+# through Monk's elimination and must stop receiving votes from its remaining, lower-valued
+# groups. Final result: Smith, Duke, Carpenter, Prince, Freeman, and Vicar elected, matching
+# the rulebook.
+#
+# Ers97ModelElectionFixtureTest replays the whole count against the rulebook's count sheet
+# (ers97-model-election.rulebook.txt): every round matches one of its stages.
+11 6
+35 1 2 0
+3 1 3 9 0
+11 1 3 6 0
+5 1 3 7 0
+6 1 3 8 0
+20 1 4 0
+7 1 4 9 0
+4 1 4 11 0
+8 1 5 0
+4 1 8 0
+1 1 10 5 7 0
+1 1 10 9 0
+18 1 11 0
+11 1 0
+81 2 0
+23 3 1 2 0
+2 3 1 2 7 0
+1 3 1 2 8 0
+1 3 1 0
+3 4 1 3 7 0
+1 4 8 0
+11 4 5 6 0
+3 4 2 0
+5 4 2 11 0
+1 4 3 0
+105 5 0
+91 6 0
+64 7 0
+5 8 0
+42 8 9 0
+12 8 7 0
+55 9 0
+2 10 5 0
+5 10 8 0
+14 10 9 0
+2 10 1 11 0
+90 11 0
+0
+"Smith"
+"Carpenter"
+"Wright"
+"Glazier"
+"Duke"
+"Prince"
+"Baron"
+"Abbot"
+"Vicar"
+"Monk"
+"Freeman"
+"ERS97 Model Election"

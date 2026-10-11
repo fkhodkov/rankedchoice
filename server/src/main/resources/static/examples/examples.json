@@ -1,31 +1,128 @@
 [
   {
-    "file": "wikipedia-andrea-brad-carter-delilah.blt",
-    "title": "Wikipedia's worked example",
-    "about": "Andrea, Brad, Carter and Delilah for 2 seats, 57 voters: ballots rebuilt from the round totals of Wikipedia's \"Counting single transferable votes\" article.",
-    "options": {"method": "stv"}
-  },
-  {
+    "group": "Real elections",
     "file": "orkney-2022-ward1-kirkwall-east.blt",
-    "title": "Orkney 2022, Kirkwall East",
+    "fixture": "scottish/orkney-2022-ward1-kirkwall-east.blt",
+    "title": "Orkney 2022, Kirkwall East (Scottish STV)",
     "about": "A real Scottish council ward, 5 candidates for 4 seats, counted by the Scottish rules: the ballots from MGGG's scot-elex collection.",
     "options": {"method": "stv", "ruleset": "scottish"}
   },
   {
+    "group": "Real elections",
+    "file": "shetland-2017-ward2-north.blt",
+    "fixture": "scottish/shetland-2017-ward2-north.blt",
+    "title": "Shetland 2017, ward 2 (QPQ)",
+    "about": "A real Scottish council ward, 4 candidates for 3 seats, counted by Woodall's Quota Preferential by Quotient instead of the Scottish rules. Both elect the same three; choose the scottish ruleset under stv to compare the counts.",
+    "options": {"method": "qpq"}
+  },
+  {
+    "group": "Real elections",
+    "file": "maine-2018-congress-2.blt",
+    "fixture": "maine/2018-congress-2.blt.gz",
+    "title": "Maine 2018, 2nd congressional district (instant-runoff)",
+    "about": "The first U.S. congressional race decided by ranked choice: 4 candidates, the two independents defeated together, Jared Golden elected. From FairVote's copy of the cast vote record; the count matches the State's every round.",
+    "options": {"method": "stv", "ruleset": "irv"}
+  },
+  {
+    "group": "Real elections",
+    "file": "minneapolis-2021-mayor.blt",
+    "fixture": "minneapolis/mayor-2021.blt",
+    "title": "Minneapolis 2021, mayor (Schulze)",
+    "about": "19 candidates and nearly 144,000 ballots ranking up to three, counted by Schulze's Condorcet method. The City's instant-runoff count elected Jacob Frey, whom Schulze ranks first too; choose the irv ruleset under stv to see that count.",
+    "options": {"method": "schulze"}
+  },
+  {
+    "group": "Real elections",
+    "file": "minneapolis-2021-park-board.blt",
+    "fixture": "minneapolis/park-2021.blt",
+    "title": "Minneapolis 2021, Park Board at large (Minneapolis rules)",
+    "about": "8 candidates for 3 seats, counted by the City's multi-seat rules: fractional transfers truncated to 4 places, hopeless candidates defeated together before each surplus.",
+    "options": {"method": "stv", "ruleset": "minneapolis"}
+  },
+  {
+    "group": "Real elections",
+    "file": "nsw-2024-ballina-b-ward.blt",
+    "fixture": "nsw/ballina_b-ward.blt.gz",
+    "title": "NSW 2024, Ballina B Ward (NSW councils' rules)",
+    "about": "A New South Wales council ward, 7 candidates for 3 seats, counted by the NSW Electoral Commission's rules from its published ballot papers (identical papers merged).",
+    "options": {"method": "stv", "ruleset": "nsw-lg"}
+  },
+  {
+    "group": "Real elections",
+    "file": "cambridge-2013-school-committee.blt",
+    "fixture": "cambridge/school-2013.blt.gz",
+    "title": "Cambridge, MA 2013, School Committee (Cambridge STV)",
+    "about": "15 candidates for 6 seats, one line a ballot in the City's order: Cambridge STV moves whole ballots, a surplus's every n-th ballot, so the order matters.",
+    "options": {"method": "cambridge"}
+  },
+  {
+    "group": "Real elections",
+    "file": "maplibre-2025-governing-board.blt",
+    "fixture": "meek/maplibre-governing-board-2025.blt",
+    "title": "MapLibre 2025, Governing Board (Meek)",
+    "about": "A real election run by Meek's method on OpaVote: 6 candidates for 5 seats, 92 ballots (3 of them empty). The winners match OpaVote's.",
+    "options": {"method": "meek"}
+  },
+  {
+    "group": "Real elections",
     "file": "nauru-2019-boe.blt",
-    "title": "Nauru 2019, Boe",
+    "fixture": "borda/nauru-2019-boe.blt",
+    "title": "Nauru 2019, Boe (Dowdall Borda)",
     "about": "Nauru's Dowdall Borda count, 5 candidates for 2 seats: ballots built to match the published table of ranks, so they reproduce the official scores.",
     "options": {"method": "borda", "bordaScoring": "dowdall"}
   },
   {
+    "group": "Worked and test examples",
+    "file": "wikipedia-andrea-brad-carter-delilah.blt",
+    "fixture": "wikipedia/wikipedia-andrea-brad-carter-delilah.blt",
+    "title": "Wikipedia's worked example (STV)",
+    "about": "Andrea, Brad, Carter and Delilah for 2 seats, 57 voters: ballots rebuilt from the round totals of Wikipedia's \"Counting single transferable votes\" article.",
+    "options": {"method": "stv"}
+  },
+  {
+    "group": "Worked and test examples",
+    "file": "ers97-model-election.blt",
+    "fixture": "ers97/ers97-model-election.blt",
+    "title": "ERS97's model election (ERS97 rules)",
+    "about": "The Electoral Reform Society's worked model election from its 1997 rules (\"How to conduct an election by the Single Transferable Vote\"): 11 candidates for 6 seats.",
+    "options": {"method": "stv", "ruleset": "ers97"}
+  },
+  {
+    "group": "Worked and test examples",
+    "file": "warren-differs-from-meek.blt",
+    "fixture": "meek/droop/synthetic-warren-differs.blt",
+    "title": "Where Warren and Meek differ (Warren)",
+    "about": "A synthetic election, 8 candidates for 5 seats, from the checks against droop: Warren's method elects C2 for the last seat, Meek's C8. Switch the method to meek to compare.",
+    "options": {"method": "warren"}
+  },
+  {
+    "group": "Worked and test examples",
+    "file": "cpo-stv-near-tie-cycle.blt",
+    "fixture": "cpostv/near-tie-cycle.blt",
+    "title": "A near-tie with a cycle (CPO-STV)",
+    "about": "Synthetic: 8 candidates for 4 seats, 10,000 voters. Committees differing by one equally popular candidate beat each other in a cycle, which the beatpath completion settles.",
+    "options": {"method": "cpo-stv"}
+  },
+  {
+    "group": "Worked and test examples",
     "file": "tideman-a53.blt",
-    "title": "Tideman's A53 by Schulze STV",
+    "fixture": "schulzestv/tideman-a53.blt",
+    "title": "Tideman's A53 (Schulze STV)",
     "about": "10 candidates for 4 seats from Tideman's collection: the worked example of Schulze's paper.",
     "options": {"method": "schulze-stv"}
   },
   {
+    "group": "Worked and test examples",
+    "file": "tideman-a53.blt",
+    "fixture": "schulzestv/tideman-a53.blt",
+    "title": "Tideman's A53 as a party list (Schulze proportional)",
+    "about": "The same election ranked place by place, as the paper's section 9.3 works it: J A G D F B E C I H.",
+    "options": {"method": "schulze-proportional"}
+  },
+  {
+    "group": "Worked and test examples",
     "file": "tied-rankings.csv",
-    "title": "Tied rankings, by Meek's method",
+    "title": "Tied rankings (Meek)",
     "about": "Made up for the demo: 50 voters, some ranking candidates equally (\"Ash=Cedar\"), 2 seats; Meek's method splits a tied ballot between them.",
     "options": {"method": "meek", "seats": 2}
   }

@@ -1,0 +1,80 @@
+# Real ballot-level preference data for the 2017 Shetland Islands Council election,
+# Shetland North ward (4 candidates, 3 seats). Converted from
+# https://github.com/mggg/scot-elex/blob/main/4_cands/shetland_2017_ward2.csv (MGGG's public
+# archive of real Scottish STV preference profiles, described in arXiv:2605.12676).
+# Cross-checked against reporting of the real result: 1192 valid votes, first preferences
+# Manson 509 / Cooper 395 / Macdonald 240 / Johnson 48, and Cooper, Manson, and Macdonald
+# (not Johnson) elected. Round 2/3 intermediate tallies additionally cross-checked against
+# Shetland Islands Council's official "Candidate Votes Per Stage Report" for this ward
+# (shetland.gov.uk, file 875): Manson and Cooper both meet quota (299) simultaneously in
+# stage 1; stage 2 transfers Manson's surplus (210), electing Macdonald with a final tally of
+# 379.03609 -- see ScottishRealElectionFixtureTest for the round-by-round spot-checks.
+4 3
+25 1 0
+4 1 2 0
+4 1 2 3 0
+3 1 2 3 4 0
+6 1 2 4 0
+3 1 2 4 3 0
+15 1 3 0
+8 1 3 2 0
+3 1 3 2 4 0
+35 1 3 4 0
+16 1 3 4 2 0
+85 1 4 0
+18 1 4 2 0
+24 1 4 2 3 0
+105 1 4 3 0
+41 1 4 3 2 0
+13 2 0
+1 2 1 0
+1 2 1 3 4 0
+3 2 1 4 0
+1 2 1 4 3 0
+2 2 3 0
+4 2 3 1 0
+3 2 3 1 4 0
+5 2 3 4 0
+3 2 4 0
+3 2 4 1 0
+4 2 4 1 3 0
+3 2 4 3 0
+2 2 4 3 1 0
+57 3 0
+11 3 1 0
+6 3 1 2 0
+6 3 1 2 4 0
+25 3 1 4 0
+15 3 1 4 2 0
+5 3 2 0
+3 3 2 1 0
+2 3 2 1 4 0
+4 3 2 4 0
+4 3 2 4 1 0
+15 3 4 0
+39 3 4 1 0
+29 3 4 1 2 0
+5 3 4 2 0
+14 3 4 2 1 0
+55 4 0
+63 4 1 0
+14 4 1 2 0
+14 4 1 2 3 0
+136 4 1 3 0
+76 4 1 3 2 0
+7 4 2 0
+5 4 2 1 0
+5 4 2 1 3 0
+6 4 2 3 0
+3 4 2 3 1 0
+22 4 3 0
+45 4 3 1 0
+31 4 3 1 2 0
+13 4 3 2 0
+14 4 3 2 1 0
+0
+"Alastair Thomas James Cooper"
+"Isobel Johnson"
+"Emma Louise Macdonald"
+"Andrea Isabel Manson"
+"Ward 2 - Shetland North"

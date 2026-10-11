@@ -2,21 +2,25 @@ package info.fkhodkov.rankedchoice.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -229,7 +233,7 @@ class DemoServerTest {
 
     /**
      * Every example the page offers is served, counts with the options it's offered with, and, where
-     * it's a copy of a library fixture, is still that fixture byte for byte.
+     * it names the library fixture it's a copy of, is still that fixture byte for byte (decompressed).
      */
     @Test
     void everyExampleIsServedAndCountsAndMatchesItsFixture() throws Exception {
@@ -237,20 +241,25 @@ class DemoServerTest {
         HttpResponse<String> manifest = get("/examples/examples.json");
         assertThat(manifest.headers().firstValue("Content-Type")).hasValue("application/json; charset=utf-8");
         JsonNode examples = JSON.readTree(manifest.body());
-        assertThat(examples).hasSizeGreaterThanOrEqualTo(5);
+        assertThat(examples).hasSizeGreaterThanOrEqualTo(16);
         Path fixtures = Path.of("../library/src/test/resources/testdata");
+        Set<String> methods = new HashSet<>();
         int copies = 0;
 
         for (JsonNode example : examples) {
             String file = example.get("file").asText();
             HttpResponse<String> ballots = get("/examples/" + file);
             assertThat(ballots.statusCode()).as(file).isEqualTo(200);
-            try (Stream<Path> found = Files.walk(fixtures)) {
-                List<Path> fixture = found.filter(path -> path.getFileName().toString().equals(file)).toList();
-                if (!fixture.isEmpty()) {
-                    assertThat(ballots.body()).as(file).isEqualTo(Files.readString(fixture.getFirst()));
-                    copies++;
+            if (example.has("fixture")) {
+                Path fixture = fixtures.resolve(example.get("fixture").asText());
+                byte[] bytes = Files.readAllBytes(fixture);
+                if (fixture.toString().endsWith(".gz")) {
+                    try (InputStream in = new GZIPInputStream(new ByteArrayInputStream(bytes))) {
+                        bytes = in.readAllBytes();
+                    }
                 }
+                assertThat(ballots.body()).as(file).isEqualTo(new String(bytes, StandardCharsets.UTF_8));
+                copies++;
             }
             Map<String, Object> request = new LinkedHashMap<>();
             request.put("ballots", ballots.body());
@@ -259,10 +268,15 @@ class DemoServerTest {
                     option.getValue().isNumber() ? option.getValue().asInt() : option.getValue().asText()));
             HttpResponse<String> counted = count(request);
             assertThat(counted.statusCode()).as(file + ": " + counted.body()).isEqualTo(200);
+            methods.add(example.get("options").get("method").asText());
             assertThat(example.get("title").asText()).isNotBlank();
             assertThat(example.get("about").asText()).isNotBlank();
+            assertThat(example.get("group").asText()).isNotBlank();
         }
-        assertThat(copies).isEqualTo(4);
+        assertThat(copies).isEqualTo(examples.size() - 1);
+        // An example for every method the server counts by.
+        assertThat(methods).containsExactlyInAnyOrderElementsOf(
+                JSON.readTree(get("/api/methods").body()).get("methods").findValuesAsText("name"));
     }
 
     @Test
