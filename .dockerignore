@@ -1,0 +1,9 @@
+# The image builds the server from its sources alone (see Dockerfile).
+**/target
+**/src/test
+**/dependency-reduced-pom.xml
+.git
+.githooks
+.idea
+*.iml
+tools

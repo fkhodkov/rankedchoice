@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -99,22 +100,57 @@ public final class DemoServer {
         counts.shutdownNow();
     }
 
-    /** {@code [--port N] [--bind ADDRESS]}: port 8080 on this machine alone (127.0.0.1) by default. */
+    private static final String USAGE = "usage: java -jar rankedchoice-server.jar [--port N] [--bind ADDRESS] "
+            + "[--max-request-mb N] [--max-counts N] [--timeout-seconds N]";
+
+    /**
+     * {@code [--port N] [--bind ADDRESS] [--max-request-mb N] [--max-counts N] [--timeout-seconds N]}:
+     * port 8080 on this machine alone (127.0.0.1), with {@link Limits#DEFAULT}'s limits, unless given.
+     */
     public static void main(String[] args) throws IOException {
         int port = 8080;
         String bind = "127.0.0.1";
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "--port" -> port = Integer.parseInt(args[++i]);
-                case "--bind" -> bind = args[++i];
-                default -> {
-                    System.err.println("usage: java -jar rankedchoice-server.jar [--port N] [--bind ADDRESS]");
-                    System.exit(2);
+        Limits defaults = Limits.DEFAULT;
+        int maxRequestBytes = defaults.maxRequestBytes();
+        int maxCounts = defaults.maxConcurrentCounts();
+        Duration timeout = defaults.countTimeout();
+        try {
+            for (int i = 0; i < args.length; i++) {
+                String option = args[i];
+                if (option.equals("--help") || option.equals("-h")) {
+                    System.out.println(USAGE);
+                    return;
+                }
+                if (i + 1 == args.length) {
+                    throw new IllegalArgumentException(option + " needs a value");
+                }
+                String value = args[++i];
+                switch (option) {
+                    case "--port" -> port = number(option, value, 65535);
+                    case "--bind" -> bind = value;
+                    case "--max-request-mb" -> maxRequestBytes = number(option, value, 1024) * 1024 * 1024;
+                    case "--max-counts" -> maxCounts = number(option, value, 1024);
+                    case "--timeout-seconds" -> timeout = Duration.ofSeconds(number(option, value, 86400));
+                    default -> throw new IllegalArgumentException("unknown option " + option);
                 }
             }
+            Limits limits = new Limits(maxRequestBytes, maxCounts, timeout);
+            DemoServer server = start(new InetSocketAddress(bind, port), limits);
+            System.out.println("Counting at http://" + bind + ":" + server.port() + "/ (" + limits.maxRequestBytes()
+                    / (1024 * 1024) + " MB requests, " + limits.maxConcurrentCounts() + " counts at once, "
+                    + limits.countTimeout().toSeconds() + " s each)");
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error: " + e.getMessage() + "\n" + USAGE);
+            System.exit(2);
         }
-        DemoServer server = start(new InetSocketAddress(bind, port), Limits.DEFAULT);
-        System.out.println("Counting at http://" + bind + ":" + server.port() + "/");
+    }
+
+    /** An option's value, a whole number from 0 to {@code max}. */
+    private static int number(String option, String value, int max) {
+        if (!value.matches("\\d{1,9}") || Integer.parseInt(value) > max) {
+            throw new IllegalArgumentException(option + " takes a whole number up to " + max + ", not '" + value + "'");
+        }
+        return Integer.parseInt(value);
     }
 
     /** An answer: its status, content type and body. */

@@ -1,0 +1,14 @@
+# The demo server, built and started in one step:
+#   docker compose up --build        then open http://localhost:8080/
+# README's "Demo server" says what the options do and how to put it online.
+services:
+  server:
+    build: .
+    image: rankedchoice-server
+    ports:
+      # This machine alone. Online, publish it to a reverse proxy that adds HTTPS.
+      - "127.0.0.1:8080:8080"
+    # The heap is 75% of this.
+    mem_limit: 1g
+    command: ["--max-counts", "2", "--timeout-seconds", "30", "--max-request-mb", "5"]
+    restart: unless-stopped

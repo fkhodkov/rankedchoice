@@ -262,9 +262,35 @@ curl -X POST localhost:8080/api/count -d '{"ballots": "2 1\n3 1 2 0\n2 2 0\n0\n\
 
 A public demo can't let one request take the machine, so the server reads at most 5 MB a
 request (413 past that), runs at most half the processors' worth of counts at once (503 while
-every place is taken), and waits 30 seconds for each (504). A count can't be stopped partway, so
-one past its 30 seconds still runs to its end, holding its place; the cap on counts at once is
-what bounds the work. Large counts belong to the command line.
+every place is taken), and waits 30 seconds for each (504); `--max-request-mb`, `--max-counts` and
+`--timeout-seconds` change them. A count can't be stopped partway, so one past its time still runs
+to its end, holding its place; the cap on counts at once is what bounds the work. Large counts
+belong to the command line.
+
+### Running it in Docker
+
+```sh
+docker compose up --build         # http://localhost:8080/
+docker compose down
+```
+
+The `Dockerfile` builds the server from source in a Maven image (on Java 25, without the tests,
+which the pre-commit build runs) and runs it on a Java runtime alone, as a user without root, with
+a health check on `/api/methods`: an image of about 230 MB. `docker-compose.yml` publishes it on
+this machine alone (`127.0.0.1:8080`), caps its memory at 1 GB (the heap takes 75% of the cap), and
+gives the server's limits explicitly: 2 counts at once, 30 seconds, 5 MB. Without Compose:
+
+```sh
+docker build -t rankedchoice-server .
+docker run --rm -p 127.0.0.1:8080:8080 --memory 1g rankedchoice-server --max-counts 2
+```
+
+To put it online, run it on a host with Docker and publish it to a reverse proxy (Caddy, nginx, or
+the host's own) that adds HTTPS: the server speaks plain HTTP, has no accounts, and keeps nothing
+between requests, so there's nothing else to set up. Size `mem_limit` and `--max-counts` together:
+a count of a million ballots ranking 40 candidates takes up to 512 MB (see
+[Performance](#performance)), so a 1 GB container is right for small elections two at a time, and
+larger ones want more memory per count, or the command line.
 
 ## Reports
 
@@ -558,6 +584,7 @@ server/src/main/java/info/fkhodkov/rankedchoice/
 └── server/        DemoServer (the JDK's HTTP server, over count/), CountRequest, Limits
 server/src/main/resources/static/   the page the server serves at / (index.html, style.css, app.js)
                                     and its examples (examples/, listed in examples.json)
+Dockerfile, docker-compose.yml      the demo server as an image, and its quick start
 
 tools/
 ├── votekit/                   VoteKit mock elections, compared across every method
