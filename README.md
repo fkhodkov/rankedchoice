@@ -231,7 +231,9 @@ needs nothing besides the library.
 
 At `/` it serves a page for counting by hand: paste or open a BLT or CSV file, or try one of five
 examples, choose a method (the page shows only the options that method takes, from
-`/api/methods`) and count. The HTML report shows in a frame that can't run scripts, and the text,
+`/api/methods`) and count. Choosing a ruleset shows its values greyed in the fields it sets, so a
+blank field visibly means the ruleset's, and lists in words the rules it sets that have no field
+(batch exclusion, surplus order and the like). The HTML report shows in a frame that can't run scripts, and the text,
 CSV, JSON and HTML reports download from there; a refused count's message shows under the field
 it's about. It's plain HTML, CSS and JavaScript (`server/src/main/resources/static/`), with no
 build step and nothing fetched from elsewhere. Four of the examples are copies of the library's
@@ -246,8 +248,9 @@ java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar      # http://127
 java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar --port 9000 --bind 0.0.0.0
 ```
 
-- `GET /api/methods`: the methods with the options each takes, the bundled rulesets, the report
-  formats and the server's limits, as JSON.
+- `GET /api/methods`: the methods with the options each takes, the bundled rulesets with their
+  settings (each by its config name, as the ruleset's YAML gives it), the report formats and the
+  server's limits, as JSON.
 - `POST /api/count`: JSON with the ballot file's text (`ballots`, BLT or CSV, `format` taken from
   the text when left out), `reportFormat` (text by default) and any of the command line's options,
   named in camel case (`method`, `ruleset`, `seats`, `quota`, `transfer`, `rounding`, `tiebreak`,

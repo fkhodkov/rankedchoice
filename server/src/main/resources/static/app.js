@@ -9,7 +9,7 @@ const OPTIONS = {
   },
   ruleset: {
     label: "Ruleset", type: "ruleset",
-    hint: "A bundled jurisdiction's rules; the fields below override it.",
+    hint: "A bundled jurisdiction's rules. Its values show greyed in the fields below; what you type overrides them.",
   },
   quota: {
     label: "Quota", type: "text",
@@ -49,8 +49,38 @@ const OPTIONS = {
   },
 };
 
+// The rules a ruleset sets that have no field here, in README's words. Only classic STV reads them.
+const FIXED_RULES = {
+  batchExclusion: (on) => (on
+    ? "Batch exclusion: the lowest candidates are excluded together when together they still couldn't overtake "
+      + "the next."
+    : "One candidate is excluded at a time."),
+  deferSurpluses: (on) => on && "Surplus deferral: pending surpluses wait while exclusions go ahead, unless they "
+    + "could change who is excluded.",
+  votesRequired: (on) => on && "Votes required: a candidate is also elected on reaching the active vote divided by "
+    + "one more than the seats left.",
+  surplusOrder: (order) => (order === "election" ? "Surpluses move in order of election."
+    : "Surpluses move largest first."),
+  electAsTheyStand: (on) => on && "Elect as they stand: when an exclusion leaves as many candidates as seats, "
+    + "they're elected without its papers moving, and the last seat between two goes to the one ahead.",
+  electSureWinners: (on) => on && "Sure winners: the leaders for the seats left are elected as soon as the others "
+    + "together can't overtake the last of them.",
+  exclusionOrder: (order) => ({
+    value: "An excluded candidate's ballots move by transfer value, highest first.",
+    "first-preferences-then-value": "An excluded candidate's first preferences move first, then the rest by "
+      + "transfer value.",
+    parcel: "An excluded candidate's ballots move parcel by parcel, in the order received.",
+  }[order] || `Exclusion order: ${order}.`),
+  simultaneousSurpluses: (on) => on && "Everyone elected in a round has their surplus moved together.",
+  mathematicalElimination: (on) => on && "Mathematical elimination: every candidate who can no longer win is "
+    + "defeated together before a surplus moves.",
+  rankingsElimination: (on) => on && "So is anyone ranked on too few ballots still in play to reach the last seat.",
+  quotaEachRound: (on) => on && "The quota is recomputed before every round.",
+};
+
 const $ = (id) => document.getElementById(id);
 let methods = [];
+let rulesets = [];
 let examples = [];
 let maxRequestBytes = Infinity;
 let lastRequest = null;
@@ -65,7 +95,8 @@ async function start() {
     examples = list;
     maxRequestBytes = api.limits.maxRequestBytes;
     buildMethods();
-    buildOptions(api.rulesets);
+    rulesets = api.rulesets;
+    buildOptions();
     buildExamples();
     $("limits").textContent = `This demo takes ballot files up to ${Math.round(maxRequestBytes / 1024 / 1024)} MB, `
       + `counts ${api.limits.maxConcurrentCounts} elections at once and waits ${api.limits.countTimeoutSeconds} s `
@@ -92,7 +123,7 @@ function buildMethods() {
   }
 }
 
-function buildOptions(rulesets) {
+function buildOptions() {
   const container = $("options");
   const row = document.createElement("div");
   row.className = "row";
@@ -141,11 +172,12 @@ function buildOptions(rulesets) {
     if (option.type === "ruleset") {
       const about = document.createElement("p");
       about.className = "hint";
-      input.addEventListener("change", () => {
-        const ruleset = rulesets.find((r) => r.name === input.value);
-        about.textContent = ruleset ? ruleset.description : "";
-      });
-      field.append(about);
+      about.id = "ruleset-about";
+      const rules = document.createElement("ul");
+      rules.className = "ruleset-rules";
+      rules.id = "ruleset-rules";
+      input.addEventListener("change", applyRuleset);
+      field.append(about, rules);
       container.append(field);
     } else {
       row.append(field);
@@ -161,6 +193,43 @@ function showMethodOptions() {
   for (const field of $("options").querySelectorAll("[data-option]")) {
     field.hidden = !method || !method.options.includes(field.dataset.option);
   }
+  applyRuleset();
+}
+
+/**
+ * Shows what the chosen ruleset sets: its value in each field it gives one for (greyed, so a blank
+ * field visibly means the ruleset's value), and, for classic STV, the rules it sets that have no field.
+ */
+function applyRuleset() {
+  const select = $("option-ruleset");
+  const ruleset = select ? rulesets.find((r) => r.name === select.value) : undefined;
+  const settings = ruleset ? ruleset.settings : {};
+  $("ruleset-about").textContent = ruleset ? ruleset.description : "";
+  for (const name of Object.keys(OPTIONS)) {
+    const input = $(`option-${name}`);
+    if (name === "ruleset" || !input) {
+      continue;
+    }
+    const value = settings[name];
+    if (input.tagName === "SELECT") {
+      input.options[0].text = value === undefined ? "Default" : `Ruleset: ${value}`;
+    } else {
+      input.placeholder = value === undefined ? "" : String(value);
+    }
+  }
+  const rules = $("ruleset-rules");
+  rules.replaceChildren();
+  if ($("method").value === "stv") {
+    for (const [name, value] of Object.entries(settings)) {
+      const text = FIXED_RULES[name] ? FIXED_RULES[name](value) : null;
+      if (text) {
+        const item = document.createElement("li");
+        item.textContent = text;
+        rules.append(item);
+      }
+    }
+  }
+  rules.hidden = rules.childElementCount === 0;
 }
 
 function buildExamples() {

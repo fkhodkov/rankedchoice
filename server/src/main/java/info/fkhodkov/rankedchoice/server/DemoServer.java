@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
@@ -36,8 +37,8 @@ import info.fkhodkov.rankedchoice.count.Tabulator;
  * JDK's own HTTP server:
  *
  * <ul>
- * <li>{@code GET /api/methods}: the methods, the options each takes, the bundled rulesets, the
- * report formats and the server's limits, as JSON;
+ * <li>{@code GET /api/methods}: the methods, the options each takes, the bundled rulesets with their
+ * settings, the report formats and the server's limits, as JSON;
  * <li>{@code POST /api/count}: a {@link CountRequest} as JSON, answered with the report in the
  * format asked for (text by default), with any warning in {@code X-Count-Warning}; a count
  * refused is a 400 with {@code {"error": ...}}, naming options as the request does;
@@ -55,6 +56,16 @@ public final class DemoServer {
     }
 
     private static final ObjectMapper JSON = new ObjectMapper();
+
+    /** Every bundled ruleset: its name, what it's for, and its settings (those it gives, by config name). */
+    private static final List<Map<String, Object>> RULESETS = Rulesets.ALL.stream().map(ruleset -> {
+        Map<String, Object> entry = new LinkedHashMap<>();
+        entry.put("name", ruleset.name());
+        entry.put("description", ruleset.description());
+        entry.put("settings", new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .convertValue(Rulesets.load(ruleset.name()), Map.class));
+        return entry;
+    }).toList();
     private static final List<String> OPTIONS = List.of("seats", "ruleset", "quota", "transfer", "rounding",
             "tiebreak", "tiedRankings", "minimumPreferences", "precision", "bordaScoring");
     private static final Pattern FLAG = Pattern.compile("--([a-z]+(?:-[a-z]+)*)");
@@ -209,7 +220,7 @@ public final class DemoServer {
         }
         Map<String, Object> answer = new LinkedHashMap<>();
         answer.put("methods", methods);
-        answer.put("rulesets", Rulesets.ALL);
+        answer.put("rulesets", RULESETS);
         answer.put("reportFormats", List.of("text", "csv", "json", "html"));
         answer.put("limits", Map.of("maxRequestBytes", limits.maxRequestBytes(),
                 "maxConcurrentCounts", limits.maxConcurrentCounts(),

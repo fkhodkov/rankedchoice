@@ -102,6 +102,11 @@ class DemoServerTest {
                 .filter(method -> method.get("name").asText().equals("schulze")).findFirst().orElseThrow();
         assertThat(schulze.get("options")).isEmpty();
         assertThat(answer.get("rulesets").toString()).contains("\"scottish\"", "\"ers97\"");
+        JsonNode ers97 = answer.get("rulesets").findParents("name").stream()
+                .filter(ruleset -> ruleset.get("name").asText().equals("ers97")).findFirst().orElseThrow();
+        assertThat(ers97.get("settings").get("quota").asText()).isEqualTo("droop-rounded:2");
+        assertThat(ers97.get("settings").get("batchExclusion").asBoolean()).isTrue();
+        assertThat(ers97.get("settings").has("seats")).isFalse();
         assertThat(answer.get("limits").get("countTimeoutSeconds").asInt()).isEqualTo(30);
     }
 
