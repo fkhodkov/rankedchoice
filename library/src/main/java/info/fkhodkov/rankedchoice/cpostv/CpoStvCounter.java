@@ -8,7 +8,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
@@ -454,16 +453,43 @@ public final class CpoStvCounter {
             }
         }
 
-        Map<Integer, Set<Set<Candidate>>> groups = new TreeMap<>(java.util.Comparator.reverseOrder());
+        // First place is every outcome no other beats, each later place every outcome beaten only by
+        // those above: beating is transitive, but outcomes neither of which beats the other needn't rank
+        // alike, so ranking by how many each beats could put an unbeaten outcome below first. An
+        // outcome's place is one below the lowest of those that beat it, and those beat by fewer, so
+        // placing outcomes in order of how many beat them places every one's beaters first.
+        boolean[][] beats = new boolean[n][n];
+        int[] beatenBy = new int[n];
         for (int i = 0; i < n; i++) {
-            int wins = 0;
             for (int j = 0; j < n; j++) {
                 if (i != j && p[i][j].compareTo(p[j][i]) > 0) {
-                    wins++;
+                    beats[i][j] = true;
+                    beatenBy[j]++;
                 }
             }
-            groups.computeIfAbsent(wins, _ -> new LinkedHashSet<>()).add(outcomes.get(i));
         }
-        return new ArrayList<>(groups.values());
+        Integer[] order = new Integer[n];
+        for (int i = 0; i < n; i++) {
+            order[i] = i;
+        }
+        Arrays.sort(order, java.util.Comparator.comparingInt(i -> beatenBy[i]));
+        int[] place = new int[n];
+        int places = 0;
+        for (int j : order) {
+            for (int i = 0; i < n; i++) {
+                if (beats[i][j]) {
+                    place[j] = Math.max(place[j], place[i] + 1);
+                }
+            }
+            places = Math.max(places, place[j] + 1);
+        }
+        List<Set<Set<Candidate>>> ranking = new ArrayList<>();
+        for (int k = 0; k < places; k++) {
+            ranking.add(new LinkedHashSet<>());
+        }
+        for (int i = 0; i < n; i++) {
+            ranking.get(place[i]).add(outcomes.get(i));
+        }
+        return ranking;
     }
 }

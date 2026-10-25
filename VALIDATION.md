@@ -17,7 +17,7 @@ Tests named below are under `library/src/test/java`, fixtures under `library/src
 | [Meek and Warren](#meek-and-warren) | | droop (144 elections, every round, at several precisions); OpenTally's Meek (the winners of 200) | |
 | [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (60 elections) | ballot-order sensitivity measured |
 | [QPQ](#qpq) | | droop and OpenSTV | hand-derived cases |
-| [CPO-STV](#cpo-stv) | (never used in a public election) | an independent count written from the rules | hand-derived cases |
+| [CPO-STV](#cpo-stv) | (never used in a public election) | STVPoll (300 elections, every comparison its rules count alike); an independent count written from the rules | hand-derived cases |
 | [Schulze](#schulze) | a Debian General Resolution's pairwise tally | OpenSTV (500 elections, every pairwise figure and strongest path); pref_voting (500 with tied rankings) | Wikipedia's example; hand-derived cases |
 | [Schulze STV](#schulze-stv) | (never used in a public election) | Schulze's own program and its 315,112 published supports; an independent count from the paper | the paper's worked example |
 | [Schulze proportional ranking](#schulze-proportional-ranking) | | Schulze's own program's published lists (every comparison it prints, while the lists agree) | the paper's worked example |
@@ -978,6 +978,29 @@ CPO-STV has never been used in a public election, so there is no real data. Chec
   one equally popular candidate form a cycle there, and the beatpath completion elects a
   committee that loses head to head to the one every classic STV variant elects — a genuine
   difference between the methods, correct under CPO-STV's rules.
+- **STVPoll** (`tools/reference/stvpoll`), VoteIT's Python library, version 0.5.6: the one
+  implementation by someone else found that counts a comparison as Tideman does. On 300 seeded
+  random elections (4–7 candidates, 2–4 seats), every one of the 23,140 comparisons whose two
+  outcomes share at most one candidate has the same score difference, given STVPoll exact
+  rounding (it rounds each ballot's value to 5 places) and the same Droop quota. With two or more
+  shared candidates the rules differ: this project transfers the largest pending surplus until
+  none is left, STVPoll gives each shared candidate one turn, in its set's order, and then
+  removes them; 7,587 of those 26,327 comparisons differ. Of the 264 elections where STVPoll finds
+  an outcome that beats every other, it's this project's winner in 253; in the other 11, it loses
+  or ties in this count only against outcomes sharing two or three of its candidates. A copy of
+  the check given a quota one vote higher fails 42 of 60 elections.
+
+That check found a bug, fixed on 25 October 2026, the one the Schulze method had: outcomes were
+ranked by how many others each beats on the beatpath, which can put an outcome nobody beats below
+first. In 2 of the 300 elections the winners missed a second outcome nobody beats ({C2, C3} and
+{C3, C5} in the 61st, `CpoStvCounterTest`); the ranking below first changed in 67, and no score.
+First place is now every outcome nobody beats, and each later place every outcome beaten only by
+those above.
+
+Condorcet PHP (julien-boudry/Condorcet) has a CPO-STV too, but a variant of its own: candidates
+at quota on first preferences are fixed in every outcome before any comparison, shared surpluses
+move once, together, in floating point, and the completion is Schulze on margins. It isn't used
+as a check.
 
 ## Schulze STV
 

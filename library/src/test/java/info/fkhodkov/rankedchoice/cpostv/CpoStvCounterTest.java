@@ -4,10 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
+import info.fkhodkov.rankedchoice.core.ballot.BltParser;
+import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
@@ -164,6 +168,68 @@ class CpoStvCounterTest {
         assertThat(result.ranking().get(1)).containsExactlyInAnyOrder(
                 Set.of(a, c), Set.of(a, d), Set.of(b, c), Set.of(b, d));
         assertThat(result.ranking().get(2)).containsExactly(Set.of(c, d));
+    }
+
+    /**
+     * Election 61 of tools/reference/stvpoll's random elections, where the comparison with STVPoll
+     * showed it: on the beatpath, nobody beats {C2, C3} or {C3, C5}, so both are winners, but
+     * {C3, C4} beats more outcomes than {C3, C5} does. Ranking by how many each beat put {C3, C5}
+     * third, below {C3, C4}, and {C2, C3} the winner alone.
+     */
+    @Test
+    void everyOutcomeNobodyBeatsSharesFirstPlaceEvenIfAnotherBeatsMore() {
+        ParsedElection election = BltParser.parse("""
+            7 2
+            3 4 0
+            1 5 0
+            3 5 3 6 2 0
+            2 3 2 0
+            1 6 3 1 4 2 5 7 0
+            4 3 2 6 7 1 5 4 0
+            2 1 0
+            2 5 0
+            5 6 0
+            4 4 7 5 3 1 6 2 0
+            2 1 0
+            2 1 2 0
+            5 5 4 2 3 1 6 0
+            5 3 0
+            2 6 0
+            3 6 5 2 4 3 0
+            5 6 0
+            3 2 0
+            3 7 2 5 3 4 0
+            1 7 1 5 2 0
+            4 4 1 5 3 2 7 0
+            5 3 6 5 2 1 4 7 0
+            3 7 3 2 0
+            5 2 0
+            3 2 5 3 6 1 7 4 0
+            2 2 3 5 1 4 7 6 0
+            3 2 1 0
+            2 1 5 3 7 0
+            1 1 0
+            2 4 1 6 7 2 3 5 0
+            0
+            "C1"
+            "C2"
+            "C3"
+            "C4"
+            "C5"
+            "C6"
+            "C7"
+            "random 61"
+            """.lines());
+        CpoStvRuleset ruleset =
+                new CpoStvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE);
+        Map<String, Candidate> byName = new HashMap<>();
+        election.candidates().forEach(candidate -> byName.put(candidate.name(), candidate));
+
+        CpoStvResult result = CpoStvCounter.count(election.candidates(), election.ballots(), 2, ruleset);
+
+        assertThat(result.winners()).containsExactlyInAnyOrder(
+                Set.of(byName.get("C2"), byName.get("C3")), Set.of(byName.get("C3"), byName.get("C5")));
+        assertThat(result.ranking().get(1)).containsExactly(Set.of(byName.get("C3"), byName.get("C4")));
     }
 
     @Test
