@@ -20,7 +20,7 @@ design.
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
 | Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | every count of Cambridge's 16 elections of 2001–2017 and the winners of 21 of its 22 of 2001–2023; OpenSTV, exactly, on 60 elections |
-| QPQ | `qpq` | Woodall's Quota Preferential by Quotient: whole votes, quotients, a restart after each exclusion | droop and OpenSTV, to 9 decimal places |
+| QPQ | `qpq` | Woodall's Quota Preferential by Quotient: whole votes, quotients, a restart after each exclusion | droop and OpenSTV: every decision of 1,000 random elections, to 9 decimal places |
 | CPO-STV | `cpo-stv` | Tideman's: every possible committee compared with every other | hand-worked cases; an independent implementation (4,830 scores); STVPoll on 300 elections, every comparison counted alike |
 | Schulze STV | `schulze-stv` | Schulze's: committees one swap apart compared by how well each could split the voters into separate quotas, then a beatpath | Schulze's own program and published figures on Tideman's 65 elections; the paper's worked example |
 | Schulze proportional ranking | `schulze-proportional` | Schulze's: a party list built place by place, each candidate compared by how strongly the list so far plus them would hold against each other candidate, then a beatpath | every comparison behind Schulze's own program's published lists for Tideman's elections, to 6 decimals; the paper's worked example |
@@ -530,6 +530,8 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/openstv`](tools/reference/openstv/README.md) — count random elections by
   Schulze and Borda with OpenSTV and compare every pairwise figure, strongest path, winner and
   score with this project's.
+- [`tools/reference/qpq`](tools/reference/qpq/README.md) — count random elections by QPQ with
+  droop and OpenSTV and compare every decision, quota and quotient, and the winners.
 - [`tools/reference/stvpoll`](tools/reference/stvpoll/README.md) — count random elections by
   CPO-STV with STVPoll and compare every comparison of outcomes and the winners with this
   project's.
@@ -610,7 +612,7 @@ tools/
 ├── benchmark/                 large synthetic elections and the Performance figures
 └── reference/                 the independent checks (see VALIDATION.md)
     ├── <place>/check.py       one jurisdiction's official counts (README.md lays out their data)
-    ├── opentally/, openstv/, pref_voting/, pyrcv2/, schulze_stv/, stvpoll/, cpo_stv.py   checks against others
+    ├── opentally/, openstv/, pref_voting/, pyrcv2/, qpq/, schulze_stv/, stvpoll/, cpo_stv.py   checks against others
     ├── rcvcheck.py, cvr_to_blt.py, refresh_results.py, results_page.py   shared pieces
     ├── results/               every checker's results, the results page, jurisdictions.json
     └── tests/                 the Python tests, line length and pyflakes included

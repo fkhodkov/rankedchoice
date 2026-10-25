@@ -16,7 +16,7 @@ Tests named below are under `library/src/test/java`, fixtures under `library/src
 | Instant-runoff (`irv`, classic STV for one seat) | Alameda County, San Francisco, Alaska, New York City and Maine; Minneapolis's single-seat races (as `minneapolis`) | | |
 | [Meek and Warren](#meek-and-warren) | | droop (144 elections, every round, at several precisions); OpenTally's Meek (the winners of 200) | |
 | [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (60 elections) | ballot-order sensitivity measured |
-| [QPQ](#qpq) | | droop and OpenSTV | hand-derived cases |
+| [QPQ](#qpq) | | droop and OpenSTV (1,000 random elections, every decision) | hand-derived cases |
 | [CPO-STV](#cpo-stv) | (never used in a public election) | STVPoll (300 elections, every comparison its rules count alike); an independent count written from the rules | hand-derived cases |
 | [Schulze](#schulze) | a Debian General Resolution's pairwise tally | OpenSTV (500 elections, every pairwise figure and strongest path); pref_voting (500 with tied rankings) | Wikipedia's example; hand-derived cases |
 | [Schulze STV](#schulze-stv) | (never used in a public election) | Schulze's own program and its 315,112 published supports; an independent count from the paper | the paper's worked example |
@@ -1101,9 +1101,21 @@ Checked against two independent implementations of Woodall's rule, droop's `qpq.
 OpenSTV's `QPQ.py`: six synthetic ballot sets and a purpose-built restart-and-re-election case
 match both, quota and every quotient, stage by stage, to 9 decimal places (OpenSTV's transcript
 even labels the stage this project marks `restarted` as "Restart count"). Truncated and skipped
-tied rankings match both as well. Hand-derived cases (`QpqCounterTest`) include the
-restart-and-re-election mechanic, which caught a real bug: a final "elect every remaining
-hopeful" step didn't check whether the seats were already filled.
+tied rankings match both as well.
+
+`tools/reference/qpq` widens that to 1,000 seeded random elections (3–9 candidates, 1–5 seats, a
+withdrawn candidate in a quarter of them, weighted and truncated ballots), each counted three
+ways. All 1,000 match droop and OpenSTV in every decision, 5,828 in all: each election and
+exclusion is the same candidate, at the same quota and quotient to 10⁻⁸ (droop reports 9 places),
+including the 168 decisions at a tie (all three break them by candidate order) and the 1,859
+after a restart, each a restart in OpenSTV too; and the winners are the same. Only the end differs,
+and isn't compared: this project and droop elect the hopefuls left once there are no more than
+seats, OpenSTV counts on until they reach the quota. A fault planted in this project's quota
+(leaving out the candidates inactive ballots have elected) fails 142 of 200 elections.
+
+Hand-derived cases (`QpqCounterTest`) include the restart-and-re-election mechanic, which caught a
+real bug: a final "elect every remaining hopeful" step didn't check whether the seats were already
+filled.
 
 The count has two implementations: one on `long` vote counts, and one on `BigInteger` counts for
 totals too large for a `long`, which no real election reaches. The external checks above only
