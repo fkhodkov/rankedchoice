@@ -241,9 +241,10 @@ class DemoServerTest {
         HttpResponse<String> manifest = get("/examples/examples.json");
         assertThat(manifest.headers().firstValue("Content-Type")).hasValue("application/json; charset=utf-8");
         JsonNode examples = JSON.readTree(manifest.body());
-        assertThat(examples).hasSizeGreaterThanOrEqualTo(16);
+        assertThat(examples).hasSizeGreaterThanOrEqualTo(22);
         Path fixtures = Path.of("../library/src/test/resources/testdata");
         Set<String> methods = new HashSet<>();
+        Set<String> rulesets = new HashSet<>();
         int copies = 0;
 
         for (JsonNode example : examples) {
@@ -269,14 +270,21 @@ class DemoServerTest {
             HttpResponse<String> counted = count(request);
             assertThat(counted.statusCode()).as(file + ": " + counted.body()).isEqualTo(200);
             methods.add(example.get("options").get("method").asText());
+            if (example.get("options").has("ruleset")) {
+                rulesets.add(example.get("options").get("ruleset").asText());
+            }
             assertThat(example.get("title").asText()).isNotBlank();
             assertThat(example.get("about").asText()).isNotBlank();
             assertThat(example.get("group").asText()).isNotBlank();
         }
         assertThat(copies).isEqualTo(examples.size() - 1);
-        // An example for every method the server counts by.
-        assertThat(methods).containsExactlyInAnyOrderElementsOf(
-                JSON.readTree(get("/api/methods").body()).get("methods").findValuesAsText("name"));
+        // An example for every method the server counts by, and for every ruleset but two: Tasmania
+        // publishes no ballots for hare-clark-qpq, and ers76 has the same settings as ers97.
+        JsonNode api = JSON.readTree(get("/api/methods").body());
+        assertThat(methods).containsExactlyInAnyOrderElementsOf(api.get("methods").findValuesAsText("name"));
+        Set<String> withoutExample = new HashSet<>(api.get("rulesets").findValuesAsText("name"));
+        withoutExample.removeAll(rulesets);
+        assertThat(withoutExample).containsExactlyInAnyOrder("hare-clark-qpq", "ers76");
     }
 
     @Test

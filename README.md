@@ -229,7 +229,7 @@ The `server` module counts elections over HTTP, through the same library code as
 line, so its reports are the command line's byte for byte. It uses the JDK's own HTTP server, and
 needs nothing besides the library.
 
-At `/` it serves a page for counting by hand: paste or open a BLT or CSV file, or try one of 16
+At `/` it serves a page for counting by hand: paste or open a BLT or CSV file, or try one of 22
 examples, choose a method (the page shows only the options that method takes, from
 `/api/methods`) and count. Choosing a ruleset shows its values greyed in the fields it sets, so a
 blank field visibly means the ruleset's, and lists in words the rules it sets that have no field
@@ -238,17 +238,21 @@ scripts, and the text, CSV, JSON and HTML reports download from there; a refused
 shows under the field it's about. It's plain HTML, CSS and JavaScript
 (`server/src/main/resources/static/`), with no build step and nothing fetched from elsewhere.
 
-The examples cover every method. Nine are real elections: Orkney 2022's Kirkwall East ward
-(Scottish STV), Shetland 2017's ward 2 (by QPQ), Maine's 2018 2nd congressional district
-(instant-runoff), Minneapolis's 2021 mayoral race (by Schulze) and Park Board (Minneapolis's
-rules), NSW 2024's Ballina B Ward (NSW councils' rules), Cambridge's 2013 School Committee
-(Cambridge STV), MapLibre's 2025 board (Meek) and Nauru 2019's Boe (Dowdall Borda). Six are worked
-or test examples: Wikipedia's, ERS97's model election, the synthetic election where Warren and
-Meek differ, the CPO-STV near-tie with a cycle, and Tideman's A53 by Schulze STV and as a Schulze
-proportional list. Those fifteen are copies of the library's fixtures, whose READMEs say where
-they come from (`examples.json` names each one's); the last, a CSV with tied rankings, is made up
-for the demo. `DemoServerTest` counts every example with its options, fails if a copy no longer
-matches its fixture, and fails if a method has no example.
+The examples cover every method, and every bundled ruleset but `hare-clark-qpq` (Tasmania
+publishes no ballots) and `ers76` (`ers97`'s settings). Twelve are real elections: Orkney 2022's
+Kirkwall East ward (Scottish STV), Shetland 2017's ward 2 (by QPQ), Maine's 2018 2nd
+congressional district (instant-runoff), Minneapolis's 2021 mayoral race (by Schulze) and Park
+Board (Minneapolis's rules), NSW 2024's Ballina B Ward (NSW councils' rules), the ACT's 2020
+Brindabella electorate (ACT Hare-Clark, 55,413 ballots), Portland's 2024 District 4 (Portland's
+rules, 76,717 ballots), Albany's 2024 City Council, Cambridge's 2013 School Committee (Cambridge
+STV), MapLibre's 2025 board (Meek) and Nauru 2019's Boe (Dowdall Borda). Nine are worked or test
+examples: Wikipedia's, ERS97's model election, the synthetic Senate, Victorian and Western
+Australian counts that match pyRCV2 and OpenTally every round, the election where Warren and Meek
+differ, the CPO-STV near-tie with a cycle, and Tideman's A53 by Schulze STV and as a Schulze
+proportional list. Those 21 are copies of the library's fixtures, whose READMEs say where they come
+from (`examples.json` names each one's); the last, a CSV with tied rankings, is made up for the
+demo. `DemoServerTest` counts every example with its options, fails if a copy no longer matches
+its fixture, and fails if a method, or a ruleset other than those two, has no example.
 
 ```sh
 mvn package -DskipTests
