@@ -19,7 +19,7 @@ design.
 | STV | `stv` (default) | Quota-based STV, assembled from a quota, transfer method, rounding rule and tie-break — or a [bundled ruleset](#bundled-rulesets) | every Scottish council ward with published ballots (1,070), all five ACT electorates in 2020 to the last decimal, every Senate count from 2016 to 2025, NSW's 2024 council elections (227 counts), Portland's 2024 City Council, single-seat contests in Alameda County (93, 2010–2025), San Francisco (53, 2010–2024) and Alaska (22, 2022–2024) New York City's primaries (124, 2021–2025) and Maine (16, 2018–2026) as `irv`, Minneapolis's multi-seat contests 2009–2025 and 29 of its single-seat races 2017–2025, Eastpointe, Michigan's 2019 and 2021 councils, Albany, California's 2022 and 2024 contests, Irish Dáil 2002, the ERS97 model election, OpenTally, CRAN `STV`/`vote`, OpenSTV |
 | Meek's method | `meek` | Every ballot recounted each iteration against converging keep factors; droop's fixed-point arithmetic | droop, exactly, on 144 elections incl. MapLibre's real 2025 election |
 | Warren's method | `warren` | Meek's count, but an elected candidate takes a flat amount from each ballot | droop, exactly, on the same 144 |
-| Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | every count of Cambridge's 16 elections of 2001–2017 and the winners of 21 of its 22 of 2001–2023; OpenSTV, exactly, on 60 elections |
+| Cambridge STV | `cambridge` | Cambridge, MA: whole ballots, surpluses by the Cincinnati method (every n-th ballot) | every count of Cambridge's 16 elections of 2001–2017 and the winners of 21 of its 22 of 2001–2023; OpenSTV, exactly, every stage of 1,000 elections |
 | QPQ | `qpq` | Woodall's Quota Preferential by Quotient: whole votes, quotients, a restart after each exclusion | droop and OpenSTV: every decision of 1,000 random elections, to 9 decimal places |
 | CPO-STV | `cpo-stv` | Tideman's: every possible committee compared with every other | hand-worked cases; an independent implementation (4,830 scores); STVPoll on 300 elections, every comparison counted alike |
 | Schulze STV | `schulze-stv` | Schulze's: committees one swap apart compared by how well each could split the voters into separate quotas, then a beatpath | Schulze's own program and published figures on Tideman's 65 elections; the paper's worked example |
@@ -528,8 +528,8 @@ about 45 s, 16 / 8 about a minute.
 - [`tools/reference/opentally`](tools/reference/opentally/README.md) — count random elections with
   OpenTally under each matching preset and compare every round with this project's.
 - [`tools/reference/openstv`](tools/reference/openstv/README.md) — count random elections by
-  Schulze and Borda with OpenSTV and compare every pairwise figure, strongest path, winner and
-  score with this project's.
+  Schulze, Borda and Cambridge STV with OpenSTV and compare every pairwise figure, strongest
+  path, score, stage and winner with this project's.
 - [`tools/reference/qpq`](tools/reference/qpq/README.md) — count random elections by QPQ with
   droop and OpenSTV and compare every decision, quota and quotient, and the winners.
 - [`tools/reference/stvpoll`](tools/reference/stvpoll/README.md) — count random elections by

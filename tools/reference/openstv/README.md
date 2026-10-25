@@ -26,3 +26,22 @@ python3 tools/reference/openstv/check.py openstv work --method borda --python2 P
 ```
 
 Results: see [VALIDATION.md](../../../VALIDATION.md#schulze) and its Borda section.
+
+## Cambridge STV
+
+`cambridge.py` checks Cambridge STV against OpenSTV's `CambridgeSTV`, as
+`CambridgeOpenStvReferenceTest` does for one stored count, on 1,000 seeded random elections made
+for what the method turns on: party slates, so surpluses move by the Cincinnati method to running
+mates; a long tail of minor candidates, for the batch exclusion of everyone under 50 votes;
+ballots in a fixed order, some lines of weight 2 or 3. This project's rounds (a surplus transfer
+each, the exclusions decided on the same counts as one batch) must be OpenSTV's stages in order,
+the same kind and candidates; at the start of each, every candidate's count and the
+non-transferable total must equal OpenSTV's (its CSV report); and the winners must be the same.
+Ties are broken by candidate order in both (`--tiebreak declared`, `-t index`); OpenSTV's text
+report counts the ties it broke.
+
+```sh
+python3 tools/reference/openstv/cambridge.py openstv work --python2 PATH_TO_PYTHON2
+```
+
+Results: see [VALIDATION.md](../../../VALIDATION.md#cambridge-stv).

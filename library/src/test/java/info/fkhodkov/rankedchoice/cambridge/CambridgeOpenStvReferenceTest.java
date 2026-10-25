@@ -28,7 +28,8 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.DeclaredOrderTieBreak;
  * report (see {@code testdata/cambridge/README.md}). Every action must match OpenSTV's stages in
  * order -- each surplus transfer, each exclusion batch -- and before each one, every candidate's
  * count and the non-transferable total must equal OpenSTV's at that stage; the winners too. (The
- * same check passes on 60 generated elections; this one is kept as a regression test.)
+ * same check passes on 1,000 random elections, tools/reference/openstv/cambridge.py; this one is kept as a
+ * regression test.)
  */
 class CambridgeOpenStvReferenceTest {
 

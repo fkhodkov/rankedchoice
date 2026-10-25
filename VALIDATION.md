@@ -15,7 +15,7 @@ Tests named below are under `library/src/test/java`, fixtures under `library/src
 | Classic STV (`stv` and its presets) | Scotland, the ACT, the Australian Senate, NSW councils, Portland, Minneapolis, Albany, Eastpointe; Ireland's first preferences and winners | [OpenTally](#opentally) (9 presets, 200 elections each); pyRCV2 on [the ERS97 model election](#the-ers97-model-election); CRAN `STV` (Hare quota) | [building blocks](#classic-stv-building-blocks): hand-derived cases, Imperiali's quota only so |
 | Instant-runoff (`irv`, classic STV for one seat) | Alameda County, San Francisco, Alaska, New York City and Maine; Minneapolis's single-seat races (as `minneapolis`) | | |
 | [Meek and Warren](#meek-and-warren) | | droop (144 elections, every round, at several precisions); OpenTally's Meek (the winners of 200) | |
-| [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (60 elections) | ballot-order sensitivity measured |
+| [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (1,000 elections, every stage) | ballot-order sensitivity measured |
 | [QPQ](#qpq) | | droop and OpenSTV (1,000 random elections, every decision) | hand-derived cases |
 | [CPO-STV](#cpo-stv) | (never used in a public election) | STVPoll (300 elections, every comparison its rules count alike); an independent count written from the rules | hand-derived cases |
 | [Schulze](#schulze) | a Debian General Resolution's pairwise tally | OpenSTV (500 elections, every pairwise figure and strongest path); pref_voting (500 with tied rankings) | Wikipedia's example; hand-derived cases |
@@ -1130,10 +1130,14 @@ a restart) all make it fail.
 `CambridgeCounter` follows OpenSTV's `CambridgeSTV` (OpenSTV 1.7,
 [Conservatory/openstv](https://github.com/Conservatory/openstv) at commit 2a267a4).
 
-- **Against OpenSTV**, on 60 generated elections (114 surplus transfers, batch exclusions in
-  all of them, 19 tie-breaks): every stage's counts, the non-transferable total and the winners
-  match exactly. Two deliberate rule mistakes — starting the every-n-th run one ballot late,
-  and not closing a candidate who reaches quota mid-transfer — fail 50 and 44 of the 60.
+- **Against OpenSTV** (`tools/reference/openstv/cambridge.py`), on 1,000 seeded random elections
+  (8–20 candidates on party slates, 3–9 seats, 600–3,000 ballots in a fixed order, some lines of
+  weight 2 or 3, a long tail of minor candidates): every stage's counts, the non-transferable
+  total and the winners match exactly, through 2,208 surplus transfers, 712 exclusions of several
+  candidates at once, and 572 ties OpenSTV reports breaking in 367 of the elections. Two
+  deliberate rule mistakes — starting the every-n-th run one ballot late, and not closing a
+  candidate who reaches quota mid-transfer — fail 155 and 163 of 200. (The first comparison,
+  on 60 generated elections, is what this replaces.)
   `CambridgeOpenStvReferenceTest` replays a stored OpenSTV count stage by stage
   (`testdata/cambridge/README.md` says how it was made); `CambridgeCounterTest` has a
   hand-worked case, confirmed by OpenSTV, where the Cincinnati method gives a whole surplus of
