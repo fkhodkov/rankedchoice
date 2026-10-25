@@ -14,7 +14,7 @@ Tests named below are under `library/src/test/java`, fixtures under `library/src
 |---|---|---|---|
 | Classic STV (`stv` and its presets) | Scotland, the ACT, the Australian Senate, NSW councils, Portland, Minneapolis, Albany, Eastpointe; Ireland's first preferences and winners | [OpenTally](#opentally) (9 presets, 200 elections each); pyRCV2 on [the ERS97 model election](#the-ers97-model-election); CRAN `STV` (Hare quota) | [building blocks](#classic-stv-building-blocks): hand-derived cases, Imperiali's quota only so |
 | Instant-runoff (`irv`, classic STV for one seat) | Alameda County, San Francisco, Alaska, New York City and Maine; Minneapolis's single-seat races (as `minneapolis`) | | |
-| [Meek and Warren](#meek-and-warren) | | droop (144 elections, every round, at several precisions); OpenTally's Meek (the winners of 200) | |
+| [Meek and Warren](#meek-and-warren) | | droop (300 random elections, every round, at 6, 9, 12 and 13 places); OpenTally's Meek (the winners of 200) | |
 | [Cambridge STV](#cambridge-stv) | Cambridge's City Council and School Committee, 2001–2023 | OpenSTV (1,000 elections, every stage) | ballot-order sensitivity measured |
 | [QPQ](#qpq) | | droop and OpenSTV (1,000 random elections, every decision) | hand-derived cases |
 | [CPO-STV](#cpo-stv) | (never used in a public election) | STVPoll (300 elections, every comparison its rules count alike); an independent count written from the rules | hand-derived cases |
@@ -876,6 +876,26 @@ defeat_batch=none`) in the same fixed-point arithmetic, and droop's
   winners in 7, so the Warren check isn't vacuous. `MeekDroopReferenceTest` replays six stored
   droop reports; `MeekCounterTest` has small droop-confirmed cases, including one where Warren
   and Meek differ.
+- **Against droop, repeatably** (`tools/reference/droop`): the 144 above weren't kept as a tool,
+  so this one replaces them as the check anyone can rerun. On 300 seeded random elections (3–10
+  candidates, 1–5 seats, a withdrawn candidate in a quarter, up to 2,000 voters a ballot line),
+  counted by Meek and by Warren at 9, 6, 12 and 13 places: every one of the 11,518 rounds matches
+  droop's report exactly, tallies, residual and surplus, and every election elects the same.
+  Warren's figures differ from Meek's in 138 of the elections and its winners in 3. Two things
+  aren't compared as they stand. droop leaves ballots that rank only withdrawn candidates out of
+  the count, where this project counts them exhausted from the start; either way they're out of
+  the quota, Meek's being over the active votes, so the checker subtracts them from this
+  project's exhausted votes. And droop stops on one count of the 2,400, the 265th election's Meek
+  count at 6 places (below). A quota planted without droop's last-place epsilon fails all 100
+  elections tried.
+- **A surplus rounded below zero** (fixed 25 October 2026): rounding can leave an elected
+  candidate a hair under the quota, so that the elected candidates' votes less the quota, summed
+  as droop sums them, fall below zero. "Every hopeful within the surplus of the lowest" then took
+  in none, not even the lowest, and the count stopped on an empty tie ("tied must not be empty"),
+  as droop does (its `IndexError`). Nothing is left to transfer there, so the lowest is excluded,
+  tied only with candidates on exactly its vote. The 265th election, at 6 places, now elects the
+  same four as at every other precision, and droop with that one line patched matches it every
+  round, for Meek and for Warren, at all four precisions (`MeekCounterTest`).
 - **Tied rankings under `split`** deliberately differ from droop in one place: droop sends any
   ballot containing a tie down a separate path that stops at the first rank with no standing
   candidate — tied or not — losing the rest of the ballot, while its path for untied ballots

@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import info.fkhodkov.rankedchoice.core.ballot.BltParser;
+import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
@@ -225,6 +227,70 @@ class MeekCounterTest {
                         .hasMessageContaining("no precision leaves room for them");
             }
         }
+    }
+
+    /**
+     * Election 265 of tools/reference/droop's random elections, at 6 places: before an exclusion
+     * the elected candidates' votes less the quota sum below zero, rounding having left one a hair
+     * under it. "Within the surplus of the lowest" then took in no hopeful at all, not even the
+     * lowest, and the count stopped on an empty tie, as droop's does. Nothing is left to transfer,
+     * so the lowest goes, as at every other precision, which elect the same four.
+     */
+    @Test
+    void aSurplusRoundedBelowZeroStillExcludesTheLowestHopeful() {
+        ParsedElection election = BltParser.parse("""
+            9 4
+            1069 2 0
+            1897 6 4 2 1 7 8 5 0
+            980 6 8 1 0
+            1556 9 7 0
+            281 2 6 8 9 7 1 3 0
+            22 3 6 8 5 0
+            1746 1 6 8 2 4 3 5 7 9 0
+            553 2 7 5 0
+            1539 2 6 9 3 1 8 0
+            789 2 5 0
+            839 8 0
+            136 9 2 6 0
+            861 3 6 0
+            1478 4 6 8 5 1 3 2 7 9 0
+            1233 2 4 9 6 1 7 5 3 0
+            1308 9 8 2 6 4 1 5 0
+            1451 2 9 5 0
+            234 3 0
+            1634 2 0
+            242 5 0
+            422 7 2 6 8 0
+            1699 1 0
+            807 1 7 8 0
+            1020 6 0
+            1618 2 6 1 9 5 4 3 0
+            453 3 2 6 0
+            1593 1 0
+            1002 9 6 5 2 0
+            1914 2 5 6 4 8 9 0
+            681 3 0
+            1456 3 6 7 4 9 2 0
+            1580 9 6 0
+            1847 6 1 2 4 0
+            0
+            "C1"
+            "C2"
+            "C3"
+            "C4"
+            "C5"
+            "C6"
+            "C7"
+            "C8"
+            "C9"
+            "random 265"
+            """.lines());
+        MeekRuleset ruleset = new MeekRuleset(Exact.INSTANCE, new DeclaredOrderTieBreak(election.candidates()),
+                TiedRankingPolicy.SPLIT, 0, 6, KeepRule.MEEK);
+
+        StvResult result = MeekCounter.count(election.candidates(), election.ballots(), election.seats(), ruleset);
+
+        assertThat(result.electedInOrder()).extracting(Candidate::name).containsExactly("C2", "C6", "C1", "C9");
     }
 
     private static MeekRuleset ruleset(List<Candidate> candidates, KeepRule keepRule) {

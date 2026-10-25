@@ -500,11 +500,19 @@ public final class MeekCounter {
             return stored < 0 ? ~stored : stored;
         }
 
+        /**
+         * The hopeful to exclude: the lowest, tied with every hopeful within the remaining surplus of
+         * it. The surplus is the elected candidates' votes less the quota, summed as droop sums it,
+         * and rounding can leave it below zero (an elected candidate a hair under the quota); then
+         * there's nothing left to transfer, and only candidates on exactly the lowest vote tie. droop
+         * itself stops there, its list of tied candidates empty.
+         */
         private Candidate lowestHopeful(Distribution distribution, long surplus, TieBreakRule tieBreak,
                 List<RoundRecord> priorRounds) {
             long lowest = hopefuls().stream().mapToLong(distribution.votes()::get).min().orElseThrow();
+            long within = Math.max(surplus, 0);
             List<Candidate> tied = hopefuls().stream()
-                    .filter(candidate -> distribution.votes().get(candidate) <= lowest + surplus)
+                    .filter(candidate -> distribution.votes().get(candidate) <= lowest + within)
                     .toList();
             return tied.size() == 1 ? tied.getFirst() : tieBreak.candidateToEliminate(tied, priorRounds);
         }
