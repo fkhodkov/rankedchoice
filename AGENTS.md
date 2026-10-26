@@ -24,6 +24,7 @@ droop's fixed-point arithmetic.
 mvn -o -q verify       # Checkstyle, Java tests, Python tests, jar; -o works with the cached dependencies
 mvn -o -q verify -DskipTests            # the jar only
 mvn -o -q verify -DskipPythonTests      # where python3 isn't installed
+mvn -o -q verify -DskipPyflakes         # where pyflakes isn't (better: pipx install pyflakes)
 python3 -m unittest discover -s tools/reference/tests   # the Python tests alone, in a second
 ```
 
@@ -47,9 +48,10 @@ python3 -m unittest discover -s tools/reference/tests   # the Python tests alone
   may come in the system's locale. `.editorconfig` sets the same for editors; Python keeps to 120
   columns too, which `tools/reference/tests/test_line_length.py` checks under `tools/`.
 - `tools/reference/tests/test_pyflakes.py` runs pyflakes over `tools/` (unused imports, undefined
-  names, and the like) where it's installed, and is skipped where it isn't: install it once
-  (`pip install --user pyflakes`, or the distribution's `python3-pyflakes`) for the build and the
-  pre-commit hook to enforce it.
+  names, and the like), as the Python's module or the `pyflakes` command, and fails where there's
+  neither: install it once (`pipx install pyflakes` where the system Python refuses pip, `pip
+  install --user pyflakes`, or the distribution's `python3-pyflakes`). `-DskipPyflakes` skips it
+  on purpose; it used to skip itself quietly, and an undefined name got through.
 - The Python tests check `tools/reference/cvr_to_blt.py`, `rcvcheck.py`, the results page and
   `refresh_results.py`, and that VALIDATION.md's generated table matches the committed results.
 - The reference checkers need `cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar` (`mvn -o -q package

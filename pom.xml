@@ -32,9 +32,11 @@
     <jackson.version>2.17.2</jackson.version>
     <checkstyle.version>14.3.0</checkstyle.version>
     <!-- The Python tests of tools/reference run with the Java ones: -DskipTests skips both,
-         -DskipPythonTests these alone (where python3 isn't installed). -->
+         -DskipPythonTests these alone (where python3 isn't installed). Their pyflakes check fails where
+         pyflakes isn't installed; -DskipPyflakes skips it on purpose. -->
     <skipTests>false</skipTests>
     <skipPythonTests>${skipTests}</skipPythonTests>
+    <skipPyflakes>false</skipPyflakes>
   </properties>
 
   <dependencyManagement>
@@ -149,6 +151,9 @@
                 <argument>tools/reference/tests</argument>
               </arguments>
               <workingDirectory>${project.basedir}</workingDirectory>
+              <environmentVariables>
+                <RANKEDCHOICE_SKIP_PYFLAKES>${skipPyflakes}</RANKEDCHOICE_SKIP_PYFLAKES>
+              </environmentVariables>
               <skip>${skipPythonTests}</skip>
             </configuration>
           </execution>

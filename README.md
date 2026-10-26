@@ -43,7 +43,9 @@ java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input election.blt --
 
 `mvn test` runs the test suite, including the real-election fixtures, and then the Python tests of
 the reference tools (`tools/reference/tests`); `-DskipTests` skips both, `-DskipPythonTests` the
-Python ones alone, where Python isn't installed. Every build also runs
+Python ones alone, where Python isn't installed. The Python tests include pyflakes, and fail where
+it isn't installed (`pipx install pyflakes`, or `pip install --user pyflakes`); `-DskipPyflakes`
+skips that check alone. Every build also runs
 Checkstyle (`checkstyle.xml`: 4-space indentation, 120 columns, imports grouped static, `java`,
 third-party, then this project's), and fails on any violation; `.editorconfig` sets the same
 for editors.
