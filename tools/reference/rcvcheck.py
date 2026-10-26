@@ -19,6 +19,8 @@ import subprocess
 import sys
 import time
 import unicodedata
+import urllib.error
+import urllib.parse
 import urllib.request
 from decimal import Decimal
 
@@ -28,6 +30,35 @@ DATAVERSE = "https://dataverse.harvard.edu/api/access/datafile/{id}?format=origi
 
 
 SOURCES = ".sources.json"
+ARCHIVE_GAP = 4        # seconds between requests to the Internet Archive, which limits how many it takes a minute
+ARCHIVE_WAITS = (60, 120, 300, 600, 900)    # its 429s, or the refused connections that follow them, waited out
+_archive_last = [0.0]
+
+
+def urlopen(request, timeout):
+    """urllib's urlopen, keeping to the Internet Archive's rate limit: requests to web.archive.org are spaced
+    ARCHIVE_GAP apart, and one it turns away with 429 (or refuses outright, as it does for a while after) is tried
+    again after waiting ARCHIVE_WAITS out in turn, or its Retry-After where longer."""
+    url = request.full_url if isinstance(request, urllib.request.Request) else request
+    if urllib.parse.urlparse(url).netloc != "web.archive.org":
+        return urllib.request.urlopen(request, timeout=timeout)
+    for wait in ARCHIVE_WAITS + (None,):
+        time.sleep(max(0.0, _archive_last[0] + ARCHIVE_GAP - time.monotonic()))
+        try:
+            return urllib.request.urlopen(request, timeout=timeout)
+        except urllib.error.HTTPError as e:
+            if e.code != 429 or wait is None:
+                raise
+            asked = e.headers.get("Retry-After", "")
+            wait = max(wait, int(asked)) if asked.isdigit() else wait
+        except urllib.error.URLError as e:
+            if not isinstance(e.reason, ConnectionRefusedError) or wait is None:
+                raise
+        finally:
+            _archive_last[0] = time.monotonic()
+        print(f"the Internet Archive asks to slow down: waiting {wait}s", file=sys.stderr, flush=True)
+        time.sleep(wait)
+    raise AssertionError("unreachable")
 
 
 def sources(directory):
@@ -63,7 +94,7 @@ def fetch(path, url, attempts=3, headers=None):
         try:
             request = urllib.request.Request(url, headers=headers or {"User-Agent": "Mozilla/5.0",
                                                                       "Accept-Encoding": "identity"})
-            with urllib.request.urlopen(request, timeout=900) as response, open(path + ".part", "wb") as out:
+            with urlopen(request, timeout=900) as response, open(path + ".part", "wb") as out:
                 while chunk := response.read(1 << 20):
                     out.write(chunk)
             with open(path + ".part", "rb") as part:

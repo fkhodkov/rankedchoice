@@ -35,14 +35,13 @@ import subprocess
 import sys
 import time
 import urllib.parse
-import urllib.request
 from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 from rcvcheck import (DATAVERSE, count, exhausted_line, fetch, main, match_rounds, name_key as key,  # noqa: E402
                       pass_exhausted_line, pass_report, pdf_text, sheets, stale, summary, table_rows,
-                      transfer_line, winner)
+                      transfer_line, urlopen, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
 RESULTS = "sfelections.org/results/"
@@ -110,7 +109,7 @@ def cdx(query, attempts=6):
     """One Wayback Machine index query, retried with a growing pause: the service rate-limits."""
     for attempt in range(attempts):
         try:
-            body = urllib.request.urlopen("https://web.archive.org/cdx/search/cdx?" + query, timeout=300).read()
+            body = urlopen("https://web.archive.org/cdx/search/cdx?" + query, timeout=300).read()
             return json.loads(body or b"[]")
         except (OSError, ValueError):
             if attempt == attempts - 1:

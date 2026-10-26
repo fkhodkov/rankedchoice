@@ -50,7 +50,7 @@ def main():
     while queue:
         url, depth = queue.pop(0)
         try:
-            data, _ = get(url)
+            data, kind = get(url)
         except Exception as e:  # noqa: BLE001 -- report and carry on
             print(f"{url}: {e}", flush=True)
             continue
@@ -58,7 +58,8 @@ def main():
             continue
         for href, text in links(data.decode("utf-8", "replace"), url):
             label = f"{text} {urllib.parse.unquote(href)}".lower()
-            ward = re.search(r"ward[\s_-]*(\d+)", label)
+            # Falkirk's links name only the report; the ward is in the page's own address.
+            ward = re.search(r"ward[\s_-]*(\d+)", label) or re.search(r"ward[\s_-]*(\d+)", url.lower())
             if "stage" in label and ward and int(ward.group(1)) not in saved:
                 try:
                     pdf = pdf_from(href)

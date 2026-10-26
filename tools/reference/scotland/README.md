@@ -29,6 +29,10 @@ python3 tools/reference/scotland/check.py scot-elex official.json
 python3 tools/reference/scotland/stages.py scot-elex official.json
 python3 tools/reference/scotland/fetch_reports.py reports sc_borders \
     https://www.scotborders.gov.uk/downloads/download/1471/2022-local-government-election-information
+python3 tools/reference/scotland/fetch_reports.py reports falkirk \
+    https://www.falkirk.gov.uk/elections-and-voting/local-government-election-results/ward-1
+python3 tools/reference/scotland/fetch_reports.py reports highland \
+    https://www.highland.gov.uk/info/800/election_results/998/2022_local_government_elections_results
 python3 tools/reference/scotland/stage_report.py scot-elex reports      # needs pdftotext
 ```
 

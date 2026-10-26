@@ -1,6 +1,6 @@
 {
  "checker": "sanfrancisco",
- "date": "2026-10-07",
+ "date": "2026-10-26",
  "contests": [
   {
    "contest": "2019-supervisor-5",
@@ -216,7 +216,7 @@
    "matched": 10,
    "rounds": 10,
    "winners_same": true,
-   "line": "2016-supervisor-1: 10 of 10 official rounds match to the vote; eliminations the same; elected the same; results captured 20250321; exhausted votes the official ones (10 rounds)"
+   "line": "2016-supervisor-1: 10 of 10 official rounds match to the vote; eliminations the same; elected the same; results captured 20260712; exhausted votes the official ones (10 rounds)"
   },
   {
    "contest": "2016-supervisor-3",
@@ -224,7 +224,7 @@
    "matched": 2,
    "rounds": 2,
    "winners_same": true,
-   "line": "2016-supervisor-3: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20230414; exhausted votes the official ones (2 rounds)"
+   "line": "2016-supervisor-3: 2 of 2 official rounds match to the vote; eliminations the same; elected the same; results captured 20260712; exhausted votes the official ones (2 rounds)"
   },
   {
    "contest": "2016-supervisor-5",

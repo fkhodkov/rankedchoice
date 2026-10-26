@@ -59,7 +59,7 @@ and Warren, Borda and the error handling.
 | Maine (2018–2026) | 16 | `irv` | every round in 12; the eliminations and the winner in all 16 |
 | Ireland, Dáil (2002) | 3 |  | first preferences and the TDs returned in all 3 |
 
-From the checks last run on 2026-10-08 (`tools/reference/refresh_results.py`).
+From the checks last run on 2026-10-26 (`tools/reference/refresh_results.py`).
 <!-- End of the generated table. -->
 
 Where a round doesn't match, it's because the ballot record isn't quite the set of ballots the

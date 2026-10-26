@@ -2,15 +2,14 @@
 
 usage: check.py DATA_DIR [--jar PATH] [CONTEST ...]
 
-CONTEST is one of CONTESTS below (all, by default): the contests the Secretary of State counted by ranked
-choice whose ballots FairVote's collection of single-winner RCV cast vote records
-(https://doi.org/10.7910/DVN/AMK8PJ) has: 11, from the 2018 Democratic primary for governor and the 2018,
-2022 and 2024 races for Congress in the 2nd District to five legislative primaries of 2020. Each record and
-the State's "RCV Summary Report" are fetched into DATA_DIR, the record converted with
-../cvr_to_blt.py --skipped two-end --write-in candidate (two skipped rankings in a row end the ballot, those before
-the first choice included; an overvote ends it; a candidate ranked again counts once; write-ins are one
-candidate, Write-in), which reproduces the reports' first rounds to the vote, exhausted ballots included,
-and counted with `irv`.
+CONTEST is one of CONTESTS below (all, by default): the contests the Secretary of State counted by ranked choice
+whose ballots FairVote's collection of single-winner RCV cast vote records (https://doi.org/10.7910/DVN/AMK8PJ)
+has: 11, from the 2018 Democratic primary for governor and the 2018, 2022 and 2024 races for Congress in the 2nd
+District to five legislative primaries of 2020. Each record and the State's "RCV Summary Report" (from the Internet
+Archive: maine.gov refuses scripts) are fetched into DATA_DIR, the record converted with ../cvr_to_blt.py --skipped
+two-end --write-in candidate (two skipped rankings in a row end the ballot, those before the first choice included;
+an overvote ends it; a candidate ranked again counts once; write-ins are one candidate, Write-in), which reproduces
+the reports' first rounds to the vote, exhausted ballots included, and counted with `irv`.
 
 The State defeats together the lowest candidates who couldn't overtake the next one up, and stops at a
 majority; so every official round must be one of this count's rounds, in order, with the same candidates
@@ -49,7 +48,9 @@ from rcvcheck import (DATAVERSE, count, exhausted_line as exhausted_votes_line, 
                       name_key as key, pdf_text, stale, summary, table_rows, winner)
 
 CONVERTER = os.path.join(HERE, "..", "cvr_to_blt.py")
-SITE = "https://www.maine.gov/sos/sites/maine.gov.sos/files/"
+# maine.gov turns scripted requests away (403, since October 2026): its files come from the Internet Archive, the
+# capture nearest 1 October 2026 (the Archive redirects to it).
+SITE = "https://web.archive.org/web/20261001id_/https://www.maine.gov/sos/sites/maine.gov.sos/files/"
 # contest: (Dataverse file id, the State's summary report under SITE)
 CONTESTS = {
     "2018-dem-governor": (11593316, "content/assets/democraticgovfinal.xls"),
@@ -74,7 +75,8 @@ STATE_2026 = {
         "Jun26%20DEM%20CG2%20Auburn%202060616.xlsx",
         "Jun26%20DEM%20CG2%20AUX%20MANUAL1%2020260617.xlsx",
         "Jun26%20DEM%20CG2%20AUX%20MANUAL2%2020260617.xlsx",
-        "Jun26%20DEM%20CG2%20AUX%20MANUAL3%20Updated%2020260623.xlsx",
+        # The Archive has this export only under the name the State's site gave a second upload of it.
+        "Jun26%20DEM%20CG2%20AUX%20MANUAL3%20Updated%2020260623_0.xlsx",
         "Representative%20to%20Congress%20District%202%20%28D%29%20UOCAVA.xlsx"]),
     "2026-dem-governor": ("GOV%20Democratic%20RCV%20Summary%20Report.pdf", [
         "DEM%20Gov%20Additional%20CVR%20Export%2020260618.xlsx",

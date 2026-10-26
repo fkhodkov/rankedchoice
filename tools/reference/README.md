@@ -32,7 +32,7 @@ again only if it's asked for from another address, or with `refresh_results.py -
 | `sanfrancisco/` | FairVote's records; the Department's results, from the Internet Archive; the 2024 statement of vote | `pdftotext`, `soffice` | slow: the Archive rate-limits |
 | `nyc/` | the Board's cast vote record zips (2021, 2023, 2025) and round pages | `soffice` | about 10 minutes; about 4 GB |
 | `alaska/` | FairVote's records; the Division's reports, from the Internet Archive | `pdftotext` | minutes |
-| `maine/` | FairVote's records; the State's reports and 2026 exports and first-choice tallies | `pdftotext`, `soffice` | minutes |
+| `maine/` | FairVote's records; the State's reports and 2026 exports and first-choice tallies, from the Internet Archive | `pdftotext`, `soffice` | minutes |
 | `minneapolis/` | the City's cast vote records and summaries; FairVote's 2009 and 2013 records | `pdftotext`, `soffice` | minutes |
 | `eastpointe/` | FairVote's records; the RCTab summaries on RCVis | | seconds |
 | `albany/` | FairVote's records; the County's Dominion XML | | seconds |

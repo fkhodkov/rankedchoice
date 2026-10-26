@@ -3,12 +3,15 @@ pass-report parser, on small made-up counts.
 
 python3 -m unittest discover -s tools/reference/tests
 """
+import email.message
 import os
 import pathlib
 import sys
 import tempfile
 import unittest
+import urllib.error
 from decimal import Decimal
+from unittest import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import rcvcheck  # noqa: E402
@@ -268,6 +271,47 @@ class Fetch(unittest.TestCase):
         rcvcheck.fetch(self.local, self.sources[1])
         self.assertEqual(open(self.local).read(), "cached")
         self.assertEqual(rcvcheck.sources(self.data), {"report.txt": self.sources[1]})
+
+
+class ArchiveRateLimit(unittest.TestCase):
+    """Requests to the Internet Archive wait out its 429s and refusals; other sites' errors are raised at once."""
+
+    def setUp(self):
+        self.answers, self.slept = [], []
+        patches = [mock.patch("urllib.request.urlopen", side_effect=self.open),
+                   mock.patch("time.sleep", side_effect=self.slept.append)]
+        for patch in patches:
+            patch.start()
+            self.addCleanup(patch.stop)
+
+    def open(self, request, timeout):
+        answer = self.answers.pop(0)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+    @staticmethod
+    def too_many(retry_after=""):
+        headers = email.message.Message()
+        if retry_after:
+            headers["Retry-After"] = retry_after
+        return urllib.error.HTTPError("https://web.archive.org/x", 429, "Too Many Requests", headers, None)
+
+    def test_waits_out_a_429_and_a_refusal(self):
+        self.answers = [self.too_many(), urllib.error.URLError(ConnectionRefusedError()), self.too_many("400"), "ok"]
+        self.assertEqual(rcvcheck.urlopen("https://web.archive.org/web/2026id_/https://example.org/", 60), "ok")
+        self.assertEqual([s for s in self.slept if s >= 60], [60, 120, 400])
+
+    def test_gives_up_after_the_last_wait(self):
+        self.answers = [self.too_many() for _ in range(len(rcvcheck.ARCHIVE_WAITS) + 1)]
+        with self.assertRaises(urllib.error.HTTPError):
+            rcvcheck.urlopen("https://web.archive.org/web/2026id_/https://example.org/", 60)
+
+    def test_other_sites_are_not_retried(self):
+        self.answers = [self.too_many(), "ok"]
+        with self.assertRaises(urllib.error.HTTPError):
+            rcvcheck.urlopen("https://example.org/", 60)
+        self.assertEqual(self.slept, [])
 
 
 class Sheets(unittest.TestCase):

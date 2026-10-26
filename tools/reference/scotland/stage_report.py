@@ -4,7 +4,9 @@ usage: stage_report.py SCOT_ELEX_DIR REPORTS_DIR [--jar PATH]
        stage_report.py --sheet REPORT.pdf BALLOTS.blt   (a report as a count sheet, for the fixtures)
 
 REPORTS_DIR holds councils' Candidate Votes Per Stage reports (the PDF most councils' counting
-system printed in 2022), each named after the ward's scot-elex file, e.g. falkirk_2022_ward4.pdf.
+system printed in 2022), each named after the ward's scot-elex file, e.g. falkirk_2022_ward4.pdf. A report
+named by ward number where scot-elex names the ward instead (Highland's) is taken for the council's 2022 ward
+whose every candidate it names, and reported under that ward's name.
 Each ward is counted with the `scottish` ruleset; every stage of the report, every candidate's
 votes and the non-transferable votes (including those "due to rounding"), all to the report's 5
 decimal places, must be one of this count's rounds, in order. Needs pdftotext (poppler).
@@ -20,6 +22,7 @@ from decimal import Decimal
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import check  # noqa: E402
+import scot_elex  # noqa: E402
 import stages  # noqa: E402
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from rcvcheck import record, write_results  # noqa: E402
@@ -54,6 +57,23 @@ def report_stages(pdf, names):
     if votes is not None:
         result.append((number, votes, lost))
     return result
+
+
+def ward_file(scot_elex_dir, key, pdf):
+    """The scot-elex file for the report key names, or for a report named by ward number, the council's one 2022
+    ward whose every candidate the report names; or None."""
+    path = next(iter(glob.glob(os.path.join(scot_elex_dir, "blt_files", "*", key + ".blt"))), None)
+    if path or not re.search(r"_2022_ward\d+$", key):
+        return path
+    text = check.plain(subprocess.run(["pdftotext", "-layout", pdf, "-"], capture_output=True, text=True,
+                                      check=True).stdout)
+    council = key.split("_2022_")[0]
+    found = []
+    for path in glob.glob(os.path.join(scot_elex_dir, "blt_files", "*", council + "_2022_*.blt")):
+        _, names, _, _ = scot_elex.convert(open(path, encoding="utf-8", errors="replace").read())
+        if all(check.plain(name) in text for name in names):
+            found.append(path)
+    return found[0] if len(found) == 1 else None
 
 
 def compare(rounds, official):
@@ -99,10 +119,11 @@ def main():
     agree, differ, figures, results = 0, [], 0, []
     for pdf in sorted(glob.glob(os.path.join(args.reports, "*.pdf"))):
         key = os.path.basename(pdf)[:-4]
-        path = next(iter(glob.glob(os.path.join(args.scot_elex, "blt_files", "*", key + ".blt"))), None)
+        path = ward_file(args.scot_elex, key, pdf)
         if path is None:
             differ.append((key, "no such ward in scot-elex"))
             continue
+        key = os.path.basename(path)[:-4]
         with tempfile.TemporaryDirectory() as work:
             _, ours = stages.count(path, args.jar, work)
         if "error" in ours:
@@ -127,7 +148,7 @@ def main():
     for key, why in differ:
         print(f"  {key}: {why}")
     if args.results:
-        write_results(args.results, "scotland-stage-reports", results)
+        write_results(args.results, "scotland-stage-reports", sorted(results, key=lambda r: r["contest"]))
 
 
 if __name__ == "__main__":
