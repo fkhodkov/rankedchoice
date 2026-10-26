@@ -4,6 +4,7 @@ pass-report parser, on small made-up counts.
 python3 -m unittest discover -s tools/reference/tests
 """
 import email.message
+import io
 import os
 import pathlib
 import sys
@@ -246,9 +247,9 @@ class Fetch(unittest.TestCase):
         with open(self.local, "w") as out:
             out.write("kept")       # what's there is reused, not fetched again
         rcvcheck.fetch(self.local, self.sources[0])
-        self.assertEqual(open(self.local).read(), "kept")
+        self.assertEqual(pathlib.Path(self.local).read_text(), "kept")
         rcvcheck.fetch(self.local, self.sources[1])
-        self.assertEqual(open(self.local).read(), "official")
+        self.assertEqual(pathlib.Path(self.local).read_text(), "official")
         self.assertEqual(rcvcheck.sources(self.data), {"report.txt": self.sources[1]})
 
     def test_refetch_replaces_a_file_from_before_the_index(self):
@@ -257,11 +258,11 @@ class Fetch(unittest.TestCase):
         os.environ["RCVCHECK_REFETCH"] = "1"
         try:
             rcvcheck.fetch(self.local, self.sources[1])
-            self.assertEqual(open(self.local).read(), "official")
+            self.assertEqual(pathlib.Path(self.local).read_text(), "official")
             with open(self.local, "w") as out:
                 out.write("kept")       # recorded now: not fetched again
             rcvcheck.fetch(self.local, self.sources[1])
-            self.assertEqual(open(self.local).read(), "kept")
+            self.assertEqual(pathlib.Path(self.local).read_text(), "kept")
         finally:
             del os.environ["RCVCHECK_REFETCH"]
 
@@ -269,7 +270,7 @@ class Fetch(unittest.TestCase):
         with open(self.local, "w") as out:
             out.write("cached")
         rcvcheck.fetch(self.local, self.sources[1])
-        self.assertEqual(open(self.local).read(), "cached")
+        self.assertEqual(pathlib.Path(self.local).read_text(), "cached")
         self.assertEqual(rcvcheck.sources(self.data), {"report.txt": self.sources[1]})
 
 
@@ -279,7 +280,8 @@ class ArchiveRateLimit(unittest.TestCase):
     def setUp(self):
         self.answers, self.slept = [], []
         patches = [mock.patch("urllib.request.urlopen", side_effect=self.open),
-                   mock.patch("time.sleep", side_effect=self.slept.append)]
+                   mock.patch("time.sleep", side_effect=self.slept.append),
+                   mock.patch("sys.stderr", io.StringIO())]
         for patch in patches:
             patch.start()
             self.addCleanup(patch.stop)
@@ -295,7 +297,7 @@ class ArchiveRateLimit(unittest.TestCase):
         headers = email.message.Message()
         if retry_after:
             headers["Retry-After"] = retry_after
-        return urllib.error.HTTPError("https://web.archive.org/x", 429, "Too Many Requests", headers, None)
+        return urllib.error.HTTPError("https://web.archive.org/x", 429, "Too Many Requests", headers, io.BytesIO())
 
     def test_waits_out_a_429_and_a_refusal(self):
         self.answers = [self.too_many(), urllib.error.URLError(ConnectionRefusedError()), self.too_many("400"), "ok"]
@@ -319,10 +321,10 @@ class Sheets(unittest.TestCase):
     def test_another_spreadsheets_sheets_are_left_out(self):
         with tempfile.TemporaryDirectory() as work:
             for name in ("2019-mayor.xlsx", "2019-mayor-20241118.xlsx"):
-                open(os.path.join(work, name), "w").close()
+                pathlib.Path(os.path.join(work, name)).touch()
                 os.utime(os.path.join(work, name), (1000, 1000))
             for name in ("2019-mayor-Report.csv", "2019-mayor-20241118-Report.csv"):
-                open(os.path.join(work, name), "w").close()
+                pathlib.Path(os.path.join(work, name)).touch()
             found = rcvcheck.sheets(os.path.join(work, "2019-mayor.xlsx"))
             self.assertEqual([os.path.basename(sheet) for sheet in found], ["2019-mayor-Report.csv"])
 
@@ -332,9 +334,9 @@ class Stale(unittest.TestCase):
     def test_missing_or_older_than_a_source(self):
         with tempfile.TemporaryDirectory() as work:
             record, blt = os.path.join(work, "a.csv"), os.path.join(work, "a.blt")
-            open(record, "w").close()
+            pathlib.Path(record).touch()
             self.assertTrue(rcvcheck.stale(blt, record))
-            open(blt, "w").close()
+            pathlib.Path(blt).touch()
             os.utime(record, (1000, 1000))
             os.utime(blt, (2000, 2000))
             self.assertFalse(rcvcheck.stale(blt, record))

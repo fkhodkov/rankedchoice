@@ -49,6 +49,7 @@ def urlopen(request, timeout):
         except urllib.error.HTTPError as e:
             if e.code != 429 or wait is None:
                 raise
+            e.close()
             asked = e.headers.get("Retry-After", "")
             wait = max(wait, int(asked)) if asked.isdigit() else wait
         except urllib.error.URLError as e:
@@ -64,7 +65,8 @@ def urlopen(request, timeout):
 def sources(directory):
     """{file name: the address it was fetched from}, kept in DIRECTORY/.sources.json."""
     try:
-        return json.load(open(os.path.join(directory, SOURCES), encoding="utf-8"))
+        with open(os.path.join(directory, SOURCES), encoding="utf-8") as source:
+            return json.load(source)
     except (OSError, ValueError):
         return {}
 
@@ -126,13 +128,15 @@ def table_rows(path):
     """The cells of each table row of a web page, or of each row of every sheet of a spreadsheet (converted with
     LibreOffice's soffice, once, to CSV files next to it)."""
     if path.lower().endswith((".html", ".htm")):
-        page = open(path, encoding="utf-8", errors="ignore").read()
+        with open(path, encoding="utf-8", errors="ignore") as source:
+            page = source.read()
         for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", page, re.S | re.I):
             yield [re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", c))).strip()
                    for c in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S | re.I)]
         return
     for sheet in sheets(path):
-        yield from csv.reader(open(sheet, encoding="utf-8", errors="ignore"))
+        with open(sheet, encoding="utf-8", errors="ignore") as source:
+            yield from csv.reader(source)
 
 
 def stale(target, *sources_of_it):

@@ -30,6 +30,7 @@ import csv
 import datetime
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -125,7 +126,7 @@ def latest_capture(data, contest, path, today=None):
     reached, the remembered capture is used."""
     remembered = os.path.join(data, contest + ".capture")
     today = today or datetime.date.today()
-    known = open(remembered).read().split() if os.path.exists(remembered) else []
+    known = pathlib.Path(remembered).read_text().split() if os.path.exists(remembered) else []
     if len(known) == 3 and (today - datetime.date.fromisoformat(known[2])).days < RECHECK_DAYS:
         return known[0], known[1]
     best = None
@@ -143,7 +144,7 @@ def latest_capture(data, contest, path, today=None):
     if best is None:
         raise ValueError(f"no capture of {path}")
     url = f"https://web.archive.org/web/{best[0]}id_/{best[1]}"
-    open(remembered, "w").write(f"{url} {best[0]} {today.isoformat()}\n")
+    pathlib.Path(remembered).write_text(f"{url} {best[0]} {today.isoformat()}\n")
     return url, best[0]
 
 
@@ -221,7 +222,8 @@ def statement_of_vote(path):
     total; the qualified ones are listed under QUALIFIED."""
     found = {}
     for sheet in sheets(path):
-        rows = list(csv.reader(open(sheet, encoding="utf-8")))
+        with open(sheet, encoding="utf-8") as source:
+            rows = list(csv.reader(source))
         header = next((row for row in rows if row and row[0] == "Precinct"), None)
         total = next((row for row in rows if row and row[0] == "Countywide - Total"), None)
         if len(rows) < 2 or not rows[1] or header is None or total is None:
@@ -241,14 +243,14 @@ def statement_of_vote(path):
 def first_rankings(cvr):
     """The record's first rankings, as the statement of vote counts them: each candidate's (by key), UNDERVOTES
     (skipped) and OVERVOTES."""
-    source = open(cvr, newline="", encoding="utf-8-sig")
-    delimiter = "\t" if "\t" in source.readline() else ","
-    source.seek(0)
     counts = collections.Counter()
-    for row in csv.DictReader(source, delimiter=delimiter):
-        mark = row["rank1"].strip()
-        counts[{"": "UNDERVOTES", "skipped": "UNDERVOTES", "undervote": "UNDERVOTES",
-                "overvote": "OVERVOTES"}.get(mark.lower(), key(mark))] += 1
+    with open(cvr, newline="", encoding="utf-8-sig") as source:
+        delimiter = "\t" if "\t" in source.readline() else ","
+        source.seek(0)
+        for row in csv.DictReader(source, delimiter=delimiter):
+            mark = row["rank1"].strip()
+            counts[{"": "UNDERVOTES", "skipped": "UNDERVOTES", "undervote": "UNDERVOTES",
+                    "overvote": "OVERVOTES"}.get(mark.lower(), key(mark))] += 1
     return counts
 
 

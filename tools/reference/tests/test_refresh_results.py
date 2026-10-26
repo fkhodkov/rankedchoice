@@ -3,6 +3,7 @@
 python3 -m unittest discover -s tools/reference/tests
 """
 import os
+import pathlib
 import sys
 import tempfile
 import unittest
@@ -17,7 +18,7 @@ class Plan(unittest.TestCase):
         self.root = tempfile.TemporaryDirectory()
         for name in ("maine", "albany", "scotland/scot-elex"):
             os.makedirs(os.path.join(self.root.name, name))
-        open(os.path.join(self.root.name, "scotland", "official.json"), "w").close()
+        pathlib.Path(os.path.join(self.root.name, "scotland", "official.json")).touch()
 
     def tearDown(self):
         self.root.cleanup()
@@ -62,10 +63,10 @@ class Compare(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as work:
             os.makedirs(os.path.join(root, "maine"))
             for name in ("a.csv", "a.blt"):
-                open(os.path.join(root, "maine", name), "w").close()
+                pathlib.Path(os.path.join(root, "maine", name)).touch()
             with open(os.path.join(root, "maine", "a.pdf"), "w") as out:
                 out.write("x" * refresh_results.SMALL)
-            open(os.path.join(root, "notes.txt"), "w").close()
+            pathlib.Path(os.path.join(root, "notes.txt")).touch()
             refresh_results.shadow(root, os.path.join(work, "copy"))
             self.assertEqual(sorted(os.listdir(os.path.join(work, "copy"))), ["maine"])
             self.assertEqual(sorted(os.listdir(os.path.join(work, "copy", "maine"))), ["a.csv", "a.pdf"])
@@ -83,7 +84,7 @@ class Compare(unittest.TestCase):
             self.assertFalse(os.path.islink(note))
             with open(note, "w") as out:
                 out.write("new\n")
-            self.assertEqual(open(os.path.join(root, "sanfrancisco", "a.capture")).read(), "old\n")
+            self.assertEqual(pathlib.Path(root, "sanfrancisco", "a.capture").read_text(), "old\n")
             self.assertTrue(os.path.islink(os.path.join(work, "copy", "sanfrancisco", "a.csv")))
 
     def test_results_differ_contest_by_contest_the_date_aside(self):
