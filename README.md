@@ -543,7 +543,8 @@ about 45 s, 16 / 8 about a minute.
   with tied rankings by Schulze and Borda with pref_voting and compare the pairwise figures,
   defeats, winners and scores with this project's.
 - [`tools/reference/pyrcv2`](tools/reference/pyrcv2/README.md) — count an election with pyRCV2
-  (ERS97, exact Gregory, Scottish or Senate) and compare it with this one, round by round.
+  (ERS97, exact Gregory, Scottish or Senate) and compare it with this one, round by round, on
+  one election or seeded random ones.
 - [`tools/reference/scotland`](tools/reference/scotland/README.md) — count every Scottish council
   election in scot-elex and compare the winners with the declared ones.
 

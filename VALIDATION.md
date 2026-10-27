@@ -216,12 +216,14 @@ Getting there took two corrections, both from the official counts:
   counts transfer the last exclusion, so this is a Senate setting only.
 
 pyRCV2's Senate counter (as its own AEC test configures it, in exact arithmetic, but without
-bulk exclusion) checked 200 random elections too. Every candidate's votes and the exhausted votes
-match in all 191 it can count (it crashes in its exclusion code on the other 9), and the loss by
-fraction in 189. In the other 2 pyRCV2's value-group exclusion leaves the excluded candidate with
-fractional or even negative votes, which this engine doesn't, so the loss it reports is off by
-those. One of them is a fixture (`testdata/aec/pyrcv2/s219`), where surpluses go in order of
-election rather than largest first.
+bulk exclusion) checked 200 seeded random elections too (`tools/reference/pyrcv2/check.py
+--preset senate`): all 198 it can count match in every round, every candidate's votes, the
+exhausted votes and the loss by fraction (it crashes in its exclusion code on the other 2).
+pyRCV2's value-group exclusion can leave the excluded candidate with fractional or even negative
+votes, which this engine doesn't, so the loss it reports is then off by those. None of these
+200 does that; an earlier set of 200, whose generator wasn't kept, had 2 (and 9 crashes), one
+of them now a fixture (`testdata/aec/pyrcv2/s219`), where surpluses go in order of election
+rather than largest first.
 
 **NSW councils** (`nsw-lg`): every councillor count of the 2024 NSW local government elections
 the NSW Electoral Commission published figures for, 227 in all (`tools/reference/nsw`). 212
@@ -723,21 +725,24 @@ again only in the `ers97`/`ers76` presets), and one change for every last-parcel
 - **The count ends when the last seat is filled**, with any surplus untransferred.
 
 pyRCV2 itself runs as a Python program (`tools/reference/pyrcv2`), so it also served as a
-reference on 100 random elections (4–13 candidates, up to 1,000 voters): 99 match it in every
-round. In the other, pyRCV2 elects four candidates for three seats (two tied exactly on the
-votes required, and it elects both). Getting there meant fixing pyRCV2 on the way: it records
-each stage without copying it, so its tie-break, which looks back to the last stage where the
-tied candidates differed, only ever saw the current votes and fell through to its last resort.
-(An earlier version of this page put one difference down to how this engine looks back for
-ties; it was that bug.) Three of the random elections are fixtures (`testdata/ers97/pyrcv2`),
-picked for what they exercise.
+reference on 100 seeded random elections (4–13 candidates, up to 1,000 voters;
+`tools/reference/pyrcv2/check.py --preset ers97`): 98 match it in every round. In the other 2
+every round matches too, but pyRCV2 elects a candidate more than there are seats: two
+candidates finish tied exactly on the votes required for the last seat (r67's C2 and C4 on
+26.00, r100's C2 and C3 on 255.00), and it elects both. Getting there meant fixing pyRCV2 on
+the way: it records each stage without copying it, so its tie-break, which looks back to the
+last stage where the tied candidates differed, only ever saw the current votes and fell
+through to its last resort. (An earlier version of this page put one difference down to how
+this engine looks back for ties; it was that bug.) Three random elections are fixtures
+(`testdata/ers97/pyrcv2`), picked for what they exercise, from an earlier set of 100 whose
+generator wasn't kept; 99 of those matched, the other on the same tie.
 
 The same 100 elections check the inclusive rulesets against pyRCV2's weighted inclusive
 Gregory counter:
 
 - **Exact fractional transfer** (the default `stv`): all 100 match in every round, to the 10
   places this project reports exact values to.
-- **`scottish`**: all 100 match within a hundredth of a vote, 64 exactly. The rest is
+- **`scottish`**: all 100 match within a hundredth of a vote, 63 exactly. The rest is
   rounding: when a surplus comes from ballots of different values, pyRCV2
   truncates one transfer value and scales each ballot by it, where the Scottish rules give each
   value its own truncated transfer value. Highland's official count sheet settles which is

@@ -30,4 +30,4 @@ Election 20499, a double dissolution: 58 candidates, 12 seats, 339,159 formal ba
 - `pyrcv2/s219.blt`, `pyrcv2/s219.stages.txt`: a synthetic election (15 candidates, 5 seats) and
   pyRCV2's Senate count of it, made by `tools/reference/pyrcv2/count.py --preset senate --sheet`;
   VALIDATION.md's Senate section says why it's kept. pyRCV2 revision 4dff302 (27 December 2025,
-  its last) reproduces the count sheet byte for byte (rechecked 8 October 2026).
+  its last) reproduces the count sheet byte for byte (rechecked 27 October 2026).
