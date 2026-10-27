@@ -1,0 +1,48 @@
+# r36.blt, counted by pyRCV2 with the ers97 preset (tools/reference/pyrcv2/count.py).
+# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss
+# by fraction).
+
+stage 1
+comment: First preferences
+C1: 244.00
+C2: 163.00
+C3: 162.00
+C4: 160.00
+C5: 66.00
+C6: 72.00
+C7: 121.00
+non-transferable: 0.00
+
+stage 2
+comment: Exclusion of C5
+C1: 256.00
+C2: 174.00
+C3: 173.00
+C4: 168.00
+C5: 0.00
+C6: 79.00
+C7: 128.00
+non-transferable: 10.00
+
+stage 3
+comment: Exclusion of C6
+C1: 256.00
+C2: 191.00
+C3: 186.00
+C4: 178.00
+C5: 0.00
+C6: 0.00
+C7: 142.00
+non-transferable: 35.00
+
+stage 4
+comment: Exclusion of C7
+C1: 256.00
+C2: 230.00
+C3: 214.00
+C4: 204.00
+C5: 0.00
+C6: 0.00
+C7: 0.00
+non-transferable: 84.00
+

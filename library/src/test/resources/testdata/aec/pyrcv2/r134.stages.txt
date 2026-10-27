@@ -1,0 +1,49 @@
+# r134.blt, counted by pyRCV2 with the senate preset (tools/reference/pyrcv2/count.py).
+# Each stage: every candidate's votes, then the non-transferable votes (exhausted plus loss
+# by fraction).
+
+stage 1
+comment: First preferences
+C1: 382
+C2: 218
+C3: 121
+C4: 104
+C5: 163
+non-transferable: 0.00
+
+stage 2
+comment: Surplus of C1
+C1: 198
+C2: 218
+C3: 161
+C4: 137
+C5: 221
+non-transferable: 53.00
+
+stage 3
+comment: Surplus of C2
+C1: 198
+C2: 198
+C3: 168
+C4: 142
+C5: 221
+non-transferable: 61.00
+
+stage 4
+comment: Surplus of C5
+C1: 198
+C2: 198
+C3: 176
+C4: 149
+C5: 198
+non-transferable: 69.00
+
+stage 5
+comment: Exclusion of C4
+C1: 198
+C2: 198
+C3: 230
+C4: 45
+C5: 198
+non-transferable: 119.00
+

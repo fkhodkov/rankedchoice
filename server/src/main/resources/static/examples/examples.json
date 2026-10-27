@@ -150,10 +150,10 @@
   },
   {
     "group": "Worked and test examples",
-    "file": "senate-synthetic-s219.blt",
-    "fixture": "aec/pyrcv2/s219.blt",
+    "file": "senate-synthetic-r134.blt",
+    "fixture": "aec/pyrcv2/r134.blt",
     "title": "A synthetic Senate count (Australian Senate rules)",
-    "about": "Synthetic: 15 candidates for 5 seats, where surpluses move in order of election rather than largest first. Every count matches pyRCV2's Senate count of it.",
+    "about": "Synthetic: 5 candidates for 4 seats, where surpluses move in order of election rather than largest first: C2's 20 before C5's 23. Every count matches pyRCV2's Senate count of it.",
     "options": {
       "method": "stv",
       "ruleset": "senate"

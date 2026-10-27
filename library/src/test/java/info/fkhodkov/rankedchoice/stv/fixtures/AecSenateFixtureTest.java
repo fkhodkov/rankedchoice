@@ -38,9 +38,10 @@ import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
  * below the quota, without McCulloch being excluded.
  *
  * <p>That election never transfers two surpluses that differ in order of election and size, so
- * a synthetic election counted by pyRCV2 covers that: in s219 surpluses go in order of election
- * rather than largest first. (See tools/reference/pyrcv2 for the 200 random elections it comes
- * from, and tools/reference/aec for every state's count in 2019 and 2022.)
+ * a synthetic election counted by pyRCV2 covers that: in r134 surpluses go in order of election
+ * rather than largest first, C2's 20 votes before C5's 23. (See tools/reference/pyrcv2 for the
+ * 200 random elections it comes from, and tools/reference/aec for every state's count in 2019
+ * and 2022.)
  */
 class AecSenateFixtureTest {
 
@@ -74,7 +75,7 @@ class AecSenateFixtureTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"s219"})
+    @ValueSource(strings = {"r134"})
     void everyRoundMatchesPyRcv2(String name) throws IOException {
         ParsedElection election = BltParser.parse(DIRECTORY.resolve("pyrcv2/" + name + ".blt"));
         StvResult count = StvCounter.count(election.candidates(), election.ballots(), election.seats(),

@@ -10,11 +10,11 @@ Checked by `Ers97ModelElectionFixtureTest`. Each file's header says where it com
 - `ers97-model-election.rulebook.txt`: the rulebook's own count sheet for it, as transcribed in
   pyRCV2's `tests/data/ers97.csv`: every stage's votes, the non-transferable votes and the votes
   required.
-- `pyrcv2/r127`, `r134`, `r148`, `ot11` (`.blt` and `.stages.txt`): four synthetic elections and
+- `pyrcv2/r20`, `r36`, `r86`, `ot11` (`.blt` and `.stages.txt`): four synthetic elections and
   pyRCV2's ERS97 count of each, made by `tools/reference/pyrcv2/count.py --preset ers97 --sheet`.
-  The `r` elections are from an earlier random run of that tool's, whose generator wasn't kept
-  (`tools/reference/pyrcv2/check.py` writes others), `ot11` from `tools/reference/opentally`'s;
-  the test's comment says what each exercises.
+  The `r` elections are `tools/reference/pyrcv2/check.py`'s seeded random elections of those
+  numbers (`check.py ... --preset ers97` writes them again, byte for byte), `ot11` is
+  `tools/reference/opentally`'s; the test's comment says what each exercises.
 
 pyRCV2 revision 4dff302 (27 December 2025, its last: pyRCV2 is deprecated in favour of OpenTally)
 reproduces all four `.stages.txt` files byte for byte (rechecked 27 October 2026).

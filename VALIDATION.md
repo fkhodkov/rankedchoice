@@ -223,9 +223,9 @@ bulk exclusion) checked 200 seeded random elections too (`tools/reference/pyrcv2
 exhausted votes and the loss by fraction (it crashes in its exclusion code on the other 2).
 pyRCV2's value-group exclusion can leave the excluded candidate with fractional or even negative
 votes, which this engine doesn't, so the loss it reports is then off by those. None of these
-200 does that; an earlier set of 200, whose generator wasn't kept, had 2 (and 9 crashes), one
-of them now a fixture (`testdata/aec/pyrcv2/s219`), where surpluses go in order of election
-rather than largest first.
+200 does that (an earlier set of 200, whose generator wasn't kept, had 2, and 9 crashes). One
+of them is a fixture (`testdata/aec/pyrcv2/r134`, election 134), where surpluses go in order of
+election rather than largest first: C2's 20 votes before C5's 23.
 
 **NSW councils** (`nsw-lg`): every councillor count of the 2024 NSW local government elections
 the NSW Electoral Commission published figures for, 227 in all (`tools/reference/nsw`). 212
@@ -735,9 +735,10 @@ candidates finish tied exactly on the votes required for the last seat (r67's C2
 the way: it records each stage without copying it, so its tie-break, which looks back to the
 last stage where the tied candidates differed, only ever saw the current votes and fell
 through to its last resort. (An earlier version of this page put one difference down to how
-this engine looks back for ties; it was that bug.) Three random elections are fixtures
-(`testdata/ers97/pyrcv2`), picked for what they exercise, from an earlier set of 100 whose
-generator wasn't kept; 99 of those matched, the other on the same tie.
+this engine looks back for ties; it was that bug.) Three of the 100 are fixtures
+(`testdata/ers97/pyrcv2/r20`, `r36` and `r86`), picked for what they exercise: a surplus still
+waiting when the last seat is filled, two candidates elected in one step as the votes required
+falls, and a deferred surplus with two candidates excluded together.
 
 The same 100 elections check the inclusive rulesets against pyRCV2's weighted inclusive
 Gregory counter:
