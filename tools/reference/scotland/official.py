@@ -14,6 +14,7 @@ counts (Wikipedia only) is the candidate's figure at each count as written, None
 """
 import json
 import os
+import pathlib
 import re
 import sys
 import time
@@ -55,9 +56,9 @@ def wikipedia_pages(cache):
                 result = page(link)
                 if result is None:
                     continue
-                open(path, "w").write(result[1])
+                pathlib.Path(path).write_text(result[1])
                 time.sleep(1)
-            yield year, open(path).read()
+            yield year, pathlib.Path(path).read_text()
 
 
 def clean(value):
@@ -120,5 +121,6 @@ if __name__ == "__main__":
     results = list(emb_2022(sys.argv[1]))
     for year, text in wikipedia_pages(sys.argv[3] if len(sys.argv) > 3 else "wp"):
         results += stv_boxes(year, text)
-    json.dump(results, open(sys.argv[2], "w"), indent=0)
+    with open(sys.argv[2], "w") as out:
+        json.dump(results, out, indent=0)
     print(len(results), "wards")

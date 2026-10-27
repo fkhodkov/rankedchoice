@@ -23,7 +23,8 @@ def key(name):
 
 def main():
     table, blt, out_path = sys.argv[1:4]
-    lines = [line.rstrip("\n") for line in open(blt) if not line.startswith("#")]
+    with open(blt) as source:
+        lines = [line.rstrip("\n") for line in source if not line.startswith("#")]
     n = int(lines[0].split()[0])
     end = lines.index("0", 1)
     names = [lines[end + 1 + i].strip('"') for i in range(n)]

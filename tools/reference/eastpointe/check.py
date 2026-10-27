@@ -18,6 +18,7 @@ on the lower figure, which is this count's).
 """
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -40,7 +41,7 @@ SLIPS = {("council-2021", 4, "Rob Baker"): (Decimal("1058.8175"), Decimal("1056.
 
 
 def summary(path):
-    page = open(path, encoding="utf-8", errors="ignore").read()
+    page = pathlib.Path(path).read_text(encoding="utf-8", errors="ignore")
     return json.loads(re.search(r'<script id="rawDataId" type="application/json">(.*?)</script>', page, re.S)
                       .group(1))
 

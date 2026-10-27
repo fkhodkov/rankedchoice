@@ -99,7 +99,8 @@ def count(path, preset):
         impl = getattr(number, "impl", None)
         return str(impl) if isinstance(impl, Fraction) else number.pp(places[1])
 
-    election = pyRCV2.blt.readBLT("".join(line for line in open(path) if not line.startswith("#")))
+    with open(path) as source:
+        election = pyRCV2.blt.readBLT("".join(line for line in source if not line.startswith("#")))
     counter = counter_class(election, dict(options))
     counter.options['ties'] = [pyRCV2.ties.TiesBackwards(counter), TiesDeclared(election.candidates)]
     stages = []

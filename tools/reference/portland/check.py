@@ -15,6 +15,7 @@ is reported apart.
 """
 import json
 import os
+import pathlib
 import subprocess
 import sys
 import urllib.parse
@@ -32,7 +33,7 @@ SUMMARY = ("https://mcdcselectionsrcvprdst.z5.web.core.windows.net/{report}_City
 def official(data, n):
     path = fetch(os.path.join(data, f"d{n}-official.json"),
                  urllib.parse.quote(SUMMARY.format(report=REPORT, n=n), safe=":/"))
-    return json.load(open(path))
+    return json.loads(pathlib.Path(path).read_text())
 
 
 def check(data, n, jar):

@@ -8,6 +8,7 @@ candidate's votes, the votes exhausted and the loss by fraction. Prints how many
 whether the same candidates are elected; exits non-zero if not.
 """
 import json
+import pathlib
 import sys
 from fractions import Fraction
 
@@ -24,8 +25,8 @@ def main():
 
     def equal(a, b):
         return abs(Fraction(a) - Fraction(b)) <= tolerance
-    ours = json.load(open(sys.argv[1]))
-    stages = json.load(open(sys.argv[2]))
+    ours = json.loads(pathlib.Path(sys.argv[1]).read_text())
+    stages = json.loads(pathlib.Path(sys.argv[2]).read_text())
     start, matched, problems = 0, 0, []
     for rnd in ours["rounds"]:
         tallies = {name: Fraction(v) for name, v in rnd["tallies"].items()}

@@ -29,6 +29,7 @@ import argparse
 import concurrent.futures
 import json
 import os
+import pathlib
 import random
 import re
 import subprocess
@@ -141,7 +142,7 @@ def check(n, args):
     the counts droop stops on)."""
     blt = os.path.join(args.work, f"e{n}.blt")
     text = election(n)
-    open(blt, "w").write(text)
+    pathlib.Path(blt).write_text(text)
     left_out = withdrawn_only(text)
     problems, rounds, droop_stops = [], 0, []
     figures = {}

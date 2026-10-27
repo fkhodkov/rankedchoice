@@ -23,31 +23,32 @@ UNRANKED = 99
 def read(path):
     """(seats, number of candidates, voters), each voter a list of ranks, UNRANKED if unranked."""
     params, voters, inside = {}, [], False
-    for line in open(path, encoding="latin-1"):
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if line == "BEGIN":
-            inside = True
-            continue
-        if line == "END":
-            break
-        if not inside:
-            key, value = line.split()
-            params[key] = int(value)
-            continue
-        fields = line.split()[1:]
-        if params.get("F", 1) == 1:
-            voters.append([int(x) for x in fields])
-            continue
-        ranks = [UNRANKED] * params["C"]
-        for position, letter in enumerate(fields, 1):
-            i = int(letter) - 1 if letter.isdigit() else ord(letter) - ord("A")
-            if ranks[i] == UNRANKED:
-                ranks[i] = position
-            else:
-                ranks = [ranks[i] if r != UNRANKED and r > ranks[i] else r for r in ranks]
-        voters.append(ranks)
+    with open(path, encoding="latin-1") as source:
+        for line in source:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line == "BEGIN":
+                inside = True
+                continue
+            if line == "END":
+                break
+            if not inside:
+                key, value = line.split()
+                params[key] = int(value)
+                continue
+            fields = line.split()[1:]
+            if params.get("F", 1) == 1:
+                voters.append([int(x) for x in fields])
+                continue
+            ranks = [UNRANKED] * params["C"]
+            for position, letter in enumerate(fields, 1):
+                i = int(letter) - 1 if letter.isdigit() else ord(letter) - ord("A")
+                if ranks[i] == UNRANKED:
+                    ranks[i] = position
+                else:
+                    ranks = [ranks[i] if r != UNRANKED and r > ranks[i] else r for r in ranks]
+            voters.append(ranks)
     return params["M"], params["C"], voters
 
 
@@ -58,10 +59,11 @@ def names(candidates):
 def comment_names(path, candidates):
     """The names "# 1 Name" comment lines give, if every candidate has one."""
     found = {}
-    for line in open(path, encoding="latin-1"):
-        match = re.match(r"#\s*(\d+)\s+(.+?)\s*$", line)
-        if match:
-            found[int(match.group(1))] = match.group(2)
+    with open(path, encoding="latin-1") as source:
+        for line in source:
+            match = re.match(r"#\s*(\d+)\s+(.+?)\s*$", line)
+            if match:
+                found[int(match.group(1))] = match.group(2)
     return [found[i + 1] for i in range(candidates)] if len(found) >= candidates else None
 
 

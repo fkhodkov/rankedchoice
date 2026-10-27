@@ -24,7 +24,8 @@ from fractions import Fraction
 
 
 def read_blt(path):
-    lines = [line.strip() for line in open(path) if line.strip() and not line.startswith("#")]
+    with open(path) as source:
+        lines = [line.strip() for line in source if line.strip() and not line.startswith("#")]
     n, seats = map(int, lines[0].split())
     ballots, i = [], 1
     while lines[i] != "0":
@@ -77,9 +78,10 @@ def main():
         ours[(key(a), key(b))] = sa
         ours[(key(b), key(a))] = sb
     theirs = {}
-    for line in open(sys.argv[2]):
-        a, b, score = line.strip().split("|")
-        theirs[(a, b)] = Fraction(score)
+    with open(sys.argv[2]) as source:
+        for line in source:
+            a, b, score = line.strip().split("|")
+            theirs[(a, b)] = Fraction(score)
     mismatches = [(k, ours.get(k), theirs[k]) for k in theirs if ours.get(k) != theirs[k]]
     print(f"{len(theirs)} pairwise scores compared, {len(mismatches)} mismatches, quota {quota}")
     for k, mine, java in mismatches[:5]:

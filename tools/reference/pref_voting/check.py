@@ -28,6 +28,7 @@ import argparse
 import concurrent.futures
 import json
 import os
+import pathlib
 import random
 import subprocess
 import sys
@@ -118,7 +119,7 @@ def borda(ours, standing, ballots):
 def check(n, args):
     text, standing, ballots = election(n, complete=args.method == "borda")
     blt = os.path.join(args.work, f"{args.method}-e{n}.blt")
-    open(blt, "w").write(text)
+    pathlib.Path(blt).write_text(text)
     result = subprocess.run(["java", "-jar", args.jar, "-i", blt, "--method", args.method, "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:

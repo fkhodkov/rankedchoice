@@ -21,6 +21,7 @@ or repeated number. Identical rankings are merged.
 import collections
 import csv
 import io
+import pathlib
 import re
 import sys
 import zipfile
@@ -112,4 +113,4 @@ def convert(zip_path, dop_path):
 
 
 if __name__ == "__main__":
-    open(sys.argv[3], "w").write(convert(sys.argv[1], sys.argv[2]))
+    pathlib.Path(sys.argv[3]).write_text(convert(sys.argv[1], sys.argv[2]))

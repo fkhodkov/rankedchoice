@@ -34,19 +34,20 @@ def published(path):
     """Each run of the program the file holds (some hold two, appended), as [(H as {row: {column:
     value}}, who took the place)] per place."""
     runs, places, block = [], [], {}
-    for line in open(path, encoding="latin-1"):
-        line = line.strip()
-        match = re.match(r"The (\d+)\. place goes to candidate (\S+)\.", line)
-        if match:
-            if match.group(1) == "1" and places:
-                runs.append(places)
-                places = []
-            places.append((block, match.group(2)))
-            block = {}
-            continue
-        fields = line.split()
-        if len(fields) > 2 and re.fullmatch(r"-?\d+\.\d+", fields[1]):
-            block[fields[0]] = [Decimal(x) for x in fields[1:]]
+    with open(path, encoding="latin-1") as source:
+        for line in source:
+            line = line.strip()
+            match = re.match(r"The (\d+)\. place goes to candidate (\S+)\.", line)
+            if match:
+                if match.group(1) == "1" and places:
+                    runs.append(places)
+                    places = []
+                places.append((block, match.group(2)))
+                block = {}
+                continue
+            fields = line.split()
+            if len(fields) > 2 and re.fullmatch(r"-?\d+\.\d+", fields[1]):
+                block[fields[0]] = [Decimal(x) for x in fields[1:]]
     runs.append(places)
     # Columns are the block's rows, in the same order (the diagonal is printed as 0).
     return [[({row: {list(rows)[j]: v for j, v in enumerate(values) if list(rows)[j] != row}

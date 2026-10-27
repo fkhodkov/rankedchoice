@@ -25,6 +25,7 @@ import collections
 import html
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -244,7 +245,7 @@ def main():
     parser.add_argument("--jar", default=DEFAULT_JAR)
     parser.add_argument("--results", help="write each contest's result to this JSON file, for the results page")
     args = parser.parse_args()
-    officials = json.load(open(os.path.join(HERE, "official.json"), encoding="utf-8"))
+    officials = json.loads(pathlib.Path(HERE, "official.json").read_text(encoding="utf-8"))
     contests = args.contests or list(officials)
     os.makedirs(args.data, exist_ok=True)
     failed, results = 0, []

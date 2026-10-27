@@ -27,37 +27,38 @@ def main():
     parser.add_argument("--seats", type=int)
     args = parser.parse_args()
 
-    reader = csv.reader(open(args.cvr, newline="", encoding="utf-8-sig"))
-    header = next(reader)
-    columns, candidates, title, seats = [], [], None, args.seats
-    for i, heading in enumerate(header):
-        if heading.startswith("Choice_"):
-            parts = heading.split(":")
-            name = parts[4]
-            if WRITE_IN_LINE.fullmatch(name):
-                columns.append((i, int(parts[2]), None))
-                continue
-            if name not in candidates:
-                candidates.append(name)
-            columns.append((i, int(parts[2]), candidates.index(name)))
-            title = parts[1]
-            winners = re.search(r"Number of Winners (\d+)", parts[3])
-            seats = seats or (int(winners.group(1)) if winners else None)
-    rankings = max(rank for _, rank, _ in columns)
+    with open(args.cvr, newline="", encoding="utf-8-sig") as source:
+        reader = csv.reader(source)
+        header = next(reader)
+        columns, candidates, title, seats = [], [], None, args.seats
+        for i, heading in enumerate(header):
+            if heading.startswith("Choice_"):
+                parts = heading.split(":")
+                name = parts[4]
+                if WRITE_IN_LINE.fullmatch(name):
+                    columns.append((i, int(parts[2]), None))
+                    continue
+                if name not in candidates:
+                    candidates.append(name)
+                columns.append((i, int(parts[2]), candidates.index(name)))
+                title = parts[1]
+                winners = re.search(r"Number of Winners (\d+)", parts[3])
+                seats = seats or (int(winners.group(1)) if winners else None)
+        rankings = max(rank for _, rank, _ in columns)
 
-    counts = collections.Counter()
-    for row in reader:
-        marks = [[] for _ in range(rankings)]
-        for i, rank, candidate in columns:
-            if row[i] == "1":
-                marks[rank - 1].append(candidate)
-        ranking, seen = [], set()
-        for group in marks:
-            if len(group) == 1 and group[0] is not None and group[0] not in seen:
-                ranking.append(group[0])
-                seen.add(group[0])
-        if ranking:
-            counts[tuple(ranking)] += 1
+        counts = collections.Counter()
+        for row in reader:
+            marks = [[] for _ in range(rankings)]
+            for i, rank, candidate in columns:
+                if row[i] == "1":
+                    marks[rank - 1].append(candidate)
+            ranking, seen = [], set()
+            for group in marks:
+                if len(group) == 1 and group[0] is not None and group[0] not in seen:
+                    ranking.append(group[0])
+                    seen.add(group[0])
+            if ranking:
+                counts[tuple(ranking)] += 1
 
     with open(args.out, "w") as out:
         out.write(f"{len(candidates)} {seats}\n")

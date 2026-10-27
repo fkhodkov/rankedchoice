@@ -31,6 +31,7 @@ import concurrent.futures
 import itertools
 import json
 import os
+import pathlib
 import random
 import subprocess
 import sys
@@ -78,7 +79,7 @@ def check(n, args):
     whether the winners differ only where the rules do)."""
     text, names, seats, ballots = election(n)
     blt = os.path.join(args.work, f"e{n}.blt")
-    open(blt, "w").write(text)
+    pathlib.Path(blt).write_text(text)
     result = subprocess.run(["java", "-jar", args.jar, "-i", blt, "--method", "cpo-stv", "--quota", "droop",
                              "--transfer", "fractional", "--rounding", "exact", "--report-format", "json"],
                             capture_output=True, text=True)

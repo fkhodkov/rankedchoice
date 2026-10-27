@@ -18,6 +18,7 @@ import argparse
 import concurrent.futures
 import json
 import os
+import pathlib
 import random
 import subprocess
 import sys
@@ -89,11 +90,12 @@ def check(n, args):
     scale = VOTERS.get(args.preset, 1)
     blt = os.path.join(args.work, f"e{n}.blt" if scale == 1 else f"e{n}x{scale}.blt")
     if not os.path.exists(blt):
-        open(blt, "w").write(election(n, scale))
+        pathlib.Path(blt).write_text(election(n, scale))
     theirs_blt = blt
     if args.preset in MINIMUM_PREFERENCES:
         theirs_blt = os.path.join(args.work, f"e{n}.{args.preset}.blt")
-        open(theirs_blt, "w").write(without_short_ballots(open(blt).read(), MINIMUM_PREFERENCES[args.preset]))
+        shortened = without_short_ballots(pathlib.Path(blt).read_text(), MINIMUM_PREFERENCES[args.preset])
+        pathlib.Path(theirs_blt).write_text(shortened)
     ours = os.path.join(args.work, f"e{n}.{args.preset}.ours.json")
     flags = [os.path.join(args.work, flag) if flag.endswith(".yaml") else flag for flag in OURS[args.preset]]
     theirs = os.path.join(args.work, f"e{n}.{args.preset}.opentally.json")
@@ -101,14 +103,14 @@ def check(n, args):
                             capture_output=True, text=True)
     if result.returncode:
         return n, f"this project failed: {result.stderr.strip()[-200:]}"
-    open(ours, "w").write(result.stdout)
+    pathlib.Path(ours).write_text(result.stdout)
     try:
-        open(theirs, "w").write(json.dumps(count.count(args.opentally, theirs_blt, args.preset)))
+        pathlib.Path(theirs).write_text(json.dumps(count.count(args.opentally, theirs_blt, args.preset)))
     except subprocess.CalledProcessError as e:
         return n, f"CRASH: OpenTally failed: {e.stderr.strip()[-200:]}"
     if args.preset in WINNERS_ONLY:
-        stages = json.load(open(theirs))
-        won = set(json.load(open(ours))["electedInOrder"])
+        stages = json.loads(pathlib.Path(theirs).read_text())
+        won = set(json.loads(pathlib.Path(ours).read_text())["electedInOrder"])
         theirs_won = {name for name, state in stages[-1]["states"].items() if state == 40}
         return n, None if won == theirs_won else f"winners differ: ours {sorted(won)}, OpenTally {sorted(theirs_won)}"
     compared = subprocess.run([sys.executable, COMPARE, ours, theirs, "--combined", "--tolerance", "1/1000000000"],
@@ -130,9 +132,9 @@ def main():
     args = parser.parse_args()
     os.makedirs(args.work, exist_ok=True)
     for ruleset in CORE:
-        text = open(os.path.join(HERE, "..", "..", "..", "library", "src", "main", "resources", "rulesets",
-                                 ruleset + ".yaml")).read()
-        open(os.path.join(args.work, ruleset + "-core.yaml"), "w").write(
+        text = pathlib.Path(HERE, "..", "..", "..", "library", "src", "main", "resources", "rulesets",
+                            ruleset + ".yaml").read_text()
+        pathlib.Path(args.work, ruleset + "-core.yaml").write_text(
             text.replace("electAsTheyStand: true", "electAsTheyStand: false"))
     with concurrent.futures.ThreadPoolExecutor(os.cpu_count()) as pool:
         results = sorted(pool.map(lambda n: check(n, args), range(1, args.elections + 1)))

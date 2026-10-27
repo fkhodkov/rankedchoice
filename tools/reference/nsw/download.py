@@ -10,6 +10,7 @@ OUT_DIR/<council>[_<ward>].zip and .xlsx. Files already there are kept; requests
 a time.
 """
 import os
+import pathlib
 import re
 import sys
 import time
@@ -53,7 +54,7 @@ def main():
             if data[:2] != b"PK":
                 print(f"{name}: {remote}: not a zip/xlsx (no data published?)", flush=True)
                 continue
-            open(target, "wb").write(data)
+            pathlib.Path(target).write_bytes(data)
             time.sleep(0.3)
         print(name, flush=True)
 

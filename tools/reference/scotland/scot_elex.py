@@ -8,6 +8,7 @@ name, on either side ('"Lab" "Barney CROCKETT"', '"Gill AL-SAMARAI" "Scottish Na
 (SNP)"', '# ALTERNATIVE NAME 1: Nina Baker'); some files separate numbers with commas. This
 writes the ballots unchanged and each candidate's name alone, quoted.
 """
+import pathlib
 import re
 import sys
 
@@ -48,4 +49,4 @@ def convert(text):
 
 if __name__ == "__main__":
     with open(sys.argv[2], "w") as out:
-        out.write(convert(open(sys.argv[1], encoding="utf-8", errors="replace").read())[0])
+        out.write(convert(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace"))[0])

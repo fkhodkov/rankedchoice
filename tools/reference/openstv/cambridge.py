@@ -23,6 +23,7 @@ import csv
 import io
 import json
 import os
+import pathlib
 import random
 import subprocess
 import sys
@@ -117,7 +118,7 @@ def ours(args, blt):
 def check(n, args):
     """(n, problems, surpluses, batch exclusions of several, ties OpenSTV broke)."""
     blt = os.path.join(args.work, f"e{n}.blt")
-    open(blt, "w").write(election(n))
+    pathlib.Path(blt).write_text(election(n))
     try:
         steps, winners = ours(args, blt)
         kinds, names, counts, exhausted, their_winners, ties = openstv(args, blt)

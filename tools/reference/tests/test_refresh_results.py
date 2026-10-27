@@ -18,7 +18,7 @@ class Plan(unittest.TestCase):
         self.root = tempfile.TemporaryDirectory()
         for name in ("maine", "albany", "scotland/scot-elex"):
             os.makedirs(os.path.join(self.root.name, name))
-        pathlib.Path(os.path.join(self.root.name, "scotland", "official.json")).touch()
+        pathlib.Path(self.root.name, "scotland", "official.json").touch()
 
     def tearDown(self):
         self.root.cleanup()
@@ -63,10 +63,10 @@ class Compare(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as work:
             os.makedirs(os.path.join(root, "maine"))
             for name in ("a.csv", "a.blt"):
-                pathlib.Path(os.path.join(root, "maine", name)).touch()
+                pathlib.Path(root, "maine", name).touch()
             with open(os.path.join(root, "maine", "a.pdf"), "w") as out:
                 out.write("x" * refresh_results.SMALL)
-            pathlib.Path(os.path.join(root, "notes.txt")).touch()
+            pathlib.Path(root, "notes.txt").touch()
             refresh_results.shadow(root, os.path.join(work, "copy"))
             self.assertEqual(sorted(os.listdir(os.path.join(work, "copy"))), ["maine"])
             self.assertEqual(sorted(os.listdir(os.path.join(work, "copy", "maine"))), ["a.csv", "a.pdf"])

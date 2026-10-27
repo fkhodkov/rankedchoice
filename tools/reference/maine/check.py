@@ -190,9 +190,10 @@ def where(ballot, out):
 def exhausted_line(cvr, totals, causes):
     """How the record's exhausted ballots, by cause, compare with the report's in every round, the candidates the
     report eliminates going in its order."""
-    reader = csv.DictReader(open(cvr, newline="", encoding="utf-8-sig"))
-    columns = sorted((c for c in reader.fieldnames if c.startswith("rank")), key=lambda c: int(c[4:]))
-    ballots = [[row[column].strip() for column in columns] for row in reader]
+    with open(cvr, newline="", encoding="utf-8-sig") as source:
+        reader = csv.DictReader(source)
+        columns = sorted((c for c in reader.fieldnames if c.startswith("rank")), key=lambda c: int(c[4:]))
+        ballots = [[row[column].strip() for column in columns] for row in reader]
     out, off = set(), {}
     rounds = len(next(iter(causes.values())))
     for k in range(rounds):

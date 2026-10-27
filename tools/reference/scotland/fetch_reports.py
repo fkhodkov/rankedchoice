@@ -9,6 +9,7 @@ downloads; every link that mentions the stage report and a ward number is saved,
 stage_report.py looks for. Requests are made one at a time.
 """
 import os
+import pathlib
 import re
 import sys
 import time
@@ -68,7 +69,7 @@ def main():
                     continue
                 if pdf:
                     n = int(ward.group(1))
-                    open(os.path.join(out, f"{council}_2022_ward{n}.pdf"), "wb").write(pdf)
+                    pathlib.Path(out, f"{council}_2022_ward{n}.pdf").write_bytes(pdf)
                     saved[n] = href
                     print(f"ward {n}: {href}", flush=True)
                 time.sleep(0.3)

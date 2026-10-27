@@ -31,13 +31,15 @@ Definitions used:
 import itertools
 import json
 import math
+import pathlib
 import sys
 from fractions import Fraction
 
 
 def read_blt(path):
     """Candidate names, seats, and ballots as (count, {candidate index: rank level})."""
-    lines = [line.strip() for line in open(path) if line.strip() and not line.startswith("#")]
+    with open(path) as source:
+        lines = [line.strip() for line in source if line.strip() and not line.startswith("#")]
     n, seats = map(int, lines[0].split())
     ballots, i = [], 1
     while lines[i] != "0":
@@ -180,7 +182,7 @@ def main():
     print("winners:", ", ".join(label(c) for c in winners))
     if len(sys.argv) < 3:
         return
-    report = json.load(open(sys.argv[2]))
+    report = json.loads(pathlib.Path(sys.argv[2]).read_text())
     position = {name: i for i, name in enumerate(names)}
     mismatches, checked = 0, 0
     for entry in report["supports"]:

@@ -258,9 +258,10 @@ def report(path):
 
 def first_rankings(cvr):
     """The record's first rankings per candidate (by key)."""
-    reader = csv.DictReader(open(cvr, newline="", encoding="utf-8-sig"))
-    columns = sorted((c for c in reader.fieldnames if c.startswith("rank")), key=lambda c: int(c[4:]))
-    return collections.Counter(key(row[columns[0]].strip()) for row in reader)
+    with open(cvr, newline="", encoding="utf-8-sig") as source:
+        reader = csv.DictReader(source)
+        columns = sorted((c for c in reader.fieldnames if c.startswith("rank")), key=lambda c: int(c[4:]))
+        return collections.Counter(key(row[columns[0]].strip()) for row in reader)
 
 
 def check(data, contest, jar):

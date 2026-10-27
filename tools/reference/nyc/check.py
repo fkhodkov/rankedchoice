@@ -211,17 +211,18 @@ def inactive_ballots(path):
 def first_choices(cvr):
     """The record's first choices per candidate (by key), read as the converter reads the ballots, but with
     write-ins as one candidate."""
-    reader = csv.DictReader(open(cvr, newline="", encoding="utf-8-sig"))
-    columns = sorted((c for c in reader.fieldnames if c.startswith("rank")), key=lambda c: int(c[4:]))
-    counts = collections.Counter()
-    for row in reader:
-        for column in columns:
-            mark = row[column].strip()
-            if mark.lower() == "overvote":
-                break
-            if mark and mark.lower() not in ("skipped", "undervote"):
-                counts[key("Write-in" if mark.lower() in ("writein", "write-in", "write in") else mark)] += 1
-                break
+    with open(cvr, newline="", encoding="utf-8-sig") as source:
+        reader = csv.DictReader(source)
+        columns = sorted((c for c in reader.fieldnames if c.startswith("rank")), key=lambda c: int(c[4:]))
+        counts = collections.Counter()
+        for row in reader:
+            for column in columns:
+                mark = row[column].strip()
+                if mark.lower() == "overvote":
+                    break
+                if mark and mark.lower() not in ("skipped", "undervote"):
+                    counts[key("Write-in" if mark.lower() in ("writein", "write-in", "write in") else mark)] += 1
+                    break
     return counts
 
 
@@ -248,32 +249,35 @@ def extract(data, year):
     names = {}
     for book in books:
         if "CandidacyID" in book:
-            for row in csv.reader(open(sheets(os.path.join(folder, book))[0], encoding="utf-8")):
-                names[row[0].strip()] = row[1].strip()
+            with open(sheets(os.path.join(folder, book))[0], encoding="utf-8") as source:
+                for row in csv.reader(source):
+                    names[row[0].strip()] = row[1].strip()
     wanted = {code(contest): contest for contest in CONTESTS if contest.startswith(year)}
     files, writers, widths = {}, {}, {}
     for book in sorted(books):
         if "CandidacyID" in book:
             continue
         for sheet in sheets(os.path.join(folder, book)):
-            reader = csv.reader(open(sheet, encoding="utf-8"))
-            columns = {}
-            for i, header in enumerate(next(reader)):
-                match = CHOICE.search(header)
-                if match and match.group(2) in wanted:
-                    columns.setdefault(wanted[match.group(2)], []).append((int(match.group(1)), i))
-            columns = {contest: [i for _, i in sorted(cells)] for contest, cells in columns.items()}
-            for contest, cells in columns.items():
-                if contest not in writers:
-                    files[contest] = open(os.path.join(data, contest + ".csv.part"), "w", newline="", encoding="utf-8")
-                    writers[contest], widths[contest] = csv.writer(files[contest]), len(cells)
-                    writers[contest].writerow(["Precinct"] + [f"rank{n}" for n in range(1, len(cells) + 1)])
-            for row in reader:
+            with open(sheet, encoding="utf-8") as source:
+                reader = csv.reader(source)
+                columns = {}
+                for i, header in enumerate(next(reader)):
+                    match = CHOICE.search(header)
+                    if match and match.group(2) in wanted:
+                        columns.setdefault(wanted[match.group(2)], []).append((int(match.group(1)), i))
+                columns = {contest: [i for _, i in sorted(cells)] for contest, cells in columns.items()}
                 for contest, cells in columns.items():
-                    marks = [row[i].strip() for i in cells]
-                    if any(mark and mark.lower() != "undervote" for mark in marks):
-                        marks += [""] * (widths[contest] - len(marks))
-                        writers[contest].writerow([row[1]] + [names.get(mark, mark) for mark in marks])
+                    if contest not in writers:
+                        files[contest] = open(os.path.join(data, contest + ".csv.part"), "w", newline="",
+                                              encoding="utf-8")
+                        writers[contest], widths[contest] = csv.writer(files[contest]), len(cells)
+                        writers[contest].writerow(["Precinct"] + [f"rank{n}" for n in range(1, len(cells) + 1)])
+                for row in reader:
+                    for contest, cells in columns.items():
+                        marks = [row[i].strip() for i in cells]
+                        if any(mark and mark.lower() != "undervote" for mark in marks):
+                            marks += [""] * (widths[contest] - len(marks))
+                            writers[contest].writerow([row[1]] + [names.get(mark, mark) for mark in marks])
     for contest, out in files.items():
         out.close()
         os.replace(out.name, os.path.join(data, contest + ".csv"))

@@ -90,18 +90,18 @@ def main():
     parser.add_argument("--write-in-name", default="Write-in")
     args = parser.parse_args()
 
-    source = open(args.cvr, newline="", encoding="utf-8-sig")
-    delimiter = "\t" if "\t" in source.readline() else ","    # the collections' originals are CSV
-    source.seek(0)
-    reader = csv.reader(source, delimiter=delimiter)
-    header = next(reader)
-    columns = columns_of(header)
-    count = header.index("Count") if "Count" in header else None
-    candidates, counts = [], collections.Counter()
-    for row in reader:
-        ranking = ranking_of([row[i] for i in columns], args, candidates)
-        if ranking:
-            counts[tuple(ranking)] += int(row[count]) if count is not None else 1
+    with open(args.cvr, newline="", encoding="utf-8-sig") as source:
+        delimiter = "\t" if "\t" in source.readline() else ","    # the collections' originals are CSV
+        source.seek(0)
+        reader = csv.reader(source, delimiter=delimiter)
+        header = next(reader)
+        columns = columns_of(header)
+        count = header.index("Count") if "Count" in header else None
+        candidates, counts = [], collections.Counter()
+        for row in reader:
+            ranking = ranking_of([row[i] for i in columns], args, candidates)
+            if ranking:
+                counts[tuple(ranking)] += int(row[count]) if count is not None else 1
 
     with open(args.out, "w") as out:
         out.write(f"{len(candidates)} {args.seats}\n")

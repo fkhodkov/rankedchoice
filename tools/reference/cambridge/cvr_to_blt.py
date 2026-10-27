@@ -60,7 +60,8 @@ def main():
     parser.add_argument("--seats", type=int, required=True)
     args = parser.parse_args()
 
-    rows = list(csv.DictReader(open(args.cvr, newline="", encoding="utf-8-sig")))
+    with open(args.cvr, newline="", encoding="utf-8-sig") as source:
+        rows = list(csv.DictReader(source))
     columns = sorted((c for c in rows[0] if c.startswith("rank")), key=lambda c: int(c[4:]))
     names = {row[c] for row in rows for c in columns
              if row[c].lower() not in SKIPPED and row[c].lower() != "overvote" and not CODE.match(row[c])

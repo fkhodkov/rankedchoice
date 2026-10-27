@@ -22,6 +22,7 @@ import argparse
 import concurrent.futures
 import json
 import os
+import pathlib
 import random
 import re
 import subprocess
@@ -110,7 +111,7 @@ def borda(ours, report):
 def check(n, args):
     blt = os.path.join(args.work, f"e{n}.blt")
     if not os.path.exists(blt):
-        open(blt, "w").write(election(n))
+        pathlib.Path(blt).write_text(election(n))
     result = subprocess.run(["java", "-jar", args.jar, "-i", blt, "--method", args.method, "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:

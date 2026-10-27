@@ -14,6 +14,7 @@ decimal places, must be one of this count's rounds, in order. Needs pdftotext (p
 import argparse
 import glob
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -70,7 +71,7 @@ def ward_file(scot_elex_dir, key, pdf):
     council = key.split("_2022_")[0]
     found = []
     for path in glob.glob(os.path.join(scot_elex_dir, "blt_files", "*", council + "_2022_*.blt")):
-        _, names, _, _ = scot_elex.convert(open(path, encoding="utf-8", errors="replace").read())
+        _, names, _, _ = scot_elex.convert(pathlib.Path(path).read_text(encoding="utf-8", errors="replace"))
         if all(check.plain(name) in text for name in names):
             found.append(path)
     return found[0] if len(found) == 1 else None
@@ -96,7 +97,8 @@ def compare(rounds, official):
 
 def sheet(pdf, blt):
     """The report as a count sheet (CountSheet's format): every stage's votes and non-transferable votes."""
-    names = [line.strip().strip('"') for line in open(blt).read().splitlines() if line.startswith('"')][:-1]
+    ballots = pathlib.Path(blt).read_text().splitlines()
+    names = [line.strip().strip('"') for line in ballots if line.startswith('"')][:-1]
     lines = [f"# {os.path.basename(pdf)}: the council's Candidate Votes Per Stage Report, read by",
              "# tools/reference/scotland/stage_report.py. Each stage: every candidate's votes, then the",
              "# non-transferable votes (including those due to rounding).", ""]

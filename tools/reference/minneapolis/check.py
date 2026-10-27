@@ -116,7 +116,8 @@ def spreadsheet_summary(xls, data):
     if not os.path.exists(out):
         subprocess.run(["soffice", "--headless", "--convert-to", "csv:Text - txt - csv (StarCalc):44,34,76",
                         "--outdir", data, xls], check=True, capture_output=True)
-    rows = list(csv.reader(open(out, encoding="utf-8", errors="ignore")))
+    with open(out, encoding="utf-8", errors="ignore") as source:
+        rows = list(csv.reader(source))
     threshold = int(next(row[1] for row in rows if row and row[0].startswith("Threshold")))
     start = next(i for i, row in enumerate(rows) if row and row[0] == "Candidate")
     totals, exhausted = {}, []

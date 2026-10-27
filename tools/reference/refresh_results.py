@@ -28,6 +28,7 @@ import argparse
 import importlib.util
 import json
 import os
+import pathlib
 import shutil
 import subprocess
 import sys
@@ -123,11 +124,11 @@ def compare(results_dir):
     found = []
     for file in sorted(os.listdir(results_dir)):
         committed = os.path.join(RESULTS, file)
-        fresh = json.load(open(os.path.join(results_dir, file), encoding="utf-8"))
+        fresh = json.loads(pathlib.Path(results_dir, file).read_text(encoding="utf-8"))
         if not os.path.exists(committed):
             found.append((file[:-5], [f"  no committed {file}"]))
             continue
-        found.append((file[:-5], differences(json.load(open(committed, encoding="utf-8")), fresh)))
+        found.append((file[:-5], differences(json.loads(pathlib.Path(committed).read_text(encoding="utf-8")), fresh)))
     return found
 
 

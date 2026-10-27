@@ -321,10 +321,10 @@ class Sheets(unittest.TestCase):
     def test_another_spreadsheets_sheets_are_left_out(self):
         with tempfile.TemporaryDirectory() as work:
             for name in ("2019-mayor.xlsx", "2019-mayor-20241118.xlsx"):
-                pathlib.Path(os.path.join(work, name)).touch()
+                pathlib.Path(work, name).touch()
                 os.utime(os.path.join(work, name), (1000, 1000))
             for name in ("2019-mayor-Report.csv", "2019-mayor-20241118-Report.csv"):
-                pathlib.Path(os.path.join(work, name)).touch()
+                pathlib.Path(work, name).touch()
             found = rcvcheck.sheets(os.path.join(work, "2019-mayor.xlsx"))
             self.assertEqual([os.path.basename(sheet) for sheet in found], ["2019-mayor-Report.csv"])
 

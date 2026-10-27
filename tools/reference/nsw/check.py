@@ -16,6 +16,7 @@ import concurrent.futures
 import glob
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -52,7 +53,7 @@ def check(name, data, jar):
     try:
         if stale(blt, os.path.join(data, name + ".zip"), os.path.join(data, name + ".xlsx")):
             text = nsw_to_blt.convert(os.path.join(data, name + ".zip"), os.path.join(data, name + ".xlsx"))
-            open(blt, "w").write(text)
+            pathlib.Path(blt).write_text(text)
         counts, elected, excluded = official(os.path.join(data, name + ".xlsx"))
     except ValueError as e:
         return name, f"NODATA: {e}", None

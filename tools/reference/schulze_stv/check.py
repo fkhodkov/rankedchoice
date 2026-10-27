@@ -15,6 +15,7 @@ import argparse
 import glob
 import json
 import os
+import pathlib
 import subprocess
 import sys
 import tempfile
@@ -30,12 +31,13 @@ TOLERANCE = 5e-7 + 1e-9  # half the published 6th decimal, plus slack for float 
 def published_supports(path, seats):
     """{(sorted committee, outsider): value} from an A*_stv.dat file."""
     supports = {}
-    for line in open(path):
-        fields = line.split()
-        if len(fields) == 2 * (seats + 1) + 1 and fields[0].isdigit():
-            members, values = fields[1:seats + 2], fields[seats + 2:]
-            for member, value in zip(members, values):
-                supports[(tuple(sorted(m for m in members if m != member)), member)] = float(value)
+    with open(path) as source:
+        for line in source:
+            fields = line.split()
+            if len(fields) == 2 * (seats + 1) + 1 and fields[0].isdigit():
+                members, values = fields[1:seats + 2], fields[seats + 2:]
+                for member, value in zip(members, values):
+                    supports[(tuple(sorted(m for m in members if m != member)), member)] = float(value)
     return supports
 
 
@@ -52,7 +54,7 @@ def program_winners(program, dat, timeout):
         output = os.path.join(directory, "output.txt")
         if not os.path.exists(output):
             return "no output"
-        lines = open(output).read().splitlines()
+        lines = pathlib.Path(output).read_text().splitlines()
     committees = [sorted(lines[i + 1].split()) for i, line in enumerate(lines) if line.startswith("winning set:")]
     return committees or "no winning set"
 

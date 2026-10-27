@@ -25,6 +25,7 @@ import argparse
 import concurrent.futures
 import json
 import os
+import pathlib
 import random
 import re
 import subprocess
@@ -129,7 +130,7 @@ def compare(name, mine, theirs, restarts):
 def check(n, args):
     """(n, problems, differences at a tie, decisions compared, of them at a tie, restarts after the first count)."""
     blt = os.path.join(args.work, f"e{n}.blt")
-    open(blt, "w").write(election(n))
+    pathlib.Path(blt).write_text(election(n))
     try:
         mine, my_winners = ours(args.jar, blt)
         by_droop, droop_winners = droop(args.droop, blt)

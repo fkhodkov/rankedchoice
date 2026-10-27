@@ -15,6 +15,7 @@ import difflib
 import glob
 import json
 import os
+import pathlib
 import re
 import subprocess
 import sys
@@ -33,11 +34,11 @@ DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..
 def count(path, jar, work):
     key = os.path.basename(path)[:-4]
     try:
-        text, names, seats, ward = scot_elex.convert(open(path, encoding="utf-8", errors="replace").read())
+        text, names, seats, ward = scot_elex.convert(pathlib.Path(path).read_text(encoding="utf-8", errors="replace"))
     except (ValueError, StopIteration) as e:
         return key, {"error": f"can't read the file: {e}"}
     blt = os.path.join(work, key + ".blt")
-    open(blt, "w").write(text)
+    pathlib.Path(blt).write_text(text)
     result = subprocess.run(["java", "-jar", jar, "-i", blt, "--ruleset", "scottish", "--report-format", "json"],
                             capture_output=True, text=True)
     if result.returncode:
@@ -92,7 +93,7 @@ def main():
     parser.add_argument("--results", help="write each ward's result to this JSON file, for the results page")
     args = parser.parse_args()
 
-    official = json.load(open(args.official))
+    official = json.loads(pathlib.Path(args.official).read_text())
     files = sorted(glob.glob(os.path.join(args.scot_elex, "blt_files", "*", "*.blt")))
     with tempfile.TemporaryDirectory() as work, concurrent.futures.ThreadPoolExecutor(args.workers) as pool:
         counts = dict(pool.map(lambda path: count(path, args.jar, work), files))
