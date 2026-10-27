@@ -490,6 +490,11 @@ about 45 s, 16 / 8 about a minute.
   differs from the committed one, to check that a refactor of the engine, a checker or the
   converter leaves the results as they were. `--refetch` downloads again every file saved before
   its address was recorded, which is otherwise trusted.
+- [`tools/reference/implementations.py`](tools/reference/implementations.py) — the same for the
+  checks against other implementations (OpenTally, pyRCV2, droop, OpenSTV, pref_voting, STVPoll,
+  Schulze's programs): given a directory holding those tools, it reruns every check and compares
+  what each reports, its summary and every election that differs, with
+  `tools/reference/implementations.json`; `--record` rewrites that.
 - [`tools/reference/tests`](tools/reference/tests) — tests of those, on small made-up ballots
   and counts (every converter option; round matching with several defeated at once, repeated
   rounds and rounds out of order; the summary lines; the pass-report parser; the results page's
@@ -619,6 +624,7 @@ tools/
     ├── <place>/check.py       one jurisdiction's official counts (README.md lays out their data)
     ├── droop/, opentally/, openstv/, pref_voting/, pyrcv2/, qpq/, schulze_stv/, stvpoll/, cpo_stv.py   others
     ├── rcvcheck.py, cvr_to_blt.py, refresh_results.py, results_page.py   shared pieces
+    ├── implementations.py, implementations.json   rerun the checks against the others, and their record
     ├── results/               every checker's results, the results page, jurisdictions.json
     └── tests/                 the Python tests, line length and pyflakes included
 .githooks/pre-commit           the build, run on every commit (see Quick start)

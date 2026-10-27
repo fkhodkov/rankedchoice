@@ -88,9 +88,9 @@ def check(schulze3, election, jar, timeout):
             result = subprocess.run(["java", "-Xss64m", "-jar", jar, "-i", blt, "-m", "schulze-proportional",
                                      "--report-format", "json"], capture_output=True, text=True, timeout=timeout)
         except subprocess.TimeoutExpired:
-            return True, f"{election}: not finished within {timeout} s (not checked)"
+            return True, "unfinished", 0, f"{election}: not finished within {timeout} s (not checked)"
     if result.returncode:
-        return False, f"{election}: count failed: {result.stderr.strip()[-300:]}"
+        return False, "failed", 0, f"{election}: count failed: {result.stderr.strip()[-300:]}"
     ours = json.loads(result.stdout)
     runs = published(os.path.join(schulze3, election + "_list.dat"))
     theirs = runs[0]
@@ -117,9 +117,9 @@ def check(schulze3, election, jar, timeout):
         line += (f" ({len(runs)} runs of his program in the file, "
                  + ("the same list" if all(run == their_list for run in other_runs) else "LISTS DIFFERING") + ")")
     if mismatch:
-        return False, line + f"; MISMATCH at {mismatch}"
+        return False, "mismatch", checked, line + f"; MISMATCH at {mismatch}"
     if same:
-        return True, line + "; the same list"
+        return True, "same", checked, line + "; the same list"
     k = next(i for i in range(len(their_list)) if ours["ranking"][i] != their_list[i])
     h = theirs[k][0]
     note = ""
@@ -132,7 +132,8 @@ def check(schulze3, election, jar, timeout):
                 + (" (ours among them)" if ours["ranking"][k] in potential else " (OURS NOT AMONG THEM)")
                 + f"; by winning votes: {', '.join(by_votes)}"
                 + (" (his among them)" if their_list[k] in by_votes else " (HIS NOT AMONG THEM)"))
-    return True, (line + f"; lists part at place {k + 1}: ours {ours['ranking'][k]}, his {their_list[k]}" + note)
+    return True, "part", checked, (line + f"; lists part at place {k + 1}: ours {ours['ranking'][k]}, "
+                                   f"his {their_list[k]}" + note)
 
 
 def main():
@@ -146,11 +147,19 @@ def main():
         name[:-len("_list.dat")] for name in os.listdir(args.schulze3)
         if name.endswith("_list.dat")
         and os.path.exists(os.path.join(args.schulze3, name[:-len("_list.dat")] + ".dat")))
-    failed = 0
+    failed, kinds, checked = 0, {}, 0
     for election in elections:
-        ok, line = check(args.schulze3, election, args.jar, args.timeout)
+        ok, kind, comparisons, line = check(args.schulze3, election, args.jar, args.timeout)
         failed += not ok
+        kinds.setdefault(kind, []).append(election)
+        checked += comparisons
         print(line, flush=True)
+
+    def listed(kind, what):
+        return f"; {len(kinds[kind])} {what} ({', '.join(kinds[kind])})" if kind in kinds else ""
+    print(f"proportional: {len(kinds.get('same', []))} of {len(elections)} lists the same as the program's"
+          + listed("part", "part where the program isn't the paper") + listed("unfinished", "not finished")
+          + listed("failed", "failed") + listed("mismatch", "MISMATCH") + f"; {checked} comparisons checked")
     sys.exit(1 if failed else 0)
 
 

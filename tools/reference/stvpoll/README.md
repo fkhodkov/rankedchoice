@@ -21,7 +21,7 @@ and a winner that differs only through them, are counted apart; their completion
 ```sh
 python3.12 -m venv sp && sp/bin/pip install ./STVPoll       # a checkout at d6b68a7
 mvn package -DskipTests
-PYTHONHASHSEED=0 sp/bin/python tools/reference/stvpoll/check.py work
+sp/bin/python tools/reference/stvpoll/check.py work    # fixes its own PYTHONHASHSEED
 ```
 
 Results: see [VALIDATION.md](../../../VALIDATION.md#cpo-stv).

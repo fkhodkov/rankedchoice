@@ -137,6 +137,12 @@ What settled the differences that once looked like the record's (VALIDATION.md h
   difference it lists should be one you expect. A full run takes about an hour (`--only` for the
   checkers a change touches); a checker whose committed results include a failure exits 1 and
   is still compared.
+- The checks against other implementations (OpenTally, pyRCV2, droop, OpenSTV, pref_voting,
+  STVPoll, Schulze's programs) rerun together with `tools/reference/implementations.py
+  TOOLS_ROOT`, which compares each one's summary and differing elections with
+  `implementations.json` (`tools/reference/README.md` lays out TOOLS_ROOT). After a change to a
+  method, run the checks it touches (`--only`); identical is the bar there too, and where figures
+  are meant to move, `--record` them and update VALIDATION.md to match.
 - Data (ballot records, official reports) isn't committed: checkers fetch it into a data directory
   given on the command line. `tools/reference/README.md` lays out a whole data root: which
   checkers fill their own directory, which need files saved first, and the programs needed. Downloads go to a temporary name and are renamed when complete.

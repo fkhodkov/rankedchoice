@@ -3,10 +3,12 @@
 usage: check.py WORK_DIR [--elections N] [--jar PATH]
 
 Run it with a Python that has STVPoll 0.5.6 installed (https://github.com/VoteIT/STVPoll, commit
-d6b68a7; `pip install` its checkout), and PYTHONHASHSEED=0 so that its order of shared surpluses
-(a set's) is the same every run. Writes N random elections (default 300, seeded, so the same every
-time) to WORK_DIR, counts each with this project (`--method cpo-stv --quota droop --transfer
-fractional --rounding exact`, JSON report) and compares, for every pair of outcomes, the
+d6b68a7; `pip install` its checkout). Its order of shared surpluses is a set's, so the figures
+depend on string hashing: unless hashing is already fixed (PYTHONHASHSEED=0), the check runs itself
+again with it fixed, without Python's own options (-I would ignore PYTHONHASHSEED). Writes N
+random elections (default 300, seeded, so the same every time) to WORK_DIR, counts each with
+this project (`--method cpo-stv --quota droop --transfer fractional --rounding exact`, JSON
+report) and compares, for every pair of outcomes, the
 difference between their scores with STVPoll's `outcomes_duel` on the same ballots and quota.
 STVPoll rounds each ballot's value to 5 places as it transfers; here it's given exact rounding, so
 that what's compared is the rule, not the rounding.
@@ -38,8 +40,12 @@ import sys
 from decimal import Decimal
 from fractions import Fraction
 
-from stvpoll.abcs import PreferenceBallot
-from stvpoll.cpo_stv import get_duels_winner, outcomes_duel
+if sys.flags.hash_randomization:
+    os.execve(sys.executable, [sys.executable, os.path.abspath(sys.argv[0])] + sys.argv[1:],
+              {**os.environ, "PYTHONHASHSEED": "0"})
+
+from stvpoll.abcs import PreferenceBallot  # noqa: E402
+from stvpoll.cpo_stv import get_duels_winner, outcomes_duel  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_JAR = os.path.join(HERE, "..", "..", "..", "cli", "target", "rankedchoice-cli-0.1.0-SNAPSHOT.jar")

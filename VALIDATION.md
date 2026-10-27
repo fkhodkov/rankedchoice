@@ -5,6 +5,8 @@ precision. The aim throughout is to check against something independent of this 
 own engine: official counts of real elections, independent implementations of the same
 method (OpenSTV, droop, CRAN packages, pyRCV2), or, where neither exists, hand-derived cases.
 Tests named below are under `library/src/test/java`, fixtures under `library/src/test/resources/testdata/`.
+The checks against other implementations rerun together (`tools/reference/implementations.py`),
+and `tools/reference/implementations.json` records what each last reported.
 
 ## At a glance
 

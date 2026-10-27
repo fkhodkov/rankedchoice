@@ -54,6 +54,28 @@ again only if it's asked for from another address, or with `refresh_results.py -
   `scotland/fetch_reports.py` (Falkirk, Scottish Borders, Highland). `scotland/README.md` has the
   commands.
 
+## Checks against other implementations
+
+`implementations.py TOOLS_ROOT` reruns every check against another implementation and compares
+what each reports (its summary, and a line per election that differs) with
+`implementations.json`; `--record` writes that instead, when figures are meant to move (update
+VALIDATION.md with them). The tools go in one directory, each set up as its README says:
+
+```
+TOOLS_ROOT/
+├── opentally/          OpenTally, built (target/release/opentally)
+├── pyrcv2/             pyRCV2
+├── droop/              droop
+├── openstv/            OpenSTV, run with Python 2 (--python2, default python2)
+├── STVPoll-venv/       a virtual environment with STVPoll installed
+├── pref_voting-venv/   a virtual environment with pref_voting installed (Python 3.10-3.13)
+└── schulze3/           Schulze's schulze3.zip, unpacked, with singl01p built
+```
+
+A check whose tool is missing is skipped. The random elections are written afresh to a temporary
+directory. A full run takes about 50 minutes; `--only` runs some checks (`opentally` for
+all eleven of its presets, `pyrcv2-senate` for one), and `--dry-run` shows the plan.
+
 ## Programs
 
 Java 25 and the project's jar (`mvn -o -q package -DskipTests`); `pdftotext` (poppler-utils);
