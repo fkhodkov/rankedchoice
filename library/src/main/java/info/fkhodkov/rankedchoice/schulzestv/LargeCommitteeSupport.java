@@ -32,7 +32,9 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
  * unranked, that can spread a few voters over a great many sets, and past {@link
  * #MAX_COMPLETED_SETS} the count is refused rather than left running for hours. If nobody tells
  * T and g apart at all, every order of them is equally likely, which spreads the voter over all
- * 2^|T| subsets; that's refused past {@link #MAX_UNDECIDED_TIE} members.
+ * 2^|T| subsets; that's refused past {@link #MAX_UNDECIDED_TIE} members. Either refusal is a
+ * {@link TooSpread}, and the closed form takes such a contest instead where it isn't too large
+ * (see {@link SchulzeStvCounter#support(SchulzeStvCounter.Reduced, int)}).
  */
 final class LargeCommitteeSupport {
 
@@ -196,7 +198,7 @@ final class LargeCommitteeSupport {
         } else {
             int k = Long.bitCount(tie);
             if (k > MAX_UNDECIDED_TIE) {
-                throw new IllegalStateException("no voter tells apart " + (k + 1) + " candidates of one contest; "
+                throw new TooSpread("no voter tells apart " + (k + 1) + " candidates of one contest; "
                         + "completing that would take 2^" + k + " orders");
             }
             double orders = factorial(k + 1);
@@ -207,7 +209,7 @@ final class LargeCommitteeSupport {
         }
         completedSets += shares.size();
         if (completedSets > MAX_COMPLETED_SETS) {
-            throw new IllegalStateException("proportional completion of a contest of " + (Long.bitCount(tie) + 1)
+            throw new TooSpread("proportional completion of a contest of " + (Long.bitCount(tie) + 1)
                     + " or more tied candidates spreads its voters over more than " + MAX_COMPLETED_SETS
                     + " orders: too many ballots leave too many candidates unranked to complete");
         }
@@ -222,6 +224,13 @@ final class LargeCommitteeSupport {
             result *= i;
         }
         return result;
+    }
+
+    /** A contest whose completion would be too large to list out. */
+    static final class TooSpread extends IllegalStateException {
+        TooSpread(String message) {
+            super(message);
+        }
     }
 
     /** The minimum cut for one trial ratio, in {@code double}. */

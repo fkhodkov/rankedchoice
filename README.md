@@ -393,10 +393,12 @@ mark, as spreadsheets' "CSV UTF-8" files do.
 - **The Schulze proportional ranking** is capped at 64 candidates, and slows sharply with many
   candidates and truncated ballots: for committees of over 20, the minimising set is searched
   for in double precision (then its support computed exactly), and proportional completion is
-  listed out, which can run to millions of orders; of Tideman's elections, the two with 26 and
-  29 candidates (and 91–104 voters, most ranking few) didn't finish within 15–30 minutes. It compares
-  links by margin, as the paper does, where Schulze's own program uses winning votes; see
-  [VALIDATION.md](VALIDATION.md#schulze-proportional-ranking).
+  listed out, which can run to millions of orders. Where it does, committees of up to 25 take the
+  closed form instead (tables of up to 512 MB), and past 25 the count is refused: of Tideman's
+  elections, A13 (26 candidates, 104 voters, most ranking few) now takes about 2 minutes, and A23
+  (29) is refused at its 26-seat contests, as are the two larger Pirate Party conventions (46 and
+  63 candidates). It compares links by margin, as the paper does, where Schulze's own program
+  uses winning votes; see [VALIDATION.md](VALIDATION.md#schulze-proportional-ranking).
 - **Cambridge STV depends on ballot order**: rarely at realistic sizes, but in small
   electorates with many seats another order can elect different people
   (`tools/order-sensitivity` measures it).

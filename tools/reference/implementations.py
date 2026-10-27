@@ -37,9 +37,9 @@ RECORD = os.path.join(HERE, "implementations.json")
 OPENTALLY_PRESETS = ["gregory", "scottish", "act", "senate", "tasmania", "nswlg", "viclc", "wa", "ers97",
                      "meek06", "meeknz"]
 PYRCV2_PRESETS = ["ers97", "gregory", "scottish", "senate"]
-# Schulze's lists that a count doesn't finish within half an hour (see VALIDATION.md): A13 and A23, and the
-# two larger Pirate Party conventions.
-SLOW_LISTS = {"A13", "A23", "ppb2013", "pps2014"}
+# Schulze's lists this project's count refuses (see VALIDATION.md): from 26 seats, A23's and the two larger
+# Pirate Party conventions' completions are too spread to list out, and too large for the closed form.
+SLOW_LISTS = {"A23", "ppb2013", "pps2014"}
 
 
 def steps(root, work, python2="python2", jar=DEFAULT_JAR, only=None):

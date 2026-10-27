@@ -254,6 +254,7 @@
   "A10: 19 places, 2280 comparisons checked (2 runs of his program in the file, LISTS DIFFERING); the same list",
   "A11: 10 places, 330 comparisons checked; the same list",
   "A12: 20 places, 1300 comparisons checked (2 runs of his program in the file, LISTS DIFFERING); lists part at place 4: ours E, his S; on his printed H, by margin: E (ours among them); by winning votes: S (his among them)",
+  "A13: 26 places, 5122 comparisons checked; lists part at place 13: ours A, his N; on his printed H, by margin: A, N (ours among them); by winning votes: A, N (his among them)",
   "A14: 17 places, 1520 comparisons checked; lists part at place 10: ours E, his L; on his printed H, by margin: D, E, G, L (ours among them); by winning votes: D, E, G, L (his among them)",
   "A15: 21 places, 2840 comparisons checked; lists part at place 12: ours S, his Q; on his printed H, by margin: A, Q, S (ours among them); by winning votes: A, Q, S (his among them)",
   "A17: 13 places, 728 comparisons checked; the same list",
@@ -308,6 +309,6 @@
   "A98: 4 places, 20 comparisons checked; the same list",
   "A99: 4 places, 20 comparisons checked; the same list",
   "ppb2011: 29 places, 2920 comparisons checked; lists part at place 4: ours 22, his 4; on his printed H, by margin: 22 (ours among them); by winning votes: 4 (his among them)",
-  "proportional: 57 of 65 lists the same as the program's; 8 part where the program isn't the paper (A04, A12, A14, A15, A22, A33, A35, ppb2011); 31670 comparisons checked"
+  "proportional: 57 of 66 lists the same as the program's; 9 part where the program isn't the paper (A04, A12, A13, A14, A15, A22, A33, A35, ppb2011); 36792 comparisons checked"
  ]
 }

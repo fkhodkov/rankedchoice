@@ -35,7 +35,8 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
  *
  * <p>Each place needs a support per remaining pair: C(r, 2) contests for r candidates left, each
  * as big as the list so far plus two. Small committees use the closed form, larger ones
- * {@link LargeCommitteeSupport}; {@link #MAX_CANDIDATES} caps the election.
+ * {@link LargeCommitteeSupport} (see {@link SchulzeStvCounter#support(SchulzeStvCounter.Reduced,
+ * int)}); {@link #MAX_CANDIDATES} caps the election.
  */
 public final class SchulzeProportionalRanking {
 
