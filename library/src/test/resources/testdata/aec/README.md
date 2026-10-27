@@ -31,5 +31,10 @@ Election 20499, a double dissolution: 58 candidates, 12 seats, 339,159 formal ba
   `tools/reference/pyrcv2/check.py`'s seeded random election 134 (`check.py ... --preset senate`
   writes it again, byte for byte), and pyRCV2's Senate count of it, made by
   `tools/reference/pyrcv2/count.py --preset senate --sheet`; VALIDATION.md's Senate section says
-  why it's kept. pyRCV2 revision 4dff302 (27 December 2025,
-  its last) reproduces the count sheet byte for byte (rechecked 27 October 2026).
+  why it's kept.
+- `pyrcv2/r545.blt`, `pyrcv2/r545.stages.txt`: likewise election 545 (5 candidates, 3 seats; from
+  `check.py ... --preset senate --elections 1000`), where pyRCV2 leaves an excluded candidate on
+  -2/5 votes.
+
+pyRCV2 revision 4dff302 (27 December 2025, its last) reproduces both count sheets byte for byte
+(rechecked 27 October 2026).

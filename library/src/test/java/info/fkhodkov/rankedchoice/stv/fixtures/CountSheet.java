@@ -57,6 +57,22 @@ record CountSheet(List<Stage> stages) {
     }
 
     /**
+     * This sheet with {@code candidate}'s votes counted as non-transferable from stage {@code
+     * from} on: for a count that leaves an excluded candidate with votes another count would
+     * have lost to rounding.
+     */
+    CountSheet withLeftoverAsLost(String candidate, int from) {
+        return new CountSheet(stages.stream().map(stage -> {
+            if (stage.number() < from) {
+                return stage;
+            }
+            Map<String, Fraction> votes = new LinkedHashMap<>(stage.votes());
+            Fraction leftover = votes.put(candidate, Fraction.ZERO);
+            return new Stage(stage.number(), votes, stage.nonTransferable().add(leftover));
+        }).toList());
+    }
+
+    /**
      * The stage each round matches, in order: the first stage, no earlier than the last
      * round's, with every candidate's votes in the round's tallies and its exhausted plus lost
      * votes. Null for a round that matches none.

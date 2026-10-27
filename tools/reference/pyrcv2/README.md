@@ -43,5 +43,5 @@ python3 tools/reference/pyrcv2/compare.py ours.json pyrcv2.json
 | `senate` | `--ruleset senate` | (no flags) | 198 of 200; pyRCV2 crashes on the other 2 |
 
 See [VALIDATION.md](../../../VALIDATION.md#the-ers97-model-election) for what the rest are. The
-fixtures' random elections (`testdata/ers97/pyrcv2/r20`, `r36`, `r86`, `testdata/aec/pyrcv2/r134`)
-are `check.py`'s, by number.
+fixtures' random elections (`testdata/ers97/pyrcv2/r20`, `r36`, `r86`, `testdata/aec/pyrcv2/r134`,
+`r545`) are `check.py`'s, by number.

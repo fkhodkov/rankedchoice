@@ -85,6 +85,24 @@ class AecSenateFixtureTest {
                 .doesNotContainNull();
     }
 
+    /**
+     * pyRCV2 moves an excluded candidate's papers a value group at a time, rounding each group's
+     * gains down, so it can leave the candidate with votes: in r545, C5 ends on -2/5, and pyRCV2's
+     * loss by fraction is 22/5 where this engine's is 4. The votes are the same in all, so with
+     * C5's counted as lost, every round matches.
+     */
+    @Test
+    void pyRcv2LeavesAnExcludedCandidateWithNegativeVotes() throws IOException {
+        ParsedElection election = BltParser.parse(DIRECTORY.resolve("pyrcv2/r545.blt"));
+        StvResult count = StvCounter.count(election.candidates(), election.ballots(), election.seats(),
+                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/senate.yaml"), election.candidates()));
+        CountSheet sheet = CountSheet.read(DIRECTORY.resolve("pyrcv2/r545.stages.txt"));
+
+        assertThat(sheet.stages().get(4).votes()).containsEntry("C5", Fraction.of(-2, 5));
+        assertThat(sheet.match(count)).contains((Integer) null);
+        assertThat(sheet.withLeftoverAsLost("C5", 5).match(count)).doesNotContainNull();
+    }
+
     private static StvResult count(String file) throws IOException {
         ParsedElection election;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(

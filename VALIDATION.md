@@ -223,9 +223,19 @@ bulk exclusion) checked 200 seeded random elections too (`tools/reference/pyrcv2
 exhausted votes and the loss by fraction (it crashes in its exclusion code on the other 2).
 pyRCV2's value-group exclusion can leave the excluded candidate with fractional or even negative
 votes, which this engine doesn't, so the loss it reports is then off by those. None of these
-200 does that (an earlier set of 200, whose generator wasn't kept, had 2, and 9 crashes). One
-of them is a fixture (`testdata/aec/pyrcv2/r134`, election 134), where surpluses go in order of
-election rather than largest first: C2's 20 votes before C5's 23.
+200 does that. One of them is a fixture (`testdata/aec/pyrcv2/r134`, election 134), where
+surpluses go in order of election rather than largest first: C2's 20 votes before C5's 23.
+
+Run on 1,000 (`--elections 1000`, about 5 minutes), 969 match in every round and pyRCV2
+crashes on 26. Four differ only in the loss by fraction, each by the votes pyRCV2 leaves on an
+excluded candidate: r545 is a fixture, where C5 ends on -2/5 and pyRCV2's loss is 22/5 against
+this engine's 4 (`AecSenateFixtureTest` counts C5's votes as lost and then matches every
+round); in r218, r306 and r616 the votes left are -105/152, -351/355 and 1483/5920. The last,
+r305, matches in every round but elects C1 and C6 where this engine elects C1 and C2: with one
+seat left, C2 and C6 tie on 8 votes, as they did at every earlier count. This engine elects one
+of the two (s273(17)) and pyRCV2, which has no such rule, excludes one; both settle the tie by
+declared order, standing in for the Act's lot, which picks C2 either way, to elect or to
+exclude.
 
 **NSW councils** (`nsw-lg`): every councillor count of the 2024 NSW local government elections
 the NSW Electoral Commission published figures for, 227 in all (`tools/reference/nsw`). 212
