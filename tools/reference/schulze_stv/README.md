@@ -93,4 +93,5 @@ Each comparison is checked for as long as both lists have placed the same candid
 depends only on who's placed. Where the lists part, the script reruns Stage 3 on Schulze's own
 printed H both ways: by margin (the paper) and by winning votes (the program), naming the
 potential winners of each. `--timeout` (default 1800 s) gives up on an election that takes
-longer.
+longer. Every list takes about 9 minutes, most of it Sweden 2014's (about 5) and Berlin 2013's
+(about 2).

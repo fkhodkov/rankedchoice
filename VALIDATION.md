@@ -1095,22 +1095,29 @@ for Tideman's 66 elections and four Pirate Party list conventions: for each plac
 H to 6 decimals, then who took it.
 
 - **Every comparison.** H depends only on who's already placed, so wherever the two lists agree
-  on the places so far, every value of H can be compared. In the 65 Tideman elections counted
-  (A23, of 29 candidates and mostly short ballots, is refused: see the last point below), all
-  33,872 comparisons published for those places match, to the 6 decimals they're given in; so do
-  the 2,920 of the Berlin Pirates' 2011 convention (29 candidates, 106 ballots). The two larger
-  Pirate conventions, Berlin 2013 (46 candidates) and Sweden 2014 (63), are refused too.
+  on the places so far, every value of H can be compared. In Tideman's 66 elections, all 36,142
+  comparisons published for those places match, to the 6 decimals they're given in; so do those
+  of the three Pirate conventions: Berlin 2011 (29 candidates, 106 ballots) 2,920, Berlin 2013
+  (46, 303) 16,890 and Sweden 2014 (63, 220) 24,808. 80,760 in all.
+- **Every comparison past place 20, on his list.** Where the lists part, the comparisons after
+  it are for his list so far, not ours, so the checker leaves them. Counting H for his list's
+  candidates instead, at every place from 21 on (where committees pass the closed form; a
+  scratch harness calling `SchulzeStvCounter.support`, 28 October 2026, not kept as a tool):
+  all 32,888 he prints match to 6 decimals, A13's 70, A23's 240 and Berlin 2011's 240 (places
+  21 to 28), Berlin 2013's 5,850 (to place 45) and Sweden 2014's 26,488 (to place 62), the
+  largest difference 5 x 10^-7, his rounding.
 - **The paper's worked example**, A53 (section 9.3): the list J A G D F B E C I H, the fifth place
   going to F over B by the single-winner ranking as the paper says, and all 330 comparisons
   (`SchulzeProportionalTideman53FixtureTest`).
-- **The lists.** 57 of the 65 are the program's. The other eight part where the program isn't
-  the paper, and Schulze's own printed H shows why at each: on A04, A12 and A35 (and Berlin
-  2011, at place 4), the paper's Stage 3 compares H's links by margin and the program by winning
-  votes, and each picks its own candidate; on A13 (at place 13: ours A, his N), A14, A15, A22
+- **The lists.** 57 of the 69 are the program's. The other twelve part where the program isn't
+  the paper, and Schulze's own printed H shows why at each: on A04, A12, A23 (at place 3), A35
+  and the three Pirate lists (Berlin 2011 at place 4, Berlin 2013 at 10, Sweden 2014 at 7), the
+  paper's Stage 3 compares H's links by margin and the program by winning votes, and each picks
+  its own candidate; on A13 (at place 13: ours A, his N), A14, A15, A22
   and A33 several candidates go unbeaten either way, and the tie-break decides it: this project uses the single-winner
   Schulze ranking, the program a ranking drawn from a random ballot order. That randomness shows
-  in the files themselves: A10, A12, A33 and A67 hold two or three runs of the program, and they
-  don't all agree. The program also gives the first place to the top of its single-winner
+  in the files themselves: A10, A12, A33, A67 and Sweden 2014 hold two or three runs of the
+  program, and they don't all agree. The program also gives the first place to the top of its single-winner
   ranking, where the paper runs Stage 3 for it too; no list parts there.
 - **The October 2026 fix to the single-winner ranking** (see [Schulze](#schulze)) changed the
   tie-break ranking of 6 of the lists' elections and one list, A33's. It parts from the program at
@@ -1118,12 +1125,22 @@ H to 6 decimals, then who took it.
   and by winning votes), where it parted at place 8 before (ours F, his N); the comparisons
   checked there fell from 1,608 to 1,210 (to 28,750 in all, before A13 was counted). Every other
   list and comparison is as it was.
-- **Supports past the closed form.** For committees of over 20 members, the support's
-  minimising set is found by a minimum cut (Dinkelbach's method) in double precision, then the
-  support computed exactly at it (`LargeCommitteeSupport`). On 400 random contests of up to 9
-  candidates, ties of every kind included, it gives every one of over 1,500 supports exactly as
-  the closed form does (`LargeCommitteeSupportTest`); skipping its improvement steps fails that
-  at once.
+- **Supports past the closed form.** For committees of over 20 members, the support, the
+  minimum over sets J of f(J) / |J|, is found without the closed form's table over 2^M sets
+  (`MinimumNormSupport`). f, the completed weight preferring some member of J, is submodular,
+  and Wolfe's minimum-norm-point algorithm, in double precision, finds the point of its base
+  polytope nearest the origin: its smallest coordinate bounds the support from below, and the
+  members on it are a set whose ratio bounds it from above. When the two meet, to 10^-11 of the
+  total weight, the support is computed exactly at that set and its near rivals; otherwise the
+  contest is refused (none of Schulze's has been). It is exact unless two sets' ratios come
+  within about 10^-11 without being equal. On 600 random contests of up to 12 candidates, short
+  ballots and ties of every kind included, every one of over 3,500 supports is the closed
+  form's (`MinimumNormSupportTest`), and so are all 510 of A13's, A23's and Berlin 2011's at 21
+  to 25 seats; past 25 seats, Schulze's printed H (the point above) is the check. It replaced a
+  minimum cut over the completion listed out, which ran past its cap of 4 million sets on short
+  ballots, and the closed form's 512 MB tables that took over at 21 to 25 seats: A13 now takes
+  under 4 s, where it took 2 minutes, and A23 and the two larger Pirate conventions, refused
+  before, take 9 s, 2 minutes and 5 minutes.
 - **Completion without listing it out.** The paper defines proportional completion as a chain:
   a voter level with g on T takes a donor's view of T, in proportion to the donors' votes, then
   is completed in turn for what that donor leaves level. Whether the members of a set R all end
@@ -1134,11 +1151,7 @@ H to 6 decimals, then who took it.
   candidates included, every one of over 1,000 supports is the one completion listed out as the
   paper defines it gives, in exact fractions (`ProportionalCompletionTest`); a wrong share for a
   tie nobody breaks, or a donor's own preferences left out, fails it. Schulze STV's 315,112
-  published supports still all match. Where many ballots leave many candidates unranked, the
-  minimum cut's listed-out completion still runs past its cap (4 million sets), and committees
-  of 21 to 25 members then take the closed form, whose tables over 2^M sets take up to 512 MB:
-  A13 finishes in about 2 minutes. Past 25 the count is refused: A23 at its 26-seat contests,
-  and the two larger Pirate conventions.
+  published supports still all match.
 
 The Berlin Pirates' 2011 list isn't a real outcome to check against: Andreas Baum, who headed
 the list the party ran with, is sixth in this ranking of those ballots (and fifth in the

@@ -262,6 +262,7 @@
   "A19: 7 places, 112 comparisons checked; the same list",
   "A20: 5 places, 40 comparisons checked; the same list",
   "A22: 11 places, 400 comparisons checked; lists part at place 6: ours I, his D; on his printed H, by margin: D, I, J (ours among them); by winning votes: D, I, J (his among them)",
+  "A23: 29 places, 2270 comparisons checked; lists part at place 3: ours 7, his 17; on his printed H, by margin: 7, 21 (ours among them); by winning votes: 17 (his among them)",
   "A33: 18 places, 1210 comparisons checked (3 runs of his program in the file, LISTS DIFFERING); lists part at place 5: ours F, his H; on his printed H, by margin: C, F, H, L, N, Q (ours among them); by winning votes: C, F, H, L, N, Q (his among them)",
   "A34: 14 places, 910 comparisons checked; the same list",
   "A35: 17 places, 904 comparisons checked; lists part at place 4: ours Q, his D; on his printed H, by margin: Q (ours among them); by winning votes: D (his among them)",
@@ -309,6 +310,8 @@
   "A98: 4 places, 20 comparisons checked; the same list",
   "A99: 4 places, 20 comparisons checked; the same list",
   "ppb2011: 29 places, 2920 comparisons checked; lists part at place 4: ours 22, his 4; on his printed H, by margin: 22 (ours among them); by winning votes: 4 (his among them)",
-  "proportional: 57 of 66 lists the same as the program's; 9 part where the program isn't the paper (A04, A12, A13, A14, A15, A22, A33, A35, ppb2011); 36792 comparisons checked"
+  "ppb2013: 46 places, 16890 comparisons checked; lists part at place 10: ours 25, his 16; on his printed H, by margin: 25 (ours among them); by winning votes: 16 (his among them)",
+  "pps2014: 63 places, 24808 comparisons checked (2 runs of his program in the file, LISTS DIFFERING); lists part at place 7: ours 4, his 56; on his printed H, by margin: 4 (ours among them); by winning votes: 56 (his among them)",
+  "proportional: 57 of 69 lists the same as the program's; 12 part where the program isn't the paper (A04, A12, A13, A14, A15, A22, A23, A33, A35, ppb2011, ppb2013, pps2014); 80760 comparisons checked"
  ]
 }

@@ -37,9 +37,6 @@ RECORD = os.path.join(HERE, "implementations.json")
 OPENTALLY_PRESETS = ["gregory", "scottish", "act", "senate", "tasmania", "nswlg", "viclc", "wa", "ers97",
                      "meek06", "meeknz"]
 PYRCV2_PRESETS = ["ers97", "gregory", "scottish", "senate"]
-# Schulze's lists this project's count refuses (see VALIDATION.md): from 26 seats, A23's and the two larger
-# Pirate Party conventions' completions are too spread to list out, and too large for the closed form.
-SLOW_LISTS = {"A23", "ppb2013", "pps2014"}
 
 
 def steps(root, work, python2="python2", jar=DEFAULT_JAR, only=None):
@@ -88,11 +85,8 @@ def steps(root, work, python2="python2", jar=DEFAULT_JAR, only=None):
     plan.append(("schulze-stv", [python, script("schulze_stv", "check.py"), schulze3, "--program",
                                  os.path.join(schulze3, "singl01p")] + jar_flag,
                  needs(os.path.join(schulze3, "singl01p"))))
-    lists = sorted(name[:-len("_list.dat")] for name in os.listdir(schulze3)
-                   if name.endswith("_list.dat") and name[:-len("_list.dat")] not in SLOW_LISTS) \
-        if os.path.isdir(schulze3) else []
     plan.append(("schulze-proportional", [python, script("schulze_stv", "proportional_check.py"), schulze3]
-                 + lists + jar_flag, needs(schulze3)))
+                 + jar_flag, needs(schulze3)))
     return [step for step in plan if not only or any(step[0] == name or step[0].startswith(name + "-")
                                                        for name in only)]
 

@@ -18,8 +18,6 @@ class Plan(unittest.TestCase):
         self.root = tempfile.TemporaryDirectory()
         for name in ("droop", "schulze3", "STVPoll-venv/bin"):
             os.makedirs(os.path.join(self.root.name, name))
-        for name in ("A01", "A23", "ppb2011", "pps2014"):
-            pathlib.Path(self.root.name, "schulze3", name + "_list.dat").touch()
         pathlib.Path(self.root.name, "STVPoll-venv", "bin", "python").touch()
 
     def tearDown(self):
@@ -49,13 +47,6 @@ class Plan(unittest.TestCase):
 
     def test_a_virtual_environment_s_python_runs_its_check(self):
         self.assertEqual(self.plan()["stvpoll"][0][0], os.path.join(self.root.name, "STVPoll-venv", "bin", "python"))
-
-    def test_the_slow_lists_are_left_out(self):
-        command = self.plan()["schulze-proportional"][0]
-        self.assertIn("A01", command)
-        self.assertIn("ppb2011", command)
-        self.assertNotIn("A23", command)
-        self.assertNotIn("pps2014", command)
 
     def test_only_by_name_or_prefix(self):
         self.assertEqual(sorted(self.plan(only=["droop"])), ["droop"])

@@ -295,29 +295,16 @@ public final class SchulzeStvCounter {
 
     /**
      * N[the contest's other members; member k]: by the closed form while the committee has at
-     * most {@link #CLOSED_FORM_SEATS} members, else by {@link LargeCommitteeSupport}. Both give
-     * the same exact figure; the closed form's 2^M subsets are quicker for small committees.
-     * Where many ballots leave many members unranked, listing out the completion as {@link
-     * LargeCommitteeSupport} does runs to millions of sets, and it refuses; the closed form, which
-     * needs no list, then takes committees of up to {@link #CLOSED_FORM_FALLBACK_SEATS} members
-     * (its tables take 2^M {@code double}s, 256 MB at 25).
+     * most {@link #CLOSED_FORM_SEATS} members, else by {@link MinimumNormSupport}, which needs
+     * no table over the 2^M subsets. Both give the same exact figure.
      */
     static Fraction support(Reduced reduced, int k) {
         if (reduced.levels().length == 0) {
             return Fraction.ZERO; // no ballots at all, so no support
         }
         int seats = reduced.levels()[0].length - 1;
-        if (seats <= CLOSED_FORM_SEATS) {
-            return closedFormSupport(reduced, k);
-        }
-        try {
-            return LargeCommitteeSupport.of(reduced.levels(), reduced.counts(), k);
-        } catch (LargeCommitteeSupport.TooSpread e) {
-            if (seats > CLOSED_FORM_FALLBACK_SEATS) {
-                throw e;
-            }
-            return closedFormSupport(reduced, k);
-        }
+        return seats <= CLOSED_FORM_SEATS ? closedFormSupport(reduced, k)
+                : MinimumNormSupport.of(reduced.levels(), reduced.counts(), k);
     }
 
     /** The closed form for any committee small enough to try its 2^M subsets. */
@@ -328,9 +315,6 @@ public final class SchulzeStvCounter {
 
     /** See {@link #support(Reduced, int)}. */
     static final int CLOSED_FORM_SEATS = 20;
-
-    /** See {@link #support(Reduced, int)}. */
-    static final int CLOSED_FORM_FALLBACK_SEATS = 25;
 
     /** Ballots reduced to one contest: {@code levels[b][j]} is member j's level on group b. */
     record Reduced(int[][] levels, BigInteger[] counts) {
@@ -481,6 +465,49 @@ public final class SchulzeStvCounter {
         private final double[] approximateCounts;
         private final BigInteger total;
         private final Map<Long, Fraction> exactBelow = new HashMap<>();
+        private final Map<Long, Double> approximateBelow = new HashMap<>();
+
+        /**
+         * From ballots reduced to a contest of up to 64 members ({@code levels[b][j]} is member
+         * j's level on group b, {@code counts[b]} its voters), against member {@code k}.
+         */
+        static Completion against(int[][] levels, BigInteger[] counts, int k) {
+            int size = levels.length == 0 ? 0 : levels[0].length;
+            int seats = size - 1;
+            if (seats > Long.SIZE - 1) {
+                throw new IllegalArgumentException("at most " + (Long.SIZE - 1) + " members, got " + seats);
+            }
+            Map<List<Long>, BigInteger> merged = new HashMap<>();
+            for (int b = 0; b < levels.length; b++) {
+                int[] level = levels[b];
+                int against = level[k];
+                long prefer = 0;
+                long tie = 0;
+                for (int j = 0, o = 0; j < size; j++) {
+                    if (j == k) {
+                        continue;
+                    }
+                    if (level[j] < against) {
+                        prefer |= 1L << o;
+                    } else if (level[j] == against) {
+                        tie |= 1L << o;
+                    }
+                    o++;
+                }
+                merged.merge(List.of(prefer, tie), counts[b], BigInteger::add);
+            }
+            long[] prefers = new long[merged.size()];
+            long[] ties = new long[merged.size()];
+            BigInteger[] weights = new BigInteger[merged.size()];
+            int i = 0;
+            for (Map.Entry<List<Long>, BigInteger> pattern : merged.entrySet()) {
+                prefers[i] = pattern.getKey().get(0);
+                ties[i] = pattern.getKey().get(1);
+                weights[i] = pattern.getValue();
+                i++;
+            }
+            return new Completion(prefers, ties, weights, seats);
+        }
 
         /** From voters' patterns as separate masks, for committees of up to 63 members. */
         Completion(long[] prefers, long[] ties, BigInteger[] counts, int seats) {
@@ -520,6 +547,25 @@ public final class SchulzeStvCounter {
 
         BigInteger total() {
             return total;
+        }
+
+        int seats() {
+            return seats;
+        }
+
+        /** Each pattern's members preferred to g, as a mask. */
+        long[] prefers() {
+            return prefers;
+        }
+
+        /** Each pattern's members level with g, as a mask. */
+        long[] ties() {
+            return ties;
+        }
+
+        /** Each pattern's voters. */
+        BigInteger[] counts() {
+            return counts;
         }
 
         /**
@@ -602,6 +648,43 @@ public final class SchulzeStvCounter {
                 }
             }
             return sum;
+        }
+
+        /** The weight preferring no member outside {@code inside}, approximately. */
+        double approximateWithin(long inside) {
+            double sum = 0;
+            for (int i = 0; i < counts.length; i++) {
+                if ((prefers[i] & ~inside) == 0) {
+                    sum += ties[i] == 0 ? approximateCounts[i]
+                            : approximateCounts[i] * approximateBelow(ties[i] & ~inside);
+                }
+            }
+            return sum;
+        }
+
+        /** below(r), approximately, for any r; see the class comment. */
+        private double approximateBelow(long r) {
+            if (r == 0) {
+                return 1;
+            }
+            Double known = approximateBelow.get(r);
+            if (known != null) {
+                return known;
+            }
+            double kept = 0;
+            double deciding = 0;
+            for (int d = 0; d < counts.length; d++) {
+                if ((r & ~ties[d]) == 0) {
+                    continue;
+                }
+                deciding += approximateCounts[d];
+                if ((prefers[d] & r) == 0) {
+                    kept += approximateCounts[d] * approximateBelow(r & ties[d]);
+                }
+            }
+            double share = deciding > 0 ? kept / deciding : 1.0 / (Long.bitCount(r) + 1);
+            approximateBelow.put(r, share);
+            return share;
         }
 
         /** below(r), exactly; see the class comment. */

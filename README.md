@@ -390,15 +390,15 @@ mark, as spreadsheets' "CSV UTF-8" files do.
   program ranks them differently, and its tie-break uses an older single-winner ranking, so on 2
   of Tideman's 65 elections it elects a different committee (see
   [VALIDATION.md](VALIDATION.md#schulze-stv)).
-- **The Schulze proportional ranking** is capped at 64 candidates, and slows sharply with many
-  candidates and truncated ballots: for committees of over 20, the minimising set is searched
-  for in double precision (then its support computed exactly), and proportional completion is
-  listed out, which can run to millions of orders. Where it does, committees of up to 25 take the
-  closed form instead (tables of up to 512 MB), and past 25 the count is refused: of Tideman's
-  elections, A13 (26 candidates, 104 voters, most ranking few) now takes about 2 minutes, and A23
-  (29) is refused at its 26-seat contests, as are the two larger Pirate Party conventions (46 and
-  63 candidates). It compares links by margin, as the paper does, where Schulze's own program
-  uses winning votes; see [VALIDATION.md](VALIDATION.md#schulze-proportional-ranking).
+- **The Schulze proportional ranking** is capped at 64 candidates. For committees of over 20,
+  each support's minimising set is searched for in double precision (then the support computed
+  exactly at it), so a support is exact unless two sets' ratios come within about 10^-11 of each
+  other without being equal, and a contest the search can't pin down is refused (none of
+  Schulze's has been). The largest of his elections, Sweden's 2014 Pirate convention (63
+  candidates, 220 voters), takes about 5 minutes and fits in a 2 GB heap; Berlin's 2013 (46)
+  about 2 minutes; Tideman's take under 10 s each. It compares links by margin, as the paper
+  does, where Schulze's own program uses winning votes; see
+  [VALIDATION.md](VALIDATION.md#schulze-proportional-ranking).
 - **Cambridge STV depends on ballot order**: rarely at realistic sizes, but in small
   electorates with many seats another order can elect different people
   (`tools/order-sensitivity` measures it).
@@ -602,8 +602,7 @@ library/src/main/java/info/fkhodkov/rankedchoice/
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport, SchulzeReports
 ├── schulzestv/    SchulzeStvCounter, SchulzeStvResult, SchulzeStvTextReport, SchulzeStvReports,
 │                  SchulzeProportionalRanking, SchulzeProportionalResult, SchulzeProportionalReports,
-│                  LargeCommitteeSupport (supports for committees past the closed form),
-│                  Shares, LongDoubleMap (a completion's shares, dense or sparse)
+│                  MinimumNormSupport (supports for committees past the closed form)
 └── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
                    BordaResult, BordaTextReport, BordaReports
 library/src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)

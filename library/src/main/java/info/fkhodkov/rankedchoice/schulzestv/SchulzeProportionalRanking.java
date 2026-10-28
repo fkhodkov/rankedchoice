@@ -35,16 +35,13 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
  *
  * <p>Each place needs a support per remaining pair: C(r, 2) contests for r candidates left, each
  * as big as the list so far plus two. Small committees use the closed form, larger ones
- * {@link LargeCommitteeSupport} (see {@link SchulzeStvCounter#support(SchulzeStvCounter.Reduced,
+ * {@link MinimumNormSupport} (see {@link SchulzeStvCounter#support(SchulzeStvCounter.Reduced,
  * int)}); {@link #MAX_CANDIDATES} caps the election.
  */
 public final class SchulzeProportionalRanking {
 
     /** Contests are bit masks of at most 63 members, with the outsider. */
     public static final int MAX_CANDIDATES = 64;
-
-    /** Committees larger than this have their contests counted one at a time; see {@link #comparisons}. */
-    static final int SEQUENTIAL_SEATS = 16;
 
     private SchulzeProportionalRanking() {
     }
@@ -106,10 +103,7 @@ public final class SchulzeProportionalRanking {
                 pairs.add(new int[] {remaining[i], remaining[j]});
             }
         }
-        // A large contest can take hundreds of megabytes (the closed form's 2^M arrays, or a
-        // listed-out completion): those go one at a time.
-        boolean large = placed.size() + 1 > SEQUENTIAL_SEATS;
-        List<Fraction[]> supports = (large ? pairs.stream() : pairs.parallelStream()).map(pair -> {
+        List<Fraction[]> supports = pairs.parallelStream().map(pair -> {
             int[] contest = new int[placed.size() + 2];
             for (int i = 0; i < placed.size(); i++) {
                 contest[i] = placed.get(i);
