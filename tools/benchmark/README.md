@@ -7,15 +7,19 @@ README.md's [Performance](../../README.md#performance) section comes from these.
 mvn -o -q package -DskipTests
 python3 tools/benchmark/run.py DATA_DIR                 # README's table and its 300-candidate line
 python3 tools/benchmark/run.py DATA_DIR --only small    # the table alone, a few minutes
+python3 tools/benchmark/run.py DATA_DIR --only schulze  # Schulze STV and the proportional ranking
 python3 tools/benchmark/run.py DATA_DIR --heap 256m     # the same within a 256 MB heap
 python3 tools/benchmark/run.py DATA_DIR --find-heap     # each count's smallest heap instead
 ```
 
 `run.py` generates the elections into `DATA_DIR` the first time (about 175 MB in all, and about
 four minutes; later runs reuse them), runs each method once on each with `java -jar`, JVM start-up
-and parsing included, and prints Markdown tables. A whole run takes about 20 minutes, most of it
-Meek and Warren on 300 candidates, and exact STV on the 300-candidate election at 40 preferences,
-which never finishes and is stopped at `--limit` (300 s by default). A count that fails shows its
+and parsing included, and prints Markdown tables. Schulze STV and the proportional ranking get
+their own, smaller elections (10,000 voters, and 100,000 at 20 candidates), since their cost grows
+with the candidates rather than the voters. A whole run takes about 20 minutes, most of it Meek and
+Warren on 300 candidates, the proportional ranking at 24 candidates, and exact STV on the
+300-candidate election at 40 preferences, which never finishes and is stopped at `--limit` (300 s
+by default). A count that fails shows its
 error in place of a time: within `--heap 256m`, every other method but Borda and Schulze runs out
 of memory on that election.
 

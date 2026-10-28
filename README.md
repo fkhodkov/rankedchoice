@@ -410,26 +410,27 @@ mark, as spreadsheets' "CSV UTF-8" files do.
 
 ## Performance
 
-End to end through the command line (JVM startup and parsing included) on a 14-core machine,
-with every voter casting a distinct ballot ranking about 5 candidates (`tools/benchmark` makes
-the elections and reruns every figure here; single runs vary by up to a third, more on a busy machine):
+End to end through the command line (JVM startup and parsing included) on a 14-core laptop on
+mains power, in its balanced power profile, with every voter casting a distinct ballot ranking about
+5 candidates (`tools/benchmark` makes the elections and reruns every figure here). Single runs vary
+by up to a third, more on a busy machine; the table gives the median of three, the rest single runs.
 
 | Method | 20 candidates, 5 seats, 100k voters | 20 / 5, 1M voters | 100 / 20, 100k voters |
 |---|---|---|---|
-| Borda | 0.5 s | 1.9 s | 0.8 s |
-| Schulze | 0.5 s | 1.1 s | 0.4 s |
-| STV (fractional, exact) | 0.6 s | 2.0 s | 1.2 s |
-| STV (`scottish`, WIGM) | 0.7 s | 2.1 s | 1.0 s |
-| STV (`ers97`, last parcel) | 0.7 s | 2.1 s | 1.2 s |
-| QPQ | 0.7 s | 1.7 s | 1.0 s |
-| Cambridge STV | 0.5 s | 1.4 s | 0.5 s |
-| Meek / Warren | 0.8 / 0.9 s | 2.9 / 2.9 s | 1.8 / 1.9 s |
+| Borda | 0.3 s | 0.9 s | 0.4 s |
+| Schulze | 0.4 s | 1.1 s | 0.4 s |
+| STV (fractional, exact) | 0.8 s | 2.8 s | 1.9 s |
+| STV (`scottish`, WIGM) | 1.2 s | 3.2 s | 1.4 s |
+| STV (`ers97`, last parcel) | 1.1 s | 3.0 s | 1.9 s |
+| QPQ | 0.8 s | 2.3 s | 1.3 s |
+| Cambridge STV | 0.6 s | 1.7 s | 0.6 s |
+| Meek / Warren | 1.0 / 1.1 s | 3.5 / 3.7 s | 2.1 / 2.1 s |
 
-At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 1.4 s (5.4 s),
-Schulze 1.7 s (7.9 s), fractional STV 25 s exact (never finishes at 40: see
-[Limitations](#limitations)) and 7.1 s with `--rounding truncate:9` (11 s), `scottish` 6.7 s (9.8 s),
-`ers97` 8.1 s (10 s), QPQ 15 s (25 s), Cambridge STV 1.9 s (5.0 s), Meek 29 s (55 s), Warren 30 s
-(60 s). CPO-STV grows with the number of committee pairs instead: 10 candidates / 3 seats takes
+At 300 candidates, 33 seats and 1M voters ranking about 5 (or 40) candidates: Borda 1.2 s (5.0 s),
+Schulze 1.4 s (10 s), fractional STV 24 s exact (never finishes at 40: see
+[Limitations](#limitations)) and 7.2 s with `--rounding truncate:9` (11 s), `scottish` 6.9 s (10 s),
+`ers97` 8.6 s (11 s), QPQ 14 s (27 s), Cambridge STV 1.9 s (5.2 s), Meek 30 s (57 s), Warren 31 s
+(63 s). CPO-STV grows with the number of committee pairs instead: 10 candidates / 3 seats takes
 about 9 s at 100k voters, 12 / 4 about 34 s at 10k.
 
 Memory: every method counts the 20-candidate, 1M-voter election above, and the 300-candidate one at
@@ -441,10 +442,17 @@ two-byte indices. Java's default heap is a quarter of the machine's memory; a co
 says so and suggests `java -Xmx`.
 
 Schulze STV's cost grows with the number of contests of seats + 1 candidates, and with how many
-distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 60 take
-under 2 s and the slowest (16 candidates, 7 seats) about 15 s. Synthetic elections of 10,000
-voters ranking 1–8 candidates: 20 candidates / 5 seats about 8 s, 24 / 5 (42,504 committees)
-about 45 s, 16 / 8 about a minute.
+distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 61 take
+under 2 s and the slowest (A05: 16 candidates, 7 seats) about 10 s. On `tools/benchmark`'s
+elections of 10,000 voters ranking about 5: 20 candidates / 5 seats 10 s, 24 / 5 (42,504
+committees) 29 s, 16 / 8 16 s; 20 / 5 at 100,000 voters 49 s. Each fits in a 256 MB heap but
+24 / 5, which needs 512 MB.
+
+The Schulze proportional ranking places every candidate, and its cost grows with the candidates:
+on the same elections (seats aside) 20 candidates take 17 s, 24 about 2 minutes and 16 under 2 s;
+20 at 100,000 voters 75 s. Each fits in 256 MB. Of Schulze's published lists, Berlin 2013's (46
+candidates, 303 ballots) takes about 2 minutes and Sweden 2014's (63, 220) about 5, within a 2 GB
+heap.
 
 ## Tools
 

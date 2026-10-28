@@ -1,11 +1,12 @@
 """Time every method end to end through the command line, as README's Performance section reports.
 
-usage: run.py DATA_DIR [--jar JAR] [--heap 256m | --find-heap] [--only small|large] [--limit SECONDS]
+usage: run.py DATA_DIR [--jar JAR] [--heap 256m | --find-heap] [--only small|large|schulze] [--limit SECONDS]
 
 Generates the elections into DATA_DIR with generate.py (once; later runs reuse them), then runs
 each method on each with `java -jar`, JVM start-up and parsing included, and prints the times as
 Markdown. "small" is README's table (20 candidates and 5 seats at 100k and 1M voters, 100 and 20
-at 100k); "large" is its 300-candidate, 33-seat, 1M-voter line, at mean ranking lengths 5 and 40.
+at 100k); "large" is its 300-candidate, 33-seat, 1M-voter line, at mean ranking lengths 5 and 40;
+"schulze" is its Schulze STV and proportional ranking line, on 10k voters (and 100k for the ranking).
 --heap caps the JVM heap, to check that every count fits in it. --limit stops a count after that
 many seconds (default 300) and shows it as "over" them: exact STV never finishes the 300-candidate
 election at 40 preferences (README's Limitations says why). Single runs vary by up to a third,
@@ -36,15 +37,21 @@ METHODS = {
     "Cambridge STV": ["--method", "cambridge"],
     "Meek": ["--method", "meek"],
     "Warren": ["--method", "warren"],
+    "Schulze STV": ["--method", "schulze-stv"],
+    "Schulze proportional ranking": ["--method", "schulze-proportional"],
 }
 
 # (candidates, seats, voters, mean ranking length)
 SMALL = [(20, 5, 100_000, 5), (20, 5, 1_000_000, 5), (100, 20, 100_000, 5)]
 LARGE = [(300, 33, 1_000_000, 5), (300, 33, 1_000_000, 40)]
-SMALL_METHODS = [name for name in METHODS if "truncate" not in name]
 LARGE_METHODS = ["Borda", "Schulze", "STV (fractional, exact)", "STV (fractional, `truncate:9`)",
                  "STV (`scottish`, WIGM)", "STV (`ers97`, last parcel)", "QPQ", "Cambridge STV", "Meek",
                  "Warren"]
+# Their cost grows with the contests of seats + 1 candidates (Schulze STV) or with the candidates (the
+# ranking, which places every one), so they get their own, smaller elections.
+SCHULZE = [(20, 5, 10_000, 5), (24, 5, 10_000, 5), (16, 8, 10_000, 5), (20, 5, 100_000, 5)]
+SCHULZE_METHODS = ["Schulze STV", "Schulze proportional ranking"]
+SMALL_METHODS = [name for name in METHODS if "truncate" not in name and name not in SCHULZE_METHODS]
 
 
 def election(data_dir, candidates, seats, voters, mean_length):
@@ -115,7 +122,7 @@ def main():
     heap = parser.add_mutually_exclusive_group()
     heap.add_argument("--heap", help="the JVM's -Xmx, e.g. 256m")
     heap.add_argument("--find-heap", action="store_true", help="print each count's smallest heap, not its time")
-    parser.add_argument("--only", choices=["small", "large"])
+    parser.add_argument("--only", choices=["small", "large", "schulze"])
     parser.add_argument("--limit", type=int, default=300, help="seconds a count may take (default 300)")
     args = parser.parse_args()
     if not os.path.exists(args.jar):
@@ -127,10 +134,12 @@ def main():
     else:
         def measure(path, method_args):
             return timed(args.jar, args.heap, args.limit, path, method_args)
-    if args.only != "large":
+    if args.only in (None, "small"):
         print(table(measure, args.data_dir, SMALL, SMALL_METHODS) + "\n")
-    if args.only != "small":
+    if args.only in (None, "large"):
         print(table(measure, args.data_dir, LARGE, LARGE_METHODS) + "\n")
+    if args.only in (None, "schulze"):
+        print(table(measure, args.data_dir, SCHULZE, SCHULZE_METHODS) + "\n")
 
 
 if __name__ == "__main__":
