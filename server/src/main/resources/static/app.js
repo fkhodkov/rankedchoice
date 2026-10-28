@@ -47,6 +47,11 @@ const OPTIONS = {
     label: "Scoring", type: "select", choices: ["classic", "dowdall"],
     hint: "classic: n−1 points down to 0. dowdall: 1, 1/2, 1/3, … (Nauru).",
   },
+  givenList: {
+    label: "Given list", type: "text", list: true,
+    hint: "Candidates, comma-separated, who take the first places in this order. Each place still shows the "
+      + "method's own potential winners, so a list chosen otherwise can be checked. Blank: the method decides.",
+  },
 };
 
 // The rules a ruleset sets that have no field here, in README's words. Only classic STV reads them.
@@ -301,7 +306,9 @@ function request(reportFormat) {
   for (const name of taken) {
     const value = $(`option-${name}`).value.trim();
     if (value !== "") {
-      body[name] = OPTIONS[name].type === "number" ? Number(value) : value;
+      body[name] = OPTIONS[name].type === "number" ? Number(value)
+        : OPTIONS[name].list ? value.split(",").map((item) => item.trim()).filter((item) => item !== "")
+          : value;
     }
   }
   return body;

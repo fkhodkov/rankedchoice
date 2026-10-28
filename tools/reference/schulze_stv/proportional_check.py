@@ -5,15 +5,16 @@ usage: proportional_check.py SCHULZE3 [--jar PATH] [--timeout SECONDS] [ELECTION
 SCHULZE3 is the unpacked schulze3.zip (see README.md). For each election X.dat with a published
 X_list.dat (all 66 of Tideman's, and the Pirate Party conventions ppb2011, ppb2013 and pps2014),
 the election is converted (tideman.py), ranked with --method schulze-proportional, and compared
-with Schulze's program's output: the list, and for every place both lists reach with the same
-candidates placed before it, every comparison H[b][c] = N[the list so far + b; c] his program
-prints, to the 6 decimals it prints them in (allowing for its long double arithmetic).
+with Schulze's program's output: the list, and every comparison H[b][c] = N[the list so far + b;
+c] his program prints, to the 6 decimals it prints them in (allowing for its long double
+arithmetic). H depends only on who's placed, so where the lists part, the election is ranked
+again with his list given (--given-list), and every place's comparisons checked on his list.
 
 The lists can part where the program differs from the paper (see VALIDATION.md): it compares
 H's links by winning votes rather than margin, gives the first place to the top of its
 single-winner ranking, and breaks ties with a ranking drawn from a random ballot order. So a
 different list is reported with whether the paper's own rules, read off his printed H, give
-ours, and the comparisons are checked up to the first place the lists differ at.
+ours.
 """
 import argparse
 import json
@@ -79,38 +80,56 @@ def potential_winners_by_winning_votes(h):
     return [a for a in names if not any(path[b, a] > path[a, b] + 5 * eps for b in names if b != a)]
 
 
-def check(schulze3, election, jar, timeout):
-    with tempfile.TemporaryDirectory() as tmp:
-        blt = os.path.join(tmp, election + ".blt")
-        subprocess.run([sys.executable, os.path.join(HERE, "tideman.py"), os.path.join(schulze3, election + ".dat"),
-                        blt], check=True)
-        try:
-            result = subprocess.run(["java", "-Xss64m", "-jar", jar, "-i", blt, "-m", "schulze-proportional",
-                                     "--report-format", "json"], capture_output=True, text=True, timeout=timeout)
-        except subprocess.TimeoutExpired:
-            return True, "unfinished", 0, f"{election}: not finished within {timeout} s (not checked)"
+def rank(blt, jar, timeout, given=()):
+    """Our ranking of the election as JSON, the first places given if asked; or why not, as a string."""
+    command = ["java", "-Xss64m", "-jar", jar, "-i", blt, "-m", "schulze-proportional", "--report-format", "json"]
+    if given:
+        command += ["--given-list", ",".join(given)]
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return f"not finished within {timeout} s"
     if result.returncode:
-        return False, "failed", 0, f"{election}: count failed: {result.stderr.strip()[-300:]}"
-    ours = json.loads(result.stdout)
-    runs = published(os.path.join(schulze3, election + "_list.dat"))
-    theirs = runs[0]
+        return f"count failed: {result.stderr.strip()[-300:]}"
+    return json.loads(result.stdout)
+
+
+def compare(ours, theirs):
+    """Every printed comparison at the places where our list so far is his: (checked, the first mismatch)."""
     their_list = [taken for _, taken in theirs]
-    other_runs = [[taken for _, taken in run] for run in runs[1:]]
-    checked, worst, mismatch = 0, Decimal(0), None
+    checked, mismatch = 0, None
     for k, (h, taken) in enumerate(theirs):
         if ours["ranking"][:k] != their_list[:k]:
             break
-        if not h:
-            continue
         values = {(c["candidate"], c["against"]): Decimal(c["support"]) for c in ours["places"][k]["comparisons"]}
         for row, cells in h.items():
             for column, value in cells.items():
                 ours_value = values.get((row, column))
                 if ours_value is None or abs(ours_value - value) > TOLERANCE:
                     mismatch = mismatch or f"place {k + 1}: H[{row}][{column}] is {ours_value}, published {value}"
-                else:
-                    worst = max(worst, abs(ours_value - value))
                 checked += 1
+    return checked, mismatch
+
+
+def check(schulze3, election, jar, timeout):
+    runs = published(os.path.join(schulze3, election + "_list.dat"))
+    theirs = runs[0]
+    their_list = [taken for _, taken in theirs]
+    other_runs = [[taken for _, taken in run] for run in runs[1:]]
+    with tempfile.TemporaryDirectory() as tmp:
+        blt = os.path.join(tmp, election + ".blt")
+        subprocess.run([sys.executable, os.path.join(HERE, "tideman.py"), os.path.join(schulze3, election + ".dat"),
+                        blt], check=True)
+        ours = rank(blt, jar, timeout)
+        # Where the lists part, H after that is for his list so far: counting with his list given checks it all.
+        followed = ours if isinstance(ours, str) or ours["ranking"] == their_list \
+            else rank(blt, jar, timeout, their_list)
+    for result in (ours, followed):
+        if isinstance(result, str):
+            if result.startswith("not finished"):
+                return True, "unfinished", 0, f"{election}: {result} (not checked)"
+            return False, "failed", 0, f"{election}: {result}"
+    checked, mismatch = compare(followed, theirs)
     same = ours["ranking"] == their_list
     line = f"{election}: {len(their_list)} places, {checked} comparisons checked"
     if other_runs:

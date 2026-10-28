@@ -89,9 +89,10 @@ python3 tools/reference/schulze_stv/proportional_check.py SCHULZE3              
 python3 tools/reference/schulze_stv/proportional_check.py SCHULZE3 A53 ppb2011     # just these
 ```
 
-Each comparison is checked for as long as both lists have placed the same candidates, since H
-depends only on who's placed. Where the lists part, the script reruns Stage 3 on Schulze's own
-printed H both ways: by margin (the paper) and by winning votes (the program), naming the
-potential winners of each. `--timeout` (default 1800 s) gives up on an election that takes
-longer. Every list takes about 9 minutes, most of it Sweden 2014's (about 5) and Berlin 2013's
-(about 2).
+Every comparison he prints is checked. H depends only on who's placed, so where the lists part,
+the election is ranked again with his list given (`--given-list`), and each place's comparisons
+are checked on his list so far. At the place the lists part, the script also reruns Stage 3 on
+Schulze's own printed H both ways: by margin (the paper) and by winning votes (the program),
+naming the potential winners of each. `--timeout` (default 1800 s) gives up on an election that takes
+longer. Every list takes about 16 minutes, most of it Sweden 2014's and Berlin 2013's, each
+ranked twice (about 5 and 2 minutes a count).

@@ -47,6 +47,17 @@ public final class SchulzeProportionalRanking {
     }
 
     public static SchulzeProportionalResult count(List<Candidate> candidates, List<Ballot> ballots) {
+        return count(candidates, ballots, List.of());
+    }
+
+    /**
+     * The ranking with its first places given: {@code given}'s candidates take them in order, and
+     * each such place's comparisons and potential winners are still worked out and reported, so a
+     * list chosen otherwise can be checked against the method place by place. The method fills
+     * the places after them as usual.
+     */
+    public static SchulzeProportionalResult count(List<Candidate> candidates, List<Ballot> ballots,
+            List<Candidate> given) {
         int n = candidates.size();
         if (n < 1) {
             throw new IllegalArgumentException("there must be at least one candidate");
@@ -54,6 +65,17 @@ public final class SchulzeProportionalRanking {
         if (n > MAX_CANDIDATES) {
             throw new IllegalArgumentException("Schulze proportional ranking is capped at " + MAX_CANDIDATES
                     + " candidates, got " + n);
+        }
+        int[] givenIndex = given.stream().mapToInt(candidate -> {
+            int at = candidates.indexOf(candidate);
+            if (at < 0) {
+                throw new IllegalArgumentException("the given list names " + candidate.name()
+                        + ", who isn't a candidate");
+            }
+            return at;
+        }).toArray();
+        if (IntStream.of(givenIndex).distinct().count() < givenIndex.length) {
+            throw new IllegalArgumentException("the given list names a candidate twice");
         }
         SchulzeResult singleWinner = SchulzeMethod.count(candidates, ballots);
         int[] tieBreakPlace = tieBreakPlaces(candidates, singleWinner);
@@ -64,17 +86,20 @@ public final class SchulzeProportionalRanking {
         boolean[] done = new boolean[n];
         while (placed.size() < n) {
             int[] remaining = IntStream.range(0, n).filter(c -> !done[c]).toArray();
+            boolean isGiven = placed.size() < givenIndex.length;
             if (remaining.length == 1) {
                 done[remaining[0]] = true;
                 placed.add(remaining[0]);
                 places.add(new SchulzeProportionalResult.Place(placed.size(), candidates.get(remaining[0]),
-                        Map.of(), List.of(candidates.get(remaining[0]))));
+                        Map.of(), List.of(candidates.get(remaining[0])), isGiven));
                 break;
             }
             Fraction[][] h = comparisons(placed, remaining, indexed, n);
             List<Integer> potential = potentialWinners(remaining, h);
-            int winner = potential.stream().min((a, b) -> tieBreakPlace[a] != tieBreakPlace[b]
-                    ? Integer.compare(tieBreakPlace[a], tieBreakPlace[b]) : Integer.compare(a, b)).orElseThrow();
+            int winner = isGiven ? givenIndex[placed.size()]
+                    : potential.stream().min((a, b) -> tieBreakPlace[a] != tieBreakPlace[b]
+                            ? Integer.compare(tieBreakPlace[a], tieBreakPlace[b]) : Integer.compare(a, b))
+                            .orElseThrow();
             Map<Candidate, Map<Candidate, Fraction>> matrix = new LinkedHashMap<>();
             for (int b : remaining) {
                 Map<Candidate, Fraction> row = new LinkedHashMap<>();
@@ -88,7 +113,7 @@ public final class SchulzeProportionalRanking {
             done[winner] = true;
             placed.add(winner);
             places.add(new SchulzeProportionalResult.Place(placed.size(), candidates.get(winner), matrix,
-                    potential.stream().map(candidates::get).toList()));
+                    potential.stream().map(candidates::get).toList(), isGiven));
         }
         return new SchulzeProportionalResult(placed.stream().map(candidates::get).toList(), places, singleWinner);
     }

@@ -1,5 +1,7 @@
 package info.fkhodkov.rankedchoice.server;
 
+import java.util.List;
+
 /**
  * A count asked of {@code POST /api/count}, as JSON: the ballots as text, and the options by the
  * names the command line gives its flags, in camel case ({@code --tied-rankings} is
@@ -7,6 +9,7 @@ package info.fkhodkov.rankedchoice.server;
  *
  * @param ballots      the ballot file's text, BLT or CSV
  * @param format       blt or csv; taken from the text when left out
+ * @param givenList    as {@code --given-list}, a list of names
  * @param reportFormat text (the default), csv, json or html
  */
 public record CountRequest(
@@ -23,6 +26,7 @@ public record CountRequest(
         Integer minimumPreferences,
         Integer precision,
         String bordaScoring,
+        List<String> givenList,
         String reportFormat
 ) {
 }

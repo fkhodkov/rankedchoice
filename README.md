@@ -23,7 +23,7 @@ design.
 | QPQ | `qpq` | Woodall's Quota Preferential by Quotient: whole votes, quotients, a restart after each exclusion | droop and OpenSTV: every decision of 1,000 random elections, to 9 decimal places |
 | CPO-STV | `cpo-stv` | Tideman's: every possible committee compared with every other | hand-worked cases; an independent implementation (4,830 scores); STVPoll on 300 elections, every comparison counted alike |
 | Schulze STV | `schulze-stv` | Schulze's: committees one swap apart compared by how well each could split the voters into separate quotas, then a beatpath | Schulze's own program and published figures on Tideman's 65 elections; the paper's worked example |
-| Schulze proportional ranking | `schulze-proportional` | Schulze's: a party list built place by place, each candidate compared by how strongly the list so far plus them would hold against each other candidate, then a beatpath | every comparison behind Schulze's own program's published lists for Tideman's elections, to 6 decimals; the paper's worked example |
+| Schulze proportional ranking | `schulze-proportional` | Schulze's: a party list built place by place, each candidate compared by how strongly the list so far plus them would hold against each other candidate, then a beatpath | every comparison Schulze's own program publishes for Tideman's elections and three Pirate Party conventions, to 6 decimals; the paper's worked example |
 | Schulze | `schulze` | Condorcet beatpath ranking (winning votes) | OpenSTV on 500 elections, every pairwise figure and strongest path; pref_voting on 500 with tied rankings; Wikipedia's example, a Debian vote's published tally |
 | Borda | `borda` | Positional scoring: classic, or Dowdall (Nauru) via `--borda-scoring`; tied ranks share their positions' points | Nauru 2019, two constituencies; OpenSTV on 500 elections, every score; pref_voting on 500 with tied rankings |
 
@@ -196,12 +196,14 @@ its name, `hare-clark-qpq` is classic STV, unrelated to the QPQ method.
 | `--minimum-preferences` | Minimum preferences for a ballot to count — see [above](#tied-rankings-and-short-ballots). |
 | `--precision` | Decimal places a `meek`/`warren` count works to; default 9 (droop's default). Changes the count itself, not just the report. An electorate too large for the chosen precision (about 4.6 billion votes at 9 places, 4.6 million at 12) is refused, naming the highest precision that fits; past about 4.6 × 10^17 votes (the limit at 1 place), none does. |
 | `--borda-scoring` | `classic\|dowdall` for `--method borda`; default `classic`. |
+| `--given-list` | Comma-separated names, for `--method schulze-proportional`: they take the first places in that order, and each of those places still reports its comparisons and the method's own potential winners, so a list chosen otherwise (a party's, another program's) can be checked place by place. The method fills the places after them. |
 
 Every flag overrides the config file or ruleset, field by field. A flag the chosen method has
 no use for is refused with the reason, rather than silently ignored — e.g. `--quota` for
 `meek`, `warren`, `cambridge` or `qpq` (the method fixes its own), `--tiebreak` for `cpo-stv`,
 every STV option, `--seats` and `--ruleset` for `schulze`/`borda`, everything but `--seats`
-for `schulze-stv`, and everything for `schulze-proportional`. A config file may still
+for `schulze-stv`, and everything but `--given-list` for `schulze-proportional` (which no
+other method takes). A config file may still
 carry fields a method doesn't use.
 
 ### Config file
@@ -268,7 +270,8 @@ java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar --port 9000 --bin
 - `POST /api/count`: JSON with the ballot file's text (`ballots`, BLT or CSV, `format` taken from
   the text when left out), `reportFormat` (text by default) and any of the command line's options,
   named in camel case (`method`, `ruleset`, `seats`, `quota`, `transfer`, `rounding`, `tiebreak`,
-  `tiedRankings`, `minimumPreferences`, `precision`, `bordaScoring`). The answer is the report, in
+  `tiedRankings`, `minimumPreferences`, `precision`, `bordaScoring`, and `givenList`, a JSON
+  array of names). The answer is the report, in
   its own content type; a warning (exact STV's on growing figures) comes in `X-Count-Warning`.
   A count the library refuses is a 400 with `{"error": ...}`, the command line's message with
   options named as the request names them.
@@ -326,8 +329,9 @@ each format:
   single-winner ranking that chose between them; JSON and CSV add every support `N[committee;
   outsider]`, HTML a support table when there are at most 200.
 - **Schulze proportional ranking**: the list, and for any place with several potential winners,
-  those and the single-winner ranking that chose; JSON and CSV add every comparison `H[b][c] =
-  N[the list so far + b; c]` behind every place.
+  those and the single-winner ranking that chose; a place `--given-list` filled is marked given,
+  with the method's own potential winners where they aren't just that candidate. JSON and CSV
+  add every comparison `H[b][c] = N[the list so far + b; c]` behind every place.
 - **Borda**: every candidate's score and place.
 
 Informal ballots are reported with their reasons — a leading line in text and HTML, an

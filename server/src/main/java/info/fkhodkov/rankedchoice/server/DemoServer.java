@@ -67,7 +67,7 @@ public final class DemoServer {
         return entry;
     }).toList();
     private static final List<String> OPTIONS = List.of("seats", "ruleset", "quota", "transfer", "rounding",
-            "tiebreak", "tiedRankings", "minimumPreferences", "precision", "bordaScoring");
+            "tiebreak", "tiedRankings", "minimumPreferences", "precision", "bordaScoring", "givenList");
     private static final Pattern FLAG = Pattern.compile("--([a-z]+(?:-[a-z]+)*)");
     private static final Pattern STATIC_PATH = Pattern.compile("/(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_-]+\\.[a-z]+");
 
@@ -311,7 +311,7 @@ public final class DemoServer {
     private static String countByTheLibrary(CountRequest request, ReportFormat format, List<String> warnings) {
         Tabulator tabulator = Tabulator.of(new CountOptions(request.method(), request.ruleset(), request.seats(),
                 request.quota(), request.transfer(), request.rounding(), request.tiebreak(), request.tiedRankings(),
-                request.minimumPreferences(), request.precision(), request.bordaScoring()), null);
+                request.minimumPreferences(), request.precision(), request.bordaScoring(), request.givenList()), null);
         Election election = Election.parse(request.ballots(), request.format());
         return tabulator.count(election, warning -> {
             synchronized (warnings) {

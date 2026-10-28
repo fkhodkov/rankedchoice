@@ -93,31 +93,37 @@ public final class Tabulator {
     private static final Map<String, Map<String, String>> UNUSED_OPTIONS = Map.of(
             "stv", Map.of(
                     "--precision", "only meek and warren use it",
-                    "--borda-scoring", "only borda uses it"),
+                    "--borda-scoring", "only borda uses it",
+                    "--given-list", "only schulze-proportional uses it"),
             "meek", Map.of(
                     "--quota", "the method fixes its own quota",
                     "--transfer", "the method fixes its own transfers",
-                    "--borda-scoring", "only borda uses it"),
+                    "--borda-scoring", "only borda uses it",
+                    "--given-list", "only schulze-proportional uses it"),
             "warren", Map.of(
                     "--quota", "the method fixes its own quota",
                     "--transfer", "the method fixes its own transfers",
-                    "--borda-scoring", "only borda uses it"),
+                    "--borda-scoring", "only borda uses it",
+                    "--given-list", "only schulze-proportional uses it"),
             "cambridge", Map.of(
                     "--quota", "the method fixes its own quota",
                     "--transfer", "the method moves whole ballots by the Cincinnati method",
                     "--rounding", "it counts whole ballots, so there's nothing to round",
                     "--precision", "only meek and warren use it",
-                    "--borda-scoring", "only borda uses it"),
+                    "--borda-scoring", "only borda uses it",
+                    "--given-list", "only schulze-proportional uses it"),
             "qpq", Map.of(
                     "--quota", "its quota is a formula recalculated every stage",
                     "--transfer", "votes are never transferred, only credited",
                     "--rounding", "every quotient is exact",
                     "--precision", "only meek and warren use it",
-                    "--borda-scoring", "only borda uses it"),
+                    "--borda-scoring", "only borda uses it",
+                    "--given-list", "only schulze-proportional uses it"),
             "cpo-stv", Map.of(
                     "--tiebreak", "it compares whole committees, with no candidate-by-candidate decisions",
                     "--precision", "only meek and warren use it",
-                    "--borda-scoring", "only borda uses it"),
+                    "--borda-scoring", "only borda uses it",
+                    "--given-list", "only schulze-proportional uses it"),
             "schulze-stv", Map.of(
                     "--ruleset", "rulesets set STV rules",
                     "--quota", "it has no quota: committees are compared by their support",
@@ -127,7 +133,8 @@ public final class Tabulator {
                     "--precision", "only meek and warren use it",
                     "--tied-rankings", "it counts tied rankings natively, by proportional completion",
                     "--minimum-preferences", "it counts every ballot, completing what's unranked",
-                    "--borda-scoring", "only borda uses it"),
+                    "--borda-scoring", "only borda uses it",
+                    "--given-list", "only schulze-proportional uses it"),
             "schulze-proportional", Map.of(
                     "--seats", "it ranks every candidate rather than filling seats",
                     "--ruleset", "rulesets set STV rules",
@@ -243,7 +250,8 @@ public final class Tabulator {
                 });
             }
             case "schulze-proportional" -> {
-                SchulzeProportionalResult result = SchulzeProportionalRanking.count(candidates, ballots);
+                SchulzeProportionalResult result = SchulzeProportionalRanking.count(candidates, ballots,
+                        givenList(candidates));
                 return new Tabulation(format -> switch (format) {
                     case CSV -> SchulzeProportionalReports.csv(result);
                     case JSON -> SchulzeProportionalReports.json(result);
@@ -342,6 +350,7 @@ public final class Tabulator {
         if (extra != null) {
             unused.put(extra, extraReason);
         }
+        unused.put("--given-list", "only schulze-proportional uses it");
         return unused;
     }
 
@@ -361,12 +370,30 @@ public final class Tabulator {
         given.put("--minimum-preferences", options.minimumPreferences());
         given.put("--precision", options.precision());
         given.put("--borda-scoring", options.bordaScoring());
+        given.put("--given-list", options.givenList());
         for (Map.Entry<String, Object> option : given.entrySet()) {
             if (option.getValue() != null && unused.containsKey(option.getKey())) {
                 throw new IllegalArgumentException(option.getKey() + " doesn't apply to --method " + method
                         + ": " + unused.get(option.getKey()));
             }
         }
+    }
+
+    /** The candidates {@code --given-list} names, in its order. */
+    private List<Candidate> givenList(List<Candidate> candidates) {
+        if (options.givenList() == null) {
+            return List.of();
+        }
+        List<String> names = options.givenList();
+        for (int i = 0; i < names.size(); i++) {
+            if (names.subList(0, i).contains(names.get(i))) {
+                throw new IllegalArgumentException("--given-list names " + names.get(i) + " twice");
+            }
+        }
+        return names.stream().map(name -> candidates.stream()
+                .filter(candidate -> candidate.name().equals(name)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("--given-list names " + name
+                        + ", who isn't a candidate"))).toList();
     }
 
     private static BordaScoringRule parseBordaScoring(String value) {

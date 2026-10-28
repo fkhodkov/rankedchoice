@@ -20,7 +20,7 @@ class TabulatorTest {
             Path.of("src/test/resources/testdata/wikipedia/wikipedia-andrea-brad-carter-delilah.blt");
 
     private static CountOptions method(String method) {
-        return new CountOptions(method, null, null, null, null, null, null, null, null, null, null);
+        return new CountOptions(method, null, null, null, null, null, null, null, null, null, null, null);
     }
 
     @Test
@@ -38,7 +38,8 @@ class TabulatorTest {
 
     @Test
     void optionsOverrideTheRulesetTheyName() {
-        CountOptions options = new CountOptions(null, "scottish", 1, "hare", null, null, null, null, null, null, null);
+        CountOptions options = new CountOptions(null, "scottish", 1, "hare", null, null, null, null, null, null, null,
+                null);
         Tabulator tabulator = Tabulator.of(options, null);
 
         assertThat(tabulator.config().transfer()).isEqualTo("wigm");
@@ -55,14 +56,15 @@ class TabulatorTest {
             assertThat(json).as(method).contains("Andrea");
         }
         // Cambridge STV needs 50 ballots a seat, and the 57 here fill one.
-        CountOptions cambridge = new CountOptions("cambridge", null, 1, null, null, null, null, null, null, null, null);
+        CountOptions cambridge = new CountOptions("cambridge", null, 1, null, null, null, null, null, null, null, null,
+                null);
         assertThat(Tabulator.of(cambridge, null).count(election, warning -> { }).report(ReportFormat.JSON))
                 .contains("Andrea");
     }
 
     @Test
     void refusesAnOptionTheMethodWouldIgnore() {
-        CountOptions seats = new CountOptions("schulze", null, 2, null, null, null, null, null, null, null, null);
+        CountOptions seats = new CountOptions("schulze", null, 2, null, null, null, null, null, null, null, null, null);
 
         assertThatThrownBy(() -> Tabulator.of(seats, null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -71,8 +73,39 @@ class TabulatorTest {
     }
 
     @Test
+    void aGivenListTakesTheFirstPlacesOfTheProportionalRanking() {
+        Election election = Election.read(WIKIPEDIA, null);
+        CountOptions options = new CountOptions("schulze-proportional", null, null, null, null, null, null, null,
+                null, null, null, List.of("Delilah", "Carter"));
+
+        Tabulation tabulation = Tabulator.of(options, null).count(election, warning -> { });
+
+        assertThat(tabulation.report(ReportFormat.JSON)).contains("\"ranking\" : [ \"Delilah\", \"Carter\"");
+        assertThat(tabulation.report(ReportFormat.TEXT))
+                .contains("1. Delilah  (given; potential winners: Andrea)");
+    }
+
+    @Test
+    void aGivenListMustNameCandidatesOnceAndOnlyForTheProportionalRanking() {
+        Election election = Election.read(WIKIPEDIA, null);
+        CountOptions stv = new CountOptions(null, null, null, null, null, null, null, null, null, null, null,
+                List.of("Andrea"));
+        assertThatThrownBy(() -> Tabulator.of(stv, null))
+                .hasMessage("--given-list doesn't apply to --method stv: only schulze-proportional uses it");
+        for (List<String> list : List.of(List.of("Andrea", "Zed"), List.of("Brad", "Brad"))) {
+            CountOptions options = new CountOptions("schulze-proportional", null, null, null, null, null, null, null,
+                    null, null, null, list);
+            assertThatThrownBy(() -> Tabulator.of(options, null).count(election, warning -> { }))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(list.get(1).equals("Zed") ? "--given-list names Zed, who isn't a candidate"
+                            : "--given-list names Brad twice");
+        }
+    }
+
+    @Test
     void anUnknownRulesetListsTheBundledOnes() {
-        CountOptions options = new CountOptions(null, "nope", null, null, null, null, null, null, null, null, null);
+        CountOptions options = new CountOptions(null, "nope", null, null, null, null, null, null, null, null, null,
+                null);
 
         assertThatThrownBy(() -> Tabulator.of(options, null))
                 .isInstanceOf(IllegalArgumentException.class)

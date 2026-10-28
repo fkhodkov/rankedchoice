@@ -14,7 +14,9 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
  * candidates still unplaced (empty for the last place, which goes to whoever's left), and
  * {@code potentialWinners} those the single-winner Schulze method on H left unbeaten; with
  * more than one, {@code tieBreakRanking}, the single-winner Schulze ranking of all the
- * candidates, chose among them.
+ * candidates, chose among them. A place {@code given} went to a candidate the count was given
+ * (see {@link SchulzeProportionalRanking#count(List, List, List)}), among the potential winners
+ * or not.
  */
 public record SchulzeProportionalResult(
         List<Candidate> ranking,
@@ -23,6 +25,6 @@ public record SchulzeProportionalResult(
 ) {
     /** How place {@code place} (1-based) went to {@code candidate}. */
     public record Place(int place, Candidate candidate, Map<Candidate, Map<Candidate, Fraction>> comparisons,
-            List<Candidate> potentialWinners) {
+            List<Candidate> potentialWinners, boolean given) {
     }
 }

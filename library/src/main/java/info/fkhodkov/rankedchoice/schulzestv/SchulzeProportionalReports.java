@@ -13,7 +13,8 @@ import info.fkhodkov.rankedchoice.core.util.Fraction;
  * Renders a {@link SchulzeProportionalResult} as text, JSON, CSV or HTML. Text and HTML give the
  * list, and for any place with several potential winners, those and the tie-break; JSON and CSV
  * also give every comparison H[b][c] behind every place, in decimal (see {@link
- * Fraction#toDecimalString()}), since they're meant for other programs.
+ * Fraction#toDecimalString()}), since they're meant for other programs. A place given to the
+ * count is marked so, with the method's own potential winners where it isn't simply theirs.
  */
 public final class SchulzeProportionalReports {
 
@@ -23,7 +24,8 @@ public final class SchulzeProportionalReports {
     public record Comparison(String candidate, String against, String support) {
     }
 
-    public record Place(int place, String candidate, List<String> potentialWinners, List<Comparison> comparisons) {
+    public record Place(int place, String candidate, boolean given, List<String> potentialWinners,
+            List<Comparison> comparisons) {
     }
 
     public record Report(List<String> ranking, List<Place> places, List<List<String>> tieBreakRanking) {
@@ -40,7 +42,7 @@ public final class SchulzeProportionalReports {
                             cell.getValue().toDecimalString()));
                 }
             }
-            places.add(new Place(place.place(), place.candidate().name(),
+            places.add(new Place(place.place(), place.candidate().name(), place.given(),
                     place.potentialWinners().stream().map(Candidate::name).toList(), comparisons));
         }
         return new Report(result.ranking().stream().map(Candidate::name).toList(), places,
@@ -53,7 +55,9 @@ public final class SchulzeProportionalReports {
         boolean tieBroken = false;
         for (SchulzeProportionalResult.Place place : result.places()) {
             text.append(String.format("%3d. %s", place.place(), place.candidate().name()));
-            if (place.potentialWinners().size() > 1) {
+            if (place.given()) {
+                text.append("  (").append(given(place)).append(')');
+            } else if (place.potentialWinners().size() > 1) {
                 tieBroken = true;
                 text.append("  (tie-break among ").append(names(place.potentialWinners())).append(')');
             }
@@ -72,19 +76,24 @@ public final class SchulzeProportionalReports {
 
     /** One row per comparison, place by place, then one row per place with who took it. */
     public static String csv(SchulzeProportionalResult result) {
-        StringBuilder csv = new StringBuilder("place,candidate,against,support,placed,potential_winner\n");
+        StringBuilder csv = new StringBuilder("place,candidate,against,support,placed,potential_winner,given\n");
         Report report = toReport(result);
         for (Place place : report.places()) {
             for (Comparison comparison : place.comparisons()) {
                 csv.append(place.place()).append(',').append(ReportMarkup.csvField(comparison.candidate()))
                         .append(',').append(ReportMarkup.csvField(comparison.against())).append(',')
-                        .append(comparison.support()).append(",,\n");
+                        .append(comparison.support()).append(",,,\n");
             }
         }
         for (Place place : report.places()) {
             for (String candidate : place.potentialWinners()) {
                 csv.append(place.place()).append(',').append(ReportMarkup.csvField(candidate)).append(",,,")
-                        .append(candidate.equals(place.candidate())).append(",true\n");
+                        .append(candidate.equals(place.candidate())).append(",true,")
+                        .append(place.given() && candidate.equals(place.candidate())).append('\n');
+            }
+            if (!place.potentialWinners().contains(place.candidate())) {
+                csv.append(place.place()).append(',').append(ReportMarkup.csvField(place.candidate()))
+                        .append(",,,true,false,").append(place.given()).append('\n');
             }
         }
         return csv.toString();
@@ -95,7 +104,9 @@ public final class SchulzeProportionalReports {
         boolean tieBroken = false;
         for (SchulzeProportionalResult.Place place : result.places()) {
             body.append("<li>").append(ReportMarkup.escapeHtml(place.candidate().name()));
-            if (place.potentialWinners().size() > 1) {
+            if (place.given()) {
+                body.append(" (").append(ReportMarkup.escapeHtml(given(place))).append(')');
+            } else if (place.potentialWinners().size() > 1) {
                 tieBroken = true;
                 body.append(" (tie-break among ")
                         .append(ReportMarkup.escapeHtml(names(place.potentialWinners()))).append(')');
@@ -125,6 +136,12 @@ public final class SchulzeProportionalReports {
                     .append('\n');
             at += group.size();
         }
+    }
+
+    /** "given", and the method's potential winners where they're not just the given candidate. */
+    private static String given(SchulzeProportionalResult.Place place) {
+        return place.potentialWinners().equals(List.of(place.candidate())) ? "given"
+                : "given; potential winners: " + names(place.potentialWinners());
     }
 
     private static String names(List<Candidate> candidates) {

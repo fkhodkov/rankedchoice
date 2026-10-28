@@ -1,5 +1,7 @@
 package info.fkhodkov.rankedchoice.count;
 
+import java.util.List;
+
 /**
  * The options of a count, each null where it isn't given. They're named, in errors, by the command
  * line's flags ({@code --quota} and so on). A given option overrides the config or ruleset's.
@@ -16,6 +18,8 @@ package info.fkhodkov.rankedchoice.count;
  * @param minimumPreferences as {@code --minimum-preferences}
  * @param precision    as {@code --precision} (meek and warren)
  * @param bordaScoring classic or dowdall (borda)
+ * @param givenList    the candidates, by name, who take the first places in order, each place's
+ *                     comparisons still reported (schulze-proportional)
  */
 public record CountOptions(
         String method,
@@ -28,10 +32,11 @@ public record CountOptions(
         String tiedRankings,
         Integer minimumPreferences,
         Integer precision,
-        String bordaScoring
+        String bordaScoring,
+        List<String> givenList
 ) {
 
     /** No options: an stv count by the defaults. */
     public static final CountOptions NONE =
-            new CountOptions(null, null, null, null, null, null, null, null, null, null, null);
+            new CountOptions(null, null, null, null, null, null, null, null, null, null, null, null);
 }

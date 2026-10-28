@@ -288,6 +288,19 @@ class MainTest {
                 .contains("Schulze proportional ranking:").contains("  1. X");
     }
 
+    @Test
+    void givenListTakesTheFirstPlacesAndShowsTheMethodsOwnChoice() throws Exception {
+        Path bltFile = tempDir.resolve("election.blt");
+        Files.writeString(bltFile, BLT);
+
+        int exitCode = new CommandLine(new Main()).execute("--input", bltFile.toString(), "--method",
+                "schulze-proportional", "--given-list", "Z,Y");
+
+        assertThat(exitCode).isZero();
+        assertThat(capturedOut.toString(StandardCharsets.UTF_8))
+                .contains("  1. Z  (given; potential winners: X)").contains("  2. Y  (given").contains("  3. X\n");
+    }
+
     /** 11 votes, 1 seat: Meek's quota is 11/2 rounded down at the count's precision, plus one step. */
     @ParameterizedTest
     @CsvSource({"meek, 3, 5.501", "warren, 6, 5.500001"})

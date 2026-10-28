@@ -71,6 +71,34 @@ class SchulzeProportionalTideman53FixtureTest {
         assertThat(checked).isEqualTo(330);
     }
 
+    /**
+     * Given the paper's list, every place is marked given and holds the same comparisons and
+     * potential winners; given another first place, that candidate takes it, the method's own
+     * potential winner is still reported, and the method fills the rest.
+     */
+    @Test
+    void aGivenListKeepsEveryPlacesComparisons() throws IOException {
+        ParsedElection election = BltParser.parse(DIRECTORY.resolve("tideman-a53.blt"));
+        SchulzeProportionalResult plain = SchulzeProportionalRanking.count(election.candidates(), election.ballots());
+
+        SchulzeProportionalResult followed = SchulzeProportionalRanking.count(election.candidates(),
+                election.ballots(), plain.ranking());
+        assertThat(followed.ranking()).isEqualTo(plain.ranking());
+        for (int k = 0; k < plain.places().size(); k++) {
+            SchulzeProportionalResult.Place place = followed.places().get(k);
+            assertThat(place.given()).isTrue();
+            assertThat(place.comparisons()).isEqualTo(plain.places().get(k).comparisons());
+            assertThat(place.potentialWinners()).isEqualTo(plain.places().get(k).potentialWinners());
+        }
+
+        SchulzeProportionalResult otherFirst = SchulzeProportionalRanking.count(election.candidates(),
+                election.ballots(), List.of(named(election, "H")));
+        assertThat(otherFirst.ranking().getFirst().name()).isEqualTo("H");
+        assertThat(otherFirst.places().getFirst().potentialWinners()).extracting(Candidate::name).containsExactly("J");
+        assertThat(otherFirst.places().getFirst().comparisons()).isEqualTo(plain.places().getFirst().comparisons());
+        assertThat(otherFirst.places().get(1).given()).isFalse();
+    }
+
     private static Candidate named(ParsedElection election, String name) {
         return election.candidates().stream().filter(candidate -> candidate.name().equals(name)).findFirst()
                 .orElseThrow();

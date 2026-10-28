@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
@@ -54,6 +55,12 @@ public final class Main implements Callable<Integer> {
     @Option(names = {"--borda-scoring"}, description = "classic|dowdall. Only applies to --method borda; "
             + "defaults to classic. 'dowdall' is the Nauru system (1, 1/2, 1/3, ...).")
     private String bordaScoring;
+
+    @Option(names = {"--given-list"}, split = ",", paramLabel = "NAME[,NAME...]",
+            description = "Only applies to --method schulze-proportional: these candidates take the first "
+            + "places, in this order, each place still showing its comparisons and the method's own potential "
+            + "winners, so a list chosen otherwise can be checked place by place. The method fills the rest.")
+    private List<String> givenList;
 
     @Option(names = {"-f", "--format"},
             description = "Input format: blt or csv. Inferred from the file extension if omitted.")
@@ -162,7 +169,7 @@ public final class Main implements Callable<Integer> {
     private String runCount() {
         ElectionConfig fileConfig = loadFileConfig();
         Tabulator tabulator = Tabulator.of(new CountOptions(method, rulesetName, seats, quota, transfer, rounding,
-                tiebreak, tiedRankings, minimumPreferences, precision, bordaScoring), fileConfig);
+                tiebreak, tiedRankings, minimumPreferences, precision, bordaScoring, givenList), fileConfig);
         ReportFormat reportAs = resolveReportFormat(tabulator.config());
         requireFile(input, "input file");
         Election election = Election.read(input, firstNonNull(format, tabulator.config().format()));

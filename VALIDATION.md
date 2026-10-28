@@ -1095,6 +1095,56 @@ for Tideman's 66 elections and four Pirate Party list conventions: for each plac
 H to 6 decimals, then who took it.
 
 - **Every comparison.** H depends only on who's already placed, so wherever the two lists agree
+  on the places so far, every value of H can be compared; where they part, the election is
+  counted again with his list given (`--given-list`), which works out each place's H for his list
+  so far, and the rest are compared too. All 170,378 comparisons he prints match, to the 6
+  decimals they're given in: Tideman's 66 elections 46,500, and the three Pirate conventions,
+  Berlin 2011 (29 candidates, 106 ballots) 8,120, Berlin 2013 (46, 303) 32,430 and Sweden 2014
+  (63, 220) 83,328. Before the lists could be followed, only the 80,760 up to where they part
+  were checked.
+- **The paper's worked example**, A53 (section 8.2): every support, and the winning committee {a,
+  d, g, j} (`SchulzeStvTideman53FixtureTest`, which checks all 1,260 supports from the published
+  file).
+- **Winners.** The count follows the paper (arXiv:1804.02973, section 8.1.3). The 2017 program
+  differs from it in two places, so it isn't a reference for every winner: it compares links by
+  how a candidate ranks within its contest rather than by margin, and its Stage 4 tie-break
+  uses an older single-winner ranking ("TBRL"). The committees agree on 63 of the 65 elections.
+  On A04 the link definitions disagree. On A34, five committees go unbeaten and the two
+  single-winner rankings break the tie differently. An independent count written from the paper alone
+  (`tools/reference/schulze_stv/schulze_stv.py`) agrees with this one on every election with
+  at most 500 committees (58, including A04 and A34): all 48,233 supports, the potential
+  winners and the winners. Five of the elections need Stage 4.
+- **Hand-derived cases** (`SchulzeStvCounterTest`): the closed form; two opposed factions
+  winning a seat each rather than the compromise candidate; the paper's own proportional
+  completion example (56/44); completion with nobody to copy, where every order of the tied
+  candidates is equally likely (a deliberately wrong equal split over above/below patterns
+  fails it); and a Stage 4 tie-break.
+
+`tools/reference/schulze_stv` reruns all of this: the conversion, the comparison with the
+published supports and with Schulze's program (with the one fix it needs to build), and the
+independent count.
+
+Two conventions had to be settled from the program, not the paper. Completion is done per
+contest, over its M+1 candidates only. In the database's letter format, a candidate named twice
+on a ballot ties everyone ranked since their first mention with them. Reading those ballots any
+other way changes the supports of the 7 elections that have them.
+
+Ballots are grouped in `long` counts when the total fits, and in `BigInteger` counts when it
+doesn't, which no real election reaches. `ScaledCountsTest` counts 100 random elections (3,845
+supports) and 100 proportional rankings both as they are and with every count ×10¹⁹. It
+requires the same committees, winners and lists, and every support and comparison exactly 10¹⁹
+times the original. A fault planted in either grouping makes it fail.
+
+## Schulze proportional ranking
+
+The Schulze proportional ranking (`schulze-proportional`, section 9.1 of the paper) builds a
+party list place by place: with a1..a(k-1) placed, each remaining b and c are compared by H[b,c]
+= N[{a1..a(k-1), b}; c], Schulze STV's support, and the single-winner Schulze method on H fills
+place k. Schulze's archive has his program for it (`singl04g.cpp`) and its output (`*_list.dat`)
+for Tideman's 66 elections and four Pirate Party list conventions: for each place, the whole of
+H to 6 decimals, then who took it.
+
+- **Every comparison.** H depends only on who's already placed, so wherever the two lists agree
   on the places so far, every value of H can be compared. In Tideman's 66 elections, all 36,142
   comparisons published for those places match, to the 6 decimals they're given in; so do those
   of the three Pirate conventions: Berlin 2011 (29 candidates, 106 ballots) 2,920, Berlin 2013
@@ -1136,11 +1186,11 @@ H to 6 decimals, then who took it.
   within about 10^-11 without being equal. On 600 random contests of up to 12 candidates, short
   ballots and ties of every kind included, every one of over 3,500 supports is the closed
   form's (`MinimumNormSupportTest`), and so are all 510 of A13's, A23's and Berlin 2011's at 21
-  to 25 seats; past 25 seats, Schulze's printed H (the point above) is the check. It replaced a
-  minimum cut over the completion listed out, which ran past its cap of 4 million sets on short
-  ballots, and the closed form's 512 MB tables that took over at 21 to 25 seats: A13 now takes
-  under 4 s, where it took 2 minutes, and A23 and the two larger Pirate conventions, refused
-  before, take 9 s, 2 minutes and 5 minutes.
+  to 25 seats; past 25 seats, Schulze's printed H ("Every comparison", above) is the check. It
+  replaced a minimum cut over the completion listed out, which ran past its cap of 4 million
+  sets on short ballots, and the closed form's 512 MB tables that took over at 21 to 25 seats:
+  A13 now takes under 4 s, where it took 2 minutes, and A23 and the two larger Pirate
+  conventions, refused before, take 9 s, 2 minutes and 5 minutes.
 - **Completion without listing it out.** The paper defines proportional completion as a chain:
   a voter level with g on T takes a donor's view of T, in proportion to the donors' votes, then
   is completed in turn for what that donor leaves level. Whether the members of a set R all end

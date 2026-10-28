@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -130,6 +131,20 @@ class DemoServerTest {
         assertThat(html.body()).startsWith("<!DOCTYPE html>").contains("20.00000");
         assertThat(html.headers().firstValue("Content-Security-Policy")).hasValueSatisfying(
                 policy -> assertThat(policy).startsWith("default-src 'none'"));
+    }
+
+    @Test
+    void takesAGivenListAsAListOfNames() throws Exception {
+        start(Limits.DEFAULT);
+
+        HttpResponse<String> response = count(Map.of("ballots", WIKIPEDIA, "method", "schulze-proportional",
+                "givenList", List.of("Delilah", "Carter")));
+        HttpResponse<String> refused = count(Map.of("ballots", WIKIPEDIA, "givenList", List.of("Delilah")));
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(response.body()).contains("1. Delilah  (given; potential winners: Andrea)");
+        assertThat(error(refused)).isEqualTo("givenList doesn't apply to method stv: only schulze-proportional "
+                + "uses it");
     }
 
     @Test
