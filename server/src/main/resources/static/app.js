@@ -362,7 +362,7 @@ async function count() {
     $("report").srcdoc = "";
     $("downloads").hidden = true;
     $("placeholder").hidden = false;
-    showError(e.message, fieldOf(e.message));
+    showError(asLabelled(e.message), fieldOf(e.message));
     $("status").textContent = "Not counted.";
   } finally {
     button.disabled = false;
@@ -382,7 +382,7 @@ async function download(format) {
     link.click();
     URL.revokeObjectURL(link.href);
   } catch (e) {
-    showError(e.message);
+    showError(asLabelled(e.message));
   }
 }
 
@@ -408,6 +408,16 @@ function fieldOf(message) {
   }
   const known = VALUE_ERRORS.find(([pattern]) => pattern.test(text));
   return known ? `option-${known[1]}` : null;
+}
+
+/**
+ * A server message in the form's words: an option named as the request does ("givenList doesn't apply…")
+ * by its field's label ("Given list doesn't apply…"), and the first letter a capital.
+ */
+function asLabelled(message) {
+  const text = (message || "").replace(/\b[A-Za-z]+\b/g, (word) => (Object.hasOwn(OPTIONS, word)
+    ? OPTIONS[word].label.toLowerCase() : word));
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function showError(message, fieldId) {

@@ -239,8 +239,9 @@ examples, choose a method (the page shows only the options that method takes, fr
 blank field visibly means the ruleset's, and lists in words the rules it sets that have no field
 (batch exclusion, surplus order and the like). The HTML report shows in a frame that can't run
 scripts, and the text, CSV, JSON and HTML reports download from there; a refused count's message
-shows under the field it's about. It's plain HTML, CSS and JavaScript
-(`server/src/main/resources/static/`), with no build step and nothing fetched from elsewhere.
+shows under the field it's about, naming options by their labels ("Given list" where the API says
+`givenList`). It's plain HTML, CSS and JavaScript (`server/src/main/resources/static/`), with no
+build step and nothing fetched from elsewhere.
 
 The examples cover every method, and every bundled ruleset but `hare-clark-qpq` (Tasmania
 publishes no ballots) and `ers76` (`ers97`'s settings). Twelve are real elections: Orkney 2022's
