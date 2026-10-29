@@ -14,6 +14,7 @@ import java.util.function.Consumer;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.rounding.TruncateDecimal;
@@ -168,6 +169,7 @@ public final class StvCounter {
 
         boolean watchExactGrowth = ruleset.roundingRule() instanceof Exact;
         while (elected.size() < seats) {
+            Interruption.check();
             roundNumber++;
             int remainingSeats = seats - elected.size();
             if (watchExactGrowth) {
@@ -283,6 +285,7 @@ public final class StvCounter {
                     List<Candidate> queue = new ArrayList<>(electedThisStage);
                     boolean firstOfStage = true;
                     while (!queue.isEmpty()) {
+                        Interruption.check();
                         Candidate candidate = queue.removeFirst();
                         Fraction candidateVotes = frozenVotes.get(candidate);
                         if (ruleset.electSureWinners() && elected.size() < seats) {
@@ -568,6 +571,7 @@ public final class StvCounter {
                         .thenComparing(ExclusionGroup::value, Comparator.reverseOrder());
         Map<ExclusionGroup, List<BallotState>> groups = new TreeMap<>(groupOrder);
         for (BallotState state : states) {
+            Interruption.check();
             if (!Collections.disjoint(state.holders, excluded)) {
                 ExclusionGroup key = switch (order) {
                     case VALUE -> new ExclusionGroup(false, state.value, 0);
@@ -746,6 +750,7 @@ public final class StvCounter {
     private static Map<Candidate, Fraction> reachableVotes(List<BallotState> states, Set<Candidate> continuing) {
         Map<Candidate, Fraction> reachable = new java.util.HashMap<>();
         for (BallotState state : states) {
+            Interruption.check();
             if (state.holders.isEmpty()) {
                 continue;
             }
@@ -958,6 +963,7 @@ public final class StvCounter {
             running.perStepRounding = perStepRounding;
             Map<Set<Candidate>, Map<Fraction, BigInteger>> ballotsByHoldersAndValue = new LinkedHashMap<>();
             for (BallotState state : states) {
+                Interruption.check();
                 ballotsByHoldersAndValue.computeIfAbsent(state.holders, _ -> new LinkedHashMap<>())
                         .merge(state.value, state.ballot.count(), BigInteger::add);
             }
@@ -1083,6 +1089,7 @@ public final class StvCounter {
     private static int largestDenominatorBits(List<BallotState> states) {
         int largest = 0;
         for (BallotState state : states) {
+            Interruption.check();
             largest = Math.max(largest, state.value.denominator().bitLength());
         }
         return largest;
@@ -1117,6 +1124,7 @@ public final class StvCounter {
             Set<Candidate> continuing, ParcelIds parcelIds) {
         Map<ParcelKey, BigInteger> votesByKey = new LinkedHashMap<>();
         for (BallotState state : states) {
+            Interruption.check();
             if (state.holders.contains(from)) {
                 Fraction share = shareOf(state, from);
                 boolean hasNextPreference = hasNextContinuingPreference(state, continuing);
@@ -1145,6 +1153,7 @@ public final class StvCounter {
         Map<ParcelKey, Integer> newIdBySource = new LinkedHashMap<>();
         int sharedId = perParcel ? -1 : parcelIds.next();
         for (BallotState state : bySourceParcel(states, from, perParcel)) {
+            Interruption.check();
             Fraction share = shareOf(state, from);
             boolean hasNextPreference = hasNextContinuingPreference(state, continuing);
             Integer id = idByKey.get(new ParcelKey(state.parcelId, share, hasNextPreference));
@@ -1225,6 +1234,7 @@ public final class StvCounter {
         Map<ParcelKey, Integer> newIdBySource = new LinkedHashMap<>();
         int sharedId = perParcel ? -1 : parcelIds.next();
         for (BallotState state : bySourceParcel(states, from, perParcel)) {
+            Interruption.check();
             int id = sharedId;
             if (perParcel) {
                 // Rounded per parcel: each parcel moves as its own step, to its own new parcel.
@@ -1253,6 +1263,7 @@ public final class StvCounter {
         }
         Map<ParcelKey, List<BallotState>> byParcel = new LinkedHashMap<>();
         for (BallotState state : held) {
+            Interruption.check();
             byParcel.computeIfAbsent(new ParcelKey(state.parcelId, shareOf(state, from), true),
                     _ -> new ArrayList<>()).add(state);
         }

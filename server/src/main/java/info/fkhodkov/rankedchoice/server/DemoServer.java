@@ -109,7 +109,7 @@ public final class DemoServer {
         return http.getAddress().getPort();
     }
 
-    /** Stops answering; a count under way is left to end on its own. */
+    /** Stops answering, and interrupts every count under way. */
     public void stop() {
         http.stop(0);
         counts.shutdownNow();

@@ -13,6 +13,7 @@ import java.util.stream.IntStream;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 
@@ -87,18 +88,25 @@ public final class SchulzeStvCounter {
         // supports[s][k]: N[contest s without its k-th member; that member]. Contests are
         // independent and every figure is exact, so they're computed in parallel.
         Fraction[][] supports;
+        Interruption.Watch watch = Interruption.watch();
         if (ContestReductions.applies(seats + 1, indexed)) {
             Fraction[][] built = new Fraction[contests.size()][];
-            ContestReductions.forEach(n, seats + 1, indexed,
-                    (contest, reduced) -> built[binomials.rank(contest)] = contestSupports(reduced, seats));
+            ContestReductions.forEach(n, seats + 1, indexed, watch, (contest, reduced) -> {
+                watch.check();
+                built[binomials.rank(contest)] = contestSupports(reduced, seats);
+            });
             supports = built;
         } else {
-            supports = contests.parallelStream()
-                    .map(contest -> contestSupports(Reduced.of(contest, indexed), seats))
-                    .toArray(Fraction[][]::new);
+            supports = watch.call(() -> contests.parallelStream()
+                    .map(contest -> {
+                        try (Interruption.Piece _ = watch.enter()) {
+                            return contestSupports(Reduced.of(contest, indexed), seats);
+                        }
+                    })
+                    .toArray(Fraction[][]::new));
         }
 
-        Graph graph = Graph.of(committees, supports, n, seats, binomials);
+        Graph graph = Graph.of(committees, supports, n, seats, binomials, watch);
         int start = binomials.rank(topCommittee(candidates, ranking, seats));
         List<Integer> potential = graph.unbeaten(start);
 
@@ -951,58 +959,63 @@ public final class SchulzeStvCounter {
      */
     private record Graph(int[][] targets, int[][] margins) {
 
-        static Graph of(List<int[]> committees, Fraction[][] supports, int n, int seats, Binomials binomials) {
+        static Graph of(List<int[]> committees, Fraction[][] supports, int n, int seats, Binomials binomials,
+                Interruption.Watch watch) {
             int[][] targets = new int[committees.size()][];
             int[][] margins = new int[committees.size()][];
             // pairMargins[s][pair(i, j)], i < j: N[contest s without i; i] - N[contest s without j; j].
-            Fraction[][] pairMargins = Arrays.stream(supports).parallel().map(support -> {
-                Fraction[] pairs = new Fraction[support.length * (support.length - 1) / 2];
-                for (int i = 0; i < support.length; i++) {
-                    for (int j = i + 1; j < support.length; j++) {
-                        pairs[pair(i, j, support.length)] = support[i].subtract(support[j]);
-                    }
-                }
-                return pairs;
-            }).toArray(Fraction[][]::new);
-            int[][] pairRanks = SignedRanks.of(pairMargins);
-            IntStream.range(0, committees.size()).parallel().forEach(x -> {
-                int[] committee = committees.get(x);
-                boolean[] in = new boolean[n];
-                for (int member : committee) {
-                    in[member] = true;
-                }
-                int links = seats * (n - seats);
-                int[] to = new int[links];
-                int[] margin = new int[links];
-                int[] contest = new int[seats + 1];
-                int[] next = new int[seats];
-                int l = 0;
-                for (int c = 0; c < n; c++) {
-                    if (in[c]) {
-                        continue;
-                    }
-                    insert(committee, c, contest);
-                    int s = binomials.rank(contest);
-                    int cAt = Arrays.binarySearch(contest, c);
-                    for (int i = 0; i < seats; i++) {
-                        int b = committee[i];
-                        int bAt = Arrays.binarySearch(contest, b);
-                        // X = committee, Y = X - b + c: strength (N[X; c], N[Y; b]).
-                        remove(contest, bAt, next);
-                        int y = binomials.rank(next);
-                        if (cAt < bAt) {
-                            to[l] = y;
-                            margin[l] = pairRanks[s][pair(cAt, bAt, seats + 1)];
-                        } else {
-                            to[l] = ~y;
-                            margin[l] = pairRanks[s][pair(bAt, cAt, seats + 1)];
+            Fraction[][] pairMargins = watch.call(() -> Arrays.stream(supports).parallel().map(support -> {
+                try (Interruption.Piece _ = watch.enter()) {
+                    Fraction[] pairs = new Fraction[support.length * (support.length - 1) / 2];
+                    for (int i = 0; i < support.length; i++) {
+                        for (int j = i + 1; j < support.length; j++) {
+                            pairs[pair(i, j, support.length)] = support[i].subtract(support[j]);
                         }
-                        l++;
                     }
+                    return pairs;
                 }
-                targets[x] = to;
-                margins[x] = margin;
-            });
+            }).toArray(Fraction[][]::new));
+            int[][] pairRanks = SignedRanks.of(pairMargins);
+            watch.run(() -> IntStream.range(0, committees.size()).parallel().forEach(x -> {
+                try (Interruption.Piece _ = watch.enter()) {
+                    int[] committee = committees.get(x);
+                    boolean[] in = new boolean[n];
+                    for (int member : committee) {
+                        in[member] = true;
+                    }
+                    int links = seats * (n - seats);
+                    int[] to = new int[links];
+                    int[] margin = new int[links];
+                    int[] contest = new int[seats + 1];
+                    int[] next = new int[seats];
+                    int l = 0;
+                    for (int c = 0; c < n; c++) {
+                        if (in[c]) {
+                            continue;
+                        }
+                        insert(committee, c, contest);
+                        int s = binomials.rank(contest);
+                        int cAt = Arrays.binarySearch(contest, c);
+                        for (int i = 0; i < seats; i++) {
+                            int b = committee[i];
+                            int bAt = Arrays.binarySearch(contest, b);
+                            // X = committee, Y = X - b + c: strength (N[X; c], N[Y; b]).
+                            remove(contest, bAt, next);
+                            int y = binomials.rank(next);
+                            if (cAt < bAt) {
+                                to[l] = y;
+                                margin[l] = pairRanks[s][pair(cAt, bAt, seats + 1)];
+                            } else {
+                                to[l] = ~y;
+                                margin[l] = pairRanks[s][pair(bAt, cAt, seats + 1)];
+                            }
+                            l++;
+                        }
+                    }
+                    targets[x] = to;
+                    margins[x] = margin;
+                }
+            }));
             return new Graph(targets, margins);
         }
 
@@ -1055,6 +1068,7 @@ public final class SchulzeStvCounter {
          * links come in pairs and any committee becomes any other by swaps.
          */
         private int[] widest(int source, boolean reverse) {
+            Interruption.check();
             int[] best = new int[targets.length];
             Arrays.fill(best, Integer.MIN_VALUE); // below every margin: not reached yet
             boolean[] done = new boolean[targets.length];

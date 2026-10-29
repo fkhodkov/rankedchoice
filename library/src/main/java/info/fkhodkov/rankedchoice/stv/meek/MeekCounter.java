@@ -12,6 +12,7 @@ import java.util.stream.IntStream;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 import info.fkhodkov.rankedchoice.stv.BallotFormality;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
@@ -316,6 +317,7 @@ public final class MeekCounter {
         }
 
         private Distribution distribute() {
+            Interruption.check();
             long[] passFactors = new long[candidates.size()];
             for (int c = 0; c < candidates.size(); c++) {
                 passFactors[c] = fixed.one() - keepFactors[c];

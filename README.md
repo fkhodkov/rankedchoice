@@ -284,9 +284,10 @@ curl -X POST localhost:8080/api/count -d '{"ballots": "2 1\n3 1 2 0\n2 2 0\n0\n\
 A public demo can't let one request take the machine, so the server reads at most 5 MB a
 request (413 past that), runs at most half the processors' worth of counts at once (503 while
 every place is taken), and waits 30 seconds for each (504); `--max-request-mb`, `--max-counts` and
-`--timeout-seconds` change them. A count can't be stopped partway, so one past its time still runs
-to its end, holding its place; the cap on counts at once is what bounds the work. Large counts
-belong to the command line.
+`--timeout-seconds` change them. A count past its time is interrupted and stops at its next
+check, between rounds or inside its longest loops, giving up its place: on test elections that
+ran on for up to 160 seconds after the interrupt (CPO-STV, 12 candidates for 4 seats), every
+method stopped within a quarter of a second. Large counts belong to the command line.
 
 ### Running it in Docker
 
@@ -587,7 +588,7 @@ common/src/main/java/info/fkhodkov/rankedchoice/
     │              NumberedLine (line numbers for errors; a leading byte order mark dropped)
     ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
     ├── report/    ReportMarkup (CSV quoting, HTML escaping and page, JSON writer)
-    └── util/      Fraction (exact rational arithmetic)
+    └── util/      Fraction (exact rational arithmetic), Interruption (where a count gives up)
 
 library/src/main/java/info/fkhodkov/rankedchoice/
 ├── count/         Tabulator (a count by any method, from CountOptions and a config or ruleset),

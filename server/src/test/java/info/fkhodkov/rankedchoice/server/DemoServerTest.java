@@ -14,13 +14,18 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -214,7 +219,7 @@ class DemoServerTest {
         server = DemoServer.start(new InetSocketAddress("127.0.0.1", 0), new Limits(1000, 1, Duration.ofMillis(300)),
                 (request, format, warnings) -> {
                     if (request.method() != null && request.method().equals("slow")) {
-                        // Like a real count, deaf to the interrupt the server sends when it stops waiting.
+                        // Deaf to the interrupt the server sends when it stops waiting, so it keeps its place.
                         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
                         while (release.getCount() > 0 && System.nanoTime() < deadline) {
                             Thread.onSpinWait();
@@ -241,6 +246,45 @@ class DemoServerTest {
         assertThat(after.headers().firstValue("X-Count-Warning")).isEmpty();
         assertThat(count(Map.of("ballots", "x", "method", "warn")).headers().firstValue("X-Count-Warning"))
                 .hasValue("figures grew long | again");
+    }
+
+    @Test
+    void aCountPastItsTimeStopsAndGivesUpItsPlace() throws Exception {
+        start(new Limits(1024 * 1024, 1, Duration.ofMillis(300)));
+        // CPO-STV, 12 candidates for 4 seats: 495 committees, every pair counted out; on 5,000 ballots
+        // that takes many seconds, and before counts heeded interrupts, it kept the only place all along.
+        Random random = new Random(20261029);
+        StringBuilder ballots = new StringBuilder("12 4\n");
+        List<Integer> order = new ArrayList<>(IntStream.rangeClosed(1, 12).boxed().toList());
+        for (int b = 0; b < 5000; b++) {
+            Collections.shuffle(order, random);
+            ballots.append("1 ");
+            order.subList(0, 1 + random.nextInt(12)).forEach(c -> ballots.append(c).append(' '));
+            ballots.append("0\n");
+        }
+        ballots.append("0\n");
+        IntStream.rangeClosed(1, 12).forEach(c -> ballots.append("\"C").append(c).append("\"\n"));
+        ballots.append("\"Twelve for four\"\n");
+
+        HttpResponse<String> slow = count(Map.of("ballots", ballots.toString(), "method", "cpo-stv"));
+        assertThat(slow.statusCode()).isEqualTo(504);
+        // The place comes free as soon as the count notices it was stopped.
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(3);
+        HttpResponse<String> next;
+        do {
+            Thread.sleep(50);
+            next = count(Map.of("ballots", WIKIPEDIA));
+        } while (next.statusCode() == 503 && System.nanoTime() < deadline);
+        assertThat(next.statusCode()).isEqualTo(200);
+        // And none of its work is still running on the common pool, nor waiting there; a worker
+        // that has just finished may take a moment to count as idle.
+        ForkJoinPool pool = ForkJoinPool.commonPool();
+        long settled = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(200);
+        while ((pool.getActiveThreadCount() > 0 || pool.getQueuedTaskCount() > 0) && System.nanoTime() < settled) {
+            Thread.sleep(10);
+        }
+        assertThat(pool.getQueuedTaskCount()).isZero();
+        assertThat(pool.getActiveThreadCount()).isZero();
     }
 
     @Test

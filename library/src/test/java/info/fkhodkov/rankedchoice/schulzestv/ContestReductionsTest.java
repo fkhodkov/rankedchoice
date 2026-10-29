@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 
 /**
  * {@link ContestReductions}, which builds every contest's reduction from its parent's, against
@@ -58,7 +59,7 @@ class ContestReductionsTest {
             int size = 2 + random.nextInt(n - 1);
             assertThat(ContestReductions.applies(size, indexed)).isTrue();
             Map<List<Integer>, SchulzeStvCounter.Reduced> built = new ConcurrentHashMap<>();
-            ContestReductions.forEach(n, size, indexed,
+            ContestReductions.forEach(n, size, indexed, Interruption.watch(),
                     (contest, reduced) -> built.put(Arrays.stream(contest).boxed().toList(), reduced));
             assertThat(built).hasSize(binomial(n, size));
             for (Map.Entry<List<Integer>, SchulzeStvCounter.Reduced> contest : built.entrySet()) {

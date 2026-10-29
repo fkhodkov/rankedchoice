@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 
 /**
  * Runs a Condorcet count by the Schulze method (Markus Schulze, "The Schulze Method of
@@ -72,6 +73,7 @@ public final class SchulzeMethod {
         }
 
         for (int k = 0; k < n; k++) {
+            Interruption.check();
             for (int i = 0; i < n; i++) {
                 if (i == k) {
                     continue;

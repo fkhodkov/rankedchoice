@@ -9,6 +9,7 @@ import java.util.Map;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 import info.fkhodkov.rankedchoice.stv.BallotFormality;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
@@ -191,6 +192,9 @@ public final class CambridgeCounter {
         StvResult run() {
             boolean[] everyone = continuing.clone();
             for (int b = 0; b < ballotCount; b++) {
+                if ((b & 0xffff) == 0) {
+                    Interruption.check();
+                }
                 int c = topChoice(b, everyone);
                 if (c >= 0) {
                     piles[c].add(b);
@@ -199,6 +203,7 @@ public final class CambridgeCounter {
             update();
 
             while (!over()) {
+                Interruption.check();
                 int previous = counts.size() - 1;
                 if (surplusAt(previous) > 0) {
                     transferSurplus(previous);

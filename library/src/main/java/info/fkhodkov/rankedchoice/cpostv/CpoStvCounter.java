@@ -11,6 +11,7 @@ import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 import info.fkhodkov.rankedchoice.stv.BallotFormality;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 import info.fkhodkov.rankedchoice.stv.transfer.HeldParcel;
@@ -103,12 +104,15 @@ public final class CpoStvCounter {
         }
         // Pairs are independent and every figure is exact, so counting them in parallel gives
         // the same scores in any order; they're collected back in pair order below.
-        List<Fraction[]> pairScores = pairs.parallelStream().map(pair -> {
-            Set<Candidate> a = outcomes.get(pair[0]);
-            Set<Candidate> b = outcomes.get(pair[1]);
-            Map<Candidate, Fraction> tallies = notionalCount(indexed, a, b, quota, ruleset);
-            return new Fraction[] {sumOf(tallies, a), sumOf(tallies, b)};
-        }).toList();
+        Interruption.Watch watch = Interruption.watch();
+        List<Fraction[]> pairScores = watch.call(() -> pairs.parallelStream().map(pair -> {
+            try (Interruption.Piece _ = watch.enter()) {
+                Set<Candidate> a = outcomes.get(pair[0]);
+                Set<Candidate> b = outcomes.get(pair[1]);
+                Map<Candidate, Fraction> tallies = notionalCount(indexed, a, b, quota, ruleset);
+                return new Fraction[] {sumOf(tallies, a), sumOf(tallies, b)};
+            }
+        }).toList());
 
         // d[i][j]: outcome i's score against outcome j.
         Fraction[][] d = new Fraction[outcomes.size()][outcomes.size()];

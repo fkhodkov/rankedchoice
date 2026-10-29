@@ -3,8 +3,10 @@ package info.fkhodkov.rankedchoice.schulzestv;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 
 /**
  * Exact fractions as {@code int}s in the same order: zero as 0, and every other value as its
@@ -51,7 +53,8 @@ final class SignedRanks {
     private static int[] keys(Fraction[] values) {
         int total = values.length;
         double[] sizes = new double[total];
-        IntStream.range(0, total).parallel().forEach(i -> sizes[i] = Math.abs(approximate(values[i])));
+        Interruption.Watch watch = Interruption.watch();
+        inChunks(total, 1 << 16, watch, i -> sizes[i] = Math.abs(approximate(values[i])));
         double[] distinct = sizes.clone();
         Arrays.parallelSort(distinct);
         int d = 0;
@@ -71,7 +74,7 @@ final class SignedRanks {
         }
         int[] cluster = new int[total];
         int distinctCount = d;
-        IntStream.range(0, total).parallel().forEach(i ->
+        inChunks(total, 1 << 16, watch, i ->
                 cluster[i] = clusterOf[Arrays.binarySearch(distinct, 0, distinctCount, sizes[i])]);
 
         // The values of each cluster together, then ranked exactly within it.
@@ -89,7 +92,7 @@ final class SignedRanks {
         }
         int[] within = new int[total];
         int[] sizesIn = new int[clusters];
-        IntStream.range(0, clusters).parallel().forEach(c -> {
+        inChunks(clusters, 1 << 8, watch, c -> {
             int from = start[c];
             int to = start[c + 1];
             if (to - from == 1) {
@@ -121,6 +124,22 @@ final class SignedRanks {
             keys[i] = values[i].signum() * Math.addExact(1, base[cluster[i]] + within[i]);
         }
         return keys;
+    }
+
+    /**
+     * {@code body} for every index below {@code total}, in parallel by chunks of {@code chunk}, each
+     * a piece of {@code watch}'s: a piece per index would cost more than many of the bodies do.
+     */
+    private static void inChunks(int total, int chunk, Interruption.Watch watch, IntConsumer body) {
+        int chunks = (int) (((long) total + chunk - 1) / chunk);
+        watch.run(() -> IntStream.range(0, chunks).parallel().forEach(k -> {
+            try (Interruption.Piece _ = watch.enter()) {
+                int end = (int) Math.min(total, (long) (k + 1) * chunk);
+                for (int i = k * chunk; i < end; i++) {
+                    body.accept(i);
+                }
+            }
+        }));
     }
 
     private static Fraction abs(Fraction value) {

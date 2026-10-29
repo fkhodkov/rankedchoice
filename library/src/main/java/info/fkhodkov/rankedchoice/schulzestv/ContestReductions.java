@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 
 /**
  * Every contest of a count's candidates reduced to the order each ballot gives its members (as
@@ -93,31 +94,34 @@ final class ContestReductions {
 
     /**
      * Passes every contest of {@code size} of the candidates {@code 0..candidates - 1}, sorted, to
-     * {@code use} with its reduction, in parallel. Requires {@link #applies}.
+     * {@code use} with its reduction, in parallel, as pieces of {@code watch}'s work. Requires
+     * {@link #applies}.
      */
     static void forEach(int candidates, int size, SchulzeStvCounter.IndexedBallots ballots,
-            BiConsumer<int[], SchulzeStvCounter.Reduced> use) {
+            Interruption.Watch watch, BiConsumer<int[], SchulzeStvCounter.Reduced> use) {
         if (!applies(size, ballots)) {
             throw new IllegalArgumentException("contests of " + size + " can't be built up this way");
         }
-        new ContestReductions(candidates, size, ballots).run(use);
+        new ContestReductions(candidates, size, ballots).run(watch, use);
     }
 
-    private void run(BiConsumer<int[], SchulzeStvCounter.Reduced> use) {
+    private void run(Interruption.Watch watch, BiConsumer<int[], SchulzeStvCounter.Reduced> use) {
         // Each first pair of members (or first member, for contests of two) is a task of its own.
         int split = Math.min(2, size - 1);
         List<int[]> starts = new ArrayList<>();
         int[] start = new int[split];
         collect(start, 0, starts);
-        starts.parallelStream().forEach(prefix -> {
-            int[] members = new int[size];
-            Node node = root();
-            for (int depth = 0; depth < split; depth++) {
-                members[depth] = prefix[depth];
-                node = refine(node, members, depth, false);
+        watch.run(() -> starts.parallelStream().forEach(prefix -> {
+            try (Interruption.Piece _ = watch.enter()) {
+                int[] members = new int[size];
+                Node node = root();
+                for (int depth = 0; depth < split; depth++) {
+                    members[depth] = prefix[depth];
+                    node = refine(node, members, depth, false);
+                }
+                descend(node, members, split, use);
             }
-            descend(node, members, split, use);
-        });
+        }));
     }
 
     /** Every sorted prefix of {@code start.length} members that a contest can still be built on. */

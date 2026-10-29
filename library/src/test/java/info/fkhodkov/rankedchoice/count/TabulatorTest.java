@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
@@ -60,6 +61,32 @@ class TabulatorTest {
                 null);
         assertThat(Tabulator.of(cambridge, null).count(election, warning -> { }).report(ReportFormat.JSON))
                 .contains("Andrea");
+    }
+
+    @Test
+    void everyMethodGivesUpOnAnInterruptedThread() {
+        Election election = Election.read(WIKIPEDIA, null);
+        List<CountOptions> counts = new ArrayList<>();
+        for (String method : List.of("stv", "meek", "warren", "schulze", "borda", "cpo-stv", "schulze-stv",
+                "schulze-proportional", "qpq")) {
+            counts.add(method(method));
+        }
+        counts.add(new CountOptions("cambridge", null, 1, null, null, null, null, null, null, null, null, null));
+        List<String> counted = new ArrayList<>();
+        for (CountOptions options : counts) {
+            Tabulator tabulator = Tabulator.of(options, null);
+            Thread.currentThread().interrupt();
+            try {
+                tabulator.count(election, warning -> { });
+                counted.add(options.method());
+            } catch (CancellationException e) {
+                assertThat(e).as(options.method()).hasMessage("the count was stopped");
+                assertThat(Thread.currentThread().isInterrupted()).as(options.method()).isTrue();
+            } finally {
+                Thread.interrupted();
+            }
+        }
+        assertThat(counted).as("counted to the end despite the interrupt").isEmpty();
     }
 
     @Test

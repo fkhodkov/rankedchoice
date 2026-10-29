@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 
 /**
  * The pairwise preference matrix {@code d} that every Condorcet-family method (Schulze
@@ -68,6 +69,7 @@ public final class PairwiseMatrix {
         int[] positions = new int[n];
         try {
             for (Ballot ballot : ballots) {
+                Interruption.check();
                 if (ballot.isBlank()) {
                     continue;
                 }
@@ -126,6 +128,7 @@ public final class PairwiseMatrix {
         }
 
         for (Ballot ballot : ballots) {
+            Interruption.check();
             if (ballot.isBlank()) {
                 continue;
             }

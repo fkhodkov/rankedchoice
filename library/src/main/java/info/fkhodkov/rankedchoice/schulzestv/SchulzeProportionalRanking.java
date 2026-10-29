@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 
@@ -85,6 +86,7 @@ public final class SchulzeProportionalRanking {
         List<SchulzeProportionalResult.Place> places = new ArrayList<>();
         boolean[] done = new boolean[n];
         while (placed.size() < n) {
+            Interruption.check();
             int[] remaining = IntStream.range(0, n).filter(c -> !done[c]).toArray();
             boolean isGiven = placed.size() < givenIndex.length;
             if (remaining.length == 1) {
@@ -128,20 +130,24 @@ public final class SchulzeProportionalRanking {
                 pairs.add(new int[] {remaining[i], remaining[j]});
             }
         }
-        List<Fraction[]> supports = pairs.parallelStream().map(pair -> {
-            int[] contest = new int[placed.size() + 2];
-            for (int i = 0; i < placed.size(); i++) {
-                contest[i] = placed.get(i);
+        Interruption.Watch watch = Interruption.watch();
+        List<Fraction[]> supports = watch.call(() -> pairs.parallelStream().map(pair -> {
+            try (Interruption.Piece _ = watch.enter()) {
+                int[] contest = new int[placed.size() + 2];
+                for (int i = 0; i < placed.size(); i++) {
+                    contest[i] = placed.get(i);
+                }
+                contest[placed.size()] = pair[0];
+                contest[placed.size() + 1] = pair[1];
+                Arrays.sort(contest);
+                SchulzeStvCounter.Reduced reduced = SchulzeStvCounter.Reduced.of(contest, indexed);
+                int atB = Arrays.binarySearch(contest, pair[0]);
+                int atC = Arrays.binarySearch(contest, pair[1]);
+                // {N[placed + b; c], N[placed + c; b]}
+                return new Fraction[] {SchulzeStvCounter.support(reduced, atC),
+                        SchulzeStvCounter.support(reduced, atB)};
             }
-            contest[placed.size()] = pair[0];
-            contest[placed.size() + 1] = pair[1];
-            Arrays.sort(contest);
-            SchulzeStvCounter.Reduced reduced = SchulzeStvCounter.Reduced.of(contest, indexed);
-            int atB = Arrays.binarySearch(contest, pair[0]);
-            int atC = Arrays.binarySearch(contest, pair[1]);
-            // {N[placed + b; c], N[placed + c; b]}
-            return new Fraction[] {SchulzeStvCounter.support(reduced, atC), SchulzeStvCounter.support(reduced, atB)};
-        }).toList();
+        }).toList());
         for (int p = 0; p < pairs.size(); p++) {
             int b = pairs.get(p)[0];
             int c = pairs.get(p)[1];

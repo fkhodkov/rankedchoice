@@ -10,6 +10,7 @@ import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 
 /**
  * A positional-scoring count: every ballot contributes points to each candidate it ranks,
@@ -50,6 +51,7 @@ public final class BordaMethod {
         // ballot, exact fractions spent most of the count's time reducing by greatest common divisors.
         BigInteger[] votesAt = new BigInteger[totalCandidates * totalCandidates];
         for (Ballot ballot : ballots) {
+            Interruption.check();
             if (ballot.isBlank()) {
                 continue;
             }

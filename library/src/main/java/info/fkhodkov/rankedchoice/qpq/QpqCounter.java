@@ -12,6 +12,7 @@ import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Interruption;
 import info.fkhodkov.rankedchoice.stv.BallotFormality;
 import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
 
@@ -100,12 +101,14 @@ public final class QpqCounter {
         boolean restartPending = true;
 
         while (elected.size() < seats && hopeful.size() > seats - elected.size()) {
+            Interruption.check();
             stageNumber++;
             boolean restartedThisStage = restartPending;
             if (restartPending) {
                 hopeful.addAll(elected);
                 elected.clear();
                 for (BallotState state : states) {
+                    Interruption.check();
                     state.nextIndex = 0;
                     state.holder = null;
                     state.electedCredit = Fraction.ZERO;
@@ -127,6 +130,7 @@ public final class QpqCounter {
             Map<Candidate, Map<Fraction, BigInteger>> heldByCredit = new LinkedHashMap<>();
             Map<Fraction, BigInteger> exhaustedByCredit = new LinkedHashMap<>();
             for (BallotState state : states) {
+                Interruption.check();
                 if (state.holder == null) {
                     exhaustedByCredit.merge(state.electedCredit, state.ballot.count(), BigInteger::add);
                 } else {
@@ -153,6 +157,7 @@ public final class QpqCounter {
                 hopeful.remove(highest);
                 Fraction newCredit = Fraction.ONE.divide(quotients.get(highest));
                 for (BallotState state : states) {
+                    Interruption.check();
                     if (highest.equals(state.holder)) {
                         state.electedCredit = newCredit;
                         assignNextHolder(state, hopeful);
@@ -164,6 +169,7 @@ public final class QpqCounter {
                 Candidate lowest = pickExtreme(hopeful, quotients, false, ruleset.tieBreak());
                 hopeful.remove(lowest);
                 for (BallotState state : states) {
+                    Interruption.check();
                     if (lowest.equals(state.holder)) {
                         assignNextHolder(state, hopeful);
                     }
@@ -339,6 +345,7 @@ public final class QpqCounter {
             boolean restartPending = true;
 
             while (elected.size() < seats && hopeful.size() > seats - elected.size()) {
+                Interruption.check();
                 stageNumber++;
                 boolean restartedThisStage = restartPending;
                 if (restartPending) {
