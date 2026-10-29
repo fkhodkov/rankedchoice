@@ -179,6 +179,21 @@ class DemoServerTest {
     }
 
     @Test
+    void refusesAFractionWhereAWholeNumberBelongs() throws Exception {
+        start(Limits.DEFAULT);
+
+        HttpResponse<String> seats = count(Map.of("ballots", WIKIPEDIA, "seats", 1.9));
+        HttpResponse<String> minimum = count(Map.of("ballots", WIKIPEDIA, "minimumPreferences", 2.8));
+        HttpResponse<String> whole = count(Map.of("ballots", WIKIPEDIA, "seats", 1));
+
+        assertThat(seats.statusCode()).isEqualTo(400);
+        assertThat(error(seats)).isEqualTo("seats must be a whole number, not 1.9");
+        assertThat(minimum.statusCode()).isEqualTo(400);
+        assertThat(error(minimum)).isEqualTo("minimumPreferences must be a whole number, not 2.8");
+        assertThat(whole.statusCode()).isEqualTo(200);
+    }
+
+    @Test
     void refusesARequestThatIsNotACount() throws Exception {
         start(new Limits(1000, 1, Duration.ofSeconds(30)));
 

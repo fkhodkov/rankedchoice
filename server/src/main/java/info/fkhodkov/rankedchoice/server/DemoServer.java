@@ -22,7 +22,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import info.fkhodkov.rankedchoice.core.ballot.BallotParseException;
@@ -55,7 +57,9 @@ public final class DemoServer {
         String count(CountRequest request, ReportFormat format, List<String> warnings);
     }
 
-    private static final ObjectMapper JSON = new ObjectMapper();
+    /** Refuses a fractional number where a whole one belongs, rather than reading 1.9 seats as 1. */
+    private static final ObjectMapper JSON = new ObjectMapper()
+            .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
 
     /** Every bundled ruleset: its name, what it's for, and its settings (those it gives, by config name). */
     private static final List<Map<String, Object>> RULESETS = Rulesets.ALL.stream().map(ruleset -> {
@@ -240,6 +244,12 @@ public final class DemoServer {
         CountRequest request;
         try {
             request = JSON.readValue(body, CountRequest.class);
+        } catch (InvalidFormatException e) {
+            if (e.getTargetType() == Integer.class && !e.getPath().isEmpty()) {
+                return Response.error(400, e.getPath().getLast().getFieldName() + " must be a whole number, not "
+                        + e.getValue());
+            }
+            return Response.error(400, "the request isn't a count as JSON: " + e.getOriginalMessage());
         } catch (IOException e) {
             String why = e instanceof JsonProcessingException json ? json.getOriginalMessage() : e.getMessage();
             return Response.error(400, "the request isn't a count as JSON: " + why);
