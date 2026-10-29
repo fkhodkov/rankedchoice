@@ -657,10 +657,103 @@ public final class SchulzeStvCounter {
 
         /**
          * For every set S of members, the completed weight preferring no member outside S,
-         * approximately: the voters level with g on nothing by a zeta transform of their prefer
-         * masks, each other voter over the sets S holding what they prefer.
+         * approximately. Each voter level with g costs a pass over the sets holding what they
+         * prefer, and each below(R) one over all the voters; where those come to more than the
+         * 3^seats of {@link #approximateWithinByPlaces}, that's used instead.
          */
         double[] approximateWithin() {
+            int tied = 0;
+            for (long tie : ties) {
+                if (tie != 0) {
+                    tied++;
+                }
+            }
+            boolean exactInDoubles = total.bitLength() <= 53;
+            if (seats <= PLACES_SEATS && exactInDoubles && (long) tied << seats >= powerOfThree(seats)) {
+                return approximateWithinByPlaces();
+            }
+            return approximateWithinByVoters();
+        }
+
+        /**
+         * Up to 12 members besides g, 3^seats doubles take about 4 MB. On 10,000 short ballots of
+         * 24 candidates, the two ways took about as long for 14 seats; for 12, this one a third of
+         * the time, for 10 and for 8 (on 16 candidates) a quarter or a fifth.
+         */
+        private static final int PLACES_SEATS = 12;
+
+        private static int powerOfThree(int n) {
+            int power = 1;
+            for (int i = 0; i < n; i++) {
+                power *= 3;
+            }
+            return power;
+        }
+
+        /**
+         * {@link #approximateWithin()} from each voter's place for each member, level with g,
+         * below g or (preferring it) above. For a set R and a part Q of it, w(R, Q) is the weight
+         * of the voters placing none of R above g, Q level and the rest of R below; a transform
+         * over the 3^seats places, each member above g taken as anywhere, gives every w(R, Q).
+         * The voters deciding R are those not level on all of it, all but w(R, R), so below(R)
+         * is the sum over Q short of R of w(R, Q) below(Q), over them. And the weight preferring
+         * no member outside S, with R the members outside it, is the same sum over every Q,
+         * R itself included: those voters place none of R above g, and what they leave level
+         * of it, Q, must end up below.
+         *
+         * <p>The weights are sums of whole voters, exact in doubles while the total is under
+         * 2^53, so the weight not deciding is zero exactly when it should be.
+         */
+        double[] approximateWithinByPlaces() {
+            int size = 1 << seats;
+            int full = size - 1;
+            // spread[m]: the place index with 1 at each member of m, 0 elsewhere.
+            int[] spread = new int[size];
+            for (int m = 1; m < size; m++) {
+                spread[m] = spread[m & (m - 1)] + powerOfThree(Integer.numberOfTrailingZeros(m));
+            }
+            // Places: 0 above g (and, once transformed, anywhere), 1 level with g, 2 below g.
+            double[] weights = new double[powerOfThree(seats)];
+            double sum = 0;
+            for (int d = 0; d < counts.length; d++) {
+                int below = full & ~(int) (prefers[d] | ties[d]);
+                weights[spread[(int) ties[d]] + 2 * spread[below]] += approximateCounts[d];
+                sum += approximateCounts[d];
+            }
+            for (int place = 1; place < weights.length; place *= 3) {
+                for (int high = 0; high < weights.length; high += 3 * place) {
+                    for (int i = high; i < high + place; i++) {
+                        weights[i] += weights[i + place] + weights[i + 2 * place];
+                    }
+                }
+            }
+            double[] below = new double[size];
+            double[] within = new double[size];
+            below[0] = 1;
+            within[full] = sum;
+            for (int r = 1; r < size; r++) {
+                // w(R, Q) is weights[spread[Q] + 2 * spread[R less Q]].
+                int allBelow = 2 * spread[r];
+                double kept = 0;
+                for (int q = (r - 1) & r; ; q = (q - 1) & r) {
+                    kept += below[q] * weights[allBelow - spread[q]];
+                    if (q == 0) {
+                        break;
+                    }
+                }
+                double level = weights[spread[r]];
+                double deciding = sum - level;
+                below[r] = deciding > 0 ? kept / deciding : 1.0 / (Integer.bitCount(r) + 1);
+                within[full & ~r] = kept + level * below[r];
+            }
+            return within;
+        }
+
+        /**
+         * {@link #approximateWithin()} voter by voter: those level with g on nothing by a zeta
+         * transform of their prefer masks, each other voter over the sets holding what they prefer.
+         */
+        double[] approximateWithinByVoters() {
             int size = 1 << seats;
             double[] within = new double[size];
             for (int i = 0; i < counts.length; i++) {

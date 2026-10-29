@@ -1100,6 +1100,18 @@ ballots the count takes about half as long (24 candidates for 5 seats, 10,000 vo
 rather than 29); on complete ones, Tideman's, it's as before, since every ballot ranks every
 new member.
 
+A third finds the closed form's weights without a pass over the voters for each set of members
+(29 October 2026): each voter's place for every member (above, level with or below the
+outsider) goes into a table of 3^seats, and one transform of it gives every set's share at
+once (`Completion.approximateWithinByPlaces`). It's used up to 12 seats where enough voters
+are level with the outsider for it to pay. Only the `double` shortlist changes way; the support
+is still worked out exactly. `WithinByPlacesTest` checks it against the voter-by-voter sums on
+400 random completions of up to 12 seats, with every voter level on everything and with none,
+and up to 6 seats against the exact sums; it fails when the transform leaves out the voters
+below the outsider. Both methods' reports on `tools/benchmark`'s four Schulze elections are the
+same byte for byte, and Schulze's programs agree as before; 16 candidates for 8 seats takes 12 s
+rather than 18.
+
 ## Schulze proportional ranking
 
 The Schulze proportional ranking (`schulze-proportional`, section 9.1 of the paper) builds a
