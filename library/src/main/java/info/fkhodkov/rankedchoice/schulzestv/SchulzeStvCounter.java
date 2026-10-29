@@ -87,9 +87,17 @@ public final class SchulzeStvCounter {
 
         // supports[s][k]: N[contest s without its k-th member; that member]. Contests are
         // independent and every figure is exact, so they're computed in parallel.
-        Fraction[][] supports = contests.parallelStream()
-                .map(contest -> contestSupports(contest, indexed, seats))
-                .toArray(Fraction[][]::new);
+        Fraction[][] supports;
+        if (ContestReductions.applies(seats + 1, indexed)) {
+            Fraction[][] built = new Fraction[contests.size()][];
+            ContestReductions.forEach(n, seats + 1, indexed,
+                    (contest, reduced) -> built[binomials.rank(contest)] = contestSupports(reduced, seats));
+            supports = built;
+        } else {
+            supports = contests.parallelStream()
+                    .map(contest -> contestSupports(Reduced.of(contest, indexed), seats))
+                    .toArray(Fraction[][]::new);
+        }
 
         Graph graph = Graph.of(committees, supports, n, seats, binomials);
         int start = binomials.rank(topCommittee(candidates, ranking, seats));
@@ -281,16 +289,89 @@ public final class SchulzeStvCounter {
      * contest's own candidates matters, so each ballot is first reduced to that: each member's
      * level, the number of members it ranks ahead of them (unranked members share the level
      * below every ranked one). Identical reductions are merged, which leaves far fewer to go
-     * through for each member.
+     * through for each member. Contests small enough are reduced together ({@link
+     * ContestReductions}), others one by one ({@link Reduced#of}).
      */
-    private static Fraction[] contestSupports(int[] contest, IndexedBallots ballots, int seats) {
+    private static Fraction[] contestSupports(Reduced reduced, int seats) {
         int size = seats + 1;
-        Reduced reduced = Reduced.of(contest, ballots);
+        Completion[] completions = completions(reduced, size);
         Fraction[] supports = new Fraction[size];
         for (int k = 0; k < size; k++) {
-            supports[k] = support(patterns(reduced, k, size), seats);
+            supports[k] = support(completions[k]);
         }
         return supports;
+    }
+
+    /**
+     * {@link #patterns} for every member at once: each group's members are sorted into their
+     * levels once, and each member's pattern read from them, rather than every member compared
+     * with every other for each.
+     */
+    static Completion[] completions(Reduced reduced, int size) {
+        int seats = size - 1;
+        int[][] levels = reduced.levels();
+        BigInteger[] counts = reduced.counts();
+        int n = levels.length;
+        BigInteger total = BigInteger.ZERO;
+        for (BigInteger count : counts) {
+            total = total.add(count);
+        }
+        boolean small = total.bitLength() < Long.SIZE;
+        LongIndex[] index = new LongIndex[size];
+        long[][] keys = new long[size][n];
+        long[][] sums = small ? new long[size][n] : null;
+        BigInteger[][] bigSums = small ? null : new BigInteger[size][n];
+        int[] patterns = new int[size];
+        for (int k = 0; k < size; k++) {
+            index[k] = new LongIndex(n);
+        }
+        long[] atLevel = new long[size];
+        long[] under = new long[size];
+        for (int b = 0; b < n; b++) {
+            int[] level = levels[b];
+            Arrays.fill(atLevel, 0);
+            for (int j = 0; j < size; j++) {
+                atLevel[level[j]] |= 1L << j;
+            }
+            for (int l = 1; l < size; l++) {
+                under[l] = under[l - 1] | atLevel[l - 1];
+            }
+            for (int k = 0; k < size; k++) {
+                // Against member k: the others below its level preferred, those on it level.
+                long prefer = without(under[level[k]], k);
+                long tie = without(atLevel[level[k]], k);
+                long key = prefer | tie << seats;
+                int at = index[k].of(key);
+                if (at == patterns[k]) {
+                    keys[k][patterns[k]++] = key;
+                }
+                if (small) {
+                    sums[k][at] += counts[b].longValue();
+                } else {
+                    bigSums[k][at] = bigSums[k][at] == null ? counts[b] : bigSums[k][at].add(counts[b]);
+                }
+            }
+        }
+        long low = (1L << seats) - 1;
+        Completion[] completions = new Completion[size];
+        for (int k = 0; k < size; k++) {
+            int m = patterns[k];
+            long[] prefers = new long[m];
+            long[] ties = new long[m];
+            BigInteger[] weights = new BigInteger[m];
+            for (int i = 0; i < m; i++) {
+                prefers[i] = keys[k][i] & low;
+                ties[i] = keys[k][i] >>> seats;
+                weights[i] = small ? BigInteger.valueOf(sums[k][i]) : bigSums[k][i];
+            }
+            completions[k] = new Completion(prefers, ties, weights, seats);
+        }
+        return completions;
+    }
+
+    /** {@code mask} with bit k taken out, the bits above it moving down one. */
+    private static long without(long mask, int k) {
+        return mask & ((1L << k) - 1) | (mask >>> (k + 1)) << k;
     }
 
     /**
@@ -310,7 +391,7 @@ public final class SchulzeStvCounter {
     /** The closed form for any committee small enough to try its 2^M subsets. */
     static Fraction closedFormSupport(Reduced reduced, int k) {
         int size = reduced.levels()[0].length;
-        return support(patterns(reduced, k, size), size - 1);
+        return support(new Completion(patterns(reduced, k, size), size - 1));
     }
 
     /**
@@ -379,7 +460,7 @@ public final class SchulzeStvCounter {
      * {@code size - 1} bits says they prefer the j-th other member to it, bit j of the high bits
      * that they rank the two level.
      */
-    private static Map<Long, BigInteger> patterns(Reduced reduced, int k, int size) {
+    static Map<Long, BigInteger> patterns(Reduced reduced, int k, int size) {
         Map<Long, BigInteger> patterns = new HashMap<>();
         int seats = size - 1;
         for (int b = 0; b < reduced.levels().length; b++) {
@@ -404,7 +485,7 @@ public final class SchulzeStvCounter {
     }
 
     /**
-     * Completes {@code patterns} (section 8.1.1) and takes the closed-form support: the minimum
+     * The closed-form support of a link's completed voters (section 8.1.1): the minimum
      * over non-empty J of supply(J) / |J|, where supply(J) is the weight preferring some
      * member of J, i.e. the total less the weight preferring only members outside J.
      *
@@ -414,8 +495,8 @@ public final class SchulzeStvCounter {
      * then computed exactly. The tolerance is far wider than double rounding error over these
      * sums, so the true minimum is always among them, and the result is exact.
      */
-    private static Fraction support(Map<Long, BigInteger> patterns, int seats) {
-        Completion completion = new Completion(patterns, seats);
+    private static Fraction support(Completion completion) {
+        int seats = completion.seats();
         int size = 1 << seats;
         int full = size - 1;
 
@@ -732,7 +813,7 @@ public final class SchulzeStvCounter {
      * Numbers distinct {@code long} keys 0, 1, 2... in order of first appearance: a primitive
      * open-addressing table, since boxing every key in a {@code HashMap} dominated the count.
      */
-    private static final class LongIndex {
+    static final class LongIndex {
         private final long[] keys;
         private final int[] slots;
         private final int shift;

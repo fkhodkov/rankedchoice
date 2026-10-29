@@ -443,9 +443,9 @@ says so and suggests `java -Xmx`.
 
 Schulze STV's cost grows with the number of contests of seats + 1 candidates, and with how many
 distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 61 take
-under 2 s and the slowest (A05: 16 candidates, 7 seats) about 10 s. On `tools/benchmark`'s
-elections of 10,000 voters ranking about 5: 20 candidates / 5 seats 10 s, 24 / 5 (42,504
-committees) 29 s, 16 / 8 16 s; 20 / 5 at 100,000 voters 49 s. Each fits in a 256 MB heap but
+under 2 s and the slowest (A05: 16 candidates, 7 seats) about 11 s. On `tools/benchmark`'s
+elections of 10,000 voters ranking about 5: 20 candidates / 5 seats 7 s, 24 / 5 (42,504
+committees) 19 s, 16 / 8 17 s; 20 / 5 at 100,000 voters 22 s. Each fits in a 256 MB heap but
 24 / 5, which needs 512 MB.
 
 The Schulze proportional ranking places every candidate, and its cost grows with the candidates:
@@ -614,7 +614,8 @@ library/src/main/java/info/fkhodkov/rankedchoice/
 ├── schulze/       PairwiseMatrix, SchulzeMethod, SchulzeResult, SchulzeTextReport, SchulzeReports
 ├── schulzestv/    SchulzeStvCounter, SchulzeStvResult, SchulzeStvTextReport, SchulzeStvReports,
 │                  SchulzeProportionalRanking, SchulzeProportionalResult, SchulzeProportionalReports,
-│                  MinimumNormSupport (supports for committees past the closed form)
+│                  MinimumNormSupport (supports for committees past the closed form),
+│                  ContestReductions (every contest's ballots reduced, each from its parent's)
 └── borda/         BordaMethod, BordaScoringRule (ClassicBorda, DowdallScoring, ModifiedBorda),
                    BordaResult, BordaTextReport, BordaReports
 library/src/main/resources/rulesets/   bundled rulesets (scottish.yaml, ers97.yaml, ...)

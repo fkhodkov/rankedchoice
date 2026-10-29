@@ -1085,6 +1085,21 @@ supports) and 100 proportional rankings both as they are and with every count ×
 requires the same committees, winners and lists, and every support and comparison exactly 10¹⁹
 times the original. A fault planted in either grouping makes it fail.
 
+Two shortcuts find each contest's groups and patterns faster without changing a figure (29
+October 2026). Contests are listed in order, so each is reduced from its parent, the same
+members less the last: ballots that don't rank the new member move with their group, and only
+those that do are placed one by one (`ContestReductions`). And each contest's patterns are read
+for every member in one pass over its groups (`SchulzeStvCounter.completions`).
+`ContestReductionsTest` checks the first against reducing each contest afresh, on 300 random
+elections with ties and short, blank and complete ballots (over 5,000 contests); it fails when
+the groups above a contest merge without counting the members they rank, the one subtle point.
+`CompletionsTest` checks the second against the member-by-member patterns on 500 random
+reductions, counts past `long` included. Every support of Tideman's 65 elections still matches,
+and the JSON reports of `tools/benchmark`'s elections are the same byte for byte. On short
+ballots the count takes about half as long (24 candidates for 5 seats, 10,000 voters: 19 s
+rather than 29); on complete ones, Tideman's, it's as before, since every ballot ranks every
+new member.
+
 ## Schulze proportional ranking
 
 The Schulze proportional ranking (`schulze-proportional`, section 9.1 of the paper) builds a
