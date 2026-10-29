@@ -87,6 +87,7 @@ public final class QpqReports {
     }
 
     private static Map<String, String> quotients(QpqRoundRecord round) {
+        Candidate.requireDistinctNames(round.quotients().keySet());
         Map<String, String> quotients = new LinkedHashMap<>();
         round.quotients().entrySet().stream()
                 .sorted(Map.Entry.<Candidate, Fraction>comparingByValue().reversed())

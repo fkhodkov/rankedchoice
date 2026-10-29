@@ -407,6 +407,9 @@ mark, as spreadsheets' "CSV UTF-8" files do.
 - **Cambridge STV depends on ballot order**: rarely at realistic sizes, but in small
   electorates with many seats another order can elect different people
   (`tools/order-sensitivity` measures it).
+- **Every candidate needs a distinct name.** The reports name candidates (the JSON ones key
+  their figures by name), so a count refuses two of the same name rather than show one's
+  figures as the other's. A BLT file can give them distinct names in its name lines.
 
 ## Performance
 

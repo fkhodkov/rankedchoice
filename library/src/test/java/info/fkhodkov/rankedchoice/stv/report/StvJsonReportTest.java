@@ -1,6 +1,7 @@
 package info.fkhodkov.rankedchoice.stv.report;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -66,5 +67,24 @@ class StvJsonReportTest {
         assertThat(json).contains("\"quota\" : \"6\"");
         assertThat(json).contains("\"type\" : \"eliminated\"");
         assertThat(json).contains("\"electedInOrder\" : [ \"X\" ]");
+    }
+
+    @Test
+    void refusesTwoCandidatesOfTheSameNameRatherThanDropOnesTally() {
+        // Counted directly, not through the Tabulator: the report kept only the second Alex's 3 votes.
+        Candidate first = new Candidate("1", "Alex");
+        Candidate second = new Candidate("2", "Alex");
+        Candidate sam = new Candidate("3", "Sam");
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(first)), BigInteger.valueOf(5)),
+                new Ballot(List.of(Set.of(second)), BigInteger.valueOf(3)),
+                new Ballot(List.of(Set.of(sam)), BigInteger.ONE));
+        StvRuleset ruleset = new StvRuleset(DroopQuota.INSTANCE, FractionalTransfer.INSTANCE, Exact.INSTANCE,
+                new DeclaredOrderTieBreak(List.of(first, second, sam)));
+        StvResult result = StvCounter.count(List.of(first, second, sam), ballots, 1, ruleset);
+
+        assertThatThrownBy(() -> StvJsonReport.render(result, Exact.INSTANCE))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("candidates 1 and 2 are both named \"Alex\"");
     }
 }

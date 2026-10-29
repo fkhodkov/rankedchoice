@@ -66,6 +66,7 @@ public final class StvJsonReport {
     }
 
     private static Round toRound(RoundRecord round, OptionalInt decimalPlaces) {
+        Candidate.requireDistinctNames(round.tallies().keySet());
         Map<String, String> tallies = new LinkedHashMap<>();
         for (Map.Entry<Candidate, Fraction> entry : ReportFormatting.sortedByTallyDescending(round)) {
             tallies.put(entry.getKey().name(), ReportFormatting.format(entry.getValue(), decimalPlaces));

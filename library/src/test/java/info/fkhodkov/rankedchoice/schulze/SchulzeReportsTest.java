@@ -1,6 +1,7 @@
 package info.fkhodkov.rankedchoice.schulze;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -33,5 +34,17 @@ class SchulzeReportsTest {
         assertThat(SchulzeReports.html(CANDIDATES, RESULT))
                 .contains("<li value=\"1\">A</li>")
                 .contains("<h2>Strongest paths (p)</h2>");
+    }
+
+    @Test
+    void refusesTwoCandidatesOfTheSameNameRatherThanMergeTheirRows() {
+        Candidate first = new Candidate("1", "Alex");
+        Candidate second = new Candidate("2", "Alex");
+        List<Candidate> candidates = List.of(first, second);
+        SchulzeResult result = SchulzeMethod.count(candidates, List.of(
+                new Ballot(List.of(Set.of(first), Set.of(second)), BigInteger.valueOf(3))));
+
+        assertThatThrownBy(() -> SchulzeReports.json(candidates, result)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("candidates 1 and 2 are both named \"Alex\"");
     }
 }

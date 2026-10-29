@@ -86,6 +86,7 @@ public final class SchulzeReports {
 
     private static Map<String, Map<String, BigInteger>> byName(List<Candidate> candidates,
             Map<Candidate, Map<Candidate, BigInteger>> values) {
+        Candidate.requireDistinctNames(candidates);
         Map<String, Map<String, BigInteger>> result = new LinkedHashMap<>();
         for (Candidate a : candidates) {
             Map<String, BigInteger> row = new LinkedHashMap<>();

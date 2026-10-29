@@ -201,6 +201,8 @@ public final class Tabulator {
     public Tabulation count(Election election, Consumer<String> warnings) {
         List<Candidate> candidates = election.candidates();
         List<Ballot> ballots = election.ballots();
+        // Refused before counting, rather than by the report after.
+        Candidate.requireDistinctNames(candidates);
         boolean seatsBased = !method.equals("schulze") && !method.equals("borda")
                 && !method.equals("schulze-proportional");
         Integer seats = firstNonNull(options.seats(), config.seats());

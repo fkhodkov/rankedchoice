@@ -1,6 +1,7 @@
 package info.fkhodkov.rankedchoice.qpq;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -51,5 +52,20 @@ class QpqReportsTest {
                 .contains("<h2>Stage 2 (restarted)</h2>\n<p>Quota: 5.5</p>")
                 .contains("<tr class=\"acted\"><td>A</td><td>6</td></tr>")
                 .contains("<p>Elected: A</p>");
+    }
+
+    @Test
+    void refusesTwoCandidatesOfTheSameNameRatherThanDropOnesQuotient() {
+        Candidate first = new Candidate("1", "Alex");
+        Candidate second = new Candidate("2", "Alex");
+        List<Ballot> ballots = List.of(
+                new Ballot(List.of(Set.of(first)), BigInteger.valueOf(5)),
+                new Ballot(List.of(Set.of(second)), BigInteger.valueOf(3)),
+                new Ballot(List.of(Set.of(C)), BigInteger.ONE));
+        QpqResult result = QpqCounter.count(List.of(first, second, C), ballots, 1,
+                new QpqRuleset(new DeclaredOrderTieBreak(List.of(first, second, C))));
+
+        assertThatThrownBy(() -> QpqReports.json(result)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("candidates 1 and 2 are both named \"Alex\"");
     }
 }

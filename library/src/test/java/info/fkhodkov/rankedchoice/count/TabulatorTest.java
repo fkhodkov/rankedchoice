@@ -63,6 +63,31 @@ class TabulatorTest {
     }
 
     @Test
+    void refusesTwoCandidatesOfTheSameName() {
+        // Counted, the JSON report kept only the second Alex's 3 votes.
+        Election election = Election.parse("3 1\n5 1 0\n3 2 0\n1 3 0\n0\n\"Alex\"\n\"Alex\"\n\"Sam\"\n\"Test\"\n",
+                "blt");
+
+        assertThatThrownBy(() -> Tabulator.of(method("stv"), null).count(election, warning -> { }))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("candidates 1 and 2 are both named \"Alex\"");
+    }
+
+    @Test
+    void refusesACandidateListedTwice() {
+        // Borda counted A twice: 20 points to B's 10, where once over it's B, 3 to 2.
+        Candidate a = Candidate.of("A");
+        Candidate b = Candidate.of("B");
+        Election election = new Election(List.of(a, a, b), List.of(
+                new Ballot(List.of(Set.of(a)), BigInteger.TWO),
+                new Ballot(List.of(Set.of(b)), BigInteger.valueOf(3))), null);
+
+        assertThatThrownBy(() -> Tabulator.of(method("borda"), null).count(election, warning -> { }))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("candidate A (\"A\") is listed twice");
+    }
+
+    @Test
     void refusesAnOptionTheMethodWouldIgnore() {
         CountOptions seats = new CountOptions("schulze", null, 2, null, null, null, null, null, null, null, null, null);
 
