@@ -82,12 +82,13 @@ public record Fraction(BigInteger numerator, BigInteger denominator) implements 
         return round(decimalPlaces, RoundingMode.DOWN);
     }
 
+    /**
+     * Rounds to the given number of decimal places in one step, from the exact value: rounding
+     * to some places first and then to these could carry a value within 10^-32 of a boundary
+     * across it ((1 - 10^-40) truncated to 1, 2 + 10^-40 rounded up to 2).
+     */
     public Fraction round(int decimalPlaces, RoundingMode mode) {
-        // Extra guard digits so the intermediate division doesn't itself lose precision
-        // before the real rounding step below is applied.
-        BigDecimal exact = new BigDecimal(numerator)
-                .divide(new BigDecimal(denominator), decimalPlaces + 32, RoundingMode.HALF_UP);
-        BigDecimal scaled = exact.setScale(decimalPlaces, mode);
+        BigDecimal scaled = new BigDecimal(numerator).divide(new BigDecimal(denominator), decimalPlaces, mode);
         return new Fraction(scaled.unscaledValue(), BigInteger.TEN.pow(decimalPlaces));
     }
 

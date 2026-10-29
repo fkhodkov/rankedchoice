@@ -84,6 +84,23 @@ class FractionTest {
         assertThat(Fraction.of(1, 2).round(0, RoundingMode.HALF_UP)).isEqualTo(Fraction.of(1));
     }
 
+    /** Values a hair from a boundary, both sides and both signs, keep to their side of it. */
+    @Test
+    void roundingNearABoundaryDoesNotCrossIt() {
+        BigInteger tiny = BigInteger.TEN.pow(40);
+        Fraction justUnderOne = Fraction.of(tiny.subtract(BigInteger.ONE), tiny);
+        Fraction justOverTwo = Fraction.of(tiny.multiply(BigInteger.TWO).add(BigInteger.ONE), tiny);
+        Fraction justUnderAHalf = Fraction.of(tiny.subtract(BigInteger.ONE), tiny.multiply(BigInteger.TWO));
+        assertThat(justUnderOne.truncate(0)).isEqualTo(Fraction.ZERO);
+        assertThat(justUnderOne.truncate(5)).isEqualTo(Fraction.of(99999, 100000));
+        assertThat(justUnderOne.negate().truncate(5)).isEqualTo(Fraction.of(-99999, 100000));
+        assertThat(justUnderOne.round(0, RoundingMode.FLOOR)).isEqualTo(Fraction.ZERO);
+        assertThat(justOverTwo.round(0, RoundingMode.CEILING)).isEqualTo(Fraction.of(3));
+        assertThat(justOverTwo.truncate(9)).isEqualTo(Fraction.of(2));
+        assertThat(justOverTwo.negate().round(0, RoundingMode.FLOOR)).isEqualTo(Fraction.of(-3));
+        assertThat(justUnderAHalf.round(0, RoundingMode.HALF_UP)).isEqualTo(Fraction.ZERO);
+    }
+
     @Test
     void toStringWholeNumberOmitsDenominator() {
         assertThat(Fraction.of(6, 3)).hasToString("2");
