@@ -50,14 +50,19 @@ public final class SingletonRanking extends AbstractList<Set<Candidate>> impleme
         }
 
         /**
-         * The ranking of the candidates at these indices, in order; no candidate may appear twice.
-         * It's a SingletonRanking unless there are more candidates than a {@code char} can index.
+         * The ranking of the candidates at these indices, in order; each must be one of the
+         * table's, and none may appear twice. It's a SingletonRanking unless there are more
+         * candidates than a {@code char} can index. The ballot made from it trusts these checks.
          */
         public List<Set<Candidate>> ranking(int[] indices) {
             char[] ranks = new char[indices.length];
             long[] seen = new long[(candidates.size() + 63) / 64];
             for (int i = 0; i < indices.length; i++) {
                 int index = indices[i];
+                if (index < 0 || index >= candidates.size()) {
+                    throw new IllegalArgumentException("candidate index " + index + " is outside the "
+                            + candidates.size() + " candidates (0 to " + (candidates.size() - 1) + ")");
+                }
                 if ((seen[index >> 6] & 1L << index) != 0) {
                     throw new IllegalArgumentException(
                             "candidate " + candidates.get(index).id() + " appears more than once in the same ballot");
