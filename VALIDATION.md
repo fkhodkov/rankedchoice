@@ -1104,13 +1104,28 @@ A third finds the closed form's weights without a pass over the voters for each 
 (29 October 2026): each voter's place for every member (above, level with or below the
 outsider) goes into a table of 3^seats, and one transform of it gives every set's share at
 once (`Completion.approximateWithinByPlaces`). It's used up to 12 seats where enough voters
-are level with the outsider for it to pay. Only the `double` shortlist changes way; the support
-is still worked out exactly. `WithinByPlacesTest` checks it against the voter-by-voter sums on
-400 random completions of up to 12 seats, with every voter level on everything and with none,
+are level with the outsider for it to pay. Only the `double` shortlist is found another way;
+the support is still worked out exactly. `WithinByPlacesTest` checks it against the
+voter-by-voter sums on 400 random completions of up to 12 seats, with every voter level on
+everything and with none,
 and up to 6 seats against the exact sums; it fails when the transform leaves out the voters
 below the outsider. Both methods' reports on `tools/benchmark`'s four Schulze elections are the
 same byte for byte, and Schulze's programs agree as before; 16 candidates for 8 seats takes 12 s
 rather than 18.
+
+Two more change only how fast the same figures are reached (29 October 2026). The contest tree
+reads, for each ballot ranking the new member, masks of the candidates it ranks ahead of that
+member and behind it, laid out in order, rather than the ballot's positions: fetching those was
+most of the count at 100,000 voters. And the beatpaths compare margins as `int`s: every pair
+margin is ranked once, exactly (`SignedRanks`: sorted by `double`, then exactly among those too
+close for a `double` to order), zero as 0 and a negative as its size's key negated. Compared as
+fractions they had taken about 10 of the 24 s of 24 candidates for 5 seats. `SignedRanksTest`
+checks that the keys order every pair of 40 random sets of fractions as the fractions do, ties
+and negatives included, with values closer than a `double` tells apart and past its range; it
+fails when values sharing an approximation aren't told apart exactly. `ContestReductionsTest`
+covers the masks. Both methods' reports on the four Schulze elections are again the same byte
+for byte, A05's too, and Schulze's programs agree as before. 20 candidates for 5 seats at
+100,000 voters takes 11 s rather than 22, and 24 / 5 13 s rather than 19.
 
 ## Schulze proportional ranking
 

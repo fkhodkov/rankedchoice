@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.stream.IntStream;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
@@ -336,6 +335,7 @@ public final class SchulzeStvCounter {
             for (int l = 1; l < size; l++) {
                 under[l] = under[l - 1] | atLevel[l - 1];
             }
+            long count = small ? counts[b].longValue() : 0;
             for (int k = 0; k < size; k++) {
                 // Against member k: the others below its level preferred, those on it level.
                 long prefer = without(under[level[k]], k);
@@ -346,7 +346,7 @@ public final class SchulzeStvCounter {
                     keys[k][patterns[k]++] = key;
                 }
                 if (small) {
-                    sums[k][at] += counts[b].longValue();
+                    sums[k][at] += count;
                 } else {
                     bigSums[k][at] = bigSums[k][at] == null ? counts[b] : bigSums[k][at].add(counts[b]);
                 }
@@ -947,12 +947,13 @@ public final class SchulzeStvCounter {
      * margin of each. Every link has a reverse with the opposite margin, both decided within one
      * contest, so each contest's margins are made once and a link and its reverse share one: a
      * target stored as {@code ~y} means the link's margin is the negative of the one held.
+     * Margins are held as their {@link SignedRanks}, in the same order, and negated the same.
      */
-    private record Graph(int[][] targets, Fraction[][] margins) {
+    private record Graph(int[][] targets, int[][] margins) {
 
         static Graph of(List<int[]> committees, Fraction[][] supports, int n, int seats, Binomials binomials) {
             int[][] targets = new int[committees.size()][];
-            Fraction[][] margins = new Fraction[committees.size()][];
+            int[][] margins = new int[committees.size()][];
             // pairMargins[s][pair(i, j)], i < j: N[contest s without i; i] - N[contest s without j; j].
             Fraction[][] pairMargins = Arrays.stream(supports).parallel().map(support -> {
                 Fraction[] pairs = new Fraction[support.length * (support.length - 1) / 2];
@@ -963,6 +964,7 @@ public final class SchulzeStvCounter {
                 }
                 return pairs;
             }).toArray(Fraction[][]::new);
+            int[][] pairRanks = SignedRanks.of(pairMargins);
             IntStream.range(0, committees.size()).parallel().forEach(x -> {
                 int[] committee = committees.get(x);
                 boolean[] in = new boolean[n];
@@ -971,7 +973,7 @@ public final class SchulzeStvCounter {
                 }
                 int links = seats * (n - seats);
                 int[] to = new int[links];
-                Fraction[] margin = new Fraction[links];
+                int[] margin = new int[links];
                 int[] contest = new int[seats + 1];
                 int[] next = new int[seats];
                 int l = 0;
@@ -990,10 +992,10 @@ public final class SchulzeStvCounter {
                         int y = binomials.rank(next);
                         if (cAt < bAt) {
                             to[l] = y;
-                            margin[l] = pairMargins[s][pair(cAt, bAt, seats + 1)];
+                            margin[l] = pairRanks[s][pair(cAt, bAt, seats + 1)];
                         } else {
                             to[l] = ~y;
-                            margin[l] = pairMargins[s][pair(bAt, cAt, seats + 1)];
+                            margin[l] = pairRanks[s][pair(bAt, cAt, seats + 1)];
                         }
                         l++;
                     }
@@ -1012,8 +1014,8 @@ public final class SchulzeStvCounter {
         /** The committees no other committee beats, found from {@code start} (see the class javadoc). */
         List<Integer> unbeaten(int start) {
             int current = start;
-            Fraction[] from;
-            Fraction[] to;
+            int[] from;
+            int[] to;
             while (true) {
                 from = widest(current, false);
                 to = widest(current, true);
@@ -1025,7 +1027,7 @@ public final class SchulzeStvCounter {
             }
             List<Integer> unbeaten = new ArrayList<>();
             for (int x = 0; x < targets.length; x++) {
-                if (x == current || (from[x].compareTo(to[x]) == 0
+                if (x == current || (from[x] == to[x]
                         && beaterOf(x, widest(x, false), widest(x, true)) < 0)) {
                     unbeaten.add(x);
                 }
@@ -1037,10 +1039,10 @@ public final class SchulzeStvCounter {
          * A committee that beats {@code x}, given x's strongest paths to and from every other
          * committee, or -1. Of several, the one with the strongest path to x.
          */
-        private static int beaterOf(int x, Fraction[] from, Fraction[] to) {
+        private static int beaterOf(int x, int[] from, int[] to) {
             int beater = -1;
             for (int y = 0; y < from.length; y++) {
-                if (y != x && to[y].compareTo(from[y]) > 0 && (beater < 0 || to[y].compareTo(to[beater]) > 0)) {
+                if (y != x && to[y] > from[y] && (beater < 0 || to[y] > to[beater])) {
                     beater = y;
                 }
             }
@@ -1052,25 +1054,26 @@ public final class SchulzeStvCounter {
          * from every committee to it: widest-path Dijkstra. Every committee is reachable, since
          * links come in pairs and any committee becomes any other by swaps.
          */
-        private Fraction[] widest(int source, boolean reverse) {
-            Fraction[] best = new Fraction[targets.length];
+        private int[] widest(int source, boolean reverse) {
+            int[] best = new int[targets.length];
+            Arrays.fill(best, Integer.MIN_VALUE); // below every margin: not reached yet
             boolean[] done = new boolean[targets.length];
             done[source] = true;
-            PriorityQueue<Reach> queue = new PriorityQueue<>();
-            relax(source, null, reverse, best, done, queue);
+            Reaches queue = new Reaches();
+            relax(source, Integer.MAX_VALUE, reverse, best, done, queue);
             while (!queue.isEmpty()) {
-                Reach reach = queue.poll();
-                if (done[reach.committee()]) {
+                long reach = queue.poll();
+                int x = (int) reach;
+                if (done[x]) {
                     continue;
                 }
-                done[reach.committee()] = true;
-                relax(reach.committee(), reach.strength(), reverse, best, done, queue);
+                done[x] = true;
+                relax(x, (int) (reach >> Integer.SIZE), reverse, best, done, queue);
             }
             return best;
         }
 
-        private void relax(int x, Fraction strength, boolean reverse, Fraction[] best, boolean[] done,
-                PriorityQueue<Reach> queue) {
+        private void relax(int x, int strength, boolean reverse, int[] best, boolean[] done, Reaches queue) {
             for (int l = 0; l < targets[x].length; l++) {
                 int target = targets[x][l];
                 int y = target < 0 ? ~target : target;
@@ -1078,21 +1081,56 @@ public final class SchulzeStvCounter {
                     continue;
                 }
                 // Reversed, the link used is y -> x, whose margin is the opposite of x -> y's.
-                Fraction margin = (target < 0) != reverse ? margins[x][l].negate() : margins[x][l];
-                Fraction through = strength == null || margin.compareTo(strength) < 0 ? margin : strength;
-                if (best[y] == null || through.compareTo(best[y]) > 0) {
+                int margin = (target < 0) != reverse ? -margins[x][l] : margins[x][l];
+                int through = Math.min(margin, strength);
+                if (through > best[y]) {
                     best[y] = through;
-                    queue.add(new Reach(y, through));
+                    queue.add(through, y);
                 }
             }
         }
     }
 
-    /** Strongest first. */
-    private record Reach(int committee, Fraction strength) implements Comparable<Reach> {
-        @Override
-        public int compareTo(Reach other) {
-            return other.strength.compareTo(strength);
+    /** Committees reached, strongest first: a binary heap of each one's strength and index. */
+    private static final class Reaches {
+        private long[] heap = new long[64];
+        private int size;
+
+        boolean isEmpty() {
+            return size == 0;
+        }
+
+        void add(int strength, int committee) {
+            if (size == heap.length) {
+                heap = Arrays.copyOf(heap, size * 2);
+            }
+            long reach = (long) strength << Integer.SIZE | committee;
+            int at = size++;
+            while (at > 0 && heap[(at - 1) / 2] < reach) {
+                heap[at] = heap[(at - 1) / 2];
+                at = (at - 1) / 2;
+            }
+            heap[at] = reach;
+        }
+
+        /** The strongest, its strength in the high half and its committee in the low. */
+        long poll() {
+            long top = heap[0];
+            long last = heap[--size];
+            int at = 0;
+            while (2 * at + 1 < size) {
+                int child = 2 * at + 1;
+                if (child + 1 < size && heap[child + 1] > heap[child]) {
+                    child++;
+                }
+                if (heap[child] <= last) {
+                    break;
+                }
+                heap[at] = heap[child];
+                at = child;
+            }
+            heap[at] = last;
+            return top;
         }
     }
 

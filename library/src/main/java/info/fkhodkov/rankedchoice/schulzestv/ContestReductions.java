@@ -34,6 +34,12 @@ final class ContestReductions {
     private final long[] voters;
     /** {@code rankedBy[x]}: the ballots that rank candidate x. */
     private final int[][] rankedBy;
+    /** {@code aheadOf[x][i]}: the candidates ballot {@code rankedBy[x][i]} ranks ahead of x, as a mask. */
+    private final long[][] aheadOf;
+    /** {@code behindOf[x][i]}: those it puts behind x, unranked included. */
+    private final long[][] behindOf;
+    /** A bit at each member's level: 0, bits, 2 * bits, .... */
+    private final long levelBits;
 
     /** One stage's ballots in groups: each group's members' levels, packed, how many it ranks, and its voters. */
     private record Node(int[] group, long[] levels, int[] ranked, long[] voters, int groups) {
@@ -47,6 +53,27 @@ final class ContestReductions {
         voters = ballots.smallCounts();
         rankedBy = IntStream.range(0, candidates).mapToObj(x -> IntStream.range(0, positions.length)
                 .filter(b -> positions[b][x] != Integer.MAX_VALUE).toArray()).toArray(int[][]::new);
+        aheadOf = new long[candidates][];
+        behindOf = new long[candidates][];
+        for (int x = 0; x < candidates; x++) {
+            aheadOf[x] = new long[rankedBy[x].length];
+            behindOf[x] = new long[rankedBy[x].length];
+            for (int i = 0; i < rankedBy[x].length; i++) {
+                int[] position = positions[rankedBy[x][i]];
+                for (int c = 0; c < candidates; c++) {
+                    if (position[c] < position[x]) {
+                        aheadOf[x][i] |= 1L << c;
+                    } else if (position[c] > position[x]) {
+                        behindOf[x][i] |= 1L << c;
+                    }
+                }
+            }
+        }
+        long spread = 0;
+        for (int m = 0; m < size; m++) {
+            spread |= 1L << (bits * m);
+        }
+        levelBits = spread;
     }
 
     private static int bits(int size) {
@@ -55,10 +82,13 @@ final class ContestReductions {
 
     /**
      * Whether contests of {@code size} can be built this way: levels and the count ranked packed
-     * in a {@code long}, and the voters counted in {@code long}s.
+     * in a {@code long}, the candidates in a {@code long} mask, and the voters counted in
+     * {@code long}s.
      */
     static boolean applies(int size, SchulzeStvCounter.IndexedBallots ballots) {
-        return size >= 2 && bits(size) * (size + 1) <= Long.SIZE && ballots.smallCounts() != null;
+        int candidates = ballots.positions().length == 0 ? 0 : ballots.positions()[0].length;
+        return size >= 2 && bits(size) * (size + 1) <= Long.SIZE && candidates <= Long.SIZE
+                && ballots.smallCounts() != null;
     }
 
     /**
@@ -157,22 +187,22 @@ final class ContestReductions {
             }
         }
 
-        // Then the ballots that do rank x, moved to where they belong.
-        for (int b : ranking) {
+        // Then the ballots that do rank x, moved to where they belong. Their masks, read in
+        // order, say which members they rank ahead of x and which behind; reading each ballot's
+        // positions instead was most of the count, nearly every one a cache miss.
+        long memberMask = 0;
+        for (int m = 0; m < depth; m++) {
+            memberMask |= 1L << members[m];
+        }
+        long[] aheads = aheadOf[x];
+        long[] behinds = behindOf[x];
+        for (int i = 0; i < ranking.length; i++) {
+            int b = ranking[i];
             int g = parent.group()[b];
-            int[] position = positions[b];
-            int at = position[x];
-            long key = parent.levels()[g];
-            int ahead = 0;
-            for (int m = 0; m < depth; m++) {
-                int p = position[members[m]];
-                if (p < at) {
-                    ahead++;
-                } else if (p > at) {
-                    key += 1L << (bits * m); // x is now ahead of this member too
-                }
-            }
-            key |= (long) ahead << shift;
+            // x is now ahead of the members behind it: one more level each.
+            long behind = Long.expand(Long.compress(behinds[i], memberMask), levelBits);
+            int ahead = Long.bitCount(aheads[i] & memberMask);
+            long key = (parent.levels()[g] + behind) | (long) ahead << shift;
             int r = parent.ranked()[g] + 1;
             int c = index.of(leaf ? key : key | (long) r << rankedShift);
             if (c == groups) {
