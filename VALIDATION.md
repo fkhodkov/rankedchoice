@@ -1151,7 +1151,7 @@ H to 6 decimals, then who took it.
   (46, 303) 16,890 and Sweden 2014 (63, 220) 24,808. 80,760 in all.
 - **Every comparison past place 20, on his list.** Where the lists part, the comparisons after
   it are for his list so far, not ours, so the checker leaves them. Counting H for his list's
-  candidates instead, at every place from 21 on (where committees pass the closed form; a
+  candidates instead, at every place from 21 on (where committees then passed the closed form; a
   scratch harness calling `SchulzeStvCounter.support`, 28 October 2026, not kept as a tool):
   all 32,888 he prints match to 6 decimals, A13's 70, A23's 240 and Berlin 2011's 240 (places
   21 to 28), Berlin 2013's 5,850 (to place 45) and Sweden 2014's 26,488 (to place 62), the
@@ -1175,7 +1175,7 @@ H to 6 decimals, then who took it.
   and by winning votes), where it parted at place 8 before (ours F, his N); the comparisons
   checked there fell from 1,608 to 1,210 (to 28,750 in all, before A13 was counted). Every other
   list and comparison is as it was.
-- **Supports past the closed form.** For committees of over 20 members, the support, the
+- **Supports past the closed form.** For committees of over 8 members, the support, the
   minimum over sets J of f(J) / |J|, is found without the closed form's table over 2^M sets
   (`MinimumNormSupport`). f, the completed weight preferring some member of J, is submodular,
   and Wolfe's minimum-norm-point algorithm, in double precision, finds the point of its base
@@ -1183,14 +1183,21 @@ H to 6 decimals, then who took it.
   members on it are a set whose ratio bounds it from above. When the two meet, to 10^-11 of the
   total weight, the support is computed exactly at that set and its near rivals; otherwise the
   contest is refused (none of Schulze's has been). It is exact unless two sets' ratios come
-  within about 10^-11 without being equal. On 600 random contests of up to 12 candidates, short
-  ballots and ties of every kind included, every one of over 3,500 supports is the closed
+  within about 10^-11 without being equal. On 600 random contests of up to 16 candidates, short
+  ballots and ties of every kind included, every one of over 5,000 supports is the closed
   form's (`MinimumNormSupportTest`), and so are all 510 of A13's, A23's and Berlin 2011's at 21
   to 25 seats; past 25 seats, Schulze's printed H ("Every comparison", above) is the check. It
   replaced a minimum cut over the completion listed out, which ran past its cap of 4 million
   sets on short ballots, and the closed form's 512 MB tables that took over at 21 to 25 seats:
   A13 now takes under 4 s, where it took 2 minutes, and A23 and the two larger Pirate
   conventions, refused before, take 9 s, 2 minutes and 5 minutes.
+- **The switch from the closed form at 8 members, not 20** (28 October 2026). On short ballots
+  the closed form's table grows slow well before 20: each voter level with the outsider costs a
+  pass over the voters for every subset of their tie. Ranked with the switch at 20, 12, 8 and 4
+  members, every one of Schulze's 69 lists gives the same JSON report, every comparison
+  included, as do `tools/benchmark`'s elections of 16, 20 and 24 candidates; with it at 8, the
+  69 take 78 s rather than 546 s (Sweden 2014 19 s rather than 341 s, Berlin 2013 16 s rather
+  than 142 s), and 24 candidates ranked by 10,000 voters 5 s rather than 115 s.
 - **Completion without listing it out.** The paper defines proportional completion as a chain:
   a voter level with g on T takes a donor's view of T, in proportion to the donors' votes, then
   is completed in turn for what that donor leaves level. Whether the members of a set R all end

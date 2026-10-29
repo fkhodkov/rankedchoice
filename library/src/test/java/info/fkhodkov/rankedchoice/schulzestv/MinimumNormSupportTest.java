@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * {@link MinimumNormSupport} against the closed form, which Schulze's published figures check:
- * on random contests of 2 to 12 candidates, with ties at every level (unranked candidates
+ * on random contests of 2 to 16 candidates, with ties at every level (unranked candidates
  * included, and groups of candidates nobody tells apart), every support is the same fraction.
  */
 class MinimumNormSupportTest {
@@ -18,7 +18,7 @@ class MinimumNormSupportTest {
         Random random = new Random(20261027);
         int checked = 0;
         for (int trial = 0; trial < 600; trial++) {
-            int size = 2 + random.nextInt(11);
+            int size = 2 + random.nextInt(15);
             int groups = 1 + random.nextInt(30);
             int levelsUsed = 1 + random.nextInt(size);
             boolean undecided = random.nextInt(4) == 0;
@@ -51,7 +51,7 @@ class MinimumNormSupportTest {
                 checked++;
             }
         }
-        assertThat(checked).isGreaterThan(3500);
+        assertThat(checked).isGreaterThan(5000);
     }
 
     /** Ranks as a reduced contest gives them: each member's level is how many rank ahead of it. */

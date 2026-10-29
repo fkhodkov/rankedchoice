@@ -313,8 +313,14 @@ public final class SchulzeStvCounter {
         return support(patterns(reduced, k, size), size - 1);
     }
 
-    /** See {@link #support(Reduced, int)}. */
-    static final int CLOSED_FORM_SEATS = 20;
+    /**
+     * See {@link #support(Reduced, int)}. The closed form's table holds 2^M sets, and each voter
+     * level with the outsider costs a pass over the voters for every subset of their tie, so on
+     * short ballots large committees grow slow: the proportional ranking of 24 candidates by
+     * 10,000 voters ranking about 5 took 115 s with the closed form up to 20 members, 5 s up to
+     * 8. Up to 8, the table is small and the closed form exact without proviso.
+     */
+    static final int CLOSED_FORM_SEATS = 8;
 
     /** Ballots reduced to one contest: {@code levels[b][j]} is member j's level on group b. */
     record Reduced(int[][] levels, BigInteger[] counts) {

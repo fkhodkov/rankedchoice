@@ -94,5 +94,5 @@ the election is ranked again with his list given (`--given-list`), and each plac
 are checked on his list so far. At the place the lists part, the script also reruns Stage 3 on
 Schulze's own printed H both ways: by margin (the paper) and by winning votes (the program),
 naming the potential winners of each. `--timeout` (default 1800 s) gives up on an election that takes
-longer. Every list takes about 16 minutes, most of it Sweden 2014's and Berlin 2013's, each
-ranked twice (about 5 and 2 minutes a count).
+longer. Every list takes about 2 minutes, most of it Sweden 2014's and Berlin 2013's, each
+ranked twice (about 20 and 15 s a count).

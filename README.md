@@ -395,13 +395,13 @@ mark, as spreadsheets' "CSV UTF-8" files do.
   program ranks them differently, and its tie-break uses an older single-winner ranking, so on 2
   of Tideman's 65 elections it elects a different committee (see
   [VALIDATION.md](VALIDATION.md#schulze-stv)).
-- **The Schulze proportional ranking** is capped at 64 candidates. For committees of over 20,
+- **The Schulze proportional ranking** is capped at 64 candidates. For committees of over 8,
   each support's minimising set is searched for in double precision (then the support computed
   exactly at it), so a support is exact unless two sets' ratios come within about 10^-11 of each
   other without being equal, and a contest the search can't pin down is refused (none of
   Schulze's has been). The largest of his elections, Sweden's 2014 Pirate convention (63
-  candidates, 220 voters), takes about 5 minutes and fits in a 2 GB heap; Berlin's 2013 (46)
-  about 2 minutes; Tideman's take under 10 s each. It compares links by margin, as the paper
+  candidates, 220 voters), takes 19 s and fits in a 256 MB heap; Berlin's 2013 (46) 15 s;
+  Tideman's under 3 s each. It compares links by margin, as the paper
   does, where Schulze's own program uses winning votes; see
   [VALIDATION.md](VALIDATION.md#schulze-proportional-ranking).
 - **Cambridge STV depends on ballot order**: rarely at realistic sizes, but in small
@@ -449,10 +449,9 @@ committees) 29 s, 16 / 8 16 s; 20 / 5 at 100,000 voters 49 s. Each fits in a 256
 24 / 5, which needs 512 MB.
 
 The Schulze proportional ranking places every candidate, and its cost grows with the candidates:
-on the same elections (seats aside) 20 candidates take 17 s, 24 about 2 minutes and 16 under 2 s;
-20 at 100,000 voters 75 s. Each fits in 256 MB. Of Schulze's published lists, Berlin 2013's (46
-candidates, 303 ballots) takes about 2 minutes and Sweden 2014's (63, 220) about 5, within a 2 GB
-heap.
+on the same elections (seats aside) 20 candidates take 2.8 s, 24 4.5 s and 16 2.0 s; 20 at
+100,000 voters 8.2 s. Of Schulze's published lists, Berlin 2013's (46 candidates, 303 ballots)
+takes 15 s and Sweden 2014's (63, 220) 19 s. Each fits in a 256 MB heap.
 
 ## Tools
 
