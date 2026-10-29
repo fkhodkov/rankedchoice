@@ -89,6 +89,10 @@ let rulesets = [];
 let examples = [];
 let maxRequestBytes = Infinity;
 let lastRequest = null;
+// Each count and each ballot load takes a number; only the latest of each may change the page,
+// so a slow earlier one finishing last can't replace what the form now holds.
+let latestCount = 0;
+let latestBallots = 0;
 
 async function start() {
   try {
@@ -255,11 +259,16 @@ function buildExamples() {
 async function loadExample() {
   const example = examples[Number($("example").value)];
   $("example-about").textContent = example ? example.about : "";
+  const ticket = ++latestBallots;
   if (!example) {
     return;
   }
   const response = await fetch(`/examples/${example.file}`);
-  $("ballots").value = await response.text();
+  const text = await response.text();
+  if (ticket !== latestBallots) {
+    return;
+  }
+  $("ballots").value = text;
   $("format").value = "";
   for (const input of $("options").querySelectorAll("input, select")) {
     input.value = "";
@@ -286,13 +295,31 @@ function openFile() {
     showError(`${file.name} is larger than this demo takes; count it with the command line instead.`);
     return;
   }
+  const ticket = ++latestBallots;
   file.text().then((text) => {
+    if (ticket !== latestBallots) {
+      return;
+    }
     $("ballots").value = text;
     $("example").value = "";
     $("example-about").textContent = "";
     $("format").value = file.name.toLowerCase().endsWith(".csv") ? "csv"
       : file.name.toLowerCase().endsWith(".blt") ? "blt" : "";
+    dropPendingCount();
   });
+}
+
+/**
+ * Forgets a count still running: it was of the ballots just replaced, and its report would read as
+ * theirs. (An example's ballots are counted as they load, which does the same.)
+ */
+function dropPendingCount() {
+  if (!$("count").disabled) {
+    return;
+  }
+  latestCount++;
+  $("count").disabled = false;
+  $("status").textContent = "";
 }
 
 /** The request the form describes: blank and hidden fields left out. */
@@ -334,17 +361,23 @@ async function post(body) {
 }
 
 async function count() {
+  const ticket = ++latestCount;
+  const button = $("count");
   clearMessages();
   if ($("ballots").value.trim() === "") {
+    button.disabled = false; // an earlier count still running no longer holds it
+    $("status").textContent = "";
     showError("Paste a ballot file, open one or choose an example first.", "ballots");
     return;
   }
   const body = request("html");
-  const button = $("count");
   button.disabled = true;
   $("status").textContent = "Counting…";
   try {
     const { text, warning } = await post(body);
+    if (ticket !== latestCount) {
+      return;
+    }
     lastRequest = body;
     $("report").srcdoc = text;
     $("report").hidden = false;
@@ -356,6 +389,9 @@ async function count() {
     }
     $("status").textContent = "Counted.";
   } catch (e) {
+    if (ticket !== latestCount) {
+      return;
+    }
     // A refused count leaves no report: the last one would read as this one's.
     lastRequest = null;
     $("report").hidden = true;
@@ -365,7 +401,9 @@ async function count() {
     showError(asLabelled(e.message), fieldOf(e.message));
     $("status").textContent = "Not counted.";
   } finally {
-    button.disabled = false;
+    if (ticket === latestCount) {
+      button.disabled = false;
+    }
   }
 }
 
