@@ -118,6 +118,7 @@ class DemoServerTest {
         assertThat(ers97.get("settings").get("batchExclusion").asBoolean()).isTrue();
         assertThat(ers97.get("settings").has("seats")).isFalse();
         assertThat(answer.get("limits").get("countTimeoutSeconds").asInt()).isEqualTo(30);
+        assertThat(answer.get("limits").get("maxCambridgeBallots").asInt()).isEqualTo(1_000_000);
     }
 
     @Test
@@ -199,8 +200,28 @@ class DemoServerTest {
     }
 
     @Test
+    void refusesACambridgeCountOfMoreBallotsThanItTakes() throws Exception {
+        start(new Limits(1000, 1, Duration.ofSeconds(30), 1000));
+        // Cambridge keeps every ballot one by one: a count of a billion, in a few bytes, took 12 GB.
+        String ballots = "2 1\n%d 1 0\n1 2 0\n0\n\"A\"\n\"B\"\n";
+        String billion = ballots.formatted(1_000_000_000);
+
+        HttpResponse<String> over = count(Map.of("method", "cambridge", "ballots", billion));
+        HttpResponse<String> justOver = count(Map.of("method", "cambridge", "ballots", ballots.formatted(1000)));
+        HttpResponse<String> atTheLimit = count(Map.of("method", "cambridge", "ballots", ballots.formatted(999)));
+        HttpResponse<String> byStv = count(Map.of("method", "stv", "ballots", billion));
+
+        assertThat(over.statusCode()).isEqualTo(400);
+        assertThat(error(over)).isEqualTo("1000000001 ballots is more than this server counts by Cambridge STV"
+                + " (at most 1000, which it keeps one by one); count it with the command line instead");
+        assertThat(justOver.statusCode()).isEqualTo(400);
+        assertThat(atTheLimit.statusCode()).isEqualTo(200);
+        assertThat(byStv.statusCode()).isEqualTo(200);
+    }
+
+    @Test
     void refusesARequestThatIsNotACount() throws Exception {
-        start(new Limits(1000, 1, Duration.ofSeconds(30)));
+        start(new Limits(1000, 1, Duration.ofSeconds(30), 1000));
 
         assertThat(error(post("/api/count", "not json"))).startsWith("the request isn't a count as JSON");
         assertThat(error(count(Map.of("ballots", WIKIPEDIA, "seat", 2)))).contains("seat");
@@ -216,7 +237,8 @@ class DemoServerTest {
     @Test
     void turnsCountsAwayWhileEveryPlaceIsTakenAndStopsWaitingAtTheLimit() throws Exception {
         CountDownLatch release = new CountDownLatch(1);
-        server = DemoServer.start(new InetSocketAddress("127.0.0.1", 0), new Limits(1000, 1, Duration.ofMillis(300)),
+        server = DemoServer.start(new InetSocketAddress("127.0.0.1", 0),
+                new Limits(1000, 1, Duration.ofMillis(300), 1000),
                 (request, format, warnings) -> {
                     if (request.method() != null && request.method().equals("slow")) {
                         // Deaf to the interrupt the server sends when it stops waiting, so it keeps its place.
@@ -250,7 +272,7 @@ class DemoServerTest {
 
     @Test
     void aCountPastItsTimeStopsAndGivesUpItsPlace() throws Exception {
-        start(new Limits(1024 * 1024, 1, Duration.ofMillis(300)));
+        start(new Limits(1024 * 1024, 1, Duration.ofMillis(300), 1000));
         // CPO-STV, 12 candidates for 4 seats: 495 committees, every pair counted out; on 5,000 ballots
         // that takes many seconds, and before counts heeded interrupts, it kept the only place all along.
         Random random = new Random(20261029);

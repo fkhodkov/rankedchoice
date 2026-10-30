@@ -287,7 +287,12 @@ every place is taken), and waits 30 seconds for each (504); `--max-request-mb`, 
 `--timeout-seconds` change them. A count past its time is interrupted and stops at its next
 check, between rounds or inside its longest loops, giving up its place: on test elections that
 ran on for up to 160 seconds after the interrupt (CPO-STV, 12 candidates for 4 seats), every
-method stopped within a quarter of a second. Large counts belong to the command line.
+method stopped within a quarter of a second. Cambridge STV keeps every ballot one by one, so a
+ballot's count, a few bytes of the request, sets its memory: one ballot counted a billion times
+took 12 GB. The server counts at most a million ballots by it (400 past that;
+`--max-cambridge-ballots` changes it), which takes under a second in a 32 MB heap; the other
+methods keep each distinct ranking once, whatever its count. Large counts belong to the command
+line.
 
 ### Running it in Docker
 
@@ -300,7 +305,8 @@ The `Dockerfile` builds the server from source in a Maven image (on Java 25, wit
 which the pre-commit build runs) and runs it on a Java runtime alone, as a user without root, with
 a health check on `/api/methods`: an image of about 230 MB. `docker-compose.yml` publishes it on
 this machine alone (`127.0.0.1:8080`), caps its memory at 1 GB (the heap takes 75% of the cap), and
-gives the server's limits explicitly: 2 counts at once, 30 seconds, 5 MB. Without Compose:
+gives the server's limits explicitly: 2 counts at once, 30 seconds, 5 MB, a million ballots for
+Cambridge STV. Without Compose:
 
 ```sh
 docker build -t rankedchoice-server .

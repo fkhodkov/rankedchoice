@@ -3,6 +3,7 @@ package info.fkhodkov.rankedchoice.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import info.fkhodkov.rankedchoice.core.ballot.BallotParseException;
+import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.count.CountOptions;
 import info.fkhodkov.rankedchoice.count.Election;
 import info.fkhodkov.rankedchoice.count.ReportFormat;
@@ -48,7 +50,8 @@ import info.fkhodkov.rankedchoice.count.Tabulator;
  * </ul>
  *
  * <p>{@link Limits} bound what it takes on: a request too large is a 413, a count asked for while
- * every place is taken a 503, one that runs out of time a 504.
+ * every place is taken a 503, one that runs out of time a 504, and a Cambridge STV count of more
+ * ballots than it takes a 400.
  */
 public final class DemoServer {
 
@@ -91,7 +94,8 @@ public final class DemoServer {
 
     /** Starts a server at the address (port 0 for any free one). */
     public static DemoServer start(InetSocketAddress address, Limits limits) throws IOException {
-        return start(address, limits, DemoServer::countByTheLibrary);
+        return start(address, limits, (request, format, warnings) ->
+                countByTheLibrary(request, format, warnings, limits.maxCambridgeBallots()));
     }
 
     static DemoServer start(InetSocketAddress address, Limits limits, Counter counter) throws IOException {
@@ -116,10 +120,11 @@ public final class DemoServer {
     }
 
     private static final String USAGE = "usage: java -jar rankedchoice-server.jar [--port N] [--bind ADDRESS] "
-            + "[--max-request-mb N] [--max-counts N] [--timeout-seconds N]";
+            + "[--max-request-mb N] [--max-counts N] [--timeout-seconds N] [--max-cambridge-ballots N]";
 
     /**
-     * {@code [--port N] [--bind ADDRESS] [--max-request-mb N] [--max-counts N] [--timeout-seconds N]}:
+     * {@code [--port N] [--bind ADDRESS] [--max-request-mb N] [--max-counts N] [--timeout-seconds N]
+     * [--max-cambridge-ballots N]}:
      * port 8080 on this machine alone (127.0.0.1), with {@link Limits#DEFAULT}'s limits, unless given.
      */
     public static void main(String[] args) throws IOException {
@@ -129,6 +134,7 @@ public final class DemoServer {
         int maxRequestBytes = defaults.maxRequestBytes();
         int maxCounts = defaults.maxConcurrentCounts();
         Duration timeout = defaults.countTimeout();
+        int maxCambridgeBallots = defaults.maxCambridgeBallots();
         try {
             for (int i = 0; i < args.length; i++) {
                 String option = args[i];
@@ -146,14 +152,16 @@ public final class DemoServer {
                     case "--max-request-mb" -> maxRequestBytes = number(option, value, 1024) * 1024 * 1024;
                     case "--max-counts" -> maxCounts = number(option, value, 1024);
                     case "--timeout-seconds" -> timeout = Duration.ofSeconds(number(option, value, 86400));
+                    case "--max-cambridge-ballots" -> maxCambridgeBallots = number(option, value, 999_999_999);
                     default -> throw new IllegalArgumentException("unknown option " + option);
                 }
             }
-            Limits limits = new Limits(maxRequestBytes, maxCounts, timeout);
+            Limits limits = new Limits(maxRequestBytes, maxCounts, timeout, maxCambridgeBallots);
             DemoServer server = start(new InetSocketAddress(bind, port), limits);
             System.out.println("Counting at http://" + bind + ":" + server.port() + "/ (" + limits.maxRequestBytes()
                     / (1024 * 1024) + " MB requests, " + limits.maxConcurrentCounts() + " counts at once, "
-                    + limits.countTimeout().toSeconds() + " s each)");
+                    + limits.countTimeout().toSeconds() + " s each, " + limits.maxCambridgeBallots()
+                    + " ballots by Cambridge STV)");
         } catch (IllegalArgumentException e) {
             System.err.println("Error: " + e.getMessage() + "\n" + USAGE);
             System.exit(2);
@@ -228,7 +236,8 @@ public final class DemoServer {
         answer.put("reportFormats", List.of("text", "csv", "json", "html"));
         answer.put("limits", Map.of("maxRequestBytes", limits.maxRequestBytes(),
                 "maxConcurrentCounts", limits.maxConcurrentCounts(),
-                "countTimeoutSeconds", limits.countTimeout().toSeconds()));
+                "countTimeoutSeconds", limits.countTimeout().toSeconds(),
+                "maxCambridgeBallots", limits.maxCambridgeBallots()));
         return Response.json(200, answer);
     }
 
@@ -318,11 +327,22 @@ public final class DemoServer {
         return Response.error(500, "an internal fault, please report it: " + cause);
     }
 
-    private static String countByTheLibrary(CountRequest request, ReportFormat format, List<String> warnings) {
+    private static String countByTheLibrary(CountRequest request, ReportFormat format, List<String> warnings,
+            int maxCambridgeBallots) {
         Tabulator tabulator = Tabulator.of(new CountOptions(request.method(), request.ruleset(), request.seats(),
                 request.quota(), request.transfer(), request.rounding(), request.tiebreak(), request.tiedRankings(),
                 request.minimumPreferences(), request.precision(), request.bordaScoring(), request.givenList()), null);
         Election election = Election.parse(request.ballots(), request.format());
+        if (tabulator.method().equals("cambridge")) {
+            // It keeps every ballot one by one, so the ballots' counts, not the request's size, decide its memory.
+            BigInteger ballots = election.ballots().stream().map(Ballot::count)
+                    .reduce(BigInteger.ZERO, BigInteger::add);
+            if (ballots.compareTo(BigInteger.valueOf(maxCambridgeBallots)) > 0) {
+                throw new IllegalArgumentException(ballots + " ballots is more than this server counts by Cambridge STV"
+                        + " (at most " + maxCambridgeBallots + ", which it keeps one by one); count it with the"
+                        + " command line instead");
+            }
+        }
         return tabulator.count(election, warning -> {
             synchronized (warnings) {
                 warnings.add(warning);
