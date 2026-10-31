@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.IntConsumer;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.core.util.Interruption;
@@ -19,6 +20,11 @@ import info.fkhodkov.rankedchoice.core.util.Interruption;
  * on 10,000 voters. The sizes are sorted by {@code double} first; only those whose
  * approximations lie within {@link #TOLERANCE} of each other, where rounding could have put
  * them out of order or made different sizes equal, are then sorted exactly.
+ *
+ * <p>The values needn't be held all at once: {@link #of(int[], Values)} asks for each when it
+ * needs it, once for its approximation and sign and again only if its cluster is sorted exactly.
+ * Schulze STV's 2 million margins for 24 candidates and 5 seats, held as fractions, took about
+ * 340 MB.
  */
 final class SignedRanks {
 
@@ -32,29 +38,53 @@ final class SignedRanks {
     private SignedRanks() {
     }
 
+    /** The value at a row's {@code index}, made when asked for, from any thread. */
+    @FunctionalInterface
+    interface Values {
+        Fraction at(int row, int index);
+    }
+
     static int[][] of(Fraction[][] values) {
-        int[] offsets = new int[values.length + 1];
-        for (int r = 0; r < values.length; r++) {
-            offsets[r + 1] = Math.addExact(offsets[r], values[r].length);
+        return of(Arrays.stream(values).mapToInt(row -> row.length).toArray(), (r, i) -> values[r][i]);
+    }
+
+    /** The keys of rows of {@code lengths[r]} values each, asked of {@code values}. */
+    static int[][] of(int[] lengths, Values values) {
+        int rows = lengths.length;
+        int[] offsets = new int[rows + 1];
+        for (int r = 0; r < rows; r++) {
+            offsets[r + 1] = Math.addExact(offsets[r], lengths[r]);
         }
-        int total = offsets[values.length];
-        Fraction[] flat = new Fraction[total];
-        for (int r = 0; r < values.length; r++) {
-            System.arraycopy(values[r], 0, flat, offsets[r], values[r].length);
-        }
-        int[] keys = keys(flat);
-        int[][] ranked = new int[values.length][];
-        for (int r = 0; r < values.length; r++) {
+        int[] keys = keys(offsets[rows], i -> {
+            // The last row starting at or before i: the one holding it, past any empty rows.
+            int low = 0;
+            int high = rows - 1;
+            while (low < high) {
+                int middle = (low + high + 1) >>> 1;
+                if (offsets[middle] <= i) {
+                    low = middle;
+                } else {
+                    high = middle - 1;
+                }
+            }
+            return values.at(low, i - offsets[low]);
+        });
+        int[][] ranked = new int[rows][];
+        for (int r = 0; r < rows; r++) {
             ranked[r] = Arrays.copyOfRange(keys, offsets[r], offsets[r + 1]);
         }
         return ranked;
     }
 
-    private static int[] keys(Fraction[] values) {
-        int total = values.length;
+    private static int[] keys(int total, IntFunction<Fraction> values) {
         double[] sizes = new double[total];
+        byte[] signs = new byte[total];
         Interruption.Watch watch = Interruption.watch();
-        inChunks(total, 1 << 16, watch, i -> sizes[i] = Math.abs(approximate(values[i])));
+        inChunks(total, 1 << 16, watch, i -> {
+            Fraction value = values.apply(i);
+            signs[i] = (byte) value.signum();
+            sizes[i] = Math.abs(approximate(value));
+        });
         double[] distinct = sizes.clone();
         Arrays.parallelSort(distinct);
         int d = 0;
@@ -99,19 +129,23 @@ final class SignedRanks {
                 sizesIn[c] = 1;
                 return;
             }
+            // The cluster's sizes, made again: a zero is known from its sign.
+            Fraction[] size = new Fraction[to - from];
             Integer[] order = new Integer[to - from];
             for (int i = from; i < to; i++) {
-                order[i - from] = members[i];
+                int member = members[i];
+                size[i - from] = signs[member] == 0 ? Fraction.ZERO : abs(values.apply(member));
+                order[i - from] = i - from;
             }
-            Comparator<Integer> bySize = (a, b) -> abs(values[a]).compareTo(abs(values[b]));
+            Comparator<Integer> bySize = (a, b) -> size[a].compareTo(size[b]);
             Arrays.sort(order, bySize);
             int rank = 0;
-            within[order[0]] = 0;
+            within[members[from + order[0]]] = 0;
             for (int i = 1; i < order.length; i++) {
                 if (bySize.compare(order[i - 1], order[i]) != 0) {
                     rank++;
                 }
-                within[order[i]] = rank;
+                within[members[from + order[i]]] = rank;
             }
             sizesIn[c] = rank + 1;
         });
@@ -121,7 +155,7 @@ final class SignedRanks {
         }
         int[] keys = new int[total];
         for (int i = 0; i < total; i++) {
-            keys[i] = values[i].signum() * Math.addExact(1, base[cluster[i]] + within[i]);
+            keys[i] = signs[i] * Math.addExact(1, base[cluster[i]] + within[i]);
         }
         return keys;
     }

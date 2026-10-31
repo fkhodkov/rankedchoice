@@ -397,7 +397,9 @@ mark, as spreadsheets' "CSV UTF-8" files do.
   takes at most 1,073,741,823. Larger counts are refused with the limit. Every other method
   counts in exact integers of any size.
 - **CPO-STV** is capped at 500 possible committees (`C(candidates, seats)`), **Schulze STV** at
-  50,000 committees and 20 seats; near that cap it needs about 320 MB of heap.
+  50,000 committees and 20 seats; near that cap (18 candidates for 7 seats, the most links it
+  allows) it needs about 128 MB of heap. Its JSON and CSV reports list every support, 350,000
+  there (46 MB of JSON), and need more.
 - **Schulze STV compares links by margin**, as the paper's worked example does. Schulze's own
   program ranks them differently, and its tie-break uses an older single-winner ranking, so on 2
   of Tideman's 65 elections it elects a different committee (see
@@ -455,8 +457,9 @@ Schulze STV's cost grows with the number of contests of seats + 1 candidates, an
 distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 61 take
 under 2 s and the slowest (A05: 16 candidates, 7 seats) about 5 s. On `tools/benchmark`'s
 elections of 10,000 voters ranking about 5: 20 candidates / 5 seats 4 s, 24 / 5 (42,504
-committees) 13 s, 16 / 8 10 s; 20 / 5 at 100,000 voters 11 s. Each fits in a 256 MB heap but
-24 / 5, which needs 512 MB.
+committees) 13 s, 16 / 8 10 s; 20 / 5 at 100,000 voters 11 s. Each fits in a 96 MB heap but
+24 / 5, which needs 192 MB (512 MB while its 2 million margins between supports were all held
+as fractions; they're now ranked as they're made).
 
 The Schulze proportional ranking places every candidate, and its cost grows with the candidates:
 on the same elections (seats aside) 20 candidates take 2.8 s, 24 4.5 s and 16 2.0 s; 20 at

@@ -56,8 +56,8 @@ import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
  * <p>Cost grows with {@code C(candidates, seats + 1)} contests, each needing M+1 supports
  * over 2^M subsets, and with how many distinct orders the voters give each contest's
  * candidates. Memory grows with the number of links, about M * (candidates - M) per
- * committee, a link and its reverse sharing one exact margin: 18 candidates for 7 seats, about
- * the most links the cap allows (2.45 million), count in 320 MB of heap. {@link
+ * committee, a link and its reverse sharing one margin, held as its rank: 18 candidates for 7
+ * seats, about the most links the cap allows (2.45 million), count in 128 MB of heap. {@link
  * #MAX_COMMITTEES} and {@link #MAX_SEATS} cap the election rather than let it run for hours.
  */
 public final class SchulzeStvCounter {
@@ -963,19 +963,21 @@ public final class SchulzeStvCounter {
                 Interruption.Watch watch) {
             int[][] targets = new int[committees.size()][];
             int[][] margins = new int[committees.size()][];
-            // pairMargins[s][pair(i, j)], i < j: N[contest s without i; i] - N[contest s without j; j].
-            Fraction[][] pairMargins = watch.call(() -> Arrays.stream(supports).parallel().map(support -> {
-                try (Interruption.Piece _ = watch.enter()) {
-                    Fraction[] pairs = new Fraction[support.length * (support.length - 1) / 2];
-                    for (int i = 0; i < support.length; i++) {
-                        for (int j = i + 1; j < support.length; j++) {
-                            pairs[pair(i, j, support.length)] = support[i].subtract(support[j]);
-                        }
-                    }
-                    return pairs;
+            // pairRanks[s][pair(i, j)], i < j: N[contest s without i; i] - N[contest s without j; j],
+            // ranked. The margins are made as they're ranked, never all held at once.
+            int size = seats + 1;
+            int[] first = new int[size * (size - 1) / 2];
+            int[] second = new int[first.length];
+            for (int i = 0; i < size; i++) {
+                for (int j = i + 1; j < size; j++) {
+                    first[pair(i, j, size)] = i;
+                    second[pair(i, j, size)] = j;
                 }
-            }).toArray(Fraction[][]::new));
-            int[][] pairRanks = SignedRanks.of(pairMargins);
+            }
+            int[] lengths = new int[supports.length];
+            Arrays.fill(lengths, first.length);
+            int[][] pairRanks = SignedRanks.of(lengths,
+                    (s, p) -> supports[s][first[p]].subtract(supports[s][second[p]]));
             watch.run(() -> IntStream.range(0, committees.size()).parallel().forEach(x -> {
                 try (Interruption.Piece _ = watch.enter()) {
                     int[] committee = committees.get(x);
