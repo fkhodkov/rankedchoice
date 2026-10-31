@@ -1,5 +1,6 @@
 package info.fkhodkov.rankedchoice.schulzestv;
 
+import java.util.AbstractList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,14 +29,30 @@ public final class SchulzeStvReports {
             List<List<String>> candidateRanking, List<Support> supports) {
     }
 
-    /** The structured tree {@link #json} serializes. */
+    /**
+     * The structured tree {@link #json} serializes. Its supports are made as they're read, one at
+     * a time: there can be close to a million (24 candidates for 5 seats: 807,576), and held all
+     * at once, as names and decimals, they took more memory than the count.
+     */
     public static Report toReport(SchulzeStvResult result) {
+        List<SchulzeStvResult.Support> supports = result.supports();
         return new Report(
                 result.winners().stream().map(SchulzeStvReports::names).toList(),
                 result.potentialWinners().stream().map(SchulzeStvReports::names).toList(),
                 result.candidateRanking().ranking().stream().map(SchulzeStvReports::names).toList(),
-                result.supports().stream().map(support -> new Support(names(support.committee()),
-                        support.against().name(), support.support().toDecimalString())).toList());
+                new AbstractList<>() {
+                    @Override
+                    public Support get(int index) {
+                        SchulzeStvResult.Support support = supports.get(index);
+                        return new Support(names(support.committee()), support.against().name(),
+                                support.support().toDecimalString());
+                    }
+
+                    @Override
+                    public int size() {
+                        return supports.size();
+                    }
+                });
     }
 
     public static String json(SchulzeStvResult result) {
