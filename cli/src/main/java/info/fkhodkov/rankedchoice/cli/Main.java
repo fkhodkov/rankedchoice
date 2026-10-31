@@ -1,12 +1,16 @@
 package info.fkhodkov.rankedchoice.cli;
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -131,15 +135,62 @@ public final class Main implements Callable<Integer> {
     private Integer precision;
 
     static void main(String[] args) {
+        endOnAnUncaughtError();
         System.exit(new CommandLine(new Main()).execute(args));
+    }
+
+    /**
+     * Ends the program as soon as any thread dies of an error nobody caught. A parallel count's
+     * worker out of memory can die before it marks its task failed, and the count then waits for
+     * that task forever, idle, with too little memory left even to act on Ctrl-C or {@code kill}
+     * (Schulze STV 20 for 5 in 128 MB did, 2 runs of 6). The message is made beforehand and the
+     * program halted, since nothing more can be allocated: what the handler uses is loaded and
+     * linked here, as each first use, on a full heap, failed (the class {@link Runtime#halt} uses,
+     * the compare-and-set, the write).
+     */
+    static void endOnAnUncaughtError() {
+        try {
+            Class.forName("java.lang.Shutdown", true, null);
+        } catch (ClassNotFoundException e) {
+            // Another Java's: halt loads what it uses when it's called.
+        }
+        byte[] outOfMemory = (outOfMemoryMessage() + System.lineSeparator()).getBytes(StandardCharsets.UTF_8);
+        FileOutputStream err = new FileOutputStream(FileDescriptor.err);
+        AtomicBoolean told = new AtomicBoolean();
+        told.compareAndSet(true, true);
+        try {
+            err.write(new byte[0]);
+        } catch (IOException e) {
+            // No standard error to write to: halting still works.
+        }
+        Thread.setDefaultUncaughtExceptionHandler((thread, e) -> {
+            if (!told.compareAndSet(false, true)) {
+                return; // another dying thread is saying it, and halts once it has
+            }
+            try {
+                if (e instanceof OutOfMemoryError) {
+                    err.write(outOfMemory);
+                } else {
+                    err.write(("Error: an internal fault, please report it: " + e + System.lineSeparator())
+                            .getBytes(StandardCharsets.UTF_8));
+                }
+            } catch (Throwable ignored) {
+                // Halting matters more than the message.
+            } finally {
+                Runtime.getRuntime().halt(1);
+            }
+        });
+    }
+
+    private static String outOfMemoryMessage() {
+        return "Error: the count ran out of memory (Java's heap is " + Runtime.getRuntime().maxMemory() / (1024 * 1024)
+                + " MB); give it more with java -Xmx, e.g. java -Xmx8g -jar ...";
     }
 
     @Override
     public Integer call() {
         // Made before the count: once memory has run out, building it might fail too.
-        String outOfMemory = "Error: the count ran out of memory (Java's heap is "
-                + Runtime.getRuntime().maxMemory() / (1024 * 1024) + " MB); give it more with java -Xmx, "
-                + "e.g. java -Xmx8g -jar ...";
+        String outOfMemory = outOfMemoryMessage();
         try {
             String report = runCount();
             if (output != null) {
