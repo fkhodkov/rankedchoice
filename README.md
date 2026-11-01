@@ -612,8 +612,9 @@ common/src/main/java/info/fkhodkov/rankedchoice/
 
 library/src/main/java/info/fkhodkov/rankedchoice/
 ├── count/         Tabulator (a count by any method, from CountOptions and a config or ruleset),
-│                  Tabulation, ReportFormat, Election (a ballot file read), Rulesets (the bundled
-│                  presets): what the command line counts through
+│                  Tabulation (the method's result as data, and its report in any ReportFormat),
+│                  Election (a ballot file read), Rulesets (the bundled presets): what the command
+│                  line and the server count through
 ├── stv/
 │   ├── quota/     Quota, DroopQuota, HareQuota, HagenbachBischoffQuota, ImperialiQuota,
 │   │              RoundedUpQuota

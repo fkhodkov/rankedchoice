@@ -6,10 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
 import info.fkhodkov.rankedchoice.borda.BordaMethod;
-import info.fkhodkov.rankedchoice.borda.BordaReports;
-import info.fkhodkov.rankedchoice.borda.BordaResult;
 import info.fkhodkov.rankedchoice.borda.BordaScoringRule;
-import info.fkhodkov.rankedchoice.borda.BordaTextReport;
 import info.fkhodkov.rankedchoice.borda.ClassicBorda;
 import info.fkhodkov.rankedchoice.borda.DowdallScoring;
 import info.fkhodkov.rankedchoice.cambridge.CambridgeCounter;
@@ -18,38 +15,19 @@ import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvCounter;
-import info.fkhodkov.rankedchoice.cpostv.CpoStvReports;
-import info.fkhodkov.rankedchoice.cpostv.CpoStvResult;
 import info.fkhodkov.rankedchoice.cpostv.CpoStvRuleset;
-import info.fkhodkov.rankedchoice.cpostv.CpoStvTextReport;
 import info.fkhodkov.rankedchoice.qpq.QpqCounter;
-import info.fkhodkov.rankedchoice.qpq.QpqReports;
-import info.fkhodkov.rankedchoice.qpq.QpqResult;
 import info.fkhodkov.rankedchoice.qpq.QpqRuleset;
-import info.fkhodkov.rankedchoice.qpq.QpqTextReport;
 import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
-import info.fkhodkov.rankedchoice.schulze.SchulzeReports;
-import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
-import info.fkhodkov.rankedchoice.schulze.SchulzeTextReport;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeProportionalRanking;
-import info.fkhodkov.rankedchoice.schulzestv.SchulzeProportionalReports;
-import info.fkhodkov.rankedchoice.schulzestv.SchulzeProportionalResult;
 import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvCounter;
-import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvReports;
-import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvResult;
-import info.fkhodkov.rankedchoice.schulzestv.SchulzeStvTextReport;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
-import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
 import info.fkhodkov.rankedchoice.stv.meek.KeepRule;
 import info.fkhodkov.rankedchoice.stv.meek.MeekCounter;
 import info.fkhodkov.rankedchoice.stv.meek.MeekRuleset;
-import info.fkhodkov.rankedchoice.stv.report.StvCsvReport;
-import info.fkhodkov.rankedchoice.stv.report.StvHtmlReport;
-import info.fkhodkov.rankedchoice.stv.report.StvJsonReport;
-import info.fkhodkov.rankedchoice.stv.report.StvTextReport;
 import info.fkhodkov.rankedchoice.stv.rounding.Exact;
 import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
 
@@ -61,7 +39,8 @@ import info.fkhodkov.rankedchoice.stv.rounding.RoundingRule;
  * method refuses an option it would otherwise ignore, so a typo or a misremembered rule can't pass
  * unnoticed.
  *
- * <p>{@link #of} settles the options and the rules, {@link #count} counts an election by them.
+ * <p>{@link #of} settles the options and the rules, {@link #count} counts an election by them and
+ * gives the method's result, as data and as its report (see {@link Tabulation}).
  */
 public final class Tabulator {
 
@@ -195,8 +174,9 @@ public final class Tabulator {
     }
 
     /**
-     * Counts the election. Classic STV with exact arithmetic tells {@code warnings} when its
-     * figures grow so long the count may become very slow.
+     * Counts the election, giving the method's own result (a {@link Tabulation.Stv} for classic STV,
+     * Meek, Warren and Cambridge STV). Classic STV with exact arithmetic tells {@code warnings} when
+     * its figures grow so long the count may become very slow.
      */
     public Tabulation count(Election election, Consumer<String> warnings) {
         List<Candidate> candidates = election.candidates();
@@ -218,23 +198,11 @@ public final class Tabulator {
 
         switch (method) {
             case "schulze" -> {
-                SchulzeResult result = SchulzeMethod.count(candidates, ballots);
-                return new Tabulation(format -> switch (format) {
-                    case CSV -> SchulzeReports.csv(candidates, result);
-                    case JSON -> SchulzeReports.json(candidates, result);
-                    case HTML -> SchulzeReports.html(candidates, result);
-                    case TEXT -> SchulzeTextReport.render(candidates, result);
-                });
+                return new Tabulation.Schulze(candidates, SchulzeMethod.count(candidates, ballots));
             }
             case "borda" -> {
                 BordaScoringRule rule = parseBordaScoring(firstNonNull(options.bordaScoring(), "classic"));
-                BordaResult result = BordaMethod.count(candidates, ballots, rule);
-                return new Tabulation(format -> switch (format) {
-                    case CSV -> BordaReports.csv(result);
-                    case JSON -> BordaReports.json(result);
-                    case HTML -> BordaReports.html(result);
-                    case TEXT -> BordaTextReport.render(result);
-                });
+                return new Tabulation.Borda(BordaMethod.count(candidates, ballots, rule));
             }
             case "cpo-stv" -> {
                 CpoStvRuleset ruleset = new CpoStvRuleset(
@@ -243,45 +211,21 @@ public final class Tabulator {
                         StvRulesetParser.parseRounding(firstNonNull(options.rounding(), config.rounding())),
                         StvRulesetParser.parseTiedRankings(tiedRankings, TiedRankingPolicy.REJECT),
                         minimumPreferences);
-                CpoStvResult result = CpoStvCounter.count(candidates, ballots, seats, ruleset);
-                return new Tabulation(format -> switch (format) {
-                    case CSV -> CpoStvReports.csv(result);
-                    case JSON -> CpoStvReports.json(result);
-                    case HTML -> CpoStvReports.html(result);
-                    case TEXT -> CpoStvTextReport.render(result);
-                });
+                return new Tabulation.CpoStv(CpoStvCounter.count(candidates, ballots, seats, ruleset));
             }
             case "schulze-proportional" -> {
-                SchulzeProportionalResult result = SchulzeProportionalRanking.count(candidates, ballots,
-                        givenList(candidates));
-                return new Tabulation(format -> switch (format) {
-                    case CSV -> SchulzeProportionalReports.csv(result);
-                    case JSON -> SchulzeProportionalReports.json(result);
-                    case HTML -> SchulzeProportionalReports.html(result);
-                    case TEXT -> SchulzeProportionalReports.text(result);
-                });
+                return new Tabulation.SchulzeProportional(
+                        SchulzeProportionalRanking.count(candidates, ballots, givenList(candidates)));
             }
             case "schulze-stv" -> {
-                SchulzeStvResult result = SchulzeStvCounter.count(candidates, ballots, seats);
-                return new Tabulation(format -> switch (format) {
-                    case CSV -> SchulzeStvReports.csv(result);
-                    case JSON -> SchulzeStvReports.json(result);
-                    case HTML -> SchulzeStvReports.html(result);
-                    case TEXT -> SchulzeStvTextReport.render(result);
-                });
+                return new Tabulation.SchulzeStv(SchulzeStvCounter.count(candidates, ballots, seats));
             }
             case "qpq" -> {
                 QpqRuleset ruleset = new QpqRuleset(
                         StvRulesetParser.parseTieBreak(firstNonNull(options.tiebreak(), config.tiebreak()), candidates),
                         StvRulesetParser.parseTiedRankings(tiedRankings, TiedRankingPolicy.REJECT),
                         minimumPreferences);
-                QpqResult result = QpqCounter.count(candidates, ballots, seats, ruleset);
-                return new Tabulation(format -> switch (format) {
-                    case CSV -> QpqReports.csv(result);
-                    case JSON -> QpqReports.json(result);
-                    case HTML -> QpqReports.html(result);
-                    case TEXT -> QpqTextReport.render(result);
-                });
+                return new Tabulation.Qpq(QpqCounter.count(candidates, ballots, seats, ruleset));
             }
             case "stv" -> {
                 StvRuleset ruleset = StvRulesetParser.parse(
@@ -303,7 +247,8 @@ public final class Tabulator {
                         config.quotaEachRound(),
                         config.rankingsElimination(),
                         candidates);
-                return stv(StvCounter.count(candidates, ballots, seats, ruleset, warnings), ruleset.roundingRule());
+                return new Tabulation.Stv(StvCounter.count(candidates, ballots, seats, ruleset, warnings),
+                        ruleset.roundingRule());
             }
             case "meek", "warren" -> {
                 RoundingRule rounding =
@@ -315,29 +260,20 @@ public final class Tabulator {
                         minimumPreferences,
                         precision != null ? precision : MeekRuleset.DEFAULT_PRECISION,
                         method.equals("warren") ? KeepRule.WARREN : KeepRule.MEEK);
-                return stv(MeekCounter.count(candidates, ballots, seats, ruleset), rounding);
+                return new Tabulation.Stv(MeekCounter.count(candidates, ballots, seats, ruleset), rounding);
             }
             case "cambridge" -> {
                 CambridgeRuleset ruleset = new CambridgeRuleset(
                         StvRulesetParser.parseTieBreak(firstNonNull(options.tiebreak(), config.tiebreak()), candidates),
                         StvRulesetParser.parseTiedRankings(tiedRankings, TiedRankingPolicy.REJECT),
                         minimumPreferences);
-                return stv(CambridgeCounter.count(candidates, ballots, seats, ruleset), Exact.INSTANCE);
+                return new Tabulation.Stv(CambridgeCounter.count(candidates, ballots, seats, ruleset), Exact.INSTANCE);
             }
             default -> throw new IllegalArgumentException(
                     "Unsupported method '" + method
                             + "'; expected 'stv', 'meek', 'warren', 'cambridge', 'schulze', 'borda', 'cpo-stv', "
                             + "'schulze-stv', 'schulze-proportional', or 'qpq'");
         }
-    }
-
-    private static Tabulation stv(StvResult result, RoundingRule rounding) {
-        return new Tabulation(format -> switch (format) {
-            case CSV -> StvCsvReport.render(result, rounding);
-            case JSON -> StvJsonReport.render(result, rounding);
-            case HTML -> StvHtmlReport.render(result, rounding);
-            case TEXT -> StvTextReport.render(result, rounding);
-        });
     }
 
     private static Map<String, String> nonStvUnused(String extra, String extraReason) {

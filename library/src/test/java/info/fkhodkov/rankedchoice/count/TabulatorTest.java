@@ -125,6 +125,51 @@ class TabulatorTest {
     }
 
     @Test
+    void everyMethodGivesItsResultAsData() {
+        Election election = Election.read(WIKIPEDIA, null);
+        List<String> outcomes = new ArrayList<>();
+        for (String method : List.of("stv", "meek", "warren", "cambridge", "qpq", "cpo-stv", "schulze-stv",
+                "schulze-proportional", "schulze", "borda")) {
+            CountOptions options = new CountOptions(method, null, method.equals("cambridge") ? 1 : null, null, null,
+                    null, null, null, null, null, null, null);
+            Tabulation tabulation = Tabulator.of(options, null).count(election, warning -> { });
+            String outcome = switch (tabulation) {
+                case Tabulation.Stv stv -> "elected " + names(stv.result().electedInOrder());
+                case Tabulation.Qpq qpq -> "elected " + names(qpq.result().electedInOrder());
+                case Tabulation.CpoStv cpo -> "committees " + cpo.result().winners().stream()
+                        .map(TabulatorTest::sortedNames).toList();
+                case Tabulation.SchulzeStv sstv -> "committees " + sstv.result().winners().stream()
+                        .map(TabulatorTest::sortedNames).toList();
+                case Tabulation.SchulzeProportional list -> "ranked " + names(list.result().ranking());
+                case Tabulation.Schulze schulze -> "ranked " + schulze.result().ranking().stream()
+                        .map(TabulatorTest::sortedNames).toList();
+                case Tabulation.Borda borda -> "ranked " + names(borda.result().rankingBestToWorst());
+            };
+            outcomes.add(method + ": " + outcome);
+        }
+
+        assertThat(outcomes).containsExactly(
+                "stv: elected [Andrea, Brad]",
+                "meek: elected [Andrea, Brad]",
+                "warren: elected [Andrea, Brad]",
+                "cambridge: elected [Andrea]",
+                "qpq: elected [Andrea, Brad]",
+                "cpo-stv: committees [[Andrea, Brad]]",
+                "schulze-stv: committees [[Andrea, Brad]]",
+                "schulze-proportional: ranked [Andrea, Brad, Delilah, Carter]",
+                "schulze: ranked [[Andrea], [Brad], [Delilah], [Carter]]",
+                "borda: ranked [Andrea, Brad, Delilah, Carter]");
+    }
+
+    private static List<String> names(List<Candidate> candidates) {
+        return candidates.stream().map(Candidate::name).toList();
+    }
+
+    private static List<String> sortedNames(Set<Candidate> candidates) {
+        return candidates.stream().map(Candidate::name).sorted().toList();
+    }
+
+    @Test
     void aGivenListTakesTheFirstPlacesOfTheProportionalRanking() {
         Election election = Election.read(WIKIPEDIA, null);
         CountOptions options = new CountOptions("schulze-proportional", null, null, null, null, null, null, null,
