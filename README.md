@@ -281,18 +281,28 @@ java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar --port 9000 --bin
 curl -X POST localhost:8080/api/count -d '{"ballots": "2 1\n3 1 2 0\n2 2 0\n0\n\"A\"\n\"B\"\n", "method": "meek"}'
 ```
 
-A public demo can't let one request take the machine, so the server reads at most 5 MB a
-request (413 past that), runs at most half the processors' worth of counts at once (503 while
-every place is taken), and waits 30 seconds for each (504); `--max-request-mb`, `--max-counts` and
-`--timeout-seconds` change them. A count past its time is interrupted and stops at its next
-check, between rounds or inside its longest loops, giving up its place: on test elections that
-ran on for up to 160 seconds after the interrupt (CPO-STV, 12 candidates for 4 seats), every
-method stopped within a quarter of a second. Cambridge STV keeps every ballot one by one, so a
-ballot's count, a few bytes of the request, sets its memory: one ballot counted a billion times
-took 12 GB. The server counts at most a million ballots by it (400 past that;
-`--max-cambridge-ballots` changes it), which takes under a second in a 32 MB heap; the other
-methods keep each distinct ranking once, whatever its count. Large counts belong to the command
-line.
+A public demo can't let one request take the machine, so the server reads at most 5 MB a request
+(413 past that), runs at most 2 counts at once (503 while every place is taken), and waits 30
+seconds for each (504); `--max-request-mb`, `--max-counts` and `--timeout-seconds` change them. A
+count past its time is interrupted and stops at its next check, between rounds or inside its
+longest loops, giving up its place: on test elections that ran on for up to 160 seconds after the
+interrupt (CPO-STV, 12 candidates for 4 seats), every method stopped within a quarter of a second.
+Cambridge STV keeps every ballot one by one, so a ballot's count, a few bytes of the request, sets
+its memory: one ballot counted a billion times took 12 GB. The server counts at most a million
+ballots by it (400 past that; `--max-cambridge-ballots` changes it), which takes under a second in
+a 32 MB heap; the other methods keep each distinct ranking once, whatever its count. Large counts
+belong to the command line.
+
+The time limit is a count's own, but the processors are shared. Schulze STV, the Schulze
+proportional ranking, CPO-STV and Meek or Warren over many distinct rankings split one count across
+every processor, so large counts at once slow each other down. Schulze STV of `tools/benchmark`'s
+24 candidates for 5 seats took a running server on 14 processors 5.4 s alone, 6.0 s two at once,
+14–18 s four at once, and 29–41 s seven at once: six of the seven would get a 504 at 30 seconds,
+which is why the server takes 2 at once unless told otherwise. Small counts aren't held up: one of
+a few ballots took 17–26 ms while four of those ran. So size `--max-counts` and `--timeout-seconds`
+together: as many of the largest counts you mean to take as `--max-counts` allows should finish
+together within the time; a count past the cap is turned away at once (503) rather than making
+every count late.
 
 ### Running it in Docker
 

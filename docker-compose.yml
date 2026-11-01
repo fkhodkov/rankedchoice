@@ -10,6 +10,8 @@ services:
       - "127.0.0.1:8080:8080"
     # The heap is 75% of this.
     mem_limit: 1g
+    # Large counts at once share the processors: keep --max-counts times the longest count's
+    # time within --timeout-seconds (README's "Demo server").
     command: ["--max-counts", "2", "--timeout-seconds", "30", "--max-request-mb", "5",
               "--max-cambridge-ballots", "1000000"]
     restart: unless-stopped
