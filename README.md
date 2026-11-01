@@ -432,10 +432,11 @@ mark, as spreadsheets' "CSV UTF-8" files do.
 
 ## Performance
 
-End to end through the command line (JVM startup and parsing included) on a 14-core laptop on
-mains power, in its balanced power profile, with every voter casting a distinct ballot ranking about
-5 candidates (`tools/benchmark` makes the elections and reruns every figure here). Single runs vary
-by up to a third, more on a busy machine; the table gives the median of three, the rest single runs.
+End to end through the command line (JVM startup and parsing included) on a 14-core laptop on mains
+power, in its balanced power profile, with every voter casting a distinct ballot ranking about 5
+candidates (`tools/benchmark` makes the elections and reruns every figure here). Single runs vary
+by up to a third, more on a busy machine; the table gives the median of three, the Schulze STV and
+proportional ranking figures the median of six, the rest single runs.
 
 | Method | 20 candidates, 5 seats, 100k voters | 20 / 5, 1M voters | 100 / 20, 100k voters |
 |---|---|---|---|
@@ -464,18 +465,19 @@ two-byte indices. Java's default heap is a quarter of the machine's memory; a co
 says so and suggests `java -Xmx`.
 
 Schulze STV's cost grows with the number of contests of seats + 1 candidates, and with how many
-distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 61 take
-under 2 s and the slowest (A05: 16 candidates, 7 seats) about 5 s. On `tools/benchmark`'s
-elections of 10,000 voters ranking about 5: 20 candidates / 5 seats 4 s, 24 / 5 (42,504
-committees) 13 s, 16 / 8 10 s; 20 / 5 at 100,000 voters 11 s. Each fits in a 96 MB heap but
-24 / 5, which needs 192 MB (512 MB while its 2 million margins between supports were all held
-as fractions; they're now ranked as they're made). Those are with the text report; the JSON
-report lists every support, 807,576 for 24 / 5 (96 MB), and needs 384 MB there.
+distinct orders the voters give each contest's candidates. Of Tideman's 65 elections, 63 take under
+2 s and the slowest (A05: 16 candidates, 7 seats) about 5 s. On `tools/benchmark`'s elections of
+10,000 voters ranking about 5: 20 candidates / 5 seats 4.2 s, 24 / 5 (42,504 committees) 7.7 s,
+16 / 8 7.2 s; 20 / 5 at 100,000 voters 7.1 s. Its single runs vary up to twofold (24 / 5 took 5.4
+to 11.9 s). Each fits in a 96 MB heap but 24 / 5, which needs 192 MB (512 MB while its 2 million
+margins between supports were all held as fractions; they're now ranked as they're made). Those are
+with the text report; the JSON report lists every support, 807,576 for 24 / 5 (96 MB), and needs
+384 MB there.
 
-The Schulze proportional ranking places every candidate, and its cost grows with the candidates:
-on the same elections (seats aside) 20 candidates take 2.8 s, 24 4.5 s and 16 2.0 s; 20 at
-100,000 voters 8.2 s. Of Schulze's published lists, Berlin 2013's (46 candidates, 303 ballots)
-takes 15 s and Sweden 2014's (63, 220) 19 s. Each fits in a 256 MB heap.
+The Schulze proportional ranking places every candidate, and its cost grows with the candidates: on
+the same elections (seats aside) 20 candidates take 2.3 s, 24 3.5 s and 16 1.6 s; 20 at 100,000
+voters 5.8 s. Of Schulze's published lists, Berlin 2013's (46 candidates, 303 ballots) takes about
+12 s and Sweden 2014's (63, 220) about 15 s. Each fits in a 256 MB heap.
 
 ## Tools
 
