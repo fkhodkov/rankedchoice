@@ -602,6 +602,12 @@ packaged with both and its own dependencies into one runnable jar,
 another runnable jar, `server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar`). Each module's tests sit beside its code; the
 real-election fixtures are the library's.
 
+Code using the library should count through `count`: `Tabulator`, `CountOptions` (built up from
+`CountOptions.NONE` with its `with...` methods), `Election` and `Tabulation`, with an
+`ElectionConfig` built the same way or read by `ConfigLoader`. Those are meant to keep working as
+options and settings are added. The counters' and rulesets' own constructors (`StvRuleset`'s full
+one takes 17 arguments) may still change before 1.0.
+
 ```
 common/src/main/java/info/fkhodkov/rankedchoice/
 └── core/
@@ -610,7 +616,8 @@ common/src/main/java/info/fkhodkov/rankedchoice/
     │              NumberedLine (line numbers for errors; a leading byte order mark dropped)
     ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
     ├── report/    ReportMarkup (CSV quoting, HTML escaping and page, JSON writer)
-    └── util/      Fraction (exact rational arithmetic), Interruption (where a count gives up)
+    └── util/      Fraction (exact rational arithmetic), Interruption (where a count gives up),
+                   Unmodifiable (ordered unmodifiable copies, for results)
 
 library/src/main/java/info/fkhodkov/rankedchoice/
 ├── count/         Tabulator (a count by any method, from CountOptions and a config or ruleset),

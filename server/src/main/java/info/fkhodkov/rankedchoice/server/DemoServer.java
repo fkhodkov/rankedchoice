@@ -329,9 +329,13 @@ public final class DemoServer {
 
     private static String countByTheLibrary(CountRequest request, ReportFormat format, List<String> warnings,
             int maxCambridgeBallots) {
-        Tabulator tabulator = Tabulator.of(new CountOptions(request.method(), request.ruleset(), request.seats(),
-                request.quota(), request.transfer(), request.rounding(), request.tiebreak(), request.tiedRankings(),
-                request.minimumPreferences(), request.precision(), request.bordaScoring(), request.givenList()), null);
+        CountOptions options = CountOptions.NONE.withMethod(request.method()).withRuleset(request.ruleset())
+                .withSeats(request.seats()).withQuota(request.quota()).withTransfer(request.transfer())
+                .withRounding(request.rounding()).withTiebreak(request.tiebreak())
+                .withTiedRankings(request.tiedRankings()).withMinimumPreferences(request.minimumPreferences())
+                .withPrecision(request.precision()).withBordaScoring(request.bordaScoring())
+                .withGivenList(request.givenList());
+        Tabulator tabulator = Tabulator.of(options, null);
         Election election = Election.parse(request.ballots(), request.format());
         if (tabulator.method().equals("cambridge")) {
             // It keeps every ballot one by one, so the ballots' counts, not the request's size, decide its memory.

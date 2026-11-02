@@ -219,8 +219,11 @@ public final class Main implements Callable<Integer> {
 
     private String runCount() {
         ElectionConfig fileConfig = loadFileConfig();
-        Tabulator tabulator = Tabulator.of(new CountOptions(method, rulesetName, seats, quota, transfer, rounding,
-                tiebreak, tiedRankings, minimumPreferences, precision, bordaScoring, givenList), fileConfig);
+        CountOptions options = CountOptions.NONE.withMethod(method).withRuleset(rulesetName).withSeats(seats)
+                .withQuota(quota).withTransfer(transfer).withRounding(rounding).withTiebreak(tiebreak)
+                .withTiedRankings(tiedRankings).withMinimumPreferences(minimumPreferences).withPrecision(precision)
+                .withBordaScoring(bordaScoring).withGivenList(givenList);
+        Tabulator tabulator = Tabulator.of(options, fileConfig);
         ReportFormat reportAs = resolveReportFormat(tabulator.config());
         requireFile(input, "input file");
         Election election = Election.read(input, firstNonNull(format, tabulator.config().format()));

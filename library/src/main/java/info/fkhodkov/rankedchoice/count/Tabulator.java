@@ -61,10 +61,6 @@ public final class Tabulator {
             new Method("schulze", "Schulze: a Condorcet beatpath ranking of every candidate"),
             new Method("borda", "Borda: positional scores, classic or Dowdall"));
 
-    private static final ElectionConfig EMPTY_CONFIG =
-            new ElectionConfig(null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-                    null, null, null, null, null, null, null);
-
     /**
      * The options each method has no use for, with why. Only options are checked: a config file or
      * ruleset may legitimately carry fields another method uses.
@@ -157,7 +153,7 @@ public final class Tabulator {
         }
         ElectionConfig rules = config != null ? config
                 : options.ruleset() != null ? Rulesets.load(options.ruleset())
-                : EMPTY_CONFIG;
+                : ElectionConfig.NONE;
         String method = firstNonNull(options.method(), "stv").toLowerCase(Locale.ROOT);
         refuseUnusedOptions(method, options);
         return new Tabulator(options, rules, method);
