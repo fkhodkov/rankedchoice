@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Unmodifiable;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 
 /**
@@ -23,8 +24,17 @@ public record SchulzeProportionalResult(
         List<Place> places,
         SchulzeResult tieBreakRanking
 ) {
+    public SchulzeProportionalResult {
+        ranking = Unmodifiable.list(ranking);
+        places = Unmodifiable.list(places);
+    }
+
     /** How place {@code place} (1-based) went to {@code candidate}. */
     public record Place(int place, Candidate candidate, Map<Candidate, Map<Candidate, Fraction>> comparisons,
             List<Candidate> potentialWinners, boolean given) {
+        public Place {
+            comparisons = Unmodifiable.mapOfMaps(comparisons);
+            potentialWinners = Unmodifiable.list(potentialWinners);
+        }
     }
 }

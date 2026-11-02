@@ -16,6 +16,12 @@ import info.fkhodkov.rankedchoice.core.model.Candidate;
  */
 public record Election(List<Candidate> candidates, List<Ballot> ballots, Integer seats) {
 
+    /** Copies the lists; a reader's lists are already unmodifiable, so they're kept as they are. */
+    public Election {
+        candidates = List.copyOf(candidates);
+        ballots = List.copyOf(ballots);
+    }
+
     /** Reads a ballot file, as {@code blt} or {@code csv}; a null format is inferred from the file's name. */
     public static Election read(Path path, String format) {
         String resolved = format != null ? format.toLowerCase(Locale.ROOT) : inferFormat(path);

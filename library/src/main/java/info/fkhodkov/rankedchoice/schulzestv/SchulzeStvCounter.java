@@ -14,6 +14,7 @@ import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
 import info.fkhodkov.rankedchoice.core.util.Interruption;
+import info.fkhodkov.rankedchoice.core.util.Unmodifiable;
 import info.fkhodkov.rankedchoice.schulze.SchulzeMethod;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 
@@ -230,7 +231,7 @@ public final class SchulzeStvCounter {
             for (int c : committees.get(index)) {
                 set.add(candidates.get(c));
             }
-            sets.add(set);
+            sets.add(Unmodifiable.set(set)); // shared by its supports, uncopied (see Support)
         }
         return sets;
     }

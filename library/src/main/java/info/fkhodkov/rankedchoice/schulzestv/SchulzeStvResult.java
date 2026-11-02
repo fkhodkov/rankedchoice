@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.core.util.Unmodifiable;
 import info.fkhodkov.rankedchoice.schulze.SchulzeResult;
 
 /**
@@ -25,7 +26,21 @@ public record SchulzeStvResult(
         List<Set<Candidate>> winners,
         SchulzeResult candidateRanking
 ) {
-    /** {@code N[committee; against]}. */
+    public SchulzeStvResult {
+        supports = Unmodifiable.list(supports);
+        potentialWinners = Unmodifiable.listOfSets(potentialWinners);
+        winners = Unmodifiable.listOfSets(winners);
+    }
+
+    /**
+     * {@code N[committee; against]}. The committee is copied by {@link Unmodifiable#set}, which
+     * keeps a set it made already as it is: a count shares each committee's set among its supports
+     * (807,576 supports of 42,504 committees for 24 candidates and 5 seats), and copying it into
+     * each would take tens of megabytes.
+     */
     public record Support(Set<Candidate> committee, Candidate against, Fraction support) {
+        public Support {
+            committee = Unmodifiable.set(committee);
+        }
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.core.util.Unmodifiable;
 
 /**
  * The outcome of a Schulze count: the pairwise preference matrix {@code d}, the strongest-path
@@ -18,6 +19,12 @@ public record SchulzeResult(
         Map<Candidate, Map<Candidate, BigInteger>> strongestPaths,
         List<Set<Candidate>> ranking
 ) {
+    public SchulzeResult {
+        pairwiseWins = Unmodifiable.mapOfMaps(pairwiseWins);
+        strongestPaths = Unmodifiable.mapOfMaps(strongestPaths);
+        ranking = Unmodifiable.listOfSets(ranking);
+    }
+
     /** The most-preferred group — more than one candidate only when the count ends in a genuine tie. */
     public Set<Candidate> winners() {
         return ranking.getFirst();

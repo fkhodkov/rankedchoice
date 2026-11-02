@@ -161,6 +161,38 @@ class TabulatorTest {
                 "borda: ranked [Andrea, Brad, Delilah, Carter]");
     }
 
+    @Test
+    void everyResultRefusesToBeChanged() {
+        Election election = Election.read(WIKIPEDIA, null);
+        for (String method : List.of("stv", "qpq", "cpo-stv", "schulze-stv", "schulze-proportional", "schulze",
+                "borda")) {
+            Tabulation tabulation = Tabulator.of(method(method), null).count(election, warning -> { });
+            String before = tabulation.report(ReportFormat.JSON);
+            List<Runnable> changes = switch (tabulation) {
+                case Tabulation.Stv stv -> List.of(() -> stv.result().electedInOrder().clear());
+                case Tabulation.Qpq qpq -> List.of(() -> qpq.result().electedInOrder().clear());
+                case Tabulation.CpoStv cpo -> List.of(() -> cpo.result().ranking().clear(),
+                        () -> cpo.result().ranking().getFirst().clear(),
+                        () -> cpo.result().outcomeScores().values().iterator().next().clear());
+                case Tabulation.SchulzeStv sstv -> List.of(() -> sstv.result().supports().clear(),
+                        () -> sstv.result().winners().getFirst().clear(),
+                        () -> sstv.result().supports().getFirst().committee().clear());
+                case Tabulation.SchulzeProportional list -> List.of(() -> list.result().ranking().clear(),
+                        () -> list.result().places().getFirst().comparisons().values().iterator().next().clear(),
+                        () -> list.result().places().getFirst().potentialWinners().clear());
+                case Tabulation.Schulze schulze -> List.of(() -> schulze.result().ranking().getFirst().clear(),
+                        () -> schulze.result().pairwiseWins().values().iterator().next().clear(),
+                        () -> schulze.result().strongestPaths().clear());
+                case Tabulation.Borda borda -> List.of(() -> borda.result().scores().clear(),
+                        () -> borda.result().rankingBestToWorst().clear());
+            };
+            for (Runnable change : changes) {
+                assertThatThrownBy(change::run).as(method).isInstanceOf(UnsupportedOperationException.class);
+            }
+            assertThat(tabulation.report(ReportFormat.JSON)).as(method).isEqualTo(before);
+        }
+    }
+
     private static List<String> names(List<Candidate> candidates) {
         return candidates.stream().map(Candidate::name).toList();
     }
