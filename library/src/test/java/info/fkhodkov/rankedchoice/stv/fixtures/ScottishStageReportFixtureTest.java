@@ -8,7 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
@@ -31,7 +31,7 @@ class ScottishStageReportFixtureTest {
     void everyRoundIsAStageOfTheOfficialReport(String name) throws IOException {
         ParsedElection election = BltParser.parse(DIRECTORY.resolve(name + ".blt"));
         StvResult count = StvCounter.count(election.candidates(), election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/scottish.yaml"), election.candidates()));
+                StvRulesetParser.parse(Rulesets.load("scottish"), election.candidates()));
 
         assertThat(CountSheet.read(DIRECTORY.resolve(name + ".stages.txt")).match(count)).doesNotContainNull();
     }

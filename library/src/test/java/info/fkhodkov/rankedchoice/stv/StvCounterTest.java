@@ -14,6 +14,7 @@ import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Ballot;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.config.StvRulesetParser;
 import info.fkhodkov.rankedchoice.stv.quota.DroopQuota;
 import info.fkhodkov.rankedchoice.stv.quota.HareQuota;
@@ -917,7 +918,7 @@ class StvCounterTest {
                 new Ballot(List.of(Set.of(c), Set.of(a, b)), BigInteger.valueOf(3)),
                 ballot(5, a),
                 ballot(4, b));
-        ElectionConfig scottish = ConfigLoader.loadResource("/rulesets/scottish.yaml");
+        ElectionConfig scottish = Rulesets.load("scottish");
 
         StvRuleset truncating = StvRulesetParser.parse(scottish.quota(), scottish.transfer(), scottish.rounding(),
                 scottish.tiebreak(), scottish.batchExclusion(), scottish.tiedRankings(), candidates);
@@ -1075,7 +1076,7 @@ class StvCounterTest {
     @Test
     void senateElectsTheHigherOfTheLastTwo() {
         List<Candidate> candidates = List.of(A, B, C);
-        StvRuleset senate = StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/senate.yaml"), candidates);
+        StvRuleset senate = StvRulesetParser.parse(Rulesets.load("senate"), candidates);
 
         StvResult result = StvCounter.count(candidates, List.of(ballot(5, A), ballot(4, B), ballot(3, C)), 1, senate);
 
@@ -1093,7 +1094,7 @@ class StvCounterTest {
     @Test
     void senateElectsTheLastCandidatesAsTheyStand() {
         List<Candidate> candidates = List.of(A, B, C, D);
-        StvRuleset senate = StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/senate.yaml"), candidates);
+        StvRuleset senate = StvRulesetParser.parse(Rulesets.load("senate"), candidates);
 
         StvResult result = StvCounter.count(candidates,
                 List.of(ballot(4, A), ballot(4, B), ballot(3, C, B), ballot(2, D)), 2, senate);
@@ -1141,7 +1142,7 @@ class StvCounterTest {
             throws java.io.IOException {
         List<Candidate> candidates = List.of(A, B, C, D);
         List<Ballot> ballots = List.of(ballot(30, A, C), ballot(30, B, C, D), ballot(23, C), ballot(17, D));
-        StvRuleset portland = StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/portland.yaml"), candidates);
+        StvRuleset portland = StvRulesetParser.parse(Rulesets.load("portland"), candidates);
         java.nio.file.Path oneByOne = dir.resolve("one-by-one.yaml");
         try (var in = getClass().getResourceAsStream("/rulesets/portland.yaml")) {
             String text = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
@@ -1174,7 +1175,7 @@ class StvCounterTest {
                 ballot(34, A, C), ballot(20, B), ballot(18, C), ballot(6, D, A), ballot(12, e, B));
 
         StvResult result = StvCounter.count(candidates, ballots, 2,
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/minneapolis.yaml"), candidates));
+                StvRulesetParser.parse(Rulesets.load("minneapolis"), candidates));
 
         assertThat(result.quota()).isEqualTo(Fraction.of(31));
         assertThat(result.rounds()).extracting(RoundRecord::action).containsExactly(

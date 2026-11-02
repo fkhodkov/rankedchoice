@@ -85,12 +85,17 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.13.0</version>
+          <version>3.15.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.2.5</version>
+          <configuration>
+            <!-- On the classpath, as before common and library were modules: some of library's tests read
+                 its packages' internals. cli's LibraryOnTheModulePathTest runs the jars as modules. -->
+            <useModulePath>false</useModulePath>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>

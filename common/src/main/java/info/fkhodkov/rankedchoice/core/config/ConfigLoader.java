@@ -6,6 +6,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,12 +18,19 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-/** Loads an {@link ElectionConfig} from a YAML file, or from a bundled classpath resource. */
+/**
+ * Loads an {@link ElectionConfig} from a YAML file or stream; the bundled rulesets are
+ * {@code count.Rulesets}'s, in the library.
+ */
 public final class ConfigLoader {
 
-    /** A whole-number setting given as 2.5 is refused, not cut to 2; a true/false one given as 1, not taken as true. */
+    /**
+     * A whole-number setting given as 2.5 is refused, not cut to 2; a true/false one given as 1, not taken as
+     * true. The stream read is left open, as {@link #read} promises: Jackson would otherwise close it.
+     */
     private static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory())
-            .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
+            .disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT)
+            .disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
 
     static {
         MAPPER.coercionConfigFor(LogicalType.Boolean).setCoercion(CoercionInputShape.Integer, CoercionAction.Fail);
@@ -33,13 +41,24 @@ public final class ConfigLoader {
 
     public static ElectionConfig load(Path path) {
         try (InputStream in = Files.newInputStream(path)) {
-            return read(in);
-        } catch (JsonProcessingException e) {
-            // Not YAML, or not a config: say what and where, as Jackson does, without its long trace of the source.
-            throw new IllegalArgumentException("Config file " + path + " isn't a valid config: "
-                    + describe(e) + location(e), e);
+            return read(in, "Config file " + path);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to read config file: " + path, e);
+        }
+    }
+
+    /**
+     * Reads a config's YAML from a stream, which it leaves open. Not YAML, or not a config, is
+     * refused with what and where, {@code name} saying which config (e.g. "Config file x.yaml").
+     */
+    public static ElectionConfig read(InputStream in, String name) {
+        try {
+            return MAPPER.readValue(in, ElectionConfig.class);
+        } catch (JsonProcessingException e) {
+            // Not YAML, or not a config: say what and where, as Jackson does, without its long trace of the source.
+            throw new IllegalArgumentException(name + " isn't a valid config: " + describe(e) + location(e), e);
+        } catch (IOException e) {
+            throw new UncheckedIOException(name + " couldn't be read", e);
         }
     }
 
@@ -72,21 +91,5 @@ public final class ConfigLoader {
     private static String location(JsonProcessingException e) {
         return e.getLocation() == null ? ""
                 : " (line " + e.getLocation().getLineNr() + ", column " + e.getLocation().getColumnNr() + ")";
-    }
-
-    /** Loads a bundled ruleset preset, e.g. {@code loadResource("/rulesets/scottish.yaml")}. */
-    public static ElectionConfig loadResource(String resourcePath) {
-        try (InputStream in = ConfigLoader.class.getResourceAsStream(resourcePath)) {
-            if (in == null) {
-                throw new IllegalArgumentException("No such bundled ruleset resource: " + resourcePath);
-            }
-            return read(in);
-        } catch (IOException e) {
-            throw new UncheckedIOException("Failed to read bundled ruleset resource: " + resourcePath, e);
-        }
-    }
-
-    private static ElectionConfig read(InputStream in) throws IOException {
-        return MAPPER.readValue(in, ElectionConfig.class);
     }
 }

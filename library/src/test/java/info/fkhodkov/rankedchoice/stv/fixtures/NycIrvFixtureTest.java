@@ -20,9 +20,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
@@ -53,7 +53,7 @@ class NycIrvFixtureTest {
         }
         List<Candidate> candidates = election.candidates();
         StvResult result = StvCounter.count(candidates, election.ballots(), 1,
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/irv.yaml"), candidates));
+                StvRulesetParser.parse(Rulesets.load("irv"), candidates));
         JsonNode official = new ObjectMapper().readTree(DIRECTORY.resolve(contest + ".official.json").toFile());
 
         List<JsonNode> rounds = new ArrayList<>();

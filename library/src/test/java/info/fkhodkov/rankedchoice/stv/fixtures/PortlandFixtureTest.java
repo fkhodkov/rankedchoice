@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
@@ -50,7 +50,7 @@ class PortlandFixtureTest {
         }
         List<Candidate> candidates = election.candidates();
         StvResult result = StvCounter.count(candidates, election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/portland.yaml"), candidates));
+                StvRulesetParser.parse(Rulesets.load("portland"), candidates));
         JsonNode official = new ObjectMapper().readTree(DIRECTORY.resolve("district-4-2024.official.json").toFile());
 
         assertThat(result.quota()).isEqualTo(Fraction.of(official.path("config").path("threshold").asLong()));

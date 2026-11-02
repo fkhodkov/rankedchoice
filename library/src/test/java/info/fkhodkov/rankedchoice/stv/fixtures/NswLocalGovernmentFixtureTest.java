@@ -20,9 +20,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
 import info.fkhodkov.rankedchoice.stv.StvResult;
@@ -69,7 +69,7 @@ class NswLocalGovernmentFixtureTest {
                 .filter(candidate -> !election.withdrawnCandidates().contains(candidate))
                 .toList();
         StvResult result = StvCounter.count(candidates, election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/nsw-lg.yaml"), candidates));
+                StvRulesetParser.parse(Rulesets.load("nsw-lg"), candidates));
         Set<String> officiallyElected = new HashSet<>();
         List<Count> official = read(DIRECTORY.resolve(name + ".official.csv"), officiallyElected);
 

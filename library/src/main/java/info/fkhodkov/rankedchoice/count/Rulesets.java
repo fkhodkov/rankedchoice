@@ -1,5 +1,8 @@
 package info.fkhodkov.rankedchoice.count;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.List;
 import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
@@ -59,7 +62,17 @@ public final class Rulesets {
         if (ALL.stream().noneMatch(preset -> preset.name().equals(name))) {
             throw new IllegalArgumentException(unknownMessage(name));
         }
-        return ConfigLoader.loadResource("/rulesets/" + name + ".yaml");
+        // Opened through this class, whose module holds the file: ConfigLoader's is common's, a module of its own
+        // on the module path, where a class finds only its own module's resources.
+        String resource = "/rulesets/" + name + ".yaml";
+        try (InputStream in = Rulesets.class.getResourceAsStream(resource)) {
+            if (in == null) {
+                throw new IllegalStateException("the bundled ruleset " + resource + " is missing from the library");
+            }
+            return ConfigLoader.read(in, "Bundled ruleset " + name);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to read bundled ruleset " + resource, e);
+        }
     }
 
     private static String unknownMessage(String name) {

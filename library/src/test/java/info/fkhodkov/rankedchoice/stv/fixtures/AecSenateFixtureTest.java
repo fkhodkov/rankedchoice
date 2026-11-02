@@ -19,9 +19,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
@@ -79,7 +79,7 @@ class AecSenateFixtureTest {
     void everyRoundMatchesPyRcv2(String name) throws IOException {
         ParsedElection election = BltParser.parse(DIRECTORY.resolve("pyrcv2/" + name + ".blt"));
         StvResult count = StvCounter.count(election.candidates(), election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/senate.yaml"), election.candidates()));
+                StvRulesetParser.parse(Rulesets.load("senate"), election.candidates()));
 
         assertThat(CountSheet.read(DIRECTORY.resolve("pyrcv2/" + name + ".stages.txt")).match(count))
                 .doesNotContainNull();
@@ -95,7 +95,7 @@ class AecSenateFixtureTest {
     void pyRcv2LeavesAnExcludedCandidateWithNegativeVotes() throws IOException {
         ParsedElection election = BltParser.parse(DIRECTORY.resolve("pyrcv2/r545.blt"));
         StvResult count = StvCounter.count(election.candidates(), election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/senate.yaml"), election.candidates()));
+                StvRulesetParser.parse(Rulesets.load("senate"), election.candidates()));
         CountSheet sheet = CountSheet.read(DIRECTORY.resolve("pyrcv2/r545.stages.txt"));
 
         assertThat(sheet.stages().get(4).votes()).containsEntry("C5", Fraction.of(-2, 5));
@@ -111,7 +111,7 @@ class AecSenateFixtureTest {
         }
         List<Candidate> candidates = election.candidates();
         return StvCounter.count(candidates, election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/senate.yaml"), candidates));
+                StvRulesetParser.parse(Rulesets.load("senate"), candidates));
     }
 
     private static Candidate candidate(StvResult result, String name) {

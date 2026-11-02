@@ -11,10 +11,10 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
@@ -47,7 +47,7 @@ class ActKurrajongFixtureTest {
         ParsedElection election = BltParser.parse(readLines("/testdata/act/act-2020-kurrajong.blt"));
         List<Candidate> candidates = election.candidates();
 
-        ElectionConfig actHareClark = ConfigLoader.loadResource("/rulesets/act-hare-clark.yaml");
+        ElectionConfig actHareClark = Rulesets.load("act-hare-clark");
         StvRuleset ruleset = StvRulesetParser.parse(
                 actHareClark.quota(), actHareClark.transfer(), actHareClark.rounding(), actHareClark.tiebreak(),
                 candidates);

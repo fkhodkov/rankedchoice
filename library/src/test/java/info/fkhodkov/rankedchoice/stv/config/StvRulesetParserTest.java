@@ -7,9 +7,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.ExclusionOrder;
 import info.fkhodkov.rankedchoice.stv.StvRuleset;
 import info.fkhodkov.rankedchoice.stv.TiedRankingPolicy;
@@ -173,7 +173,7 @@ class StvRulesetParserTest {
         "hare-clark-qpq, TRUNCATE, 7"})
     void bundledPresetsCarryTheirRulebooksFormalityRules(
             String preset, TiedRankingPolicy expectedPolicy, int expectedMinimum) {
-        ElectionConfig config = ConfigLoader.loadResource("/rulesets/" + preset + ".yaml");
+        ElectionConfig config = Rulesets.load(preset);
         StvRuleset ruleset = StvRulesetParser.parse(config.quota(), config.transfer(), config.rounding(),
                 config.tiebreak(), config.batchExclusion(), config.tiedRankings(), config.minimumPreferences(), ORDER);
 

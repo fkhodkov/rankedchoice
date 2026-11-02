@@ -608,13 +608,17 @@ Code using the library should count through `count`: `Tabulator`, `CountOptions`
 options and settings are added. The counters' and rulesets' own constructors (`StvRuleset`'s full
 one takes 17 arguments) may still change before 1.0.
 
+`common` and `library` are Java modules too: on the module path, a program `requires
+info.fkhodkov.rankedchoice` (the library, which brings `info.fkhodkov.rankedchoice.core`, common's,
+and Jackson with it); on the classpath, they're plain jars.
+
 ```
 common/src/main/java/info/fkhodkov/rankedchoice/
 └── core/
     ├── model/     Candidate, Ballot, SingletonRanking (an untied ranking as candidate indices)
     ├── ballot/    BltParser, CsvBallotParser, ParsedElection, ParsedBallots, BallotParseException,
     │              NumberedLine (line numbers for errors; a leading byte order mark dropped)
-    ├── config/    ElectionConfig, ConfigLoader (YAML, file or classpath resource)
+    ├── config/    ElectionConfig, ConfigLoader (YAML, from a file or a stream)
     ├── report/    ReportMarkup (CSV quoting, HTML escaping and page, JSON writer)
     └── util/      Fraction (exact rational arithmetic), Interruption (where a count gives up),
                    Unmodifiable (ordered unmodifiable copies, for results)

@@ -39,6 +39,12 @@ python3 -m unittest discover -s tools/reference/tests   # the Python tests alone
   `checkstyle.xml` from there. One module's tests: `mvn -o -q -pl library -am test -Dtest=...
   -Dsurefire.failIfNoSpecifiedTests=false`. The library's tests run in `library/`, so a fixture
   path is `src/test/resources/...`.
+- `common` and `library` are Java modules (`src/main/java/module-info.java`): a new package
+  must be exported there, and one Jackson reads by reflection opened to it. Their tests run on the
+  classpath (`useModulePath` is off), so `cli`'s `LibraryOnTheModulePathTest` is what runs the
+  packaged jars as modules: a consumer module counting by every method and loading every ruleset.
+  It needs the jars, so it runs under `mvn verify`, and is skipped under `mvn test`. A class finds
+  only its own module's resources there: open a resource through a class of the module that has it.
 - The pre-commit hook (`.githooks/pre-commit`, on with `git config core.hooksPath .githooks`)
   runs the same `mvn -o -q verify` on the staged files in a temporary copy and refuses the commit
   if it fails. It stands in for CI, which this repository doesn't have: don't skip it with

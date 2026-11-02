@@ -13,10 +13,10 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.config.ElectionConfig;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
@@ -42,7 +42,7 @@ class BadenochAndStrathspeyFullReplayTest {
                 readLines("/testdata/scottish/highland-2022-badenoch-and-strathspey.blt"));
         List<Candidate> candidates = election.candidates();
 
-        ElectionConfig scottish = ConfigLoader.loadResource("/rulesets/scottish.yaml");
+        ElectionConfig scottish = Rulesets.load("scottish");
         StvRuleset ruleset = StvRulesetParser.parse(
                 scottish.quota(), scottish.transfer(), scottish.rounding(), scottish.tiebreak(), candidates);
         StvResult actual = StvCounter.count(candidates, election.ballots(), election.seats(), ruleset);

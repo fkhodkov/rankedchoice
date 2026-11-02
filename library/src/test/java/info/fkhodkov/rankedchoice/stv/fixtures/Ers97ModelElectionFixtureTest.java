@@ -11,9 +11,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import info.fkhodkov.rankedchoice.core.ballot.BltParser;
 import info.fkhodkov.rankedchoice.core.ballot.ParsedElection;
-import info.fkhodkov.rankedchoice.core.config.ConfigLoader;
 import info.fkhodkov.rankedchoice.core.model.Candidate;
 import info.fkhodkov.rankedchoice.core.util.Fraction;
+import info.fkhodkov.rankedchoice.count.Rulesets;
 import info.fkhodkov.rankedchoice.stv.RoundAction;
 import info.fkhodkov.rankedchoice.stv.RoundRecord;
 import info.fkhodkov.rankedchoice.stv.StvCounter;
@@ -49,7 +49,7 @@ class Ers97ModelElectionFixtureTest {
         ParsedElection election = BltParser.parse(DIRECTORY.resolve("ers97-model-election.blt"));
         candidates = election.candidates();
         result = StvCounter.count(candidates, election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/ers97.yaml"), candidates));
+                StvRulesetParser.parse(Rulesets.load("ers97"), candidates));
     }
 
     @Test
@@ -78,7 +78,7 @@ class Ers97ModelElectionFixtureTest {
     void everyRoundMatchesPyRcv2(String name) throws IOException {
         ParsedElection election = BltParser.parse(DIRECTORY.resolve("pyrcv2/" + name + ".blt"));
         StvResult count = StvCounter.count(election.candidates(), election.ballots(), election.seats(),
-                StvRulesetParser.parse(ConfigLoader.loadResource("/rulesets/ers97.yaml"), election.candidates()));
+                StvRulesetParser.parse(Rulesets.load("ers97"), election.candidates()));
         CountSheet sheet = CountSheet.read(DIRECTORY.resolve("pyrcv2/" + name + ".stages.txt"));
 
         assertThat(sheet.match(count)).doesNotContainNull();
