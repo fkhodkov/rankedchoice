@@ -2,6 +2,7 @@ package info.fkhodkov.rankedchoice.core.model;
 
 import java.util.AbstractList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.RandomAccess;
 import java.util.Set;
@@ -39,7 +40,18 @@ public final class SingletonRanking extends AbstractList<Set<Candidate>> impleme
         private final List<Candidate> candidates;
         private final List<Set<Candidate>> alone;
 
+        /**
+         * The table of these candidates, none listed twice: {@link #ranking} refuses an index
+         * twice, which only keeps a candidate from a ballot twice if no two indices are the same
+         * candidate.
+         */
         public Table(List<Candidate> candidates) {
+            Set<Candidate> seen = new HashSet<>();
+            for (Candidate candidate : candidates) {
+                if (!seen.add(candidate)) {
+                    throw new IllegalArgumentException("candidate " + candidate.id() + " is listed twice");
+                }
+            }
             this.candidates = List.copyOf(candidates);
             this.alone = this.candidates.stream().map(Set::of).toList();
         }
