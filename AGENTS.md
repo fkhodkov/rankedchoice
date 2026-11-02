@@ -167,7 +167,8 @@ sections below them (VALIDATION.md's "Official counts" table is generated; the o
 
 ## Git
 
-- Work happens on the `stv` branch. The owner updates `main` by hand: don't open pull requests,
+- Work happens on the `develop` branch (called `stv` until November 2026), a larger task on a
+  branch of its own from `develop`. The owner updates `main` by hand: don't open pull requests,
   merge, or push to `main`.
 - Commit only when asked. Messages start with `[llm] ` and an imperative summary, then a short
   body saying what changed and what was checked, then the attribution lines the session gives.
