@@ -59,6 +59,7 @@ public final class SchulzeProportionalRanking {
      */
     public static SchulzeProportionalResult count(List<Candidate> candidates, List<Ballot> ballots,
             List<Candidate> given) {
+        Candidate.requireNoneTwice(candidates);
         int n = candidates.size();
         if (n < 1) {
             throw new IllegalArgumentException("there must be at least one candidate");

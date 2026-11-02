@@ -72,6 +72,7 @@ public final class SchulzeStvCounter {
     }
 
     public static SchulzeStvResult count(List<Candidate> candidates, List<Ballot> ballots, int seats) {
+        Candidate.requireNoneTwice(candidates);
         int n = candidates.size();
         validate(n, seats);
         SchulzeResult ranking = SchulzeMethod.count(candidates, ballots);

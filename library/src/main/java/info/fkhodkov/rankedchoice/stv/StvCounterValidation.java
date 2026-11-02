@@ -15,6 +15,7 @@ final class StvCounterValidation {
     }
 
     static void validate(List<Candidate> candidates, int seats) {
+        Candidate.requireNoneTwice(candidates);
         if (seats <= 0) {
             throw new IllegalArgumentException("seats must be positive, got: " + seats);
         }

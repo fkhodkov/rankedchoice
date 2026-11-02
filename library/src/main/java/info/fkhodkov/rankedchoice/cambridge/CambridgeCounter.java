@@ -75,6 +75,7 @@ public final class CambridgeCounter {
 
     public static StvResult count(List<Candidate> candidates, List<Ballot> rawBallots, int seats,
             CambridgeRuleset ruleset) {
+        Candidate.requireNoneTwice(candidates);
         if (seats <= 0) {
             throw new IllegalArgumentException("seats must be positive, got: " + seats);
         }

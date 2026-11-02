@@ -31,6 +31,7 @@ public final class PairwiseMatrix {
     }
 
     public static Map<Candidate, Map<Candidate, BigInteger>> compute(List<Candidate> candidates, List<Ballot> ballots) {
+        Candidate.requireNoneTwice(candidates);
         long[][] d = countInLongs(candidates, ballots);
         if (d == null) {
             return computeInBigIntegers(candidates, ballots);

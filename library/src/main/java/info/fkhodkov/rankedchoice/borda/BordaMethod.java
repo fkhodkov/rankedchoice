@@ -36,6 +36,7 @@ public final class BordaMethod {
     }
 
     public static BordaResult count(List<Candidate> candidates, List<Ballot> ballots, BordaScoringRule rule) {
+        Candidate.requireNoneTwice(candidates);
         if (candidates.isEmpty()) {
             throw new IllegalArgumentException("there must be at least one candidate");
         }

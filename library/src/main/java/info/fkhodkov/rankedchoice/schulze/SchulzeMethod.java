@@ -44,6 +44,7 @@ public final class SchulzeMethod {
 
     /** Runs the strongest-path computation and ranking directly from an already-known {@code d} matrix. */
     public static SchulzeResult fromMatrix(List<Candidate> candidates, Map<Candidate, Map<Candidate, BigInteger>> d) {
+        Candidate.requireNoneTwice(candidates);
         if (candidates.isEmpty()) {
             throw new IllegalArgumentException("there must be at least one candidate");
         }

@@ -1,7 +1,9 @@
 package info.fkhodkov.rankedchoice.core.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A candidate on the ballot. {@code id} is the stable identity used to correlate a candidate
@@ -21,6 +23,21 @@ public record Candidate(String id, String name) {
 
     public static Candidate of(String id) {
         return new Candidate(id, id);
+    }
+
+    /**
+     * Refuses a candidate listed twice, which a count would count twice, or drop in one place and
+     * count in another. Two candidates of the same name are counted correctly; it's the reports
+     * that can't tell them apart (see {@link #requireDistinctNames}).
+     */
+    public static void requireNoneTwice(Iterable<Candidate> candidates) {
+        Set<Candidate> seen = new HashSet<>();
+        for (Candidate candidate : candidates) {
+            if (!seen.add(candidate)) {
+                throw new IllegalArgumentException("candidate " + candidate.id() + " (\"" + candidate.name()
+                        + "\") is listed twice");
+            }
+        }
     }
 
     /**
