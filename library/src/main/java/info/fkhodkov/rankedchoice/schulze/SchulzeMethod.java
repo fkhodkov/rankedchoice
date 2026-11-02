@@ -29,8 +29,8 @@ import info.fkhodkov.rankedchoice.core.util.Interruption;
  * others each candidate beats, which could put a candidate nobody beats below first. First place
  * is every candidate nobody beats, the paper's winners; each later place, every candidate beaten
  * only by those placed above. Verified against Wikipedia's worked 5-candidate example
- * ({@link SchulzeMethodTest}), a real Debian General Resolution's published pairwise matrix
- * ({@link SchulzeDebianGr2004002FixtureTest}), and OpenSTV's Condorcet count
+ * ({@code SchulzeMethodTest}), a real Debian General Resolution's published pairwise matrix
+ * ({@code SchulzeDebianGr2004002FixtureTest}), and OpenSTV's Condorcet count
  * ({@code tools/reference/openstv}).
  */
 public final class SchulzeMethod {

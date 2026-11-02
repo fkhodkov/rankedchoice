@@ -38,7 +38,7 @@ import info.fkhodkov.rankedchoice.stv.transfer.TransferMethod;
  * own exclusive candidates retain. Once every shared candidate's surplus (if any) has been
  * transferred, each outcome's score is the sum of its own members' final tallies; the higher
  * score wins that comparison. Verified against the CPO-STV Wikipedia article's own worked
- * example (5 candidates, 3 seats) — see {@link CpoStvCounterTest}.
+ * example (5 candidates, 3 seats) — see {@code CpoStvCounterTest}.
  *
  * <p>Reuses this project's existing {@link info.fkhodkov.rankedchoice.stv.quota.Quota} and
  * {@link TransferMethod} abstractions for the notional count (any quota or transfer method

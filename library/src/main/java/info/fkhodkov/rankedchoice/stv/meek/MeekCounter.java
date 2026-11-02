@@ -72,7 +72,7 @@ import info.fkhodkov.rankedchoice.stv.tiebreak.TieBreakRule;
  * <p>Candidates must already exclude any withdrawn from standing. Tied rankings and short
  * ballots are handled per the ruleset's policy (see {@link MeekRuleset}); under {@code split},
  * a tied rank shares whatever reaches it evenly between its standing candidates, following
- * droop's Meek rule (see {@link #distribute}).
+ * droop's Meek rule ({@code distributeVotes}).
  */
 public final class MeekCounter {
 

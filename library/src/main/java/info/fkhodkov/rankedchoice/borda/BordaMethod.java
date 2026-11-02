@@ -26,9 +26,9 @@ import info.fkhodkov.rankedchoice.core.util.Interruption;
  * This is the standard convention for scoring a tie in a positional system.
  *
  * <p>Ties for the same final total score are broken only by the candidates' declared order
- * (the order {@code candidates} lists them in) — {@link java.util.List#sorted} is a stable
- * sort, so equal scores keep their relative declared-order position rather than being
- * reordered arbitrarily.
+ * (the order {@code candidates} lists them in): sorting an ordered stream
+ * ({@link java.util.stream.Stream#sorted(java.util.Comparator)}) is stable, so equal scores keep
+ * their relative declared-order position rather than being reordered arbitrarily.
  */
 public final class BordaMethod {
 
