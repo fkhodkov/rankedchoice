@@ -5,3 +5,10 @@ target/
 dependency-reduced-pom.xml
 .venv-votekit/
 __pycache__/
+
+# NetBeans, in the root or any module: project settings (the JDK it picks, formatting), customised
+# Run/Debug/Build actions, and its own project folder, should a project be opened as one.
+nb-configuration.xml
+nbactions.xml
+nbactions-*.xml
+nbproject/
