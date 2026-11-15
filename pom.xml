@@ -11,6 +11,30 @@
 
   <name>Ranked Choice Voting Calculator</name>
   <description>Java library and CLI for tabulating STV, Schulze, and other ranked-choice election methods.</description>
+  <url>https://github.com/fkhodkov/rankedchoice</url>
+  <inceptionYear>2026</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/license/mit</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>fkhodkov</id>
+      <name>Fedor Khodkov</name>
+      <url>https://github.com/fkhodkov</url>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/fkhodkov/rankedchoice.git</connection>
+    <developerConnection>scm:git:git@github.com:fkhodkov/rankedchoice.git</developerConnection>
+    <url>https://github.com/fkhodkov/rankedchoice</url>
+  </scm>
 
   <!-- common: the election model, ballot readers, configuration, exact fractions and report markup
        that every method shares; library: the counting methods, their reports and the bundled
@@ -166,4 +190,77 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- What Maven Central needs besides the jars: sources, javadoc and a signature for each, then
+         the upload. Only here, so the everyday offline build (mvn -o -q verify) and the pre-commit hook
+         don't need these plugins. RELEASING.md has the steps. Central gets the parent POM, common and
+         library; the command line and the demo server are runnable jars, not libraries, and stay out. -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.1</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.11.2</version>
+            <configuration>
+              <!-- Every broken reference and malformed tag fails the build; a missing comment doesn't. -->
+              <doclint>all,-missing</doclint>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.2.7</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.7.0</version>
+            <extensions>true</extensions>
+            <configuration>
+              <publishingServerId>central</publishingServerId>
+              <!-- Uploaded and validated, then published by hand from the portal once checked. -->
+              <autoPublish>false</autoPublish>
+              <excludeArtifacts>
+                <artifact>rankedchoice-cli</artifact>
+                <artifact>rankedchoice-server</artifact>
+              </excludeArtifacts>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

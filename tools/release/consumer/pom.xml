@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A project using the published library as anyone would: its POMs resolved by Maven, the jars on the
+     classpath. check-consumer.sh runs it; the module path is cli's LibraryOnTheModulePathTest's. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>demo</groupId>
+  <artifactId>consumer</artifactId>
+  <version>1</version>
+  <properties>
+    <maven.compiler.release>25</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- The version to check, given by check-consumer.sh. -->
+    <rankedchoice.version>0.1.0</rankedchoice.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>info.fkhodkov.rankedchoice</groupId>
+      <artifactId>rankedchoice-library</artifactId>
+      <version>${rankedchoice.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.15.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <mainClass>demo.Main</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

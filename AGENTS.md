@@ -180,6 +180,9 @@ sections below them (VALIDATION.md's "Official counts" table is generated; the o
   body saying what changed and what was checked, then the attribution lines the session gives.
 - Don't commit scratch data, downloaded records or local tool output; results files in
   `tools/reference/results/` are committed on purpose.
+- Releases are the owner's ([RELEASING.md](RELEASING.md)): never run `mvn -Prelease deploy`, which
+  uploads to Maven Central, nor change the version. Trying the `release` profile without uploading
+  is `mvn -Prelease -DskipTests -Dgpg.skip verify` (its plugins aren't in the offline cache).
 
 ## Shell gotchas
 

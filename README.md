@@ -673,6 +673,7 @@ tools/
 ├── votekit/                   VoteKit mock elections, compared across every method
 ├── order-sensitivity/         how much ballot order changes a Cambridge STV count
 ├── benchmark/                 large synthetic elections and the Performance figures
+├── release/                   a consumer project checking a release before it's published
 └── reference/                 the independent checks (see VALIDATION.md)
     ├── <place>/check.py       one jurisdiction's official counts (README.md lays out their data)
     ├── droop/, opentally/, openstv/, pref_voting/, pyrcv2/, qpq/, schulze_stv/, stvpoll/, cpo_stv.py   others
@@ -681,4 +682,11 @@ tools/
     ├── results/               every checker's results, the results page, jurisdictions.json
     └── tests/                 the Python tests, line length and pyflakes included
 .githooks/pre-commit           the build, run on every commit (see Quick start)
+LICENSE, RELEASING.md          the MIT licence, and how the library goes to Maven Central
 ```
+
+## Licence
+
+[MIT](LICENSE). The real-election fixtures under `library/src/test/resources/testdata/` are ballot
+records and results published by election authorities and others, each on its own terms; their
+READMEs say where each comes from.
