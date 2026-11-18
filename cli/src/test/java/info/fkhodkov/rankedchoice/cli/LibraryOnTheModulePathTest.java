@@ -49,9 +49,7 @@ class LibraryOnTheModulePathTest {
             import info.fkhodkov.rankedchoice.count.CountOptions;
             import info.fkhodkov.rankedchoice.count.Election;
             import info.fkhodkov.rankedchoice.count.ReportFormat;
-            import info.fkhodkov.rankedchoice.count.ReportFormat;
-import info.fkhodkov.rankedchoice.count.Rulesets;
-import info.fkhodkov.rankedchoice.count.Tabulator;
+            import info.fkhodkov.rankedchoice.count.Rulesets;
             import info.fkhodkov.rankedchoice.count.Tabulation;
             import info.fkhodkov.rankedchoice.count.Tabulator;
 

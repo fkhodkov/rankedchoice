@@ -61,6 +61,9 @@
     <skipTests>false</skipTests>
     <skipPythonTests>${skipTests}</skipPythonTests>
     <skipPyflakes>false</skipPyflakes>
+    <!-- The time stamped on every entry of every jar, so the same sources build the same jars, byte
+         for byte. RELEASING.md sets it to the release's date with the version. -->
+    <project.build.outputTimestamp>2026-11-18T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
   <dependencyManagement>
@@ -122,9 +125,52 @@
           </configuration>
         </plugin>
         <plugin>
+          <!-- cli and server each build one runnable jar of themselves and their dependencies, starting
+               at the class their main.class property names. -->
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <version>3.6.0</version>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+              <configuration>
+                <transformers>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>${main.class}</mainClass>
+                  </transformer>
+                </transformers>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <!-- The plugins Maven would otherwise choose by its own version, pinned so every Maven builds alike. -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.5.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.4</version>
         </plugin>
       </plugins>
     </pluginManagement>

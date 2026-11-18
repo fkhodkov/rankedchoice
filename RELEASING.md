@@ -46,6 +46,8 @@ time it runs.
    mvn -o -q verify
    ```
 
+   Set the root POM's `project.build.outputTimestamp` to the release's date too (e.g.
+   `2027-01-15T00:00:00Z`): every jar entry carries it, so anyone building the tag gets the same jars.
    Commit it, and tag the commit `v0.1.0`.
 2. **Upload.** `mvn -Prelease clean deploy` builds and signs everything, installs it locally,
    and uploads the bundle to the portal, which validates it. `autoPublish` is off: nothing is
