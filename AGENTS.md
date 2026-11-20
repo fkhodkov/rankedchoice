@@ -185,7 +185,8 @@ sections below them (VALIDATION.md's "Official counts" table is generated; the o
   Maven Central), nor change the version. Trying the `release` profile without uploading is `mvn
   -Prelease -DskipTests -Dgpg.skip verify` (its plugins aren't in the offline cache). Trying the
   release plugin is for a throwaway clone, with a dummy `central` server in a settings file of its
-  own (`-s`), `-Darguments="-s that-file -Dgpg.skip -DskipPublishing=true"` on perform, and the
+  own (`-s`), `-Darguments="-s that-file -Dgpg.skip -DskipUpload=true"` on perform (the bundle
+  is built, not sent: `target/checkout/target/central-publishing/central-bundle.zip`), and the
   release's jars removed from `~/.m2` afterwards, or `check-consumer.sh` would test them.
 
 ## Shell gotchas

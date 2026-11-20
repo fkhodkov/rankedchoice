@@ -67,10 +67,15 @@ pushes nothing: the commits and the tag stay local until you push them.
    ```
 
    It clones the tag from this repository (not GitHub's) into `target/checkout`, and runs `mvn
-   deploy -Prelease` there: it builds, signs everything (gpg's agent asks for the passphrase),
-   installs it locally, and uploads the bundle to the portal, which validates it. `autoPublish` is
-   off: nothing is public yet. A deployment that fails validation shows why under Deployments, and
-   can be dropped there; a fixed release is then a new version, since the tag is taken.
+   deploy -Prelease` there: it builds, signs everything (gpg's agent asks for the passphrase,
+   unless it still has it from the last few minutes), installs it locally, and uploads the bundle
+   to the portal, which validates it. `autoPublish` is off: nothing is public yet. A deployment
+   that fails validation shows why under Deployments: drop it there. While nothing is pushed, the
+   same version can be redone once the cause is fixed: undo prepare as above (back to the commit
+   before it, the tag deleted), commit the fix, and prepare again. `mvn -Prelease deploy
+   -DskipUpload=true -Dgpg.skip` builds the bundle without uploading it, in
+   `target/central-publishing/central-bundle.zip`, to look at first; it needs a release version,
+   as the plugin makes no bundle of a snapshot.
 3. **Check it** as a user would: `tools/release/check-consumer.sh 0.1.0` builds a separate project
    against the version just installed, and counts by a bundled ruleset. `cli`'s
    `LibraryOnTheModulePathTest`, in the build, checks the same jars as modules.
