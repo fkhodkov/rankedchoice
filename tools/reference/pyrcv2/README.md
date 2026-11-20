@@ -29,7 +29,7 @@ git clone https://yingtongli.me/git/pyRCV2 pyrcv2
 mvn package -DskipTests
 python3 tools/reference/pyrcv2/check.py pyrcv2 work --preset ers97          # 100 random elections
 
-java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar -i election.blt --ruleset ers97 \
+java -jar cli/target/rankedchoice-cli.jar -i election.blt --ruleset ers97 \
     --report-format json > ours.json                                         # or one election
 python3 tools/reference/pyrcv2/count.py pyrcv2 election.blt --preset ers97 > pyrcv2.json
 python3 tools/reference/pyrcv2/compare.py ours.json pyrcv2.json

@@ -60,7 +60,7 @@ python3 -m unittest discover -s tools/reference/tests   # the Python tests alone
   on purpose; it used to skip itself quietly, and an undefined name got through.
 - The Python tests check `tools/reference/cvr_to_blt.py`, `rcvcheck.py`, the results page and
   `refresh_results.py`, and that VALIDATION.md's generated table matches the committed results.
-- The reference checkers need `cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar` (`mvn -o -q package
+- The reference checkers need `cli/target/rankedchoice-cli.jar` (`mvn -o -q package
   -DskipTests`); some need LibreOffice (`soffice`), `pdftotext`, or `openpyxl` (NSW).
   `refresh_results.py` runs the checkers with its own Python and skips NSW where that lacks
   `openpyxl`: run it with a virtual environment's (`python3 -m venv ...; .../pip install
@@ -180,9 +180,13 @@ sections below them (VALIDATION.md's "Official counts" table is generated; the o
   body saying what changed and what was checked, then the attribution lines the session gives.
 - Don't commit scratch data, downloaded records or local tool output; results files in
   `tools/reference/results/` are committed on purpose.
-- Releases are the owner's ([RELEASING.md](RELEASING.md)): never run `mvn -Prelease deploy`, which
-  uploads to Maven Central, nor change the version. Trying the `release` profile without uploading
-  is `mvn -Prelease -DskipTests -Dgpg.skip verify` (its plugins aren't in the offline cache).
+- Releases are the owner's ([RELEASING.md](RELEASING.md)): never run `mvn release:prepare`,
+  `release:perform` or `mvn -Prelease deploy` in this repository (perform and deploy upload to
+  Maven Central), nor change the version. Trying the `release` profile without uploading is `mvn
+  -Prelease -DskipTests -Dgpg.skip verify` (its plugins aren't in the offline cache). Trying the
+  release plugin is for a throwaway clone, with a dummy `central` server in a settings file of its
+  own (`-s`), `-Darguments="-s that-file -Dgpg.skip -DskipPublishing=true"` on perform, and the
+  release's jars removed from `~/.m2` afterwards, or `check-consumer.sh` would test them.
 
 ## Shell gotchas
 

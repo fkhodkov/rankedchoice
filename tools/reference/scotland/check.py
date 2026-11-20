@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from rcvcheck import record, write_results  # noqa: E402
 
 DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "cli", "target",
-                           "rankedchoice-cli-0.1.0-SNAPSHOT.jar")
+                           "rankedchoice-cli.jar")
 
 
 def count(path, jar, work):

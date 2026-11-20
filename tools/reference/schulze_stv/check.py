@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tideman  # noqa: E402
 
 DEFAULT_JAR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..", "cli", "target",
-                           "rankedchoice-cli-0.1.0-SNAPSHOT.jar")
+                           "rankedchoice-cli.jar")
 TOLERANCE = 5e-7 + 1e-9  # half the published 6th decimal, plus slack for float parsing
 
 

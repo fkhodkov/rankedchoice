@@ -12,3 +12,9 @@ nb-configuration.xml
 nbactions.xml
 nbactions-*.xml
 nbproject/
+
+# What mvn release:prepare leaves until release:perform (or release:clean) removes it.
+release.properties
+pom.xml.releaseBackup
+pom.xml.tag
+pom.xml.next

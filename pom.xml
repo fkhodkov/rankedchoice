@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>info.fkhodkov.rankedchoice</groupId>
@@ -62,7 +60,7 @@
     <skipPythonTests>${skipTests}</skipPythonTests>
     <skipPyflakes>false</skipPyflakes>
     <!-- The time stamped on every entry of every jar, so the same sources build the same jars, byte
-         for byte. RELEASING.md sets it to the release's date with the version. -->
+         for byte. mvn release:prepare sets it to the moment of the release. -->
     <project.build.outputTimestamp>2026-11-18T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
@@ -171,6 +169,24 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>3.1.4</version>
+        </plugin>
+        <plugin>
+          <!-- mvn release:prepare sets the release's version and timestamp in every POM, commits and tags
+               it, then sets the next snapshot; mvn release:perform builds the tag afresh and deploys it
+               with the release profile. Nothing is pushed: perform clones this repository, not GitHub's,
+               and the commits and the tag go up when the owner pushes them. RELEASING.md has the steps. -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>3.1.1</version>
+          <configuration>
+            <tagNameFormat>v@{project.version}</tagNameFormat>
+            <autoVersionSubmodules>true</autoVersionSubmodules>
+            <scmCommentPrefix>[release] </scmCommentPrefix>
+            <pushChanges>false</pushChanges>
+            <localCheckout>true</localCheckout>
+            <releaseProfiles>release</releaseProfiles>
+            <goals>deploy</goals>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>

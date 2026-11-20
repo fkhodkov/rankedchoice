@@ -35,10 +35,10 @@ Requires Java 25 and Maven, and Python 3 for the tests of the reference tools.
 
 ```sh
 mvn package
-java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar \
+java -jar cli/target/rankedchoice-cli.jar \
     --input library/src/test/resources/testdata/wikipedia/wikipedia-andrea-brad-carter-delilah.blt
-java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input election.blt --ruleset scottish
-java -jar cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar --input election.blt --method meek --report-format html --output result.html
+java -jar cli/target/rankedchoice-cli.jar --input election.blt --ruleset scottish
+java -jar cli/target/rankedchoice-cli.jar --input election.blt --method meek --report-format html --output result.html
 ```
 
 `mvn test` runs the test suite, including the real-election fixtures, and then the Python tests of
@@ -261,8 +261,8 @@ its fixture, and fails if a method, or a ruleset other than those two, has no ex
 
 ```sh
 mvn package -DskipTests
-java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar      # http://127.0.0.1:8080/
-java -jar server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar --port 9000 --bind 0.0.0.0
+java -jar server/target/rankedchoice-server.jar      # http://127.0.0.1:8080/
+java -jar server/target/rankedchoice-server.jar --port 9000 --bind 0.0.0.0
 ```
 
 - `GET /api/methods`: the methods with the options each takes, the bundled rulesets with their
@@ -598,8 +598,8 @@ voters 5.8 s. Of Schulze's published lists, Berlin 2013's (46 candidates, 303 ba
 Four Maven modules, built together from the root: `common` (what every method shares),
 `library` (the counting methods, which depend on `common` alone), `cli` (the command line,
 packaged with both and its own dependencies into one runnable jar,
-`cli/target/rankedchoice-cli-0.1.0-SNAPSHOT.jar`) and `server` (the [demo server](#demo-server),
-another runnable jar, `server/target/rankedchoice-server-0.1.0-SNAPSHOT.jar`). Each module's tests sit beside its code; the
+`cli/target/rankedchoice-cli.jar`) and `server` (the [demo server](#demo-server),
+another runnable jar, `server/target/rankedchoice-server.jar`). Each module's tests sit beside its code; the
 real-election fixtures are the library's.
 
 Code using the library should count through `count`: `Tabulator`, `CountOptions` (built up from

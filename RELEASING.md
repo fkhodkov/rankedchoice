@@ -38,24 +38,42 @@ time it runs.
 
 ## Each release
 
-1. **The version.** Set it in all five POMs (the root's, and each module's parent), e.g.
-   `0.1.0-SNAPSHOT` to `0.1.0`:
+On `develop`, with everything committed. The root POM configures `maven-release-plugin`, which
+pushes nothing: the commits and the tag stay local until you push them.
+
+1. **Prepare.**
 
    ```sh
-   grep -rl --include=pom.xml 0.1.0-SNAPSHOT . | xargs sed -i 's/0\.1\.0-SNAPSHOT/0.1.0/'
-   mvn -o -q verify
+   mvn release:prepare
    ```
 
-   Set the root POM's `project.build.outputTimestamp` to the release's date too (e.g.
-   `2027-01-15T00:00:00Z`): every jar entry carries it, so anyone building the tag gets the same jars.
-   Commit it, and tag the commit `v0.1.0`.
-2. **Upload.** `mvn -Prelease clean deploy` builds and signs everything, installs it locally,
-   and uploads the bundle to the portal, which validates it. `autoPublish` is off: nothing is
-   public yet. A deployment that fails validation shows why under Deployments, and can be dropped
-   there.
+   It asks for the release's version (`0.1.0`), the tag (`v0.1.0`) and the next snapshot
+   (`0.2.0-SNAPSHOT`), offering each; `-B` takes the offers without asking. It then sets the
+   release's version in all five POMs, with `project.build.outputTimestamp` set to now (every jar
+   entry carries it, so anyone building the tag gets the same jars), runs `clean verify`, and
+   commits it as `[release] prepare release v0.1.0`. It tags that commit `v0.1.0`, sets the next
+   snapshot, and commits again (`[release] prepare for next development iteration`). The
+   pre-commit hook builds both commits. It needs to be online: the plugin isn't in the offline
+   cache.
+
+   It leaves `release.properties` and `pom.xml.releaseBackup` files (git ignores them) for the
+   next step. If something fails, nothing has left this machine, so git undoes it: `git reset
+   --hard` to the commit you started from, `git tag -d v0.1.0` if it got that far, then `mvn
+   release:clean` for the leftover files.
+2. **Upload.**
+
+   ```sh
+   mvn release:perform
+   ```
+
+   It clones the tag from this repository (not GitHub's) into `target/checkout`, and runs `mvn
+   deploy -Prelease` there: it builds, signs everything (gpg's agent asks for the passphrase),
+   installs it locally, and uploads the bundle to the portal, which validates it. `autoPublish` is
+   off: nothing is public yet. A deployment that fails validation shows why under Deployments, and
+   can be dropped there; a fixed release is then a new version, since the tag is taken.
 3. **Check it** as a user would: `tools/release/check-consumer.sh 0.1.0` builds a separate project
    against the version just installed, and counts by a bundled ruleset. `cli`'s
    `LibraryOnTheModulePathTest`, in the build, checks the same jars as modules.
 4. **Publish** the deployment from the portal. It can't be taken back: a published version is
    there for good, and a fix is a new version. It usually shows on Maven Central within half an hour.
-5. **The next version.** Set the POMs to the next snapshot (`0.2.0-SNAPSHOT`) and commit it.
+5. **Push** the two commits and the tag when you choose: `git push origin develop v0.1.0`.

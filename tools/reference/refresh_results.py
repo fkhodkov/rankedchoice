@@ -37,7 +37,7 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..", "..")
 RESULTS = os.path.join(HERE, "results")
-DEFAULT_JAR = os.path.join(ROOT, "cli", "target", "rankedchoice-cli-0.1.0-SNAPSHOT.jar")
+DEFAULT_JAR = os.path.join(ROOT, "cli", "target", "rankedchoice-cli.jar")
 SINGLE = ["alameda", "sanfrancisco", "nyc", "alaska", "maine", "minneapolis", "portland", "eastpointe", "albany",
           "aec", "nsw", "cambridge"]
 SMALL = 64 * 1024        # --compare copies files under this size rather than linking them
