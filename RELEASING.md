@@ -92,3 +92,7 @@ pushes nothing: the commits and the tag stay local until you push them.
 4. **Publish** the deployment from the portal. It can't be taken back: a published version is
    there for good, and a fix is a new version. It usually shows on Maven Central within half an hour.
 5. **Push** the two commits and the tag when you choose: `git push origin develop v0.1.0`.
+6. **The README.** Once the version shows on Maven Central (`curl -sI` on its POM, under
+   `https://repo1.maven.org/maven2/info/fkhodkov/rankedchoice/rankedchoice-library/`, gives
+   `200`), set it in README's [Using the library](README.md#using-the-library), in the Maven and
+   the Gradle lines.

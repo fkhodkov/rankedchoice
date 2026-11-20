@@ -54,6 +54,73 @@ There's no hosted CI. Instead, `git config core.hooksPath .githooks` turns on a 
 that runs `mvn -o -q verify` on the staged files alone, in a temporary copy, and refuses the
 commit if the build fails (about 30 seconds; `git commit --no-verify` skips it once).
 
+## Using the library
+
+The counting library is on Maven Central, as `info.fkhodkov.rankedchoice:rankedchoice-library`
+(it brings `rankedchoice-common` and Jackson with it), and needs Java 25. With Maven:
+
+```xml
+<dependency>
+  <groupId>info.fkhodkov.rankedchoice</groupId>
+  <artifactId>rankedchoice-library</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
+With Gradle: `implementation("info.fkhodkov.rankedchoice:rankedchoice-library:0.1.0")`.
+
+A count goes through `count.Tabulator`, which takes the same choices as the command line:
+`CountOptions` names the method, a [bundled ruleset](#bundled-rulesets), the seats and the [STV
+building blocks](#stv-building-blocks) (`withMethod`, `withRuleset`, `withSeats`, `withQuota`, ...),
+and the second argument is an `ElectionConfig`, or null for none (`ConfigLoader` reads one from a
+[config file](#config-file)). The result is a `Tabulation`, one record per kind of method, with
+the method's own result, and the report in any of the [formats](#reports). A ballot file, counted
+by the Scottish rules:
+
+```java
+Election election = Election.read(Path.of("election.blt"), null);  // BLT or CSV, by the file's name
+Tabulation result = Tabulator.of(CountOptions.NONE.withRuleset("scottish"), null)
+        .count(election, System.err::println);                     // warnings, if any
+System.out.println(result.report(ReportFormat.TEXT));
+if (result instanceof Tabulation.Stv stv) {                        // STV, Meek, Warren, Cambridge
+    stv.result().electedInOrder().forEach(candidate -> System.out.println(candidate.name()));
+}
+```
+
+Ballots can be made in code too (`core.model`'s `Candidate` and `Ballot`: a ranking is a list of
+sets, so that tied rankings can be given, and each ballot has a count). Here a Schulze count of a
+Condorcet cycle (Alice beats Bob, Bob beats Carol, Carol beats Alice), which ranks Alice, Bob,
+Carol:
+
+```java
+Candidate alice = Candidate.of("Alice");
+Candidate bob = Candidate.of("Bob");
+Candidate carol = Candidate.of("Carol");
+List<Ballot> ballots = List.of(
+        new Ballot(List.of(Set.of(alice), Set.of(bob), Set.of(carol)), BigInteger.valueOf(5)),
+        new Ballot(List.of(Set.of(bob), Set.of(carol)), BigInteger.valueOf(4)),
+        new Ballot(List.of(Set.of(carol), Set.of(alice)), BigInteger.valueOf(2)));
+Election election = new Election(List.of(alice, bob, carol), ballots, 1);
+
+Tabulation result = Tabulator.of(CountOptions.NONE.withMethod("schulze"), null)
+        .count(election, warning -> { });
+if (result instanceof Tabulation.Schulze schulze) {
+    for (Set<Candidate> place : schulze.result().ranking()) {       // tied candidates share a place
+        System.out.println(place.stream().map(Candidate::name).toList());
+    }
+}
+```
+
+`Tabulator`, `CountOptions`, `Election`, `Tabulation` and `ElectionConfig` are meant to keep
+working as options and settings are added. The counters' and rulesets' own constructors
+(`StvRuleset`'s full one takes 17 arguments) may still change before 1.0. A result is
+unmodifiable, and the options and configs are immutable: each `with...` makes a new one.
+
+On the module path, a program `requires info.fkhodkov.rankedchoice` (the library's module, which
+brings `info.fkhodkov.rankedchoice.core`, common's, and Jackson with it); on the classpath, the
+jars are plain jars. To build the library from this repository instead, `mvn install -DskipTests`
+puts the current snapshot in the local Maven repository.
+
 ## STV building blocks
 
 A classic STV ruleset is a combination of independent choices:
@@ -602,15 +669,7 @@ packaged with both and its own dependencies into one runnable jar,
 another runnable jar, `server/target/rankedchoice-server.jar`). Each module's tests sit beside its code; the
 real-election fixtures are the library's.
 
-Code using the library should count through `count`: `Tabulator`, `CountOptions` (built up from
-`CountOptions.NONE` with its `with...` methods), `Election` and `Tabulation`, with an
-`ElectionConfig` built the same way or read by `ConfigLoader`. Those are meant to keep working as
-options and settings are added. The counters' and rulesets' own constructors (`StvRuleset`'s full
-one takes 17 arguments) may still change before 1.0.
-
-`common` and `library` are Java modules too: on the module path, a program `requires
-info.fkhodkov.rankedchoice` (the library, which brings `info.fkhodkov.rankedchoice.core`, common's,
-and Jackson with it); on the classpath, they're plain jars.
+See [Using the library](#using-the-library) for the part of it meant for other code.
 
 ```
 common/src/main/java/info/fkhodkov/rankedchoice/
