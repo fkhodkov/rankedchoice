@@ -63,14 +63,24 @@ pushes nothing: the commits and the tag stay local until you push them.
 2. **Upload.**
 
    ```sh
+   export GPG_TTY=$(tty)
+   echo warm-up | gpg --clearsign -u KEY-ID > /dev/null
    mvn release:perform
    ```
 
+   The first two lines are for the signing. `perform` runs Maven again as a child process with no
+   terminal of its own, where gpg's passphrase prompt can't appear: gpg waits about a minute and
+   fails, and the build stops at the parent POM, the first thing signed, with nothing uploaded.
+   `GPG_TTY` tells gpg's agent which terminal to ask in, and the warm-up signature asks for the
+   passphrase now, which the agent then keeps for 10 minutes (its `default-cache-ttl`), longer than
+   perform takes (about a minute and a half). A perform that fails this way can simply be run
+   again, after `rm -rf target/checkout`: prepare's commits, its tag and `release.properties` are
+   still there.
+
    It clones the tag from this repository (not GitHub's) into `target/checkout`, and runs `mvn
-   deploy -Prelease` there: it builds, signs everything (gpg's agent asks for the passphrase,
-   unless it still has it from the last few minutes), installs it locally, and uploads the bundle
-   to the portal, which validates it. `autoPublish` is off: nothing is public yet. A deployment
-   that fails validation shows why under Deployments: drop it there. While nothing is pushed, the
+   deploy -Prelease` there: it builds, signs everything, installs it locally, and uploads the
+   bundle to the portal, which validates it. `autoPublish` is off: nothing is public yet. A
+   deployment that fails validation shows why under Deployments: drop it there. While nothing is pushed, the
    same version can be redone once the cause is fixed: undo prepare as above (back to the commit
    before it, the tag deleted), commit the fix, and prepare again. `mvn -Prelease deploy
    -DskipUpload=true -Dgpg.skip` builds the bundle without uploading it, in
